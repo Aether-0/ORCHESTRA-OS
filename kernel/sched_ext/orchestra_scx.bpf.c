@@ -123,7 +123,6 @@ void BPF_STRUCT_OPS(orchestra_sched_exit, struct scx_exit_info *ei)
 s32 BPF_STRUCT_OPS(orchestra_sched_enable, struct task_struct *p)
 {
     struct orchestra_telemetry *tel = orchestra_telemetry_get();
-    pid_t pid;
 
     if (!orchestra_should_optin())
         return 0;
@@ -131,8 +130,7 @@ s32 BPF_STRUCT_OPS(orchestra_sched_enable, struct task_struct *p)
     if (tel)
         orchestra_telemetry_inc(&tel->task_enable_count);
 
-    pid = scx_bpf_task_pid(p);
-    orchestra_record_task_action(pid, ORCHESTRA_ACT_RUN);
+    orchestra_record_task_action(p->pid, ORCHESTRA_ACT_RUN);
 
     return 0;
 }
@@ -171,27 +169,17 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
     struct orchestra_telemetry *tel = orchestra_telemetry_get();
     uint32_t state = 0;
     enum orchestra_action action;
-    struct task_struct *p;
-    int loop;
+    struct bpf_iter_scx_dsq it;
 
     if (tel)
         orchestra_telemetry_inc(&tel->dispatch_count);
 
-    /*
-     * Stage 6 policy: map a trivial observed-state counter to
-     * RUN or YIELD.  state is a synthetic index (0..29) based on
-     * a rolling tick counter for deterministic testing.
-     */
     state = (uint32_t)(bpf_ktime_get_ns() / ORCHESTRA_SLICE_NS_DEFAULT)
             % ORCHESTRA_POLICY_TABLE_SIZE;
     action = orchestra_lookup_action(state);
 
-    bpf_for(loop, 0, ORCHESTRA_MAX_DISPATCH_LOOPS) {
-        p = scx_bpf_dispatch_from_dsq(NULL);
-        if (!p)
-            break;
-
-        orchestra_record_task_action(scx_bpf_task_pid(p), action);
+    bpf_for_each(scx_dsq, p, SCX_DSQ_GLOBAL, 0) {
+        orchestra_record_task_action(p->pid, action);
 
         switch (action) {
         case ORCHESTRA_ACT_RUN:
@@ -217,9 +205,11 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
         }
     }
 
-    /* Consume one task from the global DSQ if the local CPU is idle */
     if (prev)
         scx_bpf_consume(0);
+
+    (void)it;
+    (void)cpu;
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_running, struct task_struct *p)
