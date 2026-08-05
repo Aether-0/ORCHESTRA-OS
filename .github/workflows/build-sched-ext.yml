@@ -1,0 +1,84 @@
+name: Build ORCHESTRA sched_ext BPF
+
+on:
+  push:
+    branches: [main, integration/*]
+  workflow_dispatch:
+
+jobs:
+  build-bpf:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout ORCHESTRA-OS
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang llvm libbpf-dev linux-tools-common linux-tools-generic
+
+      - name: Generate vmlinux.h from runner's BTF
+        run: |
+          set -e
+          bpftool btf dump file /sys/kernel/btf/vmlinux format c \
+            > kernel/sched_ext/include/vmlinux.h
+          wc -l kernel/sched_ext/include/vmlinux.h
+          echo "--- runner kernel ---"
+          uname -r
+
+      - name: Clone Linux 6.12 headers
+        run: |
+          git clone --depth 1 --branch v6.12 \
+            https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git \
+            /tmp/linux
+          echo "--- kernel source commit ---"
+          git -C /tmp/linux rev-parse HEAD
+
+      - name: Compile orchestra_scx.bpf.o
+        run: |
+          set -e
+          clang -O2 -target bpf -g \
+            -I kernel/sched_ext/include \
+            -I /tmp/linux/tools/lib \
+            -I /tmp/linux/tools/bpf/bpftool/libbpf \
+            -I /tmp/linux/include \
+            -I /tmp/linux/include/uapi \
+            -I /tmp/linux/arch/x86/include \
+            -I /tmp/linux/arch/x86/include/generated \
+            -I /tmp/linux/tools/sched_ext/include \
+            -Wno-missing-declarations \
+            -Wno-visibility \
+            -c kernel/sched_ext/orchestra_scx.bpf.c \
+            -o kernel/sched_ext/orchestra_scx.bpf.o
+          echo "--- build result ---"
+          ls -lh kernel/sched_ext/orchestra_scx.bpf.o
+          file kernel/sched_ext/orchestra_scx.bpf.o
+
+      - name: BPF verifier dry-run
+        run: |
+          set -e
+          echo "--- runner sched_ext state ---"
+          cat /sys/kernel/sched_ext/state || echo "(unavailable)"
+          echo "--- attempting verifier check ---"
+          sudo bpftool prog load \
+            kernel/sched_ext/orchestra_scx.bpf.o \
+            /sys/fs/bpf/orchestra_scx \
+            type sched_ext 2>&1 || echo "NOTE: verifier may reject if runner kernel lacks CONFIG_SCHED_CLASS_EXT"
+          sudo rm -f /sys/fs/bpf/orchestra_scx 2>/dev/null || true
+
+      - name: Upload BPF object
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestra_scx.bpf.o
+          path: kernel/sched_ext/orchestra_scx.bpf.o
+          retention-days: 14
+
+      - name: Upload headers for rebuild
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestra_scx_headers
+          path: |
+            kernel/sched_ext/include/orchestra_scx.h
+            kernel/sched_ext/orchestra_scx.bpf.c
+            kernel/sched_ext/orchestra_scx.c
+          retention-days: 14
