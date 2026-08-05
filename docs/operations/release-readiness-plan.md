@@ -39,14 +39,13 @@ manifest. Approved long-term storage, repository revision identity, retention,
 and retrieval policy remain unresolved. These limitations are release inputs,
 not footnotes to waive.
 
-There is also a canonical-scope hygiene blocker. The legacy
-`orchestra_real_cpu_demo/` implements process groups, group runnable budgets,
-and coordinator-driven restart behavior that the approved research scope
-explicitly excludes from the canonical architecture. Before even a U0 research
-snapshot is packaged, this artifact must either be moved under
-`research/experiments/` with an **Exploratory** claim, explicit hypothesis, and
-separate documentation, or be excluded from the release manifest. It must not
-be built, measured, or described as part of canonical ORCHESTRA-OS.
+There is also a canonical-scope hygiene item that has been addressed. The legacy
+`research/experiments/process-group-prototype/` (formerly `orchestra_real_cpu_demo/`)
+implements process groups, group runnable budgets, and coordinator-driven restart
+behavior that the approved research scope explicitly excludes from the canonical
+architecture. It now lives under `research/experiments/` with an **Exploratory**
+claim label and separate documentation. It must not be built, measured, or
+described as part of canonical ORCHESTRA-OS.
 
 Evidence hygiene also applies to the browser demo. `orchestra_os_demo.html`
 describes rotating-key HMAC behavior, but its integrity routine is an

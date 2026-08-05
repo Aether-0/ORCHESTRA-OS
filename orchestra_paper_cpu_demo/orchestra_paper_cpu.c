@@ -2620,8 +2620,6 @@ static controller_event_t controller_machine_update(signal_payload_t *next, cons
         if (m->s3_global < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S3;
         if (m->s4 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S4;
 
-        double jitter_min = clamp01(jitter_floor);
-        if (jitter_min > 0.20) jitter_min = 0.20;
         double raw_jitter = machine->applied.jitter_sigma + ((event.reason & CONTROL_REASON_S4) ? beta * 0.20 : -beta * 0.05);
         
         double raw_switch = machine->applied.switch_penalty + ((event.reason != CONTROL_REASON_NONE) ? beta * 0.15 : -beta * 0.04);

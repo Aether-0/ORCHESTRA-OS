@@ -21,3 +21,7 @@ validated, kernel-prototyped, production-secure, or deployment-ready.
 The available 2026-08-03 evidence is indexed in
 [test-results/2026-08-03/README.md](test-results/2026-08-03/README.md).
 
+The 2026-08-05 capture adds git-provenanced regression evidence and the first
+retained signal-publication microbenchmark campaign; see
+[test-results/2026-08-05/README.md](test-results/2026-08-05/README.md).
+

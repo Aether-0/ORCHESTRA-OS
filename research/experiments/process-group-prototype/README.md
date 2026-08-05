@@ -1,4 +1,9 @@
-# ORCHESTRA-OS real-CPU userspace prototype
+# ORCHESTRA-OS process-group prototype (Exploratory)
+
+**Claim class: Exploratory.** This directory is non-canonical. It implements
+process groups, group runnable budgets, and coordinator-driven restart behavior
+that the approved ORCHESTRA architecture explicitly excludes. Do not build,
+measure, or describe it as part of canonical ORCHESTRA-OS.
 
 This is a **real Linux userspace experiment**, not a browser simulation. It creates real worker processes, consumes real CPU time, reads real Linux resource statistics from `/proc`, and coordinates workers through shared memory.
 

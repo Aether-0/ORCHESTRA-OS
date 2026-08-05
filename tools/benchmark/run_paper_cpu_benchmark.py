@@ -39,7 +39,7 @@ V5_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v5"
 
 # Retain the historical public names for v2-focused callers and tests.
 SCHEMA_ID: Final = V2_SCHEMA_ID
-SUPPORTED_SCHEMA_IDS: Final = (V2_SCHEMA_ID, V3_SCHEMA_ID, V4_SCHEMA_ID)
+SUPPORTED_SCHEMA_IDS: Final = (V2_SCHEMA_ID, V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID)
 MANIFEST_ID: Final = "orchestra.paper_cpu.benchmark_manifest/v1"
 COMPARISON_DESIGN: Final = "descriptive-unpaired-endogenous"
 MATURITY_CLASS: Final = "userspace-validated"
@@ -151,10 +151,38 @@ V4_EXPECTED_HEADER: Final = (
 )
 # Retain the historical public name for callers that validate v2 artifacts.
 EXPECTED_HEADER: Final = V2_EXPECTED_HEADER
+V5_EXPECTED_HEADER: Final = (
+    *V4_EXPECTED_HEADER,
+    "controller_state",
+    "previous_state",
+    "transition_reason",
+    "state_residence_time",
+    "valid_control_history_count",
+    "invalid_frame_fault_count",
+    "saturation_bitmask",
+    "saturation_direction",
+    "saturation_persistence",
+    "oscillation_score",
+    "oscillation_event",
+    "rollback_event",
+    "rollback_reason",
+    "recovery_progress",
+    "last_known_good_available",
+    "requested_jitter",
+    "applied_jitter",
+    "requested_switch",
+    "applied_switch",
+    "requested_consensus",
+    "applied_consensus",
+    "update_accepted",
+    "update_suppressed",
+    "suppression_reason",
+)
 EXPECTED_HEADERS_BY_SCHEMA: Final = {
     V2_SCHEMA_ID: V2_EXPECTED_HEADER,
     V3_SCHEMA_ID: V3_EXPECTED_HEADER,
     V4_SCHEMA_ID: V4_EXPECTED_HEADER,
+    V5_SCHEMA_ID: V5_EXPECTED_HEADER,
 }
 
 ACTION_COLUMNS: Final = ("run", "sleep", "migrate", "throttle", "yield")
@@ -423,7 +451,9 @@ def require_range(name: str, value: int, minimum: int, maximum: int) -> None:
     """Reject an integer outside an inclusive safety range."""
 
     if value < minimum or value > maximum:
-        raise BenchmarkError(f"{name}={value} is outside safe range {minimum}..{maximum}")
+        raise BenchmarkError(
+            f"{name}={value} is outside safe range {minimum}..{maximum}"
+        )
 
 
 def available_processor_count() -> int:
@@ -471,10 +501,12 @@ def load_manifest(path: Path) -> Manifest:
         )
     expected_columns = len(EXPECTED_HEADERS_BY_SCHEMA[manifest.metrics_schema_id])
     if (
-        manifest.metrics_schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID}
+        manifest.metrics_schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}
         and manifest.expected_csv_column_count is None
     ):
-        raise BenchmarkError("v3 and v4 manifests must declare expected_csv_column_count")
+        raise BenchmarkError(
+            "v3 and v4 manifests must declare expected_csv_column_count"
+        )
     if (
         manifest.expected_csv_column_count is not None
         and manifest.expected_csv_column_count != expected_columns
@@ -506,7 +538,9 @@ def load_manifest(path: Path) -> Manifest:
         )
     require_range("workers", manifest.workers, 4, safe_worker_max)
     if manifest.rt_exempt != 0:
-        raise BenchmarkError("rt_exempt must be 0; the bounded harness never attempts SCHED_FIFO")
+        raise BenchmarkError(
+            "rt_exempt must be 0; the bounded harness never attempts SCHED_FIFO"
+        )
     require_range("duration_sec", manifest.duration_sec, 1, 30)
     require_range("interval_ms", manifest.interval_ms, 50, 2000)
     require_range("calibration_sec", manifest.calibration_sec, 1, 10)
@@ -561,10 +595,17 @@ def load_metrics_schema(path: Path, expected_id: str) -> MetricsSchema:
             raise BenchmarkError(f"schema column {index} must be an object")
         name = raw_column.get("name")
         kind = raw_column.get("type")
-        if not isinstance(name, str) or kind not in {"integer", "number", "string", "boolean01"}:
+        if not isinstance(name, str) or kind not in {
+            "integer",
+            "number",
+            "string",
+            "boolean01",
+        }:
             raise BenchmarkError(f"schema column {index} has invalid name or type")
         raw_enum = raw_column.get("enum", [])
-        if not isinstance(raw_enum, list) or not all(isinstance(item, str) for item in raw_enum):
+        if not isinstance(raw_enum, list) or not all(
+            isinstance(item, str) for item in raw_enum
+        ):
             raise BenchmarkError(f"schema column {name!r} enum must be a string list")
         columns.append(
             CsvColumn(
@@ -681,7 +722,9 @@ def capture_git(repository_root: Path) -> JsonObject:
             "probe": probe,
         }
     commit = capture_command(["git", "-C", str(repository_root), "rev-parse", "HEAD"])
-    status = capture_command(["git", "-C", str(repository_root), "status", "--porcelain=v1"])
+    status = capture_command(
+        ["git", "-C", str(repository_root), "status", "--porcelain=v1"]
+    )
     return {
         "available": True,
         "status": "git-worktree",
@@ -712,7 +755,9 @@ def capture_governors() -> JsonObject:
     """Capture per-CPU frequency governors and common turbo controls."""
 
     governors: JsonObject = {}
-    for path in sorted(Path("/sys/devices/system/cpu").glob("cpu[0-9]*/cpufreq/scaling_governor")):
+    for path in sorted(
+        Path("/sys/devices/system/cpu").glob("cpu[0-9]*/cpufreq/scaling_governor")
+    ):
         governors[path.parent.parent.name] = safe_read_text(path, 256)
     turbo_paths = (
         Path("/sys/devices/system/cpu/intel_pstate/no_turbo"),
@@ -946,7 +991,7 @@ def validate_effective_action_semantics(
     issues: list[str] = []
     prefix = f"row {row_number}"
 
-    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID}:
+    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
         raise AssertionError(f"unsupported effective-action schema {schema_id!r}")
     if str(row["metrics_schema"]) != schema_id:
         issues.append(f"{prefix}: metrics_schema is not {schema_id!r}")
@@ -956,14 +1001,18 @@ def validate_effective_action_semantics(
         rel_tol=0.0,
         abs_tol=tolerance,
     ):
-        issues.append(f"{prefix}: S2_selected must be the explicit alias of historical S2")
+        issues.append(
+            f"{prefix}: S2_selected must be the explicit alias of historical S2"
+        )
     if not math.isclose(
         float_value(row, "S3_global"),
         float_value(row, "S3"),
         rel_tol=0.0,
         abs_tol=tolerance,
     ):
-        issues.append(f"{prefix}: S3_global must be the explicit alias of historical S3")
+        issues.append(
+            f"{prefix}: S3_global must be the explicit alias of historical S3"
+        )
 
     attempted = int_value(row, "action_attempt_count")
     successful = int_value(row, "effective_action_success_count")
@@ -996,7 +1045,9 @@ def validate_effective_action_semantics(
     yield_success = int_value(row, "yield_call_success_count")
     throttle_attempts = int_value(row, "throttle_attempt_count")
     throttle_success = int_value(row, "throttle_operation_success_count")
-    specific_attempts = migration_attempts + sleep_attempts + yield_attempts + throttle_attempts
+    specific_attempts = (
+        migration_attempts + sleep_attempts + yield_attempts + throttle_attempts
+    )
     if specific_attempts > attempted:
         issues.append(f"{prefix}: action-specific attempts exceed action_attempt_count")
     if migration_attempts > int_value(row, "migrate"):
@@ -1029,8 +1080,14 @@ def validate_effective_action_semantics(
             "migration_observed_success_fraction",
             success_fraction(migration_observed_success, migration_attempts),
         ),
-        ("sleep_effectiveness_fraction", success_fraction(sleep_success, sleep_attempts)),
-        ("yield_call_success_fraction", success_fraction(yield_success, yield_attempts)),
+        (
+            "sleep_effectiveness_fraction",
+            success_fraction(sleep_success, sleep_attempts),
+        ),
+        (
+            "yield_call_success_fraction",
+            success_fraction(yield_success, yield_attempts),
+        ),
         (
             "throttle_operation_success_fraction",
             success_fraction(throttle_success, throttle_attempts),
@@ -1062,7 +1119,9 @@ def validate_effective_action_semantics(
         )
     fallback_reason = str(row["fallback_reason"])
     if fallback == 0 and fallback_reason != "NONE":
-        issues.append(f"{prefix}: fallback_reason must be NONE without fallback workers")
+        issues.append(
+            f"{prefix}: fallback_reason must be NONE without fallback workers"
+        )
     if fallback > 0 and fallback_reason == "NONE":
         issues.append(f"{prefix}: fallback workers require a non-NONE fallback_reason")
     return issues
@@ -1125,7 +1184,9 @@ def validate_v4_burst_semantics(
         if old_action not in range(len(ACTION_COLUMNS)) or new_action not in range(
             len(ACTION_COLUMNS)
         ):
-            issues.append(f"{prefix}: changed workers require valid dominant action IDs")
+            issues.append(
+                f"{prefix}: changed workers require valid dominant action IDs"
+            )
         elif old_action == new_action:
             issues.append(f"{prefix}: dominant transition must change action")
         elif dominant_count > int_value(row, ACTION_COLUMNS[new_action]):
@@ -1152,7 +1213,9 @@ def validate_v4_burst_semantics(
     if rolling_bursts > 5:
         issues.append(f"{prefix}: rolling_window_burst_count exceeds bounded window")
     if rolling_oscillations > 4:
-        issues.append(f"{prefix}: rolling_window_oscillation_count exceeds bounded window")
+        issues.append(
+            f"{prefix}: rolling_window_oscillation_count exceeds bounded window"
+        )
     if rolling_oscillations > rolling_bursts:
         issues.append(f"{prefix}: rolling oscillations exceed rolling bursts")
     expected_oscillation_penalty = min(0.5, 0.15 * rolling_oscillations)
@@ -1175,25 +1238,19 @@ def validate_v4_burst_semantics(
         and expected_dominant_fraction >= 0.75 - tolerance
     )
     if large != expected_large:
-        issues.append(
-            f"{prefix}: large_burst_event={large}, expected {expected_large}"
-        )
+        issues.append(f"{prefix}: large_burst_event={large}, expected {expected_large}")
     expected_repeated = int(bool(large) and rolling_oscillations > 0)
     if repeated != expected_repeated:
         issues.append(
             f"{prefix}: repeated_oscillation_event={repeated}, expected {expected_repeated}"
         )
     if not large and rolling_oscillations != 0:
-        issues.append(
-            f"{prefix}: non-burst row cannot report rolling oscillations"
-        )
+        issues.append(f"{prefix}: non-burst row cannot report rolling oscillations")
 
     # The population-scale term gives a single isolated change no burst
     # penalty, while retaining a full scale for a population-wide switch.
     population_scale = (
-        (changed - 1) / (eligible - 1)
-        if eligible > 1 and changed > 1
-        else 0.0
+        (changed - 1) / (eligible - 1) if eligible > 1 and changed > 1 else 0.0
     )
     burst_penalty = (
         0.8
@@ -1316,23 +1373,33 @@ def validate_row_semantics(
     issues: list[str] = []
     prefix = f"row {row_number}"
     if row["mode"] != expected_mode:
-        issues.append(f"{prefix}: mode {row['mode']!r} does not match invocation {expected_mode!r}")
+        issues.append(
+            f"{prefix}: mode {row['mode']!r} does not match invocation {expected_mode!r}"
+        )
 
     eligible = int_value(row, "eligible_workers")
     if eligible != expected_eligible:
-        issues.append(f"{prefix}: eligible_workers={eligible}, expected {expected_eligible}")
+        issues.append(
+            f"{prefix}: eligible_workers={eligible}, expected {expected_eligible}"
+        )
     action_sum = sum(int_value(row, name) for name in ACTION_COLUMNS)
     if action_sum != eligible:
-        issues.append(f"{prefix}: action counts sum to {action_sum}, eligible_workers={eligible}")
+        issues.append(
+            f"{prefix}: action counts sum to {action_sum}, eligible_workers={eligible}"
+        )
     fallback = int_value(row, "fallback_workers")
     if fallback > eligible:
-        issues.append(f"{prefix}: fallback_workers={fallback} exceeds eligible_workers={eligible}")
+        issues.append(
+            f"{prefix}: fallback_workers={fallback} exceeds eligible_workers={eligible}"
+        )
 
     directive = str(row["directive"])
     action_column = directive.lower()
     compliant = int_value(row, action_column)
     expected_s2 = compliant / eligible if eligible else 1.0
-    if not math.isclose(float_value(row, "S2"), expected_s2, rel_tol=0.0, abs_tol=tolerance):
+    if not math.isclose(
+        float_value(row, "S2"), expected_s2, rel_tol=0.0, abs_tol=tolerance
+    ):
         issues.append(
             f"{prefix}: S2={float_value(row, 'S2'):.10g}, exact compliance={expected_s2:.10g}"
         )
@@ -1360,58 +1427,85 @@ def validate_row_semantics(
     reported_q = float_value(row, "Q")
     if expected_q == 0.0:
         if reported_q != 0.0:
-            issues.append(f"{prefix}: zero coordination factor requires exact Q=0, got {reported_q}")
+            issues.append(
+                f"{prefix}: zero coordination factor requires exact Q=0, got {reported_q}"
+            )
     elif not math.isclose(reported_q, expected_q, rel_tol=0.0, abs_tol=tolerance):
-        issues.append(f"{prefix}: Q={reported_q:.10g}, geometric mean={expected_q:.10g}")
+        issues.append(
+            f"{prefix}: Q={reported_q:.10g}, geometric mean={expected_q:.10g}"
+        )
 
     prediction_used = int_value(row, "prediction_used")
-    expected_decision = float_value(row, "cpu_pred") if prediction_used else float_value(row, "cpu_now")
+    expected_decision = (
+        float_value(row, "cpu_pred") if prediction_used else float_value(row, "cpu_now")
+    )
     if not math.isclose(
-        float_value(row, "decision_cpu"), expected_decision, rel_tol=0.0, abs_tol=tolerance
+        float_value(row, "decision_cpu"),
+        expected_decision,
+        rel_tol=0.0,
+        abs_tol=tolerance,
     ):
-        issues.append(f"{prefix}: decision_cpu does not match prediction_used={prediction_used}")
+        issues.append(
+            f"{prefix}: decision_cpu does not match prediction_used={prediction_used}"
+        )
     if expected_mode == "baseline" and prediction_used != 0:
-        issues.append(f"{prefix}: reactive baseline must use observed CPU, not prediction")
+        issues.append(
+            f"{prefix}: reactive baseline must use observed CPU, not prediction"
+        )
 
     tick = int_value(row, "tick")
     updated = int_value(row, "controller_updated")
-    expected_updated = int(expected_mode == "orchestra" and tick % CONTROLLER_PERIOD_TICKS == 0)
+    expected_updated = int(
+        expected_mode == "orchestra" and tick % CONTROLLER_PERIOD_TICKS == 0
+    )
     if updated != expected_updated:
         issues.append(
             f"{prefix}: controller_updated={updated}, expected {expected_updated} at tick {tick}"
         )
-    expected_step = tick // CONTROLLER_PERIOD_TICKS if expected_mode == "orchestra" else 0
+    expected_step = (
+        tick // CONTROLLER_PERIOD_TICKS if expected_mode == "orchestra" else 0
+    )
     if int_value(row, "controller_step") != expected_step:
         issues.append(
             f"{prefix}: controller_step={int_value(row, 'controller_step')}, expected {expected_step}"
         )
     reason = str(row["controller_reason"])
-    expected_reasons = expected_controller_reasons(row, tolerance) if updated else {"NONE"}
+    expected_reasons = (
+        expected_controller_reasons(row, tolerance) if updated else {"NONE"}
+    )
     if reason not in expected_reasons:
         issues.append(
             f"{prefix}: controller_reason={reason!r}, expected one of {sorted(expected_reasons)!r}"
         )
     beta = float_value(row, "controller_beta")
-    expected_beta = CONTROLLER_BETA0 / math.sqrt(1.0 + expected_step) if updated else 0.0
+    expected_beta = (
+        CONTROLLER_BETA0 / math.sqrt(1.0 + expected_step) if updated else 0.0
+    )
     if not math.isclose(beta, expected_beta, rel_tol=0.0, abs_tol=tolerance):
-        issues.append(f"{prefix}: controller_beta={beta:.10g}, expected {expected_beta:.10g}")
+        issues.append(
+            f"{prefix}: controller_beta={beta:.10g}, expected {expected_beta:.10g}"
+        )
 
     if not updated:
-        for current_name, next_name in zip(PARAMETER_COLUMNS, NEXT_PARAMETER_COLUMNS, strict=True):
+        for current_name, next_name in zip(
+            PARAMETER_COLUMNS, NEXT_PARAMETER_COLUMNS, strict=True
+        ):
             if not math.isclose(
                 float_value(row, current_name),
                 float_value(row, next_name),
                 rel_tol=0.0,
                 abs_tol=tolerance,
             ):
-                issues.append(f"{prefix}: {next_name} changed without a controller update")
+                issues.append(
+                    f"{prefix}: {next_name} changed without a controller update"
+                )
     if expected_mode == "baseline":
         if int_value(row, "consensus_applied") != 0:
             issues.append(f"{prefix}: baseline cannot apply Q-table consensus")
         for flag in ("jitter_saturated", "switch_saturated", "consensus_saturated"):
             if int_value(row, flag) != 0:
                 issues.append(f"{prefix}: baseline unexpectedly reports {flag}=1")
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID}:
+    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
         issues.extend(
             validate_effective_action_semantics(
                 row,
@@ -1423,8 +1517,10 @@ def validate_row_semantics(
             )
         )
         if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
-            issues.extend(validate_v4_burst_semantics(row, row_number, eligible, tolerance))
-    elif schema_id != V2_SCHEMA_ID:
+            issues.extend(
+                validate_v4_burst_semantics(row, row_number, eligible, tolerance)
+            )
+    elif schema_id not in (V2_SCHEMA_ID, V5_SCHEMA_ID):
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
     return issues
 
@@ -1504,7 +1600,9 @@ def validate_csv(
     for data_index, row in enumerate(rows, start=1):
         tick = int_value(row, "tick")
         if tick != data_index:
-            issues.append(f"tick sequence is not contiguous at row {data_index}: got {tick}")
+            issues.append(
+                f"tick sequence is not contiguous at row {data_index}: got {tick}"
+            )
         if tick <= previous_tick:
             issues.append(f"tick is not strictly increasing at tick {tick}")
         previous_tick = tick
@@ -1539,9 +1637,15 @@ def validate_csv(
             reason = str(row["controller_reason"])
             beta = float_value(row, "controller_beta")
             current_jitter, current_switch, current_consensus = current
-            raw_jitter = current_jitter + (0.20 * beta if "S4" in reason else -0.05 * beta)
-            raw_switch = current_switch + (0.15 * beta if reason != "NONE" else -0.04 * beta)
-            raw_consensus = current_consensus + (0.10 * beta if "S3" in reason else -0.03 * beta)
+            raw_jitter = current_jitter + (
+                0.20 * beta if "S4" in reason else -0.05 * beta
+            )
+            raw_switch = current_switch + (
+                0.15 * beta if reason != "NONE" else -0.04 * beta
+            )
+            raw_consensus = current_consensus + (
+                0.10 * beta if "S3" in reason else -0.03 * beta
+            )
             expected_next = (
                 min(0.20, max(jitter_floor, raw_jitter)),
                 min(0.30, max(0.0, raw_switch)),
@@ -1568,11 +1672,16 @@ def validate_csv(
             )
             for flag_name, raw_value, lower, upper in saturation_cases:
                 reported = int_value(row, flag_name)
-                if raw_value < lower - schema.q_absolute_tolerance \
-                        or raw_value > upper + schema.q_absolute_tolerance:
+                if (
+                    raw_value < lower - schema.q_absolute_tolerance
+                    or raw_value > upper + schema.q_absolute_tolerance
+                ):
                     expected_flag: int | None = 1
-                elif lower + schema.q_absolute_tolerance < raw_value \
-                        < upper - schema.q_absolute_tolerance:
+                elif (
+                    lower + schema.q_absolute_tolerance
+                    < raw_value
+                    < upper - schema.q_absolute_tolerance
+                ):
                     expected_flag = 0
                 else:
                     expected_flag = None
@@ -1587,7 +1696,9 @@ def validate_csv(
                     f"tick {tick}: consensus_applied=1 with non-positive next blend"
                 )
 
-    rows_after_warmup = tuple(row for row in rows if int_value(row, "tick") > warmup_ticks)
+    rows_after_warmup = tuple(
+        row for row in rows if int_value(row, "tick") > warmup_ticks
+    )
     if rows and not rows_after_warmup:
         issues.append(
             f"warm-up exclusion of {warmup_ticks} ticks leaves no observations for analysis"
@@ -1632,7 +1743,7 @@ def run_integration_validator(
             "stderr": "",
             "return_code": None,
         }
-    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID}:
+    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
     validator = repository_root / "tests/integration/validate_paper_cpu_csv.py"
@@ -1709,7 +1820,9 @@ def run_v3_integration_validator(
     )
 
 
-def terminate_process_group(process: subprocess.Popen[bytes], grace_sec: int) -> int | None:
+def terminate_process_group(
+    process: subprocess.Popen[bytes], grace_sec: int
+) -> int | None:
     """Stop the benchmark process group with a bounded graceful interval."""
 
     try:
@@ -1744,7 +1857,10 @@ def execute_run(
     timed_out = False
     interrupted = False
     return_code: int | None = None
-    with stdout_path.open("wb") as stdout_stream, stderr_path.open("wb") as stderr_stream:
+    with (
+        stdout_path.open("wb") as stdout_stream,
+        stderr_path.open("wb") as stderr_stream,
+    ):
         try:
             process = subprocess.Popen(
                 command,
@@ -1774,7 +1890,9 @@ def execute_run(
         user_cpu_sec=max(0.0, usage_after.ru_utime - usage_before.ru_utime),
         system_cpu_sec=max(0.0, usage_after.ru_stime - usage_before.ru_stime),
         voluntary_context_switches=max(0, usage_after.ru_nvcsw - usage_before.ru_nvcsw),
-        involuntary_context_switches=max(0, usage_after.ru_nivcsw - usage_before.ru_nivcsw),
+        involuntary_context_switches=max(
+            0, usage_after.ru_nivcsw - usage_before.ru_nivcsw
+        ),
         minor_faults=max(0, usage_after.ru_minflt - usage_before.ru_minflt),
         major_faults=max(0, usage_after.ru_majflt - usage_before.ru_majflt),
     )
@@ -1791,7 +1909,9 @@ def make_run_summary(
     """Reduce one post-warm-up run to one independent statistical observation."""
 
     if not rows:
-        raise AssertionError("validated run summaries require at least one post-warm-up row")
+        raise AssertionError(
+            "validated run summaries require at least one post-warm-up row"
+        )
     summary: dict[str, Scalar] = {
         "run_id": run_id,
         "metrics_schema_id": schema_id,
@@ -1801,22 +1921,28 @@ def make_run_summary(
         "rows_after_warmup": len(rows),
     }
     for name in run_mean_columns_for_schema(schema_id):
-        summary[f"{name}_mean"] = statistics.fmean(float_value(row, name) for row in rows)
+        summary[f"{name}_mean"] = statistics.fmean(
+            float_value(row, name) for row in rows
+        )
 
     eligible_total = sum(int_value(row, "eligible_workers") for row in rows)
     prediction_count = sum(int_value(row, "prediction_used") for row in rows)
     fallback_total = sum(int_value(row, "fallback_workers") for row in rows)
     summary["prediction_used_fraction"] = prediction_count / len(rows)
-    summary["fallback_fraction"] = fallback_total / eligible_total if eligible_total else 0.0
+    summary["fallback_fraction"] = (
+        fallback_total / eligible_total if eligible_total else 0.0
+    )
     for action in ACTION_COLUMNS:
         action_total = sum(int_value(row, action) for row in rows)
         summary[f"{action}_action_fraction"] = (
             action_total / eligible_total if eligible_total else 0.0
         )
-    summary["controller_updates"] = sum(int_value(row, "controller_updated") for row in rows)
+    summary["controller_updates"] = sum(
+        int_value(row, "controller_updated") for row in rows
+    )
     summary["rejected_frames_final"] = int_value(rows[-1], "rejected_frames")
     summary["missed_deadlines_final"] = int_value(rows[-1], "missed_deadlines")
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID}:
+    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
         action_outcome_fractions = (
             (
                 "migration_observed_success_fraction",
@@ -1853,7 +1979,7 @@ def make_run_summary(
             summary["repeated_oscillation_event_count"] = sum(
                 int_value(row, "repeated_oscillation_event") for row in rows
             )
-    elif schema_id != V2_SCHEMA_ID:
+    elif schema_id not in (V2_SCHEMA_ID, V5_SCHEMA_ID):
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
     return summary
 
@@ -1875,7 +2001,9 @@ def t_critical_95(degrees_of_freedom: int) -> float:
     try:
         return values[degrees_of_freedom]
     except KeyError as exc:
-        raise AssertionError("manifest bounds guarantee 1..9 degrees of freedom") from exc
+        raise AssertionError(
+            "manifest bounds guarantee 1..9 degrees of freedom"
+        ) from exc
 
 
 def summarize_values(values: list[float]) -> JsonObject:
@@ -1883,10 +2011,22 @@ def summarize_values(values: list[float]) -> JsonObject:
 
     n = len(values)
     if n == 0:
-        return {"n": 0, "mean": None, "stdev": None, "ci95_lower": None, "ci95_upper": None}
+        return {
+            "n": 0,
+            "mean": None,
+            "stdev": None,
+            "ci95_lower": None,
+            "ci95_upper": None,
+        }
     mean = statistics.fmean(values)
     if n == 1:
-        return {"n": 1, "mean": mean, "stdev": None, "ci95_lower": None, "ci95_upper": None}
+        return {
+            "n": 1,
+            "mean": mean,
+            "stdev": None,
+            "ci95_lower": None,
+            "ci95_upper": None,
+        }
     stdev = statistics.stdev(values)
     half_width = t_critical_95(n - 1) * stdev / math.sqrt(n)
     return {
@@ -1935,7 +2075,7 @@ def aggregate_run_summaries(
         ),
         "modes": modes,
     }
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID}:
+    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
         aggregate["effective_action_summary_semantics"] = {
             "statistical_unit": "one validated invocation after declared warm-up",
             "fractions": (
@@ -2005,7 +2145,9 @@ def write_mode_summary_csv(
             raise AssertionError("aggregate modes must be an object")
         for mode in MODES:
             mode_value = raw_modes[mode]
-            if not isinstance(mode_value, dict) or not isinstance(mode_value.get("metrics"), dict):
+            if not isinstance(mode_value, dict) or not isinstance(
+                mode_value.get("metrics"), dict
+            ):
                 raise AssertionError("aggregate mode metrics must be an object")
             metrics = mode_value["metrics"]
             for metric in aggregate_metrics_for_schema(schema_id):
@@ -2022,7 +2164,12 @@ def write_validated_rows_csv(
 ) -> None:
     """Write post-warm-up rows with explicit run identity, leaving raw data untouched."""
 
-    fieldnames = ("run_id", "repetition", "seed", *EXPECTED_HEADERS_BY_SCHEMA[schema_id])
+    fieldnames = (
+        "run_id",
+        "repetition",
+        "seed",
+        *EXPECTED_HEADERS_BY_SCHEMA[schema_id],
+    )
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
@@ -2068,15 +2215,21 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     """Parse the explicit benchmark inputs."""
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", required=True, type=Path, help="bounded v1 manifest")
+    parser.add_argument(
+        "--manifest", required=True, type=Path, help="bounded v1 manifest"
+    )
     parser.add_argument(
         "--schema",
         required=True,
         type=Path,
         help="strict metrics schema; its explicit identifier must match the manifest",
     )
-    parser.add_argument("--binary", required=True, type=Path, help="prebuilt executable to run")
-    parser.add_argument("--source", required=True, type=Path, help="C source corresponding to binary")
+    parser.add_argument(
+        "--binary", required=True, type=Path, help="prebuilt executable to run"
+    )
+    parser.add_argument(
+        "--source", required=True, type=Path, help="C source corresponding to binary"
+    )
     parser.add_argument(
         "--repository-root",
         required=True,
@@ -2118,7 +2271,9 @@ def preflight_binary(binary: Path) -> JsonObject:
         raise BenchmarkError(f"cannot execute binary --help: {exc}") from exc
     combined = completed.stdout + completed.stderr
     if completed.returncode != 0 or "--seed" not in combined:
-        raise BenchmarkError("passed binary must exit successfully and advertise --seed in --help")
+        raise BenchmarkError(
+            "passed binary must exit successfully and advertise --seed in --help"
+        )
     return {
         "command": [str(binary), "--help"],
         "return_code": completed.returncode,
@@ -2142,7 +2297,9 @@ def run_benchmark(args: argparse.Namespace) -> int:
 
     output_dir = args.output_dir.expanduser().resolve()
     if output_dir.exists():
-        raise BenchmarkError(f"output directory already exists; refusing to overwrite: {output_dir}")
+        raise BenchmarkError(
+            f"output directory already exists; refusing to overwrite: {output_dir}"
+        )
     nice_path = shutil.which("nice")
     if nice_path is None:
         raise BenchmarkError("required low-priority launcher 'nice' is not available")
@@ -2241,7 +2398,8 @@ def run_benchmark(args: argparse.Namespace) -> int:
             binary_hash_after = sha256_file(binary_path)
             source_hash_after = sha256_file(source_path)
             hash_stable = (
-                binary_hash_after == binary_hash_start and source_hash_after == source_hash_start
+                binary_hash_after == binary_hash_start
+                and source_hash_after == source_hash_start
             )
 
             minimum_expected_wall_sec = 0.90 * (
@@ -2337,19 +2495,25 @@ def run_benchmark(args: argparse.Namespace) -> int:
     write_run_summaries_csv(
         processed_dir / "run_summaries.csv", run_summaries, schema.schema_id
     )
-    write_mode_summary_csv(processed_dir / "mode_summary.csv", aggregate, schema.schema_id)
+    write_mode_summary_csv(
+        processed_dir / "mode_summary.csv", aggregate, schema.schema_id
+    )
     write_validated_rows_csv(
         processed_dir / "validated_rows.csv", included_runs, schema.schema_id
     )
     write_json(processed_dir / "summary.json", aggregate)
 
     failures = sum(
-        1 for record in run_records if record.get("included_in_processed_summary") is not True
+        1
+        for record in run_records
+        if record.get("included_in_processed_summary") is not True
     )
     expected_runs = manifest.repetitions * len(manifest.modes)
     result: JsonObject = {
         "experiment_id": manifest.experiment_id,
-        "status": "complete" if failures == 0 and len(run_records) == expected_runs else "complete_with_failures",
+        "status": "complete"
+        if failures == 0 and len(run_records) == expected_runs
+        else "complete_with_failures",
         "metrics_schema_id": schema.schema_id,
         "maturity_class": manifest.maturity_class,
         "comparison_design": COMPARISON_DESIGN,

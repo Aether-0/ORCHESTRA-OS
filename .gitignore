@@ -1,11 +1,12 @@
 # Build outputs
 orchestra_paper_cpu_demo/orchestra_paper_cpu
-orchestra_real_cpu_demo/orchestra_real_cpu
+research/experiments/process-group-prototype/orchestra_real_cpu
 tools/benchmark/signal_publication_microbenchmark
 *.o
 *.a
 *.so
 
+linux/
 # Python
 __pycache__/
 *.py[cod]

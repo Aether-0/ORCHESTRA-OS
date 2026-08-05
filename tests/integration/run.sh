@@ -32,6 +32,7 @@ BIN="$TEST_DIR/orchestra_paper_cpu"
 SRC="$REPO_DIR/orchestra_paper_cpu_demo/orchestra_paper_cpu.c"
 VALIDATE="$SCRIPT_DIR/validate_paper_cpu_csv.py"
 SCHEMA_V4="orchestra.paper_cpu.metrics/v4"
+SCHEMA_V5="orchestra.paper_cpu.metrics/v5"
 PUBLICATION_INTEGRATION_SOURCE="$SCRIPT_DIR/test_signal_publication_integration.c"
 PUBLICATION_INTEGRATION_BIN="$TEST_DIR/test_signal_publication_integration"
 
@@ -60,28 +61,28 @@ timeout --signal=INT --kill-after=2s 8s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 1 --interval-ms 100 \
     --calibration 1 --mode baseline --seed 101 \
     >"$TEST_DIR/baseline.csv" 2>"$TEST_DIR/baseline.log"
-python3 "$VALIDATE" "$TEST_DIR/baseline.csv" --mode baseline --schema "$SCHEMA_V4" \
+python3 "$VALIDATE" "$TEST_DIR/baseline.csv" --mode baseline --schema "$SCHEMA_V5" \
     --min-rows 8 --max-rows 12
 
 timeout --signal=INT --kill-after=2s 10s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 3 --interval-ms 100 \
     --calibration 1 --mode orchestra --seed 202 \
     >"$TEST_DIR/orchestra.csv" 2>"$TEST_DIR/orchestra.log"
-python3 "$VALIDATE" "$TEST_DIR/orchestra.csv" --mode orchestra --schema "$SCHEMA_V4" \
+python3 "$VALIDATE" "$TEST_DIR/orchestra.csv" --mode orchestra --schema "$SCHEMA_V5" \
     --min-rows 25 --max-rows 32
 
 timeout --signal=INT --kill-after=2s 9s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 2 --interval-ms 100 \
     --calibration 1 --mode orchestra --seed 303 --tamper-every 3 \
     >"$TEST_DIR/tamper.csv" 2>"$TEST_DIR/tamper.log"
-python3 "$VALIDATE" "$TEST_DIR/tamper.csv" --mode orchestra --schema "$SCHEMA_V4" \
+python3 "$VALIDATE" "$TEST_DIR/tamper.csv" --mode orchestra --schema "$SCHEMA_V5" \
     --min-rows 16 --max-rows 22 --expect-rejections
 
 timeout --signal=INT --kill-after=2s 10s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 3 --interval-ms 100 \
     --calibration 1 --mode orchestra --seed 353 --tamper-every 20 \
     >"$TEST_DIR/controller-tamper.csv" 2>"$TEST_DIR/controller-tamper.log"
-python3 "$VALIDATE" "$TEST_DIR/controller-tamper.csv" --mode orchestra --schema "$SCHEMA_V4" \
+python3 "$VALIDATE" "$TEST_DIR/controller-tamper.csv" --mode orchestra --schema "$SCHEMA_V5" \
     --min-rows 25 --max-rows 32 --expect-rejections \
     --expect-controller-skip 20
 
@@ -89,7 +90,7 @@ timeout --preserve-status --signal=INT --kill-after=2s 3s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 0 --interval-ms 100 \
     --calibration 1 --mode orchestra --seed 404 \
     >"$TEST_DIR/signal-stop.csv" 2>"$TEST_DIR/signal-stop.log"
-python3 "$VALIDATE" "$TEST_DIR/signal-stop.csv" --mode orchestra --schema "$SCHEMA_V4" --min-rows 5
+python3 "$VALIDATE" "$TEST_DIR/signal-stop.csv" --mode orchestra --schema "$SCHEMA_V5" --min-rows 5
 
 if ps -eo args= | awk -v binary="$BIN" '$1 == binary { found=1 } END { exit found ? 0 : 1 }'; then
     echo "FAIL child process survived integration teardown" >&2

@@ -19,7 +19,7 @@ system.
 | Metric schemas | `experiments/schemas/` |
 | Architecture decisions | `docs/adr/` |
 
-Do not treat `orchestra_real_cpu_demo/` as the canonical implementation path.
+Do not treat `research/experiments/process-group-prototype/` as the canonical implementation path.
 
 ## Build and test
 
