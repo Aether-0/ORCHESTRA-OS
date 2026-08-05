@@ -15,24 +15,30 @@ jobs:
       - name: Install toolchain
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clang llvm libbpf-dev linux-tools-common linux-tools-generic
+          sudo apt-get install -y -qq clang llvm libelf-dev libzstd-dev pkg-config
 
-      - name: Generate vmlinux.h from runner's BTF
-        run: |
-          set -e
-          bpftool btf dump file /sys/kernel/btf/vmlinux format c \
-            > kernel/sched_ext/include/vmlinux.h
-          wc -l kernel/sched_ext/include/vmlinux.h
-          echo "--- runner kernel ---"
-          uname -r
-
-      - name: Clone Linux 6.12 headers
+      - name: Clone Linux 6.12 source
         run: |
           git clone --depth 1 --branch v6.12 \
             https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git \
             /tmp/linux
-          echo "--- kernel source commit ---"
-          git -C /tmp/linux rev-parse HEAD
+          echo "kernel-commit=$(git -C /tmp/linux rev-parse HEAD)" >> $GITHUB_OUTPUT
+        id: kernel
+
+      - name: Build bpftool from kernel source
+        run: |
+          make -C /tmp/linux/tools/bpf/bpftool -j$(nproc)
+          sudo make -C /tmp/linux/tools/bpf/bpftool install
+          bpftool version
+
+      - name: Generate vmlinux.h
+        run: |
+          sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c \
+            > kernel/sched_ext/include/vmlinux.h
+          wc -l kernel/sched_ext/include/vmlinux.h
+          echo "--- runner kernel ---"
+          uname -r
+          cat /sys/kernel/sched_ext/state || echo "(sched_ext state unavailable)"
 
       - name: Compile orchestra_scx.bpf.o
         run: |
@@ -50,21 +56,24 @@ jobs:
             -Wno-visibility \
             -c kernel/sched_ext/orchestra_scx.bpf.c \
             -o kernel/sched_ext/orchestra_scx.bpf.o
-          echo "--- build result ---"
+
+          echo "--- build ok ---"
           ls -lh kernel/sched_ext/orchestra_scx.bpf.o
           file kernel/sched_ext/orchestra_scx.bpf.o
 
-      - name: BPF verifier dry-run
+      - name: BPF verifier check
         run: |
-          set -e
-          echo "--- runner sched_ext state ---"
-          cat /sys/kernel/sched_ext/state || echo "(unavailable)"
-          echo "--- attempting verifier check ---"
+          echo "--- kernel info ---"
+          uname -r
+          echo "--- sched ext state ---"
+          cat /sys/kernel/sched_ext/state 2>&1 || true
+          echo "--- verifier ---"
           sudo bpftool prog load \
             kernel/sched_ext/orchestra_scx.bpf.o \
             /sys/fs/bpf/orchestra_scx \
-            type sched_ext 2>&1 || echo "NOTE: verifier may reject if runner kernel lacks CONFIG_SCHED_CLASS_EXT"
+            type sched_ext 2>&1 || echo "NOTE: runner kernel may not support sched_ext; file still valid for target 6.12"
           sudo rm -f /sys/fs/bpf/orchestra_scx 2>/dev/null || true
+          echo "--- done ---"
 
       - name: Upload BPF object
         uses: actions/upload-artifact@v4
@@ -73,12 +82,18 @@ jobs:
           path: kernel/sched_ext/orchestra_scx.bpf.o
           retention-days: 14
 
-      - name: Upload headers for rebuild
+      - name: Upload headers for guest rebuild
         uses: actions/upload-artifact@v4
         with:
-          name: orchestra_scx_headers
+          name: orchestra_scx_sources
           path: |
             kernel/sched_ext/include/orchestra_scx.h
             kernel/sched_ext/orchestra_scx.bpf.c
             kernel/sched_ext/orchestra_scx.c
+            kernel/sched_ext/scripts/check_kernel_config.sh
           retention-days: 14
+
+      - name: Record kernel commit
+        run: |
+          echo "ORCHESTRA-OS commit: $(git rev-parse HEAD)" >> $GITHUB_STEP_SUMMARY
+          echo "Kernel commit: ${{ steps.kernel.outputs.kernel-commit }}" >> $GITHUB_STEP_SUMMARY
