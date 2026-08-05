@@ -23,6 +23,7 @@ SCHEMA_V2: Final = "orchestra.paper_cpu.metrics/v2"
 SCHEMA_V3: Final = "orchestra.paper_cpu.metrics/v3"
 SCHEMA_V4: Final = "orchestra.paper_cpu.metrics/v4"
 SCHEMA_V5: Final = "orchestra.paper_cpu.metrics/v5"
+SCHEMA_V6: Final = "orchestra.paper_cpu.metrics/v6"
 
 # This is the immutable historical v2 order.  Do not append v3 fields here.
 V2_HEADER: Final = (
@@ -152,6 +153,16 @@ V5_APPEND: Final = (
 )
 V5_HEADER: Final = V4_HEADER + V5_APPEND
 
+V6_APPEND: Final = (
+    "policy_mode", "policy_schema_version", "policy_generation",
+    "policy_update_allowed", "policy_update_applied",
+    "policy_update_suppression_reason", "policy_exploration_enabled",
+    "policy_train_update_count", "policy_adapt_update_count",
+    "policy_load_status", "policy_save_status",
+    "policy_digest_prefix", "policy_format_version"
+)
+V6_HEADER: Final = V5_HEADER + V6_APPEND
+
 ACTIONS: Final = ("RUN", "SLEEP", "MIGRATE", "THROTTLE", "YIELD")
 ACTION_FIELDS: Final = ("run", "sleep", "migrate", "throttle", "yield")
 ACTION_IDS: Final = tuple(range(len(ACTIONS)))
@@ -273,8 +284,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mode", choices=MODES, required=True)
     parser.add_argument(
         "--schema",
-        choices=(SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5),
-        help="pin the expected metrics schema; v3/v4/v5 benchmark invocations must pin it",
+        choices=(SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5, SCHEMA_V6),
+        help="pin the expected metrics schema; v3/v4/v5/v6 benchmark invocations must pin it",
     )
     parser.add_argument("--min-rows", type=int, default=1)
     parser.add_argument("--max-rows", type=int)
@@ -298,8 +309,10 @@ def _schema_from_header(fieldnames: Sequence[str] | None) -> str:
         return SCHEMA_V4
     if header == V5_HEADER:
         return SCHEMA_V5
+    if header == V6_HEADER:
+        return SCHEMA_V6
     raise AssertionError(
-        "unexpected CSV header; expected exact historical v2 or append-only v3/v4/v5 "
+        "unexpected CSV header; expected exact historical v2 or append-only v3/v4/v5/v6 "
         f"contract, got {list(header)!r}"
     )
 
