@@ -1516,57 +1516,80 @@ static signal_payload_t test_controller_payload(double jitter, double switching,
 }
 
 static bool test_controller_mapping_rate_and_bounds(void) {
-    coord_metrics_t metrics = {.s3 = 1.0, .s4 = 1.0};
+    coord_metrics_t metrics = {.s3_global = 1.0, .s4 = 1.0, .s4_burst = 1.0};
+    controller_machine_t machine = {0};
+    controller_window_t window = {0};
+    oscillation_window_t osc_window = {0};
+    machine.state = CONTROL_STATE_NORMAL;
+    machine.applied.jitter_sigma = 0.10;
+    machine.applied.switch_penalty = 0.10;
+    machine.applied.consensus_blend = 0.10;
+    
     signal_payload_t next = test_controller_payload(0.10, 0.10, 0.10);
-    controller_event_t none = controller_update(&next, &metrics, 0.01,
-                                                UINT64_C(1));
+    controller_event_t none = controller_machine_update(&next, &metrics, 0.01,
+                                                UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(none.reason == CONTROL_REASON_NONE);
     CHECK(strcmp(controller_reason_name(none.reason), "NONE") == 0);
     CHECK_NEAR(next.jitter_sigma, 0.10 - none.beta * 0.05, 1e-15);
     CHECK_NEAR(next.switch_penalty, 0.10 - none.beta * 0.04, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 - none.beta * 0.03, 1e-15);
 
-    metrics.s3 = 0.0;
+    metrics.s3_global = 0.0;
     metrics.s4 = 1.0;
+    machine.applied.jitter_sigma = 0.10;
+    machine.applied.switch_penalty = 0.10;
+    machine.applied.consensus_blend = 0.10;
     next = test_controller_payload(0.10, 0.10, 0.10);
-    controller_event_t s3 = controller_update(&next, &metrics, 0.01,
-                                              UINT64_C(1));
+    controller_event_t s3 = controller_machine_update(&next, &metrics, 0.01,
+                                              UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(s3.reason == CONTROL_REASON_S3);
     CHECK(strcmp(controller_reason_name(s3.reason), "S3") == 0);
     CHECK_NEAR(next.jitter_sigma, 0.10 - s3.beta * 0.05, 1e-15);
     CHECK_NEAR(next.switch_penalty, 0.10 + s3.beta * 0.15, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 + s3.beta * 0.10, 1e-15);
 
-    metrics.s3 = 1.0;
+    metrics.s3_global = 1.0;
     metrics.s4 = 0.0;
+    machine.applied.jitter_sigma = 0.10;
+    machine.applied.switch_penalty = 0.10;
+    machine.applied.consensus_blend = 0.10;
     next = test_controller_payload(0.10, 0.10, 0.10);
-    controller_event_t s4 = controller_update(&next, &metrics, 0.01,
-                                              UINT64_C(1));
+    controller_event_t s4 = controller_machine_update(&next, &metrics, 0.01,
+                                              UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(s4.reason == CONTROL_REASON_S4);
     CHECK(strcmp(controller_reason_name(s4.reason), "S4") == 0);
     CHECK_NEAR(next.jitter_sigma, 0.10 + s4.beta * 0.20, 1e-15);
     CHECK_NEAR(next.switch_penalty, 0.10 + s4.beta * 0.15, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 - s4.beta * 0.03, 1e-15);
 
-    metrics.s3 = 0.0;
+    metrics.s3_global = 0.0;
     metrics.s4 = 0.0;
+    machine.applied.jitter_sigma = 0.10;
+    machine.applied.switch_penalty = 0.10;
+    machine.applied.consensus_blend = 0.10;
     next = test_controller_payload(0.10, 0.10, 0.10);
-    controller_event_t both = controller_update(&next, &metrics, 0.01,
-                                                UINT64_C(1));
+    controller_event_t both = controller_machine_update(&next, &metrics, 0.01,
+                                                UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(both.reason == (CONTROL_REASON_S3 | CONTROL_REASON_S4));
     CHECK(strcmp(controller_reason_name(both.reason), "S3+S4") == 0);
     CHECK(strcmp(controller_reason_name(UINT32_C(0x80000000)), "INVALID") == 0);
 
+    machine.applied.jitter_sigma = 0.10;
+    machine.applied.switch_penalty = 0.10;
+    machine.applied.consensus_blend = 0.10;
     signal_payload_t later_payload = test_controller_payload(0.10, 0.10, 0.10);
-    controller_event_t later = controller_update(&later_payload, &metrics, 0.01,
-                                                 UINT64_C(100));
+    controller_event_t later = controller_machine_update(&later_payload, &metrics, 0.01,
+                                                 UINT64_C(100), &machine, &window, &osc_window, true);
     CHECK_NEAR(both.beta, CONTROLLER_BETA0 / sqrt(2.0), 1e-15);
     CHECK_NEAR(later.beta, CONTROLLER_BETA0 / sqrt(101.0), 1e-15);
     CHECK(later.beta < both.beta);
 
+    machine.applied.jitter_sigma = 0.199;
+    machine.applied.switch_penalty = 0.299;
+    machine.applied.consensus_blend = 0.149;
     next = test_controller_payload(0.199, 0.299, 0.149);
-    controller_event_t upper = controller_update(&next, &metrics, 0.0,
-                                                 UINT64_C(1));
+    controller_event_t upper = controller_machine_update(&next, &metrics, 0.0,
+                                                 UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(upper.jitter_saturated);
     CHECK(upper.switch_saturated);
     CHECK(upper.consensus_saturated);
@@ -1574,11 +1597,14 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK(next.switch_penalty == 0.30);
     CHECK(next.consensus_blend == 0.15);
 
-    metrics.s3 = 1.0;
+    metrics.s3_global = 1.0;
     metrics.s4 = 1.0;
+    machine.applied.jitter_sigma = 0.0;
+    machine.applied.switch_penalty = 0.0;
+    machine.applied.consensus_blend = 0.0;
     next = test_controller_payload(0.0, 0.0, 0.0);
-    controller_event_t lower = controller_update(&next, &metrics, 0.01,
-                                                 UINT64_C(1));
+    controller_event_t lower = controller_machine_update(&next, &metrics, 0.01,
+                                                 UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(lower.jitter_saturated);
     CHECK(lower.switch_saturated);
     CHECK(lower.consensus_saturated);
@@ -1586,9 +1612,12 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK(next.switch_penalty == 0.0);
     CHECK(next.consensus_blend == 0.0);
 
+    machine.applied.jitter_sigma = 0.0;
+    machine.applied.switch_penalty = 0.0;
+    machine.applied.consensus_blend = 0.0;
     next = test_controller_payload(0.0, 0.0, 0.0);
-    controller_event_t high_floor = controller_update(&next, &metrics, 0.80,
-                                                      UINT64_C(1));
+    controller_event_t high_floor = controller_machine_update(&next, &metrics, 0.80,
+                                                      UINT64_C(1), &machine, &window, &osc_window, true);
     CHECK(high_floor.jitter_saturated);
     CHECK(next.jitter_sigma == 0.20);
     CHECK(next.jitter_sigma >= 0.0 && next.jitter_sigma <= 0.20);

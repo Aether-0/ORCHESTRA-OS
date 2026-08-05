@@ -510,6 +510,76 @@ enum {
     CONTROL_REASON_S4 = 1u << 1
 };
 
+typedef enum {
+    CONTROL_STATE_NORMAL = 0,
+    CONTROL_STATE_DEGRADED = 1,
+    CONTROL_STATE_SATURATED = 2,
+    CONTROL_STATE_DISABLED = 3,
+    CONTROL_STATE_ROLLBACK = 4,
+    CONTROL_STATE_RECOVERY = 5
+} controller_state_t;
+
+typedef enum {
+    TRANSITION_REASON_NONE = 0,
+    TRANSITION_REASON_DEGRADED_COORDINATION = 1,
+    TRANSITION_REASON_RECOVERED_COORDINATION = 2,
+    TRANSITION_REASON_SATURATED_ACTUATOR = 3,
+    TRANSITION_REASON_OSCILLATION = 4,
+    TRANSITION_REASON_CRITICAL_FAULT = 5,
+    TRANSITION_REASON_ROLLBACK = 6,
+    TRANSITION_REASON_RECOVERY_COMPLETE = 7,
+    TRANSITION_REASON_RECOVERY_FAILED = 8,
+    TRANSITION_REASON_DEFAULT_RECOVERY = 9,
+    TRANSITION_REASON_ROLLBACK_COMPLETE = 10
+} transition_reason_t;
+
+typedef struct {
+    double jitter_sigma;
+    double switch_penalty;
+    double consensus_blend;
+} actuator_vector_t;
+
+#define CONTROLLER_WINDOW_SIZE 10
+#define CONTROLLER_OSCILLATION_WINDOW 8
+
+typedef struct {
+    double s3_global[CONTROLLER_WINDOW_SIZE];
+    double s4[CONTROLLER_WINDOW_SIZE];
+    double s4_burst[CONTROLLER_WINDOW_SIZE];
+    size_t index;
+    size_t count;
+} controller_window_t;
+
+typedef struct {
+    actuator_vector_t history[CONTROLLER_OSCILLATION_WINDOW];
+    size_t index;
+    size_t count;
+} oscillation_window_t;
+
+typedef struct {
+    controller_state_t state;
+    controller_state_t previous_state;
+    transition_reason_t transition_reason;
+    uint64_t state_residence_time;
+    uint64_t valid_control_history_count;
+    uint64_t invalid_frame_fault_count;
+    uint32_t saturation_bitmask;
+    int saturation_direction;
+    uint64_t saturation_persistence;
+    double oscillation_score;
+    int oscillation_event;
+    int rollback_event;
+    transition_reason_t rollback_reason;
+    double recovery_progress;
+    int last_known_good_available;
+    actuator_vector_t requested;
+    actuator_vector_t applied;
+    actuator_vector_t last_known_good;
+    int update_accepted;
+    int update_suppressed;
+    int suppression_reason;
+} controller_machine_t;
+
 typedef struct {
     bool updated;
     uint64_t step;
@@ -2417,42 +2487,206 @@ static bool consensus_blend_qtables(signal_bus_t *bus, worker_block_t *workers, 
     return true;
 }
 
-static controller_event_t controller_update(signal_payload_t *next,
-                                            const coord_metrics_t *m,
-                                            double jitter_floor,
-                                            uint64_t controller_step) {
-    double beta = CONTROLLER_BETA0 / sqrt(1.0 + (double)controller_step);
-    controller_event_t event = {
-        .updated = true,
-        .step = controller_step,
-        .reason = CONTROL_REASON_NONE,
-        .beta = beta
-    };
-    if (m->s3 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S3;
-    if (m->s4 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S4;
+static const char* controller_state_name(controller_state_t s) {
+    switch (s) {
+        case CONTROL_STATE_NORMAL: return "NORMAL";
+        case CONTROL_STATE_DEGRADED: return "DEGRADED";
+        case CONTROL_STATE_SATURATED: return "SATURATED";
+        case CONTROL_STATE_DISABLED: return "DISABLED";
+        case CONTROL_STATE_ROLLBACK: return "ROLLBACK";
+        case CONTROL_STATE_RECOVERY: return "RECOVERY";
+        default: return "UNKNOWN";
+    }
+}
 
+static const char* transition_reason_name(transition_reason_t r) {
+    switch (r) {
+        case TRANSITION_REASON_NONE: return "NONE";
+        case TRANSITION_REASON_DEGRADED_COORDINATION: return "DEGRADED_COORDINATION";
+        case TRANSITION_REASON_RECOVERED_COORDINATION: return "RECOVERED_COORDINATION";
+        case TRANSITION_REASON_SATURATED_ACTUATOR: return "SATURATED_ACTUATOR";
+        case TRANSITION_REASON_OSCILLATION: return "OSCILLATION";
+        case TRANSITION_REASON_CRITICAL_FAULT: return "CRITICAL_FAULT";
+        case TRANSITION_REASON_ROLLBACK: return "ROLLBACK";
+        case TRANSITION_REASON_RECOVERY_COMPLETE: return "RECOVERY_COMPLETE";
+        case TRANSITION_REASON_RECOVERY_FAILED: return "RECOVERY_FAILED";
+        case TRANSITION_REASON_DEFAULT_RECOVERY: return "DEFAULT_RECOVERY";
+        case TRANSITION_REASON_ROLLBACK_COMPLETE: return "ROLLBACK_COMPLETE";
+        default: return "UNKNOWN";
+    }
+}
+
+static void window_add(controller_window_t *w, double s3, double s4, double s4_burst) {
+    w->s3_global[w->index] = s3;
+    w->s4[w->index] = s4;
+    w->s4_burst[w->index] = s4_burst;
+    w->index = (w->index + 1) % CONTROLLER_WINDOW_SIZE;
+    if (w->count < CONTROLLER_WINDOW_SIZE) w->count++;
+}
+
+static void osc_add(oscillation_window_t *w, actuator_vector_t vec) {
+    w->history[w->index] = vec;
+    w->index = (w->index + 1) % CONTROLLER_OSCILLATION_WINDOW;
+    if (w->count < CONTROLLER_OSCILLATION_WINDOW) w->count++;
+}
+
+static double window_avg(const double *arr, size_t count) {
+    if (count == 0) return 1.0;
+    double sum = 0.0;
+    for (size_t i = 0; i < count; i++) sum += arr[i];
+    return sum / (double)count;
+}
+
+static void apply_state_transition(controller_machine_t *machine, controller_state_t new_state, transition_reason_t reason) {
+    if (machine->state == new_state) return;
+    machine->previous_state = machine->state;
+    machine->state = new_state;
+    machine->transition_reason = reason;
+    machine->state_residence_time = 0;
+}
+
+static controller_event_t controller_machine_update(signal_payload_t *next, const coord_metrics_t *m, double jitter_floor, uint64_t controller_step, controller_machine_t *machine, controller_window_t *window, oscillation_window_t *osc_window, bool frame_valid) {
+    controller_event_t event = { .updated = false, .step = controller_step, .reason = CONTROL_REASON_NONE };
+    
+    machine->update_accepted = 0;
+    machine->update_suppressed = 0;
+    machine->suppression_reason = 0;
+    machine->rollback_event = 0;
+    machine->oscillation_event = 0;
+    machine->state_residence_time++;
+
+    if (!frame_valid) {
+        machine->invalid_frame_fault_count++;
+        machine->update_suppressed = 1;
+        machine->suppression_reason = 1; /* invalid frame */
+        if (machine->invalid_frame_fault_count > 10 && machine->state != CONTROL_STATE_DISABLED) {
+            apply_state_transition(machine, CONTROL_STATE_DISABLED, TRANSITION_REASON_CRITICAL_FAULT);
+        }
+        return event;
+    }
+    
+    machine->invalid_frame_fault_count = 0;
+    machine->valid_control_history_count++;
+    machine->update_accepted = 1;
+
+    window_add(window, m->s3_global, m->s4, m->s4_burst);
+    
+    double avg_s3 = window_avg(window->s3_global, window->count);
+    double avg_s4 = window_avg(window->s4, window->count);
+    
+    if (machine->state == CONTROL_STATE_NORMAL) {
+        if (window->count == CONTROLLER_WINDOW_SIZE && (avg_s3 < CONTROLLER_THRESHOLD || avg_s4 < CONTROLLER_THRESHOLD) && machine->state_residence_time > 2) {
+            apply_state_transition(machine, CONTROL_STATE_DEGRADED, TRANSITION_REASON_DEGRADED_COORDINATION);
+        }
+    } else if (machine->state == CONTROL_STATE_DEGRADED) {
+        if (avg_s3 >= CONTROLLER_THRESHOLD && avg_s4 >= CONTROLLER_THRESHOLD && machine->state_residence_time > 3) {
+            apply_state_transition(machine, CONTROL_STATE_NORMAL, TRANSITION_REASON_RECOVERED_COORDINATION);
+        } else if (machine->saturation_persistence > 5) {
+            apply_state_transition(machine, CONTROL_STATE_SATURATED, TRANSITION_REASON_SATURATED_ACTUATOR);
+        }
+    } else if (machine->state == CONTROL_STATE_SATURATED) {
+        if (avg_s3 >= CONTROLLER_THRESHOLD && avg_s4 >= CONTROLLER_THRESHOLD) {
+            apply_state_transition(machine, CONTROL_STATE_NORMAL, TRANSITION_REASON_RECOVERED_COORDINATION);
+        } else if (machine->state_residence_time > 5) {
+            apply_state_transition(machine, CONTROL_STATE_ROLLBACK, TRANSITION_REASON_SATURATED_ACTUATOR);
+        }
+    } else if (machine->state == CONTROL_STATE_ROLLBACK) {
+        machine->rollback_event = 1;
+        if (machine->last_known_good_available) {
+            machine->requested = machine->last_known_good;
+            machine->rollback_reason = TRANSITION_REASON_ROLLBACK;
+        } else {
+            machine->requested.jitter_sigma = JITTER_MULTIPLIER_DEFAULT * 0.02; 
+            machine->requested.switch_penalty = 0.0;
+            machine->requested.consensus_blend = 0.0;
+            machine->rollback_reason = TRANSITION_REASON_DEFAULT_RECOVERY;
+        }
+        apply_state_transition(machine, CONTROL_STATE_RECOVERY, TRANSITION_REASON_ROLLBACK_COMPLETE);
+    } else if (machine->state == CONTROL_STATE_RECOVERY) {
+        machine->recovery_progress = clamp01((double)machine->state_residence_time / 10.0);
+        if (machine->state_residence_time > 10) {
+            if (avg_s3 >= CONTROLLER_THRESHOLD && avg_s4 >= CONTROLLER_THRESHOLD) {
+                apply_state_transition(machine, CONTROL_STATE_NORMAL, TRANSITION_REASON_RECOVERY_COMPLETE);
+            } else {
+                apply_state_transition(machine, CONTROL_STATE_DISABLED, TRANSITION_REASON_RECOVERY_FAILED);
+            }
+        }
+    }
+    
+    if (machine->state == CONTROL_STATE_NORMAL || machine->state == CONTROL_STATE_DEGRADED) {
+        double beta = CONTROLLER_BETA0 / sqrt(1.0 + (double)controller_step);
+        event.updated = true;
+        event.beta = beta;
+        if (m->s3_global < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S3;
+        if (m->s4 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S4;
+
+        double jitter_min = clamp01(jitter_floor);
+        if (jitter_min > 0.20) jitter_min = 0.20;
+        double raw_jitter = machine->applied.jitter_sigma + ((event.reason & CONTROL_REASON_S4) ? beta * 0.20 : -beta * 0.05);
+        
+        double raw_switch = machine->applied.switch_penalty + ((event.reason != CONTROL_REASON_NONE) ? beta * 0.15 : -beta * 0.04);
+        double raw_consensus = machine->applied.consensus_blend + ((event.reason & CONTROL_REASON_S3) ? beta * 0.10 : -beta * 0.03);
+
+        machine->requested.jitter_sigma = raw_jitter;
+        machine->requested.switch_penalty = raw_switch;
+        machine->requested.consensus_blend = raw_consensus;
+    } else if (machine->state == CONTROL_STATE_DISABLED) {
+        machine->update_suppressed = 1;
+        machine->suppression_reason = 2; /* disabled */
+    }
+    
     double jitter_min = clamp01(jitter_floor);
     if (jitter_min > 0.20) jitter_min = 0.20;
-    double raw_jitter = next->jitter_sigma
-                      + ((event.reason & CONTROL_REASON_S4) ? beta * 0.20 : -beta * 0.05);
-    event.jitter_saturated = raw_jitter < jitter_min || raw_jitter > 0.20;
-    next->jitter_sigma = raw_jitter;
-    if (next->jitter_sigma < jitter_min) next->jitter_sigma = jitter_min;
-    if (next->jitter_sigma > 0.20) next->jitter_sigma = 0.20;
+    
+    machine->applied.jitter_sigma = machine->requested.jitter_sigma;
+    if (machine->applied.jitter_sigma < jitter_min) machine->applied.jitter_sigma = jitter_min;
+    if (machine->applied.jitter_sigma > 0.20) machine->applied.jitter_sigma = 0.20;
+    
+    machine->applied.switch_penalty = machine->requested.switch_penalty;
+    if (machine->applied.switch_penalty < 0.0) machine->applied.switch_penalty = 0.0;
+    if (machine->applied.switch_penalty > 0.30) machine->applied.switch_penalty = 0.30;
+    
+    machine->applied.consensus_blend = machine->requested.consensus_blend;
+    if (machine->applied.consensus_blend < 0.0) machine->applied.consensus_blend = 0.0;
+    if (machine->applied.consensus_blend > 0.15) machine->applied.consensus_blend = 0.15;
+    
+    event.jitter_saturated = (machine->requested.jitter_sigma < jitter_min || machine->requested.jitter_sigma > 0.20);
+    event.switch_saturated = (machine->requested.switch_penalty < 0.0 || machine->requested.switch_penalty > 0.30);
+    event.consensus_saturated = (machine->requested.consensus_blend < 0.0 || machine->requested.consensus_blend > 0.15);
+    
+    machine->saturation_bitmask = (event.jitter_saturated ? 1 : 0) | (event.switch_saturated ? 2 : 0) | (event.consensus_saturated ? 4 : 0);
+    if (machine->saturation_bitmask != 0 && event.reason != CONTROL_REASON_NONE) {
+        machine->saturation_persistence++;
+    } else {
+        machine->saturation_persistence = 0;
+    }
 
-    double raw_switch = next->switch_penalty
-                      + (event.reason != CONTROL_REASON_NONE ? beta * 0.15 : -beta * 0.04);
-    event.switch_saturated = raw_switch < 0.0 || raw_switch > 0.30;
-    next->switch_penalty = raw_switch;
-    if (next->switch_penalty < 0.0) next->switch_penalty = 0.0;
-    if (next->switch_penalty > 0.30) next->switch_penalty = 0.30;
+    osc_add(osc_window, machine->applied);
+    if (osc_window->count == CONTROLLER_OSCILLATION_WINDOW) {
+        int reversals = 0;
+        for (size_t i = 2; i < CONTROLLER_OSCILLATION_WINDOW; i++) {
+            double d1 = osc_window->history[(osc_window->index + i - 1) % CONTROLLER_OSCILLATION_WINDOW].jitter_sigma - osc_window->history[(osc_window->index + i - 2) % CONTROLLER_OSCILLATION_WINDOW].jitter_sigma;
+            double d2 = osc_window->history[(osc_window->index + i) % CONTROLLER_OSCILLATION_WINDOW].jitter_sigma - osc_window->history[(osc_window->index + i - 1) % CONTROLLER_OSCILLATION_WINDOW].jitter_sigma;
+            if (d1 * d2 < 0) reversals++;
+        }
+        machine->oscillation_score = (double)reversals / (double)CONTROLLER_OSCILLATION_WINDOW;
+        if (reversals > 4) {
+            machine->oscillation_event = 1;
+            if (machine->state == CONTROL_STATE_DEGRADED && machine->state_residence_time > 4) {
+                 apply_state_transition(machine, CONTROL_STATE_DISABLED, TRANSITION_REASON_OSCILLATION);
+            }
+        }
+    }
 
-    double raw_consensus = next->consensus_blend
-                         + ((event.reason & CONTROL_REASON_S3) ? beta * 0.10 : -beta * 0.03);
-    event.consensus_saturated = raw_consensus < 0.0 || raw_consensus > 0.15;
-    next->consensus_blend = raw_consensus;
-    if (next->consensus_blend < 0.0) next->consensus_blend = 0.0;
-    if (next->consensus_blend > 0.15) next->consensus_blend = 0.15;
+    if (machine->state == CONTROL_STATE_NORMAL && machine->state_residence_time > 5 && machine->saturation_persistence == 0 && machine->oscillation_event == 0) {
+        machine->last_known_good = machine->applied;
+        machine->last_known_good_available = 1;
+    }
+
+    next->jitter_sigma = machine->applied.jitter_sigma;
+    next->switch_penalty = machine->applied.switch_penalty;
+    next->consensus_blend = machine->applied.consensus_blend;
+    
     return event;
 }
 
@@ -2710,13 +2944,14 @@ static const char *controller_reason_name(uint32_t reason) {
 }
 
 static void print_header(void) {
-    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event\n");
+    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event,controller_state,previous_state,transition_reason,state_residence_time,valid_control_history_count,invalid_frame_fault_count,saturation_bitmask,saturation_direction,saturation_persistence,oscillation_score,oscillation_event,rollback_event,rollback_reason,recovery_progress,last_known_good_available,requested_jitter,applied_jitter,requested_switch,applied_switch,requested_consensus,applied_consensus,update_accepted,update_suppressed,suppression_reason\n");
 }
 
 static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *applied,
                       const signal_payload_t *next, const coord_metrics_t *m,
                       const controller_event_t *event, double forecast_error,
-                      uint64_t missed_deadlines, worker_block_t *workers) {
+                      uint64_t missed_deadlines, worker_block_t *workers,
+                      const controller_machine_t *machine) {
     uint64_t rejected = 0;
     for (int i = 0; i < workers->worker_count; ++i)
         rejected += atomic_load(&workers->worker[i].rejected_frames);
@@ -2730,7 +2965,8 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            "%.8f,%.8f,%d,%d,%d,%d,%d,%d,%d,%.8f,%d,%d,%.8f,%llu,%llu,"
            "%d,%d,%.8f,%d,%d,%.8f,%.8f,%s,"
            "%.8f,%.8f,%.8f,%.8f,%.8f,"
-           "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+           "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,"
+           "%s,%s,%s,%llu,%llu,%llu,%u,%d,%llu,%.8f,%d,%d,%s,%.8f,%d,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d,%d,%d\n",
            (unsigned long long)tick,
            mode == MODE_ORCHESTRA ? "orchestra" : "baseline",
            applied->cpu_now, applied->cpu_pred, applied->decision_cpu,
@@ -2751,7 +2987,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            event->consensus_applied ? 1 : 0,
            (unsigned long long)rejected,
            (unsigned long long)missed_deadlines,
-           "orchestra.paper_cpu.metrics/v4", m->s3_global, m->s3_conditioned,
+           "orchestra.paper_cpu.metrics/v5", m->s3_global, m->s3_conditioned,
            m->s2_selected, m->s2_effective,
            m->action_attempt_count, m->effective_action_success_count,
            m->action_error_count, m->migration_attempt_count,
@@ -2778,7 +3014,31 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            m->previous_directive_valid ? 1 : 0,
            m->directive_transition_valid ? 1 : 0,
            m->large_burst_event ? 1 : 0,
-           m->repeated_oscillation_event ? 1 : 0);
+           m->repeated_oscillation_event ? 1 : 0,
+           machine ? controller_state_name(machine->state) : "UNKNOWN",
+           machine ? controller_state_name(machine->previous_state) : "UNKNOWN",
+           machine ? transition_reason_name(machine->transition_reason) : "UNKNOWN",
+           machine ? (unsigned long long)machine->state_residence_time : 0,
+           machine ? (unsigned long long)machine->valid_control_history_count : 0,
+           machine ? (unsigned long long)machine->invalid_frame_fault_count : 0,
+           machine ? machine->saturation_bitmask : 0,
+           machine ? machine->saturation_direction : 0,
+           machine ? (unsigned long long)machine->saturation_persistence : 0,
+           machine ? machine->oscillation_score : 0.0,
+           machine ? machine->oscillation_event : 0,
+           machine ? machine->rollback_event : 0,
+           machine ? transition_reason_name(machine->rollback_reason) : "UNKNOWN",
+           machine ? machine->recovery_progress : 0.0,
+           machine ? machine->last_known_good_available : 0,
+           machine ? machine->requested.jitter_sigma : 0.0,
+           machine ? machine->applied.jitter_sigma : 0.0,
+           machine ? machine->requested.switch_penalty : 0.0,
+           machine ? machine->applied.switch_penalty : 0.0,
+           machine ? machine->requested.consensus_blend : 0.0,
+           machine ? machine->applied.consensus_blend : 0.0,
+           machine ? machine->update_accepted : 0,
+           machine ? machine->update_suppressed : 0,
+           machine ? machine->suppression_reason : 0);
     fflush(stdout);
 }
 
@@ -2964,6 +3224,14 @@ int main(int argc, char **argv) {
     uint64_t controller_step = 0;
     uint64_t missed_deadlines = 0;
     burst_tracker_t burst_tracker = {0};
+    controller_machine_t machine = {0};
+    controller_window_t window = {0};
+    oscillation_window_t osc_window = {0};
+    
+    machine.state = CONTROL_STATE_NORMAL;
+    machine.applied.jitter_sigma = jitter_floor;
+    machine.requested.jitter_sigma = jitter_floor;
+    
     uint64_t interval_ns = (uint64_t)(unsigned int)interval_ms * 1000000ull;
     uint64_t start_ns = monotonic_ns();
     uint64_t next_publish_ns = start_ns + interval_ns;
@@ -3077,12 +3345,13 @@ int main(int argc, char **argv) {
             .reason = CONTROL_REASON_NONE
         };
 
-        if (mode == MODE_ORCHESTRA && complete_accepted_sample
-            && tick % CONTROLLER_PERIOD_TICKS == 0) {
-            controller_step++;
-            event = controller_update(&next, &metrics, jitter_floor, controller_step);
-            event.consensus_applied = consensus_blend_qtables(bus, workers,
-                                                              next.consensus_blend);
+        if (mode == MODE_ORCHESTRA && tick % CONTROLLER_PERIOD_TICKS == 0) {
+            bool frame_valid = metric_frame_is_valid_and_fresh(&frame) && complete_accepted_sample;
+            if (frame_valid) controller_step++;
+            event = controller_machine_update(&next, &metrics, jitter_floor, controller_step, &machine, &window, &osc_window, frame_valid);
+            if (event.updated) {
+                event.consensus_applied = consensus_blend_qtables(bus, workers, next.consensus_blend);
+            }
         }
 
         frame.jitter_sigma = next.jitter_sigma;
@@ -3097,7 +3366,7 @@ int main(int argc, char **argv) {
         }
 
         print_row(tick, mode, &applied, &next, &metrics, &event,
-                  metric_forecast_error, missed_deadlines, workers);
+                  metric_forecast_error, missed_deadlines, workers, &machine);
 
         now = monotonic_ns();
         if (duration_sec > 0

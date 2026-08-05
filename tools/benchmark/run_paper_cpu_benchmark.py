@@ -33,7 +33,10 @@ from typing import Final, TypeAlias
 
 V2_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v2"
 V3_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v3"
+
 V4_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v4"
+V5_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v5"
+
 # Retain the historical public names for v2-focused callers and tests.
 SCHEMA_ID: Final = V2_SCHEMA_ID
 SUPPORTED_SCHEMA_IDS: Final = (V2_SCHEMA_ID, V3_SCHEMA_ID, V4_SCHEMA_ID)
@@ -599,7 +602,7 @@ def run_mean_columns_for_schema(schema_id: str) -> tuple[str, ...]:
         return V2_RUN_MEAN_COLUMNS
     if schema_id == V3_SCHEMA_ID:
         return V3_RUN_MEAN_COLUMNS
-    if schema_id == V4_SCHEMA_ID:
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
         return V4_RUN_MEAN_COLUMNS
     raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
@@ -611,7 +614,7 @@ def aggregate_metrics_for_schema(schema_id: str) -> tuple[str, ...]:
         return V2_AGGREGATE_METRICS
     if schema_id == V3_SCHEMA_ID:
         return V3_AGGREGATE_METRICS
-    if schema_id == V4_SCHEMA_ID:
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
         return V4_AGGREGATE_METRICS
     raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
@@ -1419,7 +1422,7 @@ def validate_row_semantics(
                 schema_id,
             )
         )
-        if schema_id == V4_SCHEMA_ID:
+        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
             issues.extend(validate_v4_burst_semantics(row, row_number, eligible, tolerance))
     elif schema_id != V2_SCHEMA_ID:
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
@@ -1843,7 +1846,7 @@ def make_run_summary(
         summary["action_error_count"] = sum(
             int_value(row, "action_error_count") for row in rows
         )
-        if schema_id == V4_SCHEMA_ID:
+        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
             summary["large_burst_event_count"] = sum(
                 int_value(row, "large_burst_event") for row in rows
             )
@@ -1949,7 +1952,7 @@ def aggregate_run_summaries(
                 "not Linux scheduler compliance or scheduler-performance evidence."
             ),
         }
-    if schema_id == V4_SCHEMA_ID:
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
         aggregate["burst_stability_summary_semantics"] = {
             "statistical_unit": "one validated invocation after declared warm-up",
             "historical_s4": (
