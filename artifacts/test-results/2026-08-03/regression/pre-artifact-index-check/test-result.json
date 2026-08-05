@@ -1,0 +1,98 @@
+{
+  "claim_boundary": "Regression evidence for the named repository tests only; this does not upgrade the userspace-validated maturity class.",
+  "command": [
+    "make",
+    "test"
+  ],
+  "duration_seconds": 21.809006952000345,
+  "end_utc": "2026-08-02T20:08:46.559482Z",
+  "environment": {
+    "clang": {
+      "available": true,
+      "path": "/usr/bin/clang",
+      "return_code": 0,
+      "version": "Debian clang version 21.1.8 (7+b3)"
+    },
+    "effective_uid": 1000,
+    "gcc": {
+      "available": true,
+      "path": "/usr/bin/gcc",
+      "return_code": 0,
+      "version": "gcc (Debian 15.3.0-1) 15.3.0"
+    },
+    "hostname": "redshadow",
+    "machine": "x86_64",
+    "make": {
+      "available": true,
+      "path": "/usr/bin/make",
+      "return_code": 0,
+      "version": "GNU Make 4.4.1"
+    },
+    "platform": "Linux-7.0.12+kali-amd64-x86_64-with-glibc2.42",
+    "python": "3.13.14 (main, Jun 10 2026, 18:10:12) [GCC 15.2.0]"
+  },
+  "input_sha256_after": {
+    "Makefile": "4e58e299083045ccca60441d042c35c634e6cf0f4965141eaa1e2221a841143e",
+    "orchestra_paper_cpu_demo/Makefile": "1b3894a61d3b738d055a88b577f3afae86831b4cdb9d716bb64b1b8b581bc2a2",
+    "orchestra_paper_cpu_demo/orchestra_paper_cpu.c": "d5ec68c28a2cfcc20475dba44cb4b3c36b46b08acb4206647b874d2e2edf8713",
+    "tests/integration/run.sh": "1fd6df5369b185351b0625de9076e0a12711e0d4e7f507c5be6bc8f8bd687687",
+    "tests/integration/validate_paper_cpu_csv.py": "538bd0f10aa381caf44d7a47b9abf99bcd4d0ca42acc1fff5f14a6341d43f8f4",
+    "tests/unit/run.sh": "e9d5aed7a61a0e64254e919e3f98f196a20f5f306fddbb438783bdf2ef138068",
+    "tests/unit/test_benchmark_validator.py": "48f0f5cea4fe01b46490dcfdd67277a2c4c962b36594c32653ca89203ca1bb10",
+    "tests/unit/test_orchestra_paper_cpu.c": "afcc10d0770bfe126875c75387ba645cb8802af93fd4772e7b7e6854063363b9",
+    "tools/benchmark/run_paper_cpu_benchmark.py": "3c07263066118a7f08c9e10ae80c488bb8fae680db08b31cba6b7154aec193d6",
+    "tools/plotting/plot_paper_cpu_smoke.py": "bfcadf73af6b28efe2069833622d2238e0efbca4e9ea754a8916c6d84e53067a",
+    "tools/plotting/plot_release_readiness.py": "d68912d7601236a6a0ea3ce7d1b242d2f4eae06d6c6791a672e56c63e5f5f321",
+    "tools/reporting/build_release_readiness_docx.py": "72a00d961896412540f9b7ab81b0f3c2b7688093b9fb7bc96057dc3b0c478b01",
+    "tools/testing/capture_test_run.py": "19e83061c1aa3f366b46d732bdf1276c731ec0435c1f6a960b032b8d07af4f27"
+  },
+  "input_sha256_before": {
+    "Makefile": "4e58e299083045ccca60441d042c35c634e6cf0f4965141eaa1e2221a841143e",
+    "orchestra_paper_cpu_demo/Makefile": "1b3894a61d3b738d055a88b577f3afae86831b4cdb9d716bb64b1b8b581bc2a2",
+    "orchestra_paper_cpu_demo/orchestra_paper_cpu.c": "d5ec68c28a2cfcc20475dba44cb4b3c36b46b08acb4206647b874d2e2edf8713",
+    "tests/integration/run.sh": "1fd6df5369b185351b0625de9076e0a12711e0d4e7f507c5be6bc8f8bd687687",
+    "tests/integration/validate_paper_cpu_csv.py": "538bd0f10aa381caf44d7a47b9abf99bcd4d0ca42acc1fff5f14a6341d43f8f4",
+    "tests/unit/run.sh": "e9d5aed7a61a0e64254e919e3f98f196a20f5f306fddbb438783bdf2ef138068",
+    "tests/unit/test_benchmark_validator.py": "48f0f5cea4fe01b46490dcfdd67277a2c4c962b36594c32653ca89203ca1bb10",
+    "tests/unit/test_orchestra_paper_cpu.c": "afcc10d0770bfe126875c75387ba645cb8802af93fd4772e7b7e6854063363b9",
+    "tools/benchmark/run_paper_cpu_benchmark.py": "3c07263066118a7f08c9e10ae80c488bb8fae680db08b31cba6b7154aec193d6",
+    "tools/plotting/plot_paper_cpu_smoke.py": "bfcadf73af6b28efe2069833622d2238e0efbca4e9ea754a8916c6d84e53067a",
+    "tools/plotting/plot_release_readiness.py": "d68912d7601236a6a0ea3ce7d1b242d2f4eae06d6c6791a672e56c63e5f5f321",
+    "tools/reporting/build_release_readiness_docx.py": "72a00d961896412540f9b7ab81b0f3c2b7688093b9fb7bc96057dc3b0c478b01",
+    "tools/testing/capture_test_run.py": "19e83061c1aa3f366b46d732bdf1276c731ec0435c1f6a960b032b8d07af4f27"
+  },
+  "inputs_unchanged": true,
+  "integration_artifacts": {
+    "files": [
+      "baseline.csv",
+      "baseline.log",
+      "controller-tamper.csv",
+      "controller-tamper.log",
+      "invalid.csv",
+      "invalid.log",
+      "orchestra.csv",
+      "orchestra.log",
+      "signal-stop.csv",
+      "signal-stop.log",
+      "tamper.csv",
+      "tamper.log"
+    ],
+    "path": "integration",
+    "preserved": true
+  },
+  "log": {
+    "bytes": 2594,
+    "path": "make-test.log",
+    "sha256": "de6755c23fcd0ef5f459ff3b61b3e07e94b86a11fec32b735bae99d04d3d2a31",
+    "stderr_merged": true
+  },
+  "repository_identity": {
+    "available": false,
+    "status": "not-a-git-worktree"
+  },
+  "repository_root": "/home/aether/Documents/ORCHESTRA-OS",
+  "return_code": 0,
+  "schema": "orchestra.test_run/v1",
+  "start_utc": "2026-08-02T20:08:24.750392Z",
+  "status": "passed"
+}

@@ -1,0 +1,39 @@
+# Build outputs
+orchestra_paper_cpu_demo/orchestra_paper_cpu
+orchestra_real_cpu_demo/orchestra_real_cpu
+tools/benchmark/signal_publication_microbenchmark
+*.o
+*.a
+*.so
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Temporary and scratch
+tmp/
+*.tmp
+*.swp
+*~
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Core dumps and crash artifacts
+core
+core.*
+vgcore.*
+
+# Local environment (never commit secrets)
+.env
+.env.*
+*.pem
+*.key

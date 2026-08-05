@@ -1,0 +1,64 @@
+{
+  "artifact_root": "/home/aether/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-03",
+  "categories": {
+    "README.md": {
+      "bytes": 4733,
+      "files": 1
+    },
+    "benchmark/authoritative-c": {
+      "bytes": 371752,
+      "files": 26
+    },
+    "benchmark/superseded-a": {
+      "bytes": 347115,
+      "files": 26
+    },
+    "benchmark/superseded-b": {
+      "bytes": 346806,
+      "files": 26
+    },
+    "development-smoke": {
+      "bytes": 34086,
+      "files": 22
+    },
+    "regression/final": {
+      "bytes": 42272,
+      "files": 14
+    },
+    "regression/pre-artifact-index-check": {
+      "bytes": 42022,
+      "files": 14
+    },
+    "regression/pre-capture-tool-check": {
+      "bytes": 6948,
+      "files": 2
+    },
+    "regression/pre-integration-artifact-capture": {
+      "bytes": 6948,
+      "files": 2
+    },
+    "regression/pre-repository-artifact-defaults": {
+      "bytes": 42284,
+      "files": 14
+    }
+  },
+  "checksum_manifest": {
+    "bytes": 17679,
+    "path": "SHA256SUMS",
+    "sha256": "221adf3e0f295c65d34a26ae0ac1a2e3e6911922fc287a51276717b41e896bf0"
+  },
+  "claim_boundary": "Local userspace test evidence only; classification is defined in README.md.",
+  "excluded_from_checksum_manifest": [
+    "SHA256SUMS",
+    "inventory.json"
+  ],
+  "generated_utc": "2026-08-02T20:15:47.092558Z",
+  "hygiene": {
+    "generated_development_executables_copied": false,
+    "raw_local_host_metadata_retained": true,
+    "text_secret_and_email_scan": "completed-no-matches"
+  },
+  "indexed_file_count": 147,
+  "indexed_total_bytes": 1244966,
+  "schema": "orchestra.test_artifact_inventory/v1"
+}

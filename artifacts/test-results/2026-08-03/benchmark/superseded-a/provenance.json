@@ -1,0 +1,259 @@
+{
+  "benchmark_start_utc": "2026-08-02T19:06:40.986233Z",
+  "binary_help": {
+    "command": [
+      "/home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo/orchestra_paper_cpu",
+      "--help"
+    ],
+    "return_code": 0,
+    "stderr": "Usage: /home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo/orchestra_paper_cpu [options]\n  --workers N          total real processes, 4..64 (default 12)\n  --rt-exempt N        hard-RT bypass processes (default 2)\n  --duration SEC       run time, 0 until Ctrl+C (default 30)\n  --interval-ms MS     signal tick, 50..2000 (default 100)\n  --calibration SEC    pre-run calibration trace (default 3)\n  --mode orchestra     paper adaptive mode (default)\n  --mode baseline      instrumented observed-state reactive reference\n  --tamper-every N     corrupt each Nth signal; 0 disables\n  --seed N             worker-policy RNG seed; 0 selects and records one\n  --help\n",
+    "stdout": ""
+  },
+  "claim_boundary": "Descriptive userspace observations only; modes are unpaired and endogenous. No kernel-scheduler or comparative-performance claim is authorized.",
+  "comparison_design": "descriptive-unpaired-endogenous",
+  "environment": {
+    "available_processors": 8,
+    "background_initial": {
+      "load_average_1m_5m_15m": [
+        0.9443359375,
+        0.8857421875,
+        0.90966796875
+      ],
+      "proc_loadavg": "0.94 0.89 0.91 1/1018 135204\n",
+      "proc_uptime": "2340.98 16726.65\n",
+      "process_snapshot": {
+        "available": true,
+        "command": [
+          "/usr/bin/ps",
+          "-eo",
+          "pid,ppid,ni,stat,comm",
+          "--sort=pid"
+        ],
+        "return_code": 0,
+        "stderr": "",
+        "stdout": "    PID    PPID  NI STAT COMMAND\n      1       0   0 Ss   systemd\n      2       0   0 S    kthreadd\n      3       2   0 S    pool_workqueue_release\n      4       2 -20 I<   kworker/R-rcu_gp\n      5       2 -20 I<   kworker/R-sync_wq\n      6       2 -20 I<   kworker/R-kvfree_rcu_reclaim\n      7       2 -20 I<   kworker/R-slub_flushwq\n      8       2 -20 I<   kworker/R-netns\n     10       2 -20 I<   kworker/0:0H-kblockd\n     13       2 -20 I<   kworker/R-mm_percpu_wq\n     14       2   0 S    ksoftirqd/0\n     15       2   0 I    rcu_preempt\n     16       2   0 S    rcu_exp_par_gp_kthread_worker/0\n     17       2   0 S    rcu_exp_gp_kthread_worker\n     18       2   - S    migration/0\n     19       2   0 S    kprobe-optimizer\n     20       2   - S    idle_inject/0\n     21       2   0 S    cpuhp/0\n     22       2   0 S    cpuhp/1\n     23       2   - S    idle_inject/1\n     24       2   - S    migration/1\n     25       2   0 S    ksoftirqd/1\n     27       2 -20 I<   kworker/1:0H-i915_cleanup\n     28       2   0 S    cpuhp/2\n     29       2   - S    idle_inject/2\n     30       2   - S    migration/2\n     31       2   0 S    ksoftirqd/2\n     33       2 -20 I<   kworker/2:0H-kblockd\n     34       2   0 S    cpuhp/3\n     35       2   - S    idle_inject/3\n     36       2   - S    migration/3\n     37       2   0 S    ksoftirqd/3\n     39       2 -20 I<   kworker/3:0H-i915_cleanup\n     40       2   0 S    cpuhp/4\n     41       2   - S    idle_inject/4\n     42       2   - S    migration/4\n     43       2   0 S    ksoftirqd/4\n     45       2 -20 I<   kworker/4:0H-kblockd\n     46       2   0 S    cpuhp/5\n     47       2   - S    idle_inject/5\n     48       2   - S    migration/5\n     49       2   0 S    ksoftirqd/5\n     51       2 -20 I<   kworker/5:0H-kblockd\n     52       2   0 S    cpuhp/6\n     53       2   - S    idle_inject/6\n     54       2   - S    migration/6\n     55       2   0 S    ksoftirqd/6\n     57       2 -20 I<   kworker/6:0H-i915_cleanup\n     58       2   0 S    cpuhp/7\n     59       2   - S    idle_inject/7\n     60       2   - S    migration/7\n     61       2   0 S    ksoftirqd/7\n     63       2 -20 I<   kworker/7:0H-kblockd\n     71       2   0 I    kworker/u32:7-events_unbound\n     72       2   0 S    kdevtmpfs\n     73       2 -20 I<   kworker/R-inet_frag_wq\n     74       2   0 I    rcu_tasks_kthread\n     75       2   0 I    rcu_tasks_rude_kthread\n     76       2   0 S    kauditd\n     77       2   0 S    khungtaskd\n     78       2   0 S    oom_reaper\n     79       2 -20 I<   kworker/R-writeback\n     80       2   0 S    kcompactd0\n     81       2   5 SN   ksmd\n     82       2  19 SN   khugepaged\n     83       2 -20 I<   kworker/R-kblockd\n     85       2 -20 I<   kworker/R-blkcg_punt_bio\n     86       2 -20 I<   kworker/R-kintegrityd\n     87       2   - S    irq/9-acpi\n     88       2   0 I    kworker/2:1-mm_percpu_wq\n     90       2 -20 I<   kworker/R-tpm_dev_wq\n     91       2 -20 I<   kworker/R-edac-poller\n     92       2 -20 I<   kworker/R-devfreq_wq\n     93       2 -20 I<   kworker/R-quota_events_unbound\n     94       2   - S    irq/120-dmar0-prq\n     95       2   0 S    ksgxd\n     96       2   0 S    kswapd0\n     97       2   0 I    kdamond.0\n    101       2 -20 I<   kworker/R-kthrotld\n    104       2   - S    irq/124-pciehp\n    105       2   - S    irq/125-pciehp\n    106       2 -20 I<   kworker/R-acpi_thermal_pm\n    107       2 -20 I<   kworker/R-mld\n    108       2 -20 I<   kworker/R-ipv6_addrconf\n    109       2 -20 I<   kworker/R-kstrp\n    130       2   0 I    kworker/6:1-events\n    259       2   0 I    kworker/1:2-i915-unordered\n    260       2   - S    watchdogd\n    263       2 -20 I<   kworker/R-ata_sff\n    264       2   0 S    scsi_eh_0\n    265       2 -20 I<   kworker/R-scsi_tmf_0\n    266       2   0 S    scsi_eh_1\n    267       2 -20 I<   kworker/R-scsi_tmf_1\n    268       2   0 S    scsi_eh_2\n    269       2 -20 I<   kworker/R-scsi_tmf_2\n    270       2   0 I    kworker/3:2-events\n    272       2 -20 I<   kworker/2:1H-i915_cleanup\n    274       2 -20 I<   kworker/R-USBC000:00-con1\n    275       2 -20 I<   kworker/R-ttm\n    276       2   - S    card0-crtc0\n    277       2   - S    card0-crtc1\n    278       2   - S    card0-crtc2\n    279       2 -20 I<   kworker/3:1H-i915_cleanup\n    281       2 -20 I<   kworker/1:1H-i915_cleanup\n    290       2 -20 I<   kworker/R-USBC000:00-con2\n    291       2 -20 I<   kworker/6:1H-i915_cleanup\n    327       2 -20 I<   kworker/0:1H-kblockd\n    331       2   0 S    jbd2/sda2-8\n    332       2 -20 I<   kworker/R-ext4-rsv-conversion\n    382       2 -20 I<   kworker/4:1H-i915_cleanup\n    383       2 -20 I<   kworker/5:1H-kblockd\n    387       2   - S    psimon\n    398       1   0 Ss   systemd-journal\n    414       2 -20 I<   kworker/R-tls-strp\n    432       2 -20 I<   kworker/7:1H-i915_cleanup\n    434       1   0 Ss   systemd-resolve\n    435       1   0 Ssl  systemd-timesyn\n    438       1   0 Ss   systemd-udevd\n    439       1   0 Ss   systemd-userdbd\n    454       2   - S    psimon\n    459       2   - S    psimon\n    532       2   - S    irq/162-mei_me\n    581       2 -20 I<   kworker/R-cfg80211\n    599       2 -20 I<   kworker/R-ktpacpid\n    634       2   - S    irq/163-iwlwifi:default_queue\n    635       2   - S    irq/164-iwlwifi:queue_1\n    636       2   - S    irq/165-iwlwifi:queue_2\n    637       2   - S    irq/166-iwlwifi:queue_3\n    638       2   - S    irq/167-iwlwifi:queue_4\n    640       2   - S    irq/168-iwlwifi:queue_5\n    641       2   - S    irq/169-iwlwifi:queue_6\n    642       2   - S    irq/170-iwlwifi:queue_7\n    643       2   - S    irq/171-iwlwifi:queue_8\n    644       2   - S    irq/172-iwlwifi:exception\n    690       2   0 I    kworker/0:2-events\n    775       2   - S    irq/173-rmi4_smbus\n    842       1   0 Ss   haveged\n    848       1   0 Ssl  accounts-daemon\n    850       1   0 Ss   bluetoothd\n    851       1   0 Ss   dbus-daemon\n    853       1   0 Ssl  polkitd\n    855       1   0 Ssl  rsyslogd\n    856       1   0 Ss   smartd\n    857       1   0 Ss   systemd-logind\n    858       1   0 Ss   virtlockd\n    860       1   0 Ss   virtlogd\n    862       1   0 Ssl  helper\n    871       2   - S    irq/181-AudioDSP\n    940       1   0 Ss   dhcpcd\n    942     940   0 S    dhcpcd\n    943     940   0 S    dhcpcd\n    944     940   0 S    dhcpcd\n   1008       1   0 Ssl  NetworkManager\n   1017       1   0 Ssl  ModemManager\n   1018       1   0 Ssl  boltd\n   1033       2 -20 I<   kworker/R-iprt-VBoxWQueue\n   1043       2   0 S    iprt-VBoxTscThread\n   1074       2 -20 I<   kworker/R-rpciod\n   1075       2 -20 I<   kworker/R-xprtiod\n   1077       1   0 Ss   cron\n   1079       1   0 Ss   wpa_supplicant\n   1087       1   0 Ss   python3\n   1099       1   0 Ssl  containerd\n   1107       1   0 Ssl  gdm3\n   1126       1   0 Ss   systemd-oomd\n   1192       1   1 SNsl rtkit-daemon\n   1262       2 -10 S<   krfcommd\n   1308       1   0 Ssl  colord\n   1352       1   0 Ssl  upowerd\n   1477       1   0 Ssl  pcscd\n   2157       1   0 Ssl  dockerd\n   2159       1   0 Ssl  ollama\n   2248       1   0 S    dnsmasq\n   2331       2   0 I    kworker/u32:11-events_unbound\n   2397       2   0 I    kworker/7:4-mm_percpu_wq\n   2652       1   0 Ssl  power-profiles-\n   2933       1 -20 S<Ls atop\n   3324    1107   0 Sl   gdm-session-wor\n   3402       1   0 Ss   systemd\n   3404    3402   0 S    (sd-pam)\n   3424    3402   0 Ss   dbus-daemon\n   3425    3402 -11 S<sl pipewire\n   3427    3402   0 SLsl gnome-keyring-d\n   3433    3402   0 Ss   mpris-proxy\n   3435    3402 -11 S<sl wireplumber\n   3436    3402   0 Ssl  pipewire\n   3437    3402 -11 S<sl pipewire-pulse\n   3439    3402   0 Ssl  caddy\n   3502    3324   0 Ssl+ gdm-wayland-ses\n   3519    3502   0 Sl+  gnome-session-i\n   3581    3402   0 Ssl  gcr-ssh-agent\n   3582    3402   0 Ssl  gnome-session-c\n   3583    3402   0 Ss   ssh-agent\n   3595    3402   0 Ssl  gvfsd\n   3601    3402   0 Sl   gvfsd-fuse\n   3604    3402   0 Ssl  gnome-session-s\n   3616    3402   0 Ssl  gnome-shell\n   3653    3402   0 Ssl  at-spi-bus-laun\n   3660    3653   0 S    dbus-daemon\n   3662    3402   0 Sl   at-spi2-registr\n   3683    3402   0 Ssl  xdg-permission-\n   3685    3402   0 Sl   gnome-shell-cal\n   3696    3402   0 Ssl  evolution-sourc\n   3705    3402   0 Sl   gjs\n   3726    3402   0 Ssl  ibus-daemon\n   3731    3402   0 Ssl  gsd-a11y-settin\n   3745    3402   0 Ssl  gsd-color\n   3746    3402   0 Ssl  gsd-datetime\n   3748    3402   0 Ssl  gsd-housekeepin\n   3752    3402   0 Ssl  gsd-keyboard\n   3753    3402   0 Ssl  gsd-media-keys\n   3755    3402   0 Ssl  gsd-power\n   3760    3402   0 Ssl  gsd-print-notif\n   3761    3402   0 Ssl  gsd-rfkill\n   3762    3402   0 Ssl  gsd-screensaver\n   3766    3402   0 Ssl  gsd-sharing\n   3767    3402   0 S    xscreensaver\n   3771    3402   0 Sl   gsd-disk-utilit\n   3772    3402   0 Ssl  gsd-smartcard\n   3773    3402   0 Ssl  gsd-sound\n   3777    3402   0 Sl   evolution-alarm\n   3779    3402   0 Ssl  gsd-usb-protect\n   3781    3402   0 Ssl  gsd-wwan\n   3818       1   0 Ssl  udisksd\n   3861    3726   0 Sl   ibus-dconf\n   3864    3726   0 Sl   ibus-extension-\n   3870    3402   0 Sl   gsd-printer\n   3877    3402   0 Sl   ibus-portal\n   3903    3402   0 Sl   gjs\n   3928    3402   - SNsl localsearch-3\n   3938    3402   0 Ssl  xdg-desktop-por\n   3963    3402   0 Ssl  xdg-document-po\n   3969    3963   0 Ss   fusermount3\n   3973    3402   0 Ssl  xdg-desktop-por\n   3985    3402   0 Sl   goa-daemon\n   3995    3402   0 Sl   goa-identity-se\n   4002    3402   0 Ssl  evolution-calen\n   4015    3402   0 Ssl  evolution-addre\n   4030    3402   0 Ssl  gvfs-udisks2-vo\n   4038    3402   0 Ssl  gvfs-gphoto2-vo\n   4043    3402   0 Ssl  gvfs-afc-volume\n   4049    3402   0 Ssl  gvfs-goa-volume\n   4054    3402   0 Ssl  gvfs-mtp-volume\n   4060    3616   0 Sl   Xwayland\n   4072    3726   0 Sl   ibus-engine-sim\n   4081    3402   0 Ssl  dconf-service\n   4185    3402   0 Ssl  gvfsd-metadata\n   4643    3402   0 Ssl  gsd-xsettings\n   4688    3616   0 Sl   mutter-x11-fram\n   4690    3767   0 S    xscreensaver-sy\n   4692    3402   0 Sl   ibus-x11\n   5294    3616   0 Sl   gjs\n   5339    3595   0 Sl   gvfsd-recent\n   5340    3595   0 Sl   gvfsd-trash\n   5369    3402   0 Ssl  xdg-desktop-por\n   5899    3402   0 Rsl  gnome-terminal-\n   6093    5899   0 Ss   fish\n   6520    6093   0 Sl+  MainThread\n   6529    6520   0 Sl+  codex\n   7331    6529   0 Sl   pt-mcp\n  12529       2 -20 I<   kworker/u33:1-rb_allocator\n  12659    6529   0 Sl   codex-code-mode\n  13710       2   0 I    kworker/3:0-events\n  13735    6529   0 Sl   pt-mcp\n  13890    6529   0 Sl   pt-mcp\n  13956       2   0 I    kworker/4:0-mm_percpu_wq\n  14069    6529   0 Sl   pt-mcp\n  18919       2   0 I    kworker/6:2-i915-unordered\n 121076       2   0 I    kworker/5:0-events\n 122982       2 -20 I<   kworker/u33:0-i915_flip\n 123207       2   0 I    kworker/2:0-events\n 123277       2   0 I    kworker/u32:1-flush-8:0\n 123280       2   0 I    kworker/5:2-i915-unordered\n 125401       2   0 I    kworker/1:1-i915-unordered\n 125455    3616   0 Sl   chrome\n 125460  125455   0 S    cat\n 125461  125455   0 S    cat\n 125751    3402   0 Sl   chrome_crashpad\n 125753    3402   0 Sl   chrome_crashpad\n 125761  125455   0 S    chrome\n 125762  125455   0 S    chrome\n 125770  125762   0 S    chrome\n 125798  125761   0 Sl   chrome\n 125803  125455   0 Sl   chrome\n 125813  125770   0 Sl   chrome\n 125958  125770   0 Sl   chrome\n 125964  125770   0 Sl   chrome\n 126028  125770   0 Sl   chrome\n 126068  125770   0 Sl   chrome\n 126233  125770   0 Sl   chrome\n 126594       2   0 I    kworker/4:2-mm_percpu_wq\n 129033       2   0 I    kworker/7:1-mm_percpu_wq\n 130445  125770   0 Sl   chrome\n 130490  125770   0 Sl   chrome\n 130514  125770   0 Sl   chrome\n 130594  125770   0 Sl   chrome\n 130646  125770   0 Sl   chrome\n 130691  125770   0 Sl   chrome\n 130708  125455   0 Sl   chrome\n 130722       2   0 I    kworker/0:0\n 130801  125770   0 Sl   chrome\n 132315     439   0 S    systemd-userwor\n 132672       2   0 I    kworker/4:1\n 133039       2   0 I    kworker/3:1\n 133332       2   0 I    kworker/u32:0-events_unbound\n 133872       2   0 I    kworker/7:0\n 134777  125770   0 Sl   chrome\n 134955     439   0 S    systemd-userwor\n 135090       2 -20 I<   kworker/u33:2\n 135183     439   0 S    systemd-userwor\n 135192    6529   0 Ss   python3\n 135205  135192   0 R    ps\n"
+      },
+      "utc": "2026-08-02T19:06:41.001042Z"
+    },
+    "captured_utc": "2026-08-02T19:06:40.986255Z",
+    "configured_processors": 8,
+    "container_cgroup": "0::/init.scope\n",
+    "frequency": {
+      "governors": {
+        "cpu0": "powersave\n",
+        "cpu1": "powersave\n",
+        "cpu2": "powersave\n",
+        "cpu3": "powersave\n",
+        "cpu4": "powersave\n",
+        "cpu5": "powersave\n",
+        "cpu6": "powersave\n",
+        "cpu7": "powersave\n"
+      },
+      "turbo_controls": {
+        "/sys/devices/system/cpu/cpufreq/boost": null,
+        "/sys/devices/system/cpu/intel_pstate/no_turbo": "0\n"
+      }
+    },
+    "git": {
+      "available": false,
+      "commit": null,
+      "probe": {
+        "available": true,
+        "command": [
+          "/usr/bin/git",
+          "-C",
+          "/home/aether/Documents/ORCHESTRA-OS",
+          "rev-parse",
+          "--show-toplevel"
+        ],
+        "return_code": 128,
+        "stderr": "fatal: not a git repository (or any of the parent directories): .git\n",
+        "stdout": ""
+      },
+      "status": "not-a-git-worktree",
+      "working_tree_status": null
+    },
+    "kernel_command_line": "BOOT_IMAGE=/boot/vmlinuz-7.0.12+kali-amd64 root=UUID=b477a99c-fae1-4df9-beba-f7e757ed2034 ro quiet splash\n",
+    "kernel_config": {
+      "available": true,
+      "path": "/boot/config-7.0.12+kali-amd64",
+      "sha256": "a6db6c7c0f0327676b72edf5283b024ef52dc1bdc87fdc69eddb2a5386012322",
+      "size_bytes": 297482
+    },
+    "lscpu": {
+      "available": true,
+      "command": [
+        "/usr/bin/lscpu"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           39 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  8\nOn-line CPU(s) list:                     0-7\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Core(TM) i5-10310U CPU @ 1.70GHz\nCPU family:                              6\nModel:                                   142\nThread(s) per core:                      2\nCore(s) per socket:                      4\nSocket(s):                               1\nStepping:                                12\nMicrocode version:                       0x100\nCPU(s) scaling MHz:                      92%\nCPU max MHz:                             4400.0000\nCPU min MHz:                             400.0000\nBogoMIPS:                                4399.99\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust sgx bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp vnmi md_clear flush_l1d arch_capabilities\nVirtualization:                          VT-x\nL1d cache:                               128 KiB (4 instances)\nL1i cache:                               128 KiB (4 instances)\nL2 cache:                                1 MiB (4 instances)\nL3 cache:                                6 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-7\nVulnerability Gather data sampling:      Mitigation; Microcode\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Mitigation; Aligned branch/return thunks\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                     Mitigation; Microcode\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Mitigation; TSX disabled\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n"
+    },
+    "memory": {
+      "available": true,
+      "fields": {
+        "MemAvailable": "28395504 kB",
+        "MemTotal": "32486376 kB",
+        "SwapFree": "25787388 kB",
+        "SwapTotal": "25787388 kB"
+      }
+    },
+    "platform_uname": {
+      "machine": "x86_64",
+      "node": "redshadow",
+      "processor": "",
+      "release": "7.0.12+kali-amd64",
+      "system": "Linux",
+      "version": "#1 SMP PREEMPT_DYNAMIC Kali 7.0.12-2kali1 (2026-06-18)"
+    },
+    "privileges": {
+      "effective_gid": 1000,
+      "effective_uid": 1000,
+      "gid": 1000,
+      "is_root": false,
+      "proc_status": {
+        "CapAmb": "0000000000000000",
+        "CapBnd": "000001ffffffffff",
+        "CapEff": "0000000000000000",
+        "CapInh": "0000000800000000",
+        "CapPrm": "0000000000000000",
+        "NoNewPrivs": "0"
+      },
+      "supplementary_groups": [
+        4,
+        20,
+        24,
+        25,
+        27,
+        29,
+        30,
+        44,
+        46,
+        100,
+        101,
+        103,
+        116,
+        121,
+        123,
+        128,
+        139,
+        975,
+        1000
+      ],
+      "uid": 1000,
+      "user": "aether"
+    },
+    "python": {
+      "executable": "/usr/bin/python3",
+      "implementation": "CPython",
+      "version": "3.13.14"
+    },
+    "thermal_environment": {
+      "available": true,
+      "zones": {
+        "thermal_zone0": {
+          "temp_millidegrees": "48000\n",
+          "type": "acpitz\n"
+        },
+        "thermal_zone1": {
+          "temp_millidegrees": "53000\n",
+          "type": "pch_cannonlake\n"
+        },
+        "thermal_zone2": {
+          "temp_millidegrees": "20000\n",
+          "type": "INT3400 Thermal\n"
+        },
+        "thermal_zone3": {
+          "temp_millidegrees": "1050\n",
+          "type": "SEN1\n"
+        },
+        "thermal_zone4": {
+          "temp_millidegrees": "36050\n",
+          "type": "SEN2\n"
+        },
+        "thermal_zone5": {
+          "temp_millidegrees": "48050\n",
+          "type": "B0D4\n"
+        },
+        "thermal_zone6": {
+          "temp_millidegrees": "55000\n",
+          "type": "iwlwifi_1\n"
+        },
+        "thermal_zone7": {
+          "temp_millidegrees": "91000\n",
+          "type": "x86_pkg_temp\n"
+        }
+      }
+    },
+    "uname_command": {
+      "available": true,
+      "command": [
+        "/usr/bin/uname",
+        "-a"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Linux redshadow 7.0.12+kali-amd64 #1 SMP PREEMPT_DYNAMIC Kali 7.0.12-2kali1 (2026-06-18) x86_64 GNU/Linux\n"
+    },
+    "virtualization": {
+      "available": true,
+      "command": [
+        "/usr/bin/systemd-detect-virt"
+      ],
+      "return_code": 1,
+      "stderr": "",
+      "stdout": "none\n"
+    }
+  },
+  "execution_order": "for each seed: baseline, then orchestra; never concurrent",
+  "experiment_id": "paper_cpu_smoke_v1",
+  "inputs": {
+    "binary": {
+      "build_configuration": "not supplied; caller passed a prebuilt binary",
+      "path": "/home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo/orchestra_paper_cpu",
+      "sha256": "4bd7a1a3a17ad64fc9a455d6ca3b00312c205ffe50658eee1323443c30e1deb5",
+      "source_association": "caller-declared; hashes are recorded, but the harness cannot prove that the binary was built from the supplied source"
+    },
+    "manifest": {
+      "path": "/home/aether/Documents/ORCHESTRA-OS/experiments/manifests/paper_cpu_smoke_v1.json",
+      "sha256": "40844535648f4a7dc25131141035d9cfb88886c20f0f8b9fb4bbbc8ffef02b5a"
+    },
+    "metrics_schema": {
+      "path": "/home/aether/Documents/ORCHESTRA-OS/experiments/schemas/paper_cpu_metrics_v2.json",
+      "sha256": "04cb97e55d66bcf3e03e810372865c25368c89abb5de4e09e43d952d6f2d09c2"
+    },
+    "source": {
+      "path": "/home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo/orchestra_paper_cpu.c",
+      "sha256": "b03b78dc0044e5a957c49085663cdd50c4e22c780ac4f2c886c6871a2c26c55a"
+    }
+  },
+  "manifest": {
+    "calibration_sec": 1,
+    "comparison_design": "descriptive-unpaired-endogenous",
+    "duration_sec": 4,
+    "experiment_id": "paper_cpu_smoke_v1",
+    "interval_ms": 100,
+    "manifest_schema_id": "orchestra.paper_cpu.benchmark_manifest/v1",
+    "maturity_class": "userspace-validated",
+    "metrics_schema_id": "orchestra.paper_cpu.metrics/v2",
+    "modes": [
+      "baseline",
+      "orchestra"
+    ],
+    "nice_increment": 10,
+    "repetitions": 3,
+    "rt_exempt": 0,
+    "seeds": [
+      104729,
+      130363,
+      155921
+    ],
+    "timeout_grace_sec": 2,
+    "timeout_sec": 12,
+    "warmup_ticks": 10,
+    "workers": 4
+  },
+  "maturity_class": "userspace-validated",
+  "output_directory": "/tmp/orchestra-paper-cpu-smoke-v1-20260803-a",
+  "repository_root": "/home/aether/Documents/ORCHESTRA-OS"
+}

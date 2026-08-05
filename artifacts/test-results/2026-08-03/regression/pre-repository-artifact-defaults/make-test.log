@@ -1,0 +1,53 @@
+make -C orchestra_paper_cpu_demo check
+make[1]: Entering directory '/home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo'
+cc -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror -fsyntax-only orchestra_paper_cpu.c
+make[1]: Leaving directory '/home/aether/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo'
+./tests/unit/run.sh
+Running GCC ASan+UBSan unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] difference_reward_local_dominance
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] consensus_blending_and_timeout
+PASS summary: 13/13 named unit tests passed
+Running Clang policy-warning unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] difference_reward_local_dominance
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] consensus_blending_and_timeout
+PASS summary: 13/13 named unit tests passed
+Running benchmark-validator unit tests
+test_fabricated_s3_is_rejected (__main__.BenchmarkValidatorTests.test_fabricated_s3_is_rejected) ... ok
+test_truncated_run_is_rejected (__main__.BenchmarkValidatorTests.test_truncated_run_is_rejected) ... ok
+test_valid_contract (__main__.BenchmarkValidatorTests.test_valid_contract) ... ok
+test_wrong_on_cadence_actuator_is_rejected (__main__.BenchmarkValidatorTests.test_wrong_on_cadence_actuator_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.011s
+
+OK
+All requested unit-test compiler passes completed
+./tests/integration/run.sh
+PASS csv=/tmp/orchestra-integration.vrta1s/baseline.csv rows=10 mode=baseline
+PASS csv=/tmp/orchestra-integration.vrta1s/orchestra.csv rows=30 mode=orchestra
+PASS csv=/tmp/orchestra-integration.vrta1s/tamper.csv rows=20 mode=orchestra
+PASS csv=/tmp/orchestra-integration.vrta1s/controller-tamper.csv rows=30 mode=orchestra
+PASS csv=/tmp/orchestra-integration.vrta1s/signal-stop.csv rows=19 mode=orchestra
+PASS integration: CLI, cadence, rejected-frame control gate, tamper, and signal teardown

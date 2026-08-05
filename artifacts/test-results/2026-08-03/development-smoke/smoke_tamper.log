@@ -1,0 +1,7 @@
+ORCHESTRA-OS paper-only real-CPU userspace prototype
+Collecting 1-second calibration trace...
+calibration samples=20 fixed_gain=0.010 sigma_obs=0.02426 jitter_floor=0.03639
+workers=4 eligible=4 rt-exempt=0 mode=orchestra tick=100ms tamper-every=3
+CSV metrics are written to stdout.
+
+Finished.
