@@ -293,6 +293,110 @@ typedef enum {
     MODE_BASELINE = 1
 } run_mode_t;
 
+typedef enum {
+    POLICY_MODE_TRAIN = 0,
+    POLICY_MODE_ADAPT = 1,
+    POLICY_MODE_EVALUATE = 2
+} policy_mode_t;
+
+typedef enum {
+    POLICY_LOAD_OK = 0,
+    POLICY_LOAD_SKIP = 1,
+    POLICY_LOAD_MAGIC = 2,
+    POLICY_LOAD_VERSION = 3,
+    POLICY_LOAD_SCHEMA = 4,
+    POLICY_LOAD_TRUNCATED = 5,
+    POLICY_LOAD_OVERSIZED = 6,
+    POLICY_LOAD_OVERFLOW = 7,
+    POLICY_LOAD_STATE_COUNT = 8,
+    POLICY_LOAD_ACTION_COUNT = 9,
+    POLICY_LOAD_DIMENSIONS = 10,
+    POLICY_LOAD_NON_FINITE = 11,
+    POLICY_LOAD_DIGEST = 12,
+    POLICY_LOAD_TRAILING = 13,
+    POLICY_LOAD_MISSING = 14
+} policy_load_status_t;
+
+typedef enum {
+    POLICY_SAVE_OK = 0,
+    POLICY_SAVE_WRITE_ERROR = 1,
+    POLICY_SAVE_RENAME_ERROR = 2,
+    POLICY_SAVE_TEMP_FAILED = 3,
+    POLICY_SAVE_VALIDATION_FAILED = 4
+} policy_save_status_t;
+
+typedef enum {
+    POLICY_SUPPRESS_NONE = 0,
+    POLICY_SUPPRESS_MODE = 1,
+    POLICY_SUPPRESS_STATE = 2,
+    POLICY_SUPPRESS_FRAME_INVALID = 3,
+    POLICY_SUPPRESS_CADENCE = 4,
+    POLICY_SUPPRESS_DELTA = 5,
+    POLICY_SUPPRESS_EXPLORATION_DISABLED = 6
+} policy_suppress_reason_t;
+
+#define POLICY_MAGIC 0x504f4c59u /* "POLY" */
+#define POLICY_FORMAT_VERSION 1u
+#define POLICY_SCHEMA_VERSION 1u
+#define POLICY_HEADER_SIZE 64u
+#define POLICY_MAX_FILE_SIZE (POLICY_HEADER_SIZE + (size_t)QTABLE_SIZE * 8u + 32u)
+#define POLICY_ADAPT_CADENCE 5u
+#define POLICY_ADAPT_MAX_DELTA 0.10
+
+static const char *policy_mode_name(policy_mode_t m) {
+    switch (m) {
+        case POLICY_MODE_TRAIN: return "TRAIN";
+        case POLICY_MODE_ADAPT: return "ADAPT";
+        case POLICY_MODE_EVALUATE: return "EVALUATE";
+        default: return "UNKNOWN";
+    }
+}
+
+static const char *policy_load_status_name(policy_load_status_t s) {
+    switch (s) {
+        case POLICY_LOAD_OK: return "OK";
+        case POLICY_LOAD_SKIP: return "SKIP";
+        case POLICY_LOAD_MAGIC: return "MAGIC";
+        case POLICY_LOAD_VERSION: return "VERSION";
+        case POLICY_LOAD_SCHEMA: return "SCHEMA";
+        case POLICY_LOAD_TRUNCATED: return "TRUNCATED";
+        case POLICY_LOAD_OVERSIZED: return "OVERSIZED";
+        case POLICY_LOAD_OVERFLOW: return "OVERFLOW";
+        case POLICY_LOAD_STATE_COUNT: return "STATE_COUNT";
+        case POLICY_LOAD_ACTION_COUNT: return "ACTION_COUNT";
+        case POLICY_LOAD_DIMENSIONS: return "DIMENSIONS";
+        case POLICY_LOAD_NON_FINITE: return "NON_FINITE";
+        case POLICY_LOAD_DIGEST: return "DIGEST";
+        case POLICY_LOAD_TRAILING: return "TRAILING";
+        case POLICY_LOAD_MISSING: return "MISSING";
+        default: return "UNKNOWN";
+    }
+}
+
+static const char *policy_save_status_name(policy_save_status_t s) {
+    switch (s) {
+        case POLICY_SAVE_OK: return "OK";
+        case POLICY_SAVE_WRITE_ERROR: return "WRITE_ERROR";
+        case POLICY_SAVE_RENAME_ERROR: return "RENAME_ERROR";
+        case POLICY_SAVE_TEMP_FAILED: return "TEMP_FAILED";
+        case POLICY_SAVE_VALIDATION_FAILED: return "VALIDATION_FAILED";
+        default: return "UNKNOWN";
+    }
+}
+
+static const char *policy_suppress_reason_name(policy_suppress_reason_t r) {
+    switch (r) {
+        case POLICY_SUPPRESS_NONE: return "NONE";
+        case POLICY_SUPPRESS_MODE: return "MODE";
+        case POLICY_SUPPRESS_STATE: return "STATE";
+        case POLICY_SUPPRESS_FRAME_INVALID: return "FRAME_INVALID";
+        case POLICY_SUPPRESS_CADENCE: return "CADENCE";
+        case POLICY_SUPPRESS_DELTA: return "DELTA";
+        case POLICY_SUPPRESS_EXPLORATION_DISABLED: return "EXPLORATION_DISABLED";
+        default: return "UNKNOWN";
+    }
+}
+
 typedef struct {
     uint32_t magic;
     uint32_t schema_version;
@@ -384,6 +488,11 @@ typedef struct {
     signal_publisher_diagnostics_t diagnostics;
     _Atomic int consensus_lock;
     _Atomic int stop;
+    _Atomic int policy_mode;
+    _Atomic int controller_state;
+    _Atomic int policy_update_allowed;
+    _Atomic int policy_exploration_enabled;
+    _Atomic int policy_consensus_enabled;
 } signal_bus_t;
 
 typedef struct {
@@ -636,6 +745,14 @@ typedef struct {
 } action_observation_t;
 
 static volatile sig_atomic_t g_stop = 0;
+static _Atomic uint64_t g_policy_generation = 0;
+static _Atomic uint64_t g_policy_train_count = 0;
+static _Atomic uint64_t g_policy_adapt_count = 0;
+static _Atomic int g_policy_update_applied = 0;
+static _Atomic int g_policy_suppression_reason = POLICY_SUPPRESS_NONE;
+static _Atomic int g_policy_load_status = POLICY_LOAD_SKIP;
+static _Atomic int g_policy_save_status = POLICY_SAVE_OK;
+static _Atomic uint64_t g_policy_digest_prefix = 0;
 
 static void initialize_signal_reader_diagnostics(signal_reader_diagnostics_t *diagnostics) {
     atomic_init(&diagnostics->read_attempts, 0);
@@ -695,6 +812,11 @@ static void initialize_shared_state(signal_bus_t *bus, signal_reader_gates_t *ga
     initialize_signal_publisher_diagnostics(&bus->diagnostics);
     atomic_init(&bus->consensus_lock, 0);
     atomic_init(&bus->stop, 0);
+    atomic_init(&bus->policy_mode, POLICY_MODE_TRAIN);
+    atomic_init(&bus->controller_state, CONTROL_STATE_NORMAL);
+    atomic_init(&bus->policy_update_allowed, 1);
+    atomic_init(&bus->policy_exploration_enabled, 1);
+    atomic_init(&bus->policy_consensus_enabled, 1);
     workers->worker_count = worker_count;
     workers->rt_exempt_count = rt_exempt_count;
     for (int i = 0; i < worker_count; ++i) {
@@ -768,7 +890,9 @@ static bool shared_atomics_are_lock_free(signal_bus_t *bus,
         && atomic_is_lock_free(&workers->worker[0].action)
         && atomic_is_lock_free(&workers->worker[0].reward)
         && atomic_is_lock_free(&workers->worker[0].requested_sleep_ns)
-        && atomic_is_lock_free(&workers->worker[0].action_sequence);
+        && atomic_is_lock_free(&workers->worker[0].action_sequence)
+        && atomic_is_lock_free(&bus->policy_mode)
+        && atomic_is_lock_free(&bus->controller_state);
 }
 
 static void on_signal(int sig) { (void)sig; g_stop = 1; }
@@ -1984,9 +2108,13 @@ static void adaptive_worker_loop(signal_bus_t *bus, signal_reader_gates_t *gates
             action_t proposed;
             if (mode == MODE_ORCHESTRA) {
                 if (!begin_qtable_access(bus, ws)) break;
+                int allow_update = atomic_load_explicit(&bus->policy_update_allowed,
+                                                        memory_order_relaxed);
+                int allow_explore = atomic_load_explicit(&bus->policy_exploration_enabled,
+                                                          memory_order_relaxed);
                 uint64_t reward_sequence = atomic_load_explicit(
                     &ws->reward_sequence, memory_order_acquire);
-                if (have_transition && reward_sequence == transition_sequence) {
+                if (have_transition && reward_sequence == transition_sequence && allow_update) {
                     double reward = atomic_load(&ws->reward);
                     double max_next = ws->qtable[qindex(current_state, 0)];
                     for (int a = 1; a < ACTION_COUNT; ++a) {
@@ -1999,8 +2127,12 @@ static void adaptive_worker_loop(signal_bus_t *bus, signal_reader_gates_t *gates
                     atomic_store_explicit(&ws->reward_sequence, 0,
                                           memory_order_release);
                 }
-                proposed = epsilon_greedy(ws->qtable, current_state,
-                                          epsilon_for_sequence(frame.sequence), &rng);
+                if (allow_explore) {
+                    proposed = epsilon_greedy(ws->qtable, current_state,
+                                              epsilon_for_sequence(frame.sequence), &rng);
+                } else {
+                    proposed = greedy_action(ws->qtable, current_state, &rng);
+                }
                 end_qtable_access(ws);
             } else {
                 proposed = (action_t)frame.directive;
@@ -2688,6 +2820,157 @@ static controller_event_t controller_machine_update(signal_payload_t *next, cons
     return event;
 }
 
+/* ------------------------ Policy persistence ------------------------- */
+
+static int policy_update_is_allowed(policy_mode_t pmode, controller_state_t cstate,
+                                    bool frame_valid) {
+    if (!frame_valid) return 0;
+    if (pmode == POLICY_MODE_EVALUATE) return 0;
+    if (cstate == CONTROL_STATE_SATURATED) return 0;
+    if (cstate == CONTROL_STATE_ROLLBACK) return 0;
+    if (cstate == CONTROL_STATE_DISABLED) return 0;
+    if (pmode == POLICY_MODE_ADAPT && cstate == CONTROL_STATE_DEGRADED) return 0;
+    return 1;
+}
+
+static int policy_exploration_enabled_for_mode(policy_mode_t pmode) {
+    return pmode == POLICY_MODE_TRAIN ? 1 : 0;
+}
+
+static int policy_consensus_enabled_for_mode(policy_mode_t pmode) {
+    return pmode != POLICY_MODE_EVALUATE ? 1 : 0;
+}
+
+static void policy_sha256(const double qtable[QTABLE_SIZE], uint8_t out[32]) {
+    uint8_t raw[QTABLE_SIZE * 8];
+    for (int i = 0; i < QTABLE_SIZE; i++) {
+        uint64_t bits;
+        memcpy(&bits, &qtable[i], sizeof(bits));
+        for (int b = 0; b < 8; b++)
+            raw[i * 8 + b] = (uint8_t)(bits >> ((7 - b) * 8));
+    }
+    sha256_ctx_t ctx;
+    sha256_init(&ctx);
+    sha256_update(&ctx, raw, sizeof(raw));
+    sha256_final(&ctx, out);
+}
+
+static int policy_serialize(const double qtable[QTABLE_SIZE], uint8_t *buf,
+                            size_t buf_size, size_t *out_len, uint64_t generation,
+                            uint64_t train_count, uint64_t adapt_count) {
+    if (buf_size < POLICY_MAX_FILE_SIZE) return 0;
+    memset(buf, 0, buf_size);
+    uint8_t *cursor = buf;
+    wire_put_u32(&cursor, POLICY_MAGIC);
+    wire_put_u32(&cursor, POLICY_FORMAT_VERSION);
+    wire_put_u32(&cursor, POLICY_SCHEMA_VERSION);
+    wire_put_u32(&cursor, POLICY_HEADER_SIZE);
+    wire_put_u32(&cursor, (uint32_t)((size_t)QTABLE_SIZE * 8u));
+    wire_put_u32(&cursor, (uint32_t)STATE_COUNT);
+    wire_put_u32(&cursor, (uint32_t)ACTION_COUNT);
+    wire_put_u64(&cursor, generation);
+    wire_put_u64(&cursor, train_count);
+    wire_put_u64(&cursor, adapt_count);
+    cursor = buf + 44u;
+    uint8_t *payload = buf + POLICY_HEADER_SIZE;
+    for (int i = 0; i < QTABLE_SIZE; i++) {
+        uint64_t bits;
+        memcpy(&bits, &qtable[i], sizeof(bits));
+        wire_put_u64(&payload, bits);
+    }
+    uint8_t digest[32];
+    policy_sha256(qtable, digest);
+    memcpy(buf + POLICY_HEADER_SIZE + (size_t)QTABLE_SIZE * 8u, digest, 32u);
+    *out_len = POLICY_HEADER_SIZE + (size_t)QTABLE_SIZE * 8u + 32u;
+    return 1;
+}
+
+static policy_load_status_t policy_deserialize(const uint8_t *buf, size_t buf_len,
+                                               double qtable[QTABLE_SIZE],
+                                               uint64_t *out_generation,
+                                               uint64_t *out_train_count,
+                                               uint64_t *out_adapt_count) {
+    if (buf_len < POLICY_HEADER_SIZE) return POLICY_LOAD_TRUNCATED;
+    const uint8_t *cursor = buf;
+    uint32_t magic = wire_get_u32(&cursor);
+    if (magic != POLICY_MAGIC) return POLICY_LOAD_MAGIC;
+    uint32_t fmt_ver = wire_get_u32(&cursor);
+    if (fmt_ver != POLICY_FORMAT_VERSION) return POLICY_LOAD_VERSION;
+    uint32_t schema_ver = wire_get_u32(&cursor);
+    if (schema_ver != POLICY_SCHEMA_VERSION) return POLICY_LOAD_SCHEMA;
+    uint32_t header_len = wire_get_u32(&cursor);
+    if ((size_t)header_len != POLICY_HEADER_SIZE) return POLICY_LOAD_VERSION;
+    uint32_t payload_len = wire_get_u32(&cursor);
+    if ((uint64_t)payload_len > (uint64_t)QTABLE_SIZE * UINT64_C(8))
+        return POLICY_LOAD_OVERSIZED;
+    if (payload_len != (uint32_t)((size_t)QTABLE_SIZE * 8u))
+        return POLICY_LOAD_DIMENSIONS;
+    uint32_t state_count = wire_get_u32(&cursor);
+    if (state_count != (uint32_t)STATE_COUNT) return POLICY_LOAD_STATE_COUNT;
+    uint32_t action_count = wire_get_u32(&cursor);
+    if (action_count != (uint32_t)ACTION_COUNT) return POLICY_LOAD_ACTION_COUNT;
+    uint64_t generation = wire_get_u64(&cursor);
+    uint64_t train_count = wire_get_u64(&cursor);
+    uint64_t adapt_count = wire_get_u64(&cursor);
+    size_t needed = (size_t)header_len + (size_t)payload_len + 32u;
+    if (buf_len < needed) return POLICY_LOAD_TRUNCATED;
+    if (buf_len > needed) return POLICY_LOAD_TRAILING;
+
+    const uint8_t *payload = buf + header_len;
+    double parsed[QTABLE_SIZE];
+    for (int i = 0; i < QTABLE_SIZE; i++) {
+        const uint8_t *fcursor = payload + (size_t)i * 8u;
+        uint64_t bits = wire_get_u64(&fcursor);
+        double val;
+        memcpy(&val, &bits, sizeof(val));
+        if (!isfinite(val)) return POLICY_LOAD_NON_FINITE;
+        parsed[i] = val;
+    }
+    uint8_t expected[32];
+    policy_sha256(parsed, expected);
+    const uint8_t *stored_digest = buf + header_len + (size_t)payload_len;
+    if (!constant_time_equal(stored_digest, expected, 32u))
+        return POLICY_LOAD_DIGEST;
+
+    memcpy(qtable, parsed, sizeof(parsed));
+    *out_generation = generation;
+    *out_train_count = train_count;
+    *out_adapt_count = adapt_count;
+    return POLICY_LOAD_OK;
+}
+
+static policy_save_status_t policy_save_atomic(const double qtable[QTABLE_SIZE],
+                                               const char *path,
+                                               uint64_t generation,
+                                               uint64_t train_count,
+                                               uint64_t adapt_count) {
+    uint8_t buf[POLICY_MAX_FILE_SIZE];
+    size_t out_len = 0;
+    if (!policy_serialize(qtable, buf, sizeof(buf), &out_len,
+                          generation, train_count, adapt_count))
+        return POLICY_SAVE_VALIDATION_FAILED;
+
+    char tmp_path[1024];
+    int written = snprintf(tmp_path, sizeof(tmp_path), "%s.tmp.%d", path, getpid());
+    if (written < 0 || (size_t)written >= sizeof(tmp_path)) return POLICY_SAVE_WRITE_ERROR;
+
+    FILE *f = fopen(tmp_path, "wb");
+    if (!f) return POLICY_SAVE_WRITE_ERROR;
+    size_t w = fwrite(buf, 1u, out_len, f);
+    if (w != out_len || fflush(f) != 0) { fclose(f); unlink(tmp_path); return POLICY_SAVE_WRITE_ERROR; }
+    fclose(f);
+
+    FILE *vf = fopen(tmp_path, "rb");
+    if (!vf) { unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED; }
+    uint8_t verify_buf[POLICY_MAX_FILE_SIZE];
+    size_t vr = fread(verify_buf, 1u, out_len, vf);
+    fclose(vf);
+    if (vr != out_len) { unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED; }
+
+    if (rename(tmp_path, path) != 0) { unlink(tmp_path); return POLICY_SAVE_RENAME_ERROR; }
+    return POLICY_SAVE_OK;
+}
+
 /* ----------------------------- Calibration ----------------------------- */
 
 static int compare_double(const void *a, const void *b) {
@@ -2942,14 +3225,15 @@ static const char *controller_reason_name(uint32_t reason) {
 }
 
 static void print_header(void) {
-    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event,controller_state,previous_state,transition_reason,state_residence_time,valid_control_history_count,invalid_frame_fault_count,saturation_bitmask,saturation_direction,saturation_persistence,oscillation_score,oscillation_event,rollback_event,rollback_reason,recovery_progress,last_known_good_available,requested_jitter,applied_jitter,requested_switch,applied_switch,requested_consensus,applied_consensus,update_accepted,update_suppressed,suppression_reason\n");
+    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event,controller_state,previous_state,transition_reason,state_residence_time,valid_control_history_count,invalid_frame_fault_count,saturation_bitmask,saturation_direction,saturation_persistence,oscillation_score,oscillation_event,rollback_event,rollback_reason,recovery_progress,last_known_good_available,requested_jitter,applied_jitter,requested_switch,applied_switch,requested_consensus,applied_consensus,update_accepted,update_suppressed,suppression_reason,policy_mode,policy_schema_version,policy_generation,policy_update_allowed,policy_update_applied,policy_update_suppression_reason,policy_exploration_enabled,policy_train_update_count,policy_adapt_update_count,policy_load_status,policy_save_status,policy_digest_prefix,policy_format_version\n");
 }
 
 static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *applied,
                       const signal_payload_t *next, const coord_metrics_t *m,
                       const controller_event_t *event, double forecast_error,
                       uint64_t missed_deadlines, worker_block_t *workers,
-                      const controller_machine_t *machine) {
+                      const controller_machine_t *machine,
+                      const signal_bus_t *bus) {
     uint64_t rejected = 0;
     for (int i = 0; i < workers->worker_count; ++i)
         rejected += atomic_load(&workers->worker[i].rejected_frames);
@@ -2964,7 +3248,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            "%d,%d,%.8f,%d,%d,%.8f,%.8f,%s,"
            "%.8f,%.8f,%.8f,%.8f,%.8f,"
            "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,"
-           "%s,%s,%s,%llu,%llu,%llu,%u,%d,%llu,%.8f,%d,%d,%s,%.8f,%d,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d,%d,%d\n",
+           "%s,%s,%s,%llu,%llu,%llu,%u,%d,%llu,%.8f,%d,%d,%s,%.8f,%d,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d,%d,%d,%s,%u,%llu,%d,%d,%s,%d,%llu,%llu,%s,%s,%016llx,%u\n",
            (unsigned long long)tick,
            mode == MODE_ORCHESTRA ? "orchestra" : "baseline",
            applied->cpu_now, applied->cpu_pred, applied->decision_cpu,
@@ -2985,7 +3269,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            event->consensus_applied ? 1 : 0,
            (unsigned long long)rejected,
            (unsigned long long)missed_deadlines,
-           "orchestra.paper_cpu.metrics/v5", m->s3_global, m->s3_conditioned,
+           "orchestra.paper_cpu.metrics/v6", m->s3_global, m->s3_conditioned,
            m->s2_selected, m->s2_effective,
            m->action_attempt_count, m->effective_action_success_count,
            m->action_error_count, m->migration_attempt_count,
@@ -3036,7 +3320,20 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            machine ? machine->applied.consensus_blend : 0.0,
            machine ? machine->update_accepted : 0,
            machine ? machine->update_suppressed : 0,
-           machine ? machine->suppression_reason : 0);
+           machine ? machine->suppression_reason : 0,
+           policy_mode_name((policy_mode_t)atomic_load_explicit(&bus->policy_mode, memory_order_relaxed)),
+           POLICY_SCHEMA_VERSION,
+           (unsigned long long)atomic_load_explicit(&g_policy_generation, memory_order_relaxed),
+           atomic_load_explicit(&bus->policy_update_allowed, memory_order_relaxed),
+           atomic_load_explicit(&g_policy_update_applied, memory_order_relaxed),
+           policy_suppress_reason_name((policy_suppress_reason_t)atomic_load_explicit(&g_policy_suppression_reason, memory_order_relaxed)),
+           atomic_load_explicit(&bus->policy_exploration_enabled, memory_order_relaxed),
+           (unsigned long long)atomic_load_explicit(&g_policy_train_count, memory_order_relaxed),
+           (unsigned long long)atomic_load_explicit(&g_policy_adapt_count, memory_order_relaxed),
+           policy_load_status_name((policy_load_status_t)atomic_load_explicit(&g_policy_load_status, memory_order_relaxed)),
+           policy_save_status_name((policy_save_status_t)atomic_load_explicit(&g_policy_save_status, memory_order_relaxed)),
+           (unsigned long long)atomic_load_explicit(&g_policy_digest_prefix, memory_order_relaxed),
+           POLICY_FORMAT_VERSION);
     fflush(stdout);
 }
 
@@ -3052,6 +3349,9 @@ static void usage(const char *prog) {
         "  --mode baseline      instrumented observed-state reactive reference\n"
         "  --tamper-every N     corrupt each Nth signal; 0 disables\n"
         "  --seed N             worker-policy RNG seed; 0 selects and records one\n"
+        "  --policy-mode MODE   train|adapt|evaluate (default train)\n"
+        "  --policy-in PATH     load policy file\n"
+        "  --policy-out PATH    save policy file at exit\n"
         "  --help\n",
         prog, DEFAULT_WORKERS, DEFAULT_RT_EXEMPT, DEFAULT_DURATION_SEC,
         DEFAULT_INTERVAL_MS, DEFAULT_CALIBRATION_SEC);
@@ -3086,6 +3386,9 @@ int main(int argc, char **argv) {
     int tamper_every = 0;
     uint64_t requested_seed = 0;
     run_mode_t mode = MODE_ORCHESTRA;
+    policy_mode_t policy_mode = POLICY_MODE_TRAIN;
+    const char *policy_in_path = NULL;
+    const char *policy_out_path = NULL;
 
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--workers") && i + 1 < argc) {
@@ -3108,6 +3411,16 @@ int main(int argc, char **argv) {
             if (!strcmp(m, "orchestra")) mode = MODE_ORCHESTRA;
             else if (!strcmp(m, "baseline")) mode = MODE_BASELINE;
             else { usage(argv[0]); return 2; }
+        } else if (!strcmp(argv[i], "--policy-mode") && i + 1 < argc) {
+            const char *pm = argv[++i];
+            if (!strcmp(pm, "train")) policy_mode = POLICY_MODE_TRAIN;
+            else if (!strcmp(pm, "adapt")) policy_mode = POLICY_MODE_ADAPT;
+            else if (!strcmp(pm, "evaluate")) policy_mode = POLICY_MODE_EVALUATE;
+            else { usage(argv[0]); return 2; }
+        } else if (!strcmp(argv[i], "--policy-in") && i + 1 < argc) {
+            policy_in_path = argv[++i];
+        } else if (!strcmp(argv[i], "--policy-out") && i + 1 < argc) {
+            policy_out_path = argv[++i];
         } else if (!strcmp(argv[i], "--help")) { usage(argv[0]); return 0; }
         else { usage(argv[0]); return 2; }
     }
@@ -3163,6 +3476,77 @@ int main(int argc, char **argv) {
         return 1;
     }
     initialize_shared_state(bus, gates, workers, worker_count, rt_exempt);
+
+    atomic_store_explicit(&bus->policy_mode, policy_mode, memory_order_release);
+    atomic_store_explicit(&bus->policy_update_allowed,
+        policy_update_is_allowed(policy_mode, CONTROL_STATE_NORMAL, true),
+        memory_order_release);
+    atomic_store_explicit(&bus->policy_exploration_enabled,
+        policy_exploration_enabled_for_mode(policy_mode), memory_order_release);
+    atomic_store_explicit(&bus->policy_consensus_enabled,
+        policy_consensus_enabled_for_mode(policy_mode), memory_order_release);
+
+    if (policy_in_path) {
+        FILE *pf = fopen(policy_in_path, "rb");
+        if (!pf) {
+            atomic_store_explicit(&g_policy_load_status, POLICY_LOAD_MISSING,
+                                  memory_order_release);
+            fprintf(stderr, "Policy file not found: %s\n", policy_in_path);
+            munmap(bus, sizeof(*bus));
+            munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers));
+            explicit_bzero(master, sizeof(master));
+            return 1;
+        }
+        fseek(pf, 0, SEEK_END);
+        long fsz = ftell(pf);
+        fseek(pf, 0, SEEK_SET);
+        if (fsz <= 0 || (uint64_t)fsz > (uint64_t)POLICY_MAX_FILE_SIZE) {
+            fclose(pf);
+            atomic_store_explicit(&g_policy_load_status, POLICY_LOAD_OVERSIZED,
+                                  memory_order_release);
+            fprintf(stderr, "Policy file invalid size\n");
+            munmap(bus, sizeof(*bus));
+            munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers));
+            explicit_bzero(master, sizeof(master));
+            return 1;
+        }
+        uint8_t *fbuf = malloc((size_t)fsz);
+        if (!fbuf) { fclose(pf); munmap(bus, sizeof(*bus)); munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers)); explicit_bzero(master, sizeof(master)); return 1; }
+        size_t fr = fread(fbuf, 1u, (size_t)fsz, pf);
+        fclose(pf);
+        if (fr != (size_t)fsz) {
+            free(fbuf); atomic_store_explicit(&g_policy_load_status, POLICY_LOAD_TRUNCATED,
+                                               memory_order_release);
+            fprintf(stderr, "Policy partial read\n");
+            munmap(bus, sizeof(*bus)); munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers)); explicit_bzero(master, sizeof(master)); return 1;
+        }
+        uint64_t pgen = 0, ptrain = 0, padapt = 0;
+        double loaded[QTABLE_SIZE];
+        policy_load_status_t lstatus = policy_deserialize(fbuf, (size_t)fsz, loaded,
+                                                           &pgen, &ptrain, &padapt);
+        free(fbuf);
+        atomic_store_explicit(&g_policy_load_status, lstatus, memory_order_release);
+        if (lstatus != POLICY_LOAD_OK) {
+            fprintf(stderr, "Policy load failed: %s\n", policy_load_status_name(lstatus));
+            munmap(bus, sizeof(*bus)); munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers)); explicit_bzero(master, sizeof(master)); return 1;
+        }
+        for (int i = 0; i < worker_count; ++i)
+            memcpy(workers->worker[i].qtable, loaded, sizeof(loaded));
+        atomic_store_explicit(&g_policy_generation, pgen, memory_order_release);
+        atomic_store_explicit(&g_policy_train_count, ptrain, memory_order_release);
+        atomic_store_explicit(&g_policy_adapt_count, padapt, memory_order_release);
+        uint64_t dp = 0;
+        memcpy(&dp, loaded, sizeof(uint64_t));
+        atomic_store_explicit(&g_policy_digest_prefix, dp, memory_order_release);
+    } else {
+        atomic_store_explicit(&g_policy_load_status, POLICY_LOAD_SKIP, memory_order_release);
+    }
+
     if (!shared_atomics_are_lock_free(bus, gates, workers)) {
         fprintf(stderr, "Required process-shared atomics are not lock-free on this platform.\n");
         munmap(bus, sizeof(*bus));
@@ -3198,10 +3582,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    fprintf(stderr, "workers=%d eligible=%d rt-exempt=%d mode=%s tick=%dms tamper-every=%d seed=%llu signal-schema=%u state-schema=%u\n",
+    fprintf(stderr, "workers=%d eligible=%d rt-exempt=%d mode=%s tick=%dms tamper-every=%d seed=%llu signal-schema=%u state-schema=%u policy-mode=%s\n",
             worker_count, worker_count - rt_exempt, rt_exempt,
             mode == MODE_ORCHESTRA ? "orchestra" : "baseline", interval_ms, tamper_every,
-            (unsigned long long)effective_seed, SIGNAL_SCHEMA_VERSION, STATE_SCHEMA_VERSION);
+            (unsigned long long)effective_seed, SIGNAL_SCHEMA_VERSION, STATE_SCHEMA_VERSION,
+            policy_mode_name(policy_mode));
     fprintf(stderr, "CSV metrics are written to stdout.\n\n");
 
     cpu_sample_t prev_cpu_sample, cur_cpu_sample;
@@ -3343,14 +3728,51 @@ int main(int argc, char **argv) {
             .reason = CONTROL_REASON_NONE
         };
 
-        if (mode == MODE_ORCHESTRA && tick % CONTROLLER_PERIOD_TICKS == 0) {
-            bool frame_valid = metric_frame_is_valid_and_fresh(&frame) && complete_accepted_sample;
-            if (frame_valid) controller_step++;
-            event = controller_machine_update(&next, &metrics, jitter_floor, controller_step, &machine, &window, &osc_window, frame_valid);
-            if (event.updated) {
-                event.consensus_applied = consensus_blend_qtables(bus, workers, next.consensus_blend);
-            }
-        }
+         if (mode == MODE_ORCHESTRA && tick % CONTROLLER_PERIOD_TICKS == 0) {
+             bool frame_valid = metric_frame_is_valid_and_fresh(&frame) && complete_accepted_sample;
+             if (frame_valid) controller_step++;
+             event = controller_machine_update(&next, &metrics, jitter_floor, controller_step, &machine, &window, &osc_window, frame_valid);
+             if (event.updated) {
+                 int consensus_ok = atomic_load_explicit(&bus->policy_consensus_enabled,
+                                                         memory_order_relaxed);
+                 event.consensus_applied = consensus_ok ? consensus_blend_qtables(bus, workers,
+                                                       next.consensus_blend) : 0;
+             }
+             atomic_store_explicit(&bus->controller_state, machine.state, memory_order_release);
+             {
+                 policy_mode_t pm;
+                 int allowed, suppr;
+                 pm = (policy_mode_t)atomic_load_explicit(&bus->policy_mode,
+                                                          memory_order_relaxed);
+                 allowed = policy_update_is_allowed(pm, machine.state, frame_valid);
+                 atomic_store_explicit(&bus->policy_update_allowed, allowed, memory_order_release);
+                 atomic_store_explicit(&bus->policy_exploration_enabled,
+                                        policy_exploration_enabled_for_mode(pm),
+                                        memory_order_release);
+                 atomic_store_explicit(&bus->policy_consensus_enabled,
+                                        policy_consensus_enabled_for_mode(pm),
+                                        memory_order_release);
+                 suppr = POLICY_SUPPRESS_NONE;
+                 if (pm == POLICY_MODE_EVALUATE) suppr = POLICY_SUPPRESS_MODE;
+                 else if (!frame_valid) suppr = POLICY_SUPPRESS_FRAME_INVALID;
+                 else if (!allowed) suppr = POLICY_SUPPRESS_STATE;
+                 if (allowed && event.updated) {
+                     atomic_store_explicit(&g_policy_update_applied, 1, memory_order_release);
+                     atomic_fetch_add_explicit(&g_policy_generation, UINT64_C(1),
+                                                memory_order_release);
+                     if (pm == POLICY_MODE_TRAIN)
+                         atomic_fetch_add_explicit(&g_policy_train_count, UINT64_C(1),
+                                                    memory_order_release);
+                     else if (pm == POLICY_MODE_ADAPT)
+                         atomic_fetch_add_explicit(&g_policy_adapt_count, UINT64_C(1),
+                                                    memory_order_release);
+                 } else {
+                     atomic_store_explicit(&g_policy_update_applied, 0, memory_order_release);
+                 }
+                 atomic_store_explicit(&g_policy_suppression_reason, suppr,
+                                        memory_order_release);
+             }
+         }
 
         frame.jitter_sigma = next.jitter_sigma;
         frame.switch_penalty = next.switch_penalty;
@@ -3364,7 +3786,7 @@ int main(int argc, char **argv) {
         }
 
         print_row(tick, mode, &applied, &next, &metrics, &event,
-                  metric_forecast_error, missed_deadlines, workers, &machine);
+                  metric_forecast_error, missed_deadlines, workers, &machine, bus);
 
         now = monotonic_ns();
         if (duration_sec > 0
@@ -3374,6 +3796,35 @@ int main(int argc, char **argv) {
 
     stop_and_reap_workers(bus, pids, spawned_workers);
     print_signal_publication_diagnostics(bus, workers);
+
+    if (policy_out_path) {
+        double save_q[QTABLE_SIZE];
+        memcpy(save_q, workers->worker[0].qtable, sizeof(save_q));
+        for (int i = 1; i < worker_count; ++i)
+            for (int q = 0; q < QTABLE_SIZE; q++)
+                save_q[q] += workers->worker[i].qtable[q];
+        for (int q = 0; q < QTABLE_SIZE; q++)
+            save_q[q] /= (double)worker_count;
+        uint64_t pgen = atomic_load_explicit(&g_policy_generation, memory_order_relaxed);
+        uint64_t ptrain = atomic_load_explicit(&g_policy_train_count, memory_order_relaxed);
+        uint64_t padapt = atomic_load_explicit(&g_policy_adapt_count, memory_order_relaxed);
+        policy_save_status_t sstatus = policy_save_atomic(save_q, policy_out_path, pgen,
+                                                           ptrain, padapt);
+        atomic_store_explicit(&g_policy_save_status, sstatus, memory_order_release);
+        if (sstatus != POLICY_SAVE_OK)
+            fprintf(stderr, "Policy save failed: %s\n", policy_save_status_name(sstatus));
+        else
+            fprintf(stderr, "Policy saved: %s\n", policy_out_path);
+    }
+
+    fprintf(stderr, "Policy mode=%s load=%s save=%s suppr=%s\n",
+            policy_mode_name(policy_mode),
+            policy_load_status_name((policy_load_status_t)atomic_load_explicit(
+                &g_policy_load_status, memory_order_relaxed)),
+            policy_save_status_name((policy_save_status_t)atomic_load_explicit(
+                &g_policy_save_status, memory_order_relaxed)),
+            policy_suppress_reason_name((policy_suppress_reason_t)atomic_load_explicit(
+                &g_policy_suppression_reason, memory_order_relaxed)));
 
     munmap(bus, sizeof(*bus));
     munmap(gates, sizeof(*gates));
