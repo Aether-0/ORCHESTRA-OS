@@ -38,12 +38,12 @@ jobs:
           wc -l kernel/sched_ext/include/vmlinux.h
           echo "--- runner kernel ---"
           uname -r
-          cat /sys/kernel/sched_ext/state || echo "(sched_ext state unavailable)"
 
       - name: Compile orchestra_scx.bpf.o
         run: |
           set -e
-          clang -O2 -target bpf -g \
+          clang -O2 -target bpf -g -nostdinc \
+            -D__BPF__ \
             -I kernel/sched_ext/include \
             -I /tmp/linux/tools/lib \
             -I /tmp/linux/tools/bpf/bpftool/libbpf \
@@ -82,7 +82,7 @@ jobs:
           path: kernel/sched_ext/orchestra_scx.bpf.o
           retention-days: 14
 
-      - name: Upload headers for guest rebuild
+      - name: Upload sources for guest rebuild
         uses: actions/upload-artifact@v4
         with:
           name: orchestra_scx_sources
@@ -92,8 +92,3 @@ jobs:
             kernel/sched_ext/orchestra_scx.c
             kernel/sched_ext/scripts/check_kernel_config.sh
           retention-days: 14
-
-      - name: Record kernel commit
-        run: |
-          echo "ORCHESTRA-OS commit: $(git rev-parse HEAD)" >> $GITHUB_STEP_SUMMARY
-          echo "Kernel commit: ${{ steps.kernel.outputs.kernel-commit }}" >> $GITHUB_STEP_SUMMARY

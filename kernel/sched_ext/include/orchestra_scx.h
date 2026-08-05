@@ -9,7 +9,21 @@
 #ifndef ORCHESTRA_SCX_H
 #define ORCHESTRA_SCX_H
 
+/*
+ * When compiled for BPF target (-target bpf): vmlinux.h must be included
+ * before this header (common.bpf.h does this).  Kernel types __u32/__u64
+ * are available.
+ *
+ * When compiled for userspace: stdint.h provides standard types.
+ */
+#ifdef __BPF__
+/* vmlinux.h already included by common.bpf.h — use kernel types */
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s32 int32_t;
+#else
 #include <stdint.h>
+#endif
 
 /* --- Canonical actions (subset for Stage 6) --- */
 
