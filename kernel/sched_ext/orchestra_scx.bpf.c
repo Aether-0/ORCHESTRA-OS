@@ -169,7 +169,7 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
     struct orchestra_telemetry *tel = orchestra_telemetry_get();
     uint32_t state = 0;
     enum orchestra_action action;
-    struct bpf_iter_scx_dsq it;
+    struct task_struct *p;
 
     if (tel)
         orchestra_telemetry_inc(&tel->dispatch_count);
@@ -208,7 +208,6 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
     if (prev)
         scx_bpf_consume(0);
 
-    (void)it;
     (void)cpu;
 }
 
