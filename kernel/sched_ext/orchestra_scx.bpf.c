@@ -159,8 +159,7 @@ void BPF_STRUCT_OPS(orchestra_sched_enqueue, struct task_struct *p,
     if (tel)
         orchestra_telemetry_inc(&tel->enqueue_count);
 
-    /* Dispatch to the global DSQ */
-    scx_bpf_dispatch(p, SCX_DSQ_GLOBAL, ORCHESTRA_SLICE_NS_DEFAULT, enq_flags);
+    scx_bpf_dispatch(p, 0, ORCHESTRA_SLICE_NS_DEFAULT, enq_flags);
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
@@ -176,31 +175,11 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
         bpf_ktime_get_ns() / ORCHESTRA_SLICE_NS_DEFAULT)
         % ORCHESTRA_POLICY_TABLE_SIZE);
 
-    /* Consume from global DSQ */
-    if (prev)
-        scx_bpf_consume(SCX_DSQ_GLOBAL);
-
-    /* Dispatch queued tasks with the selected action */
-    /* In 6.12, scx_bpf_consume handles iteration */
-    switch (action) {
-    case ORCHESTRA_ACT_RUN:
-        if (tel)
-            orchestra_telemetry_inc(&tel->run_count);
-        break;
-    case ORCHESTRA_ACT_YIELD:
-        if (tel)
-            orchestra_telemetry_inc(&tel->yield_count);
-        break;
-    default:
-        if (tel) {
-            orchestra_telemetry_inc(&tel->invalid_action_count);
-            orchestra_telemetry_inc(&tel->fallback_count);
-        }
-        break;
-    }
+    /* Consume one pending task from this CPUs local DSQ */
+    scx_bpf_consume(0);
 
     (void)cpu;
-}
+    (void)prev;
 
 void BPF_STRUCT_OPS(orchestra_sched_running, struct task_struct *p)
 {
