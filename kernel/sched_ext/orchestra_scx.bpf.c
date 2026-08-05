@@ -167,46 +167,37 @@ void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
                     struct task_struct *prev)
 {
     struct orchestra_telemetry *tel = orchestra_telemetry_get();
-    uint32_t state = 0;
     enum orchestra_action action;
-    struct task_struct *p;
 
     if (tel)
         orchestra_telemetry_inc(&tel->dispatch_count);
 
-    state = (uint32_t)(bpf_ktime_get_ns() / ORCHESTRA_SLICE_NS_DEFAULT)
-            % ORCHESTRA_POLICY_TABLE_SIZE;
-    action = orchestra_lookup_action(state);
+    action = orchestra_lookup_action((uint32_t)(
+        bpf_ktime_get_ns() / ORCHESTRA_SLICE_NS_DEFAULT)
+        % ORCHESTRA_POLICY_TABLE_SIZE);
 
-    bpf_for_each(scx_dsq, p, SCX_DSQ_GLOBAL, 0) {
-        orchestra_record_task_action(p->pid, action);
-
-        switch (action) {
-        case ORCHESTRA_ACT_RUN:
-            if (tel)
-                orchestra_telemetry_inc(&tel->run_count);
-            scx_bpf_dispatch(p, SCX_DSQ_GLOBAL,
-                             ORCHESTRA_SLICE_NS_DEFAULT, 0);
-            break;
-        case ORCHESTRA_ACT_YIELD:
-            if (tel)
-                orchestra_telemetry_inc(&tel->yield_count);
-            scx_bpf_dispatch(p, SCX_DSQ_GLOBAL,
-                             ORCHESTRA_SLICE_NS_YIELD, 0);
-            break;
-        default:
-            if (tel) {
-                orchestra_telemetry_inc(&tel->invalid_action_count);
-                orchestra_telemetry_inc(&tel->fallback_count);
-            }
-            scx_bpf_dispatch(p, SCX_DSQ_GLOBAL,
-                             ORCHESTRA_SLICE_NS_DEFAULT, 0);
-            break;
-        }
-    }
-
+    /* Consume from global DSQ */
     if (prev)
-        scx_bpf_consume(0);
+        scx_bpf_consume(SCX_DSQ_GLOBAL);
+
+    /* Dispatch queued tasks with the selected action */
+    /* In 6.12, scx_bpf_consume handles iteration */
+    switch (action) {
+    case ORCHESTRA_ACT_RUN:
+        if (tel)
+            orchestra_telemetry_inc(&tel->run_count);
+        break;
+    case ORCHESTRA_ACT_YIELD:
+        if (tel)
+            orchestra_telemetry_inc(&tel->yield_count);
+        break;
+    default:
+        if (tel) {
+            orchestra_telemetry_inc(&tel->invalid_action_count);
+            orchestra_telemetry_inc(&tel->fallback_count);
+        }
+        break;
+    }
 
     (void)cpu;
 }
