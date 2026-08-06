@@ -12,6 +12,7 @@
 typedef __u32 uint32_t;
 typedef __u64 uint64_t;
 typedef __s32 int32_t;
+#define UINT64_C(v) (v ## ULL)
 #else
 #include <stdint.h>
 #endif
