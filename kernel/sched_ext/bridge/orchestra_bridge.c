@@ -15,16 +15,19 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
-#include <getopt.h>
 #include <time.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include "orchestra_bridge_v1.h"
+#undef __BPF__
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
-#include "include/orchestra_bridge_v1.h"
 
-/* Default BPF map paths (pinned by the scheduler loader) */
-#define BRIDGE_CTL_PATH  "/sys/fs/bpf/orch7/bridge_control_map"
-#define BRIDGE_DIR_PATH  "/sys/fs/bpf/orch7/bridge_directive_map"
-#define BRIDGE_TEL_PATH  "/sys/fs/bpf/orch7/bridge_telemetry_map"
+/* Pinned BPF map paths (maps must be individually pinned by the loader) */
+#define BRIDGE_CTL_PATH  "/sys/fs/bpf/bridge_control_"
+#define BRIDGE_DIR_PATH  "/sys/fs/bpf/bridge_directiv"
+#define BRIDGE_TEL_PATH  "/sys/fs/bpf/bridge_telemetr"
+#define BRIDGE_TASK_PATH "/sys/fs/bpf/bridge_task_map"
 
 /* Exit codes */
 #define EXIT_OK             0
