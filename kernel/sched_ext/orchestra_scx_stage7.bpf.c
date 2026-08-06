@@ -106,17 +106,23 @@ bridge_active_dir(uint64_t *out_gen)
 }
 
 /* Check task identity against a directive.
- * Cookie = tgid << 32 | (pid & 0xFFFF) | (start_time_sec << 48). */
+ * Uses TGID, PID, and task_cookie (start_time/boottime) for
+ * protection against PID reuse.  A mismatch on any component
+ * triggers safe RUN fallback and telemetry. */
 static __always_inline uint32_t
 bridge_check_identity(struct task_struct *p,
                       const struct bridge_directive *dir)
 {
-    /* For v6.12: use tgid and pid from task_struct directly.
-     * Full cookie-based identity deferred to future CO-RE work. */
     if (p->tgid != dir->target_tgid)
         return BRIDGE_ID_TGID_MISMATCH;
     if (p->pid != dir->target_pid)
         return BRIDGE_ID_PID_MISMATCH;
+
+    /* Cookie = task start_boottime.  Protects against PID reuse
+     * when a new task gets the same PID after the old one exits.
+     * Cookie 0 in the directive means "don't check" (legacy compat). */
+    if (dir->task_cookie != 0 && p->start_boottime != dir->task_cookie)
+        return BRIDGE_ID_COOKIE_MISMATCH;
 
     uint64_t now = bpf_ktime_get_ns();
     if (dir->expiry_ns != 0 && now > dir->expiry_ns)
