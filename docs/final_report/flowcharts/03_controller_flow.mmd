@@ -1,0 +1,15 @@
+flowchart TD
+    MET["Metrics\n(S1,S2,S3,S4)"] --> EVAL["Evaluate State\n(window avg)"]
+    EVAL --> NORMAL{"State?"}
+    NORMAL -->|"S3/S4 < 0.82"| DEGRADED
+    NORMAL -->|"Healthy"| ACT["Update Actuators\n(jitter/switch/consensus)"]
+    DEGRADED -->|"Recovered"| NORMAL
+    DEGRADED -->|"Saturated"| SATURATED
+    DEGRADED -->|"Oscillation"| DISABLED
+    SATURATED -->|"Recovered"| NORMAL
+    SATURATED -->|"Timeout"| ROLLBACK
+    ROLLBACK --> RECOVERY
+    RECOVERY -->|"Stable"| NORMAL
+    RECOVERY -->|"Failed"| DISABLED
+    DISABLED --> RECOVERY
+    ACT --> POL["Policy Selection"] --> BR["Bridge Publication"] --> KRN["Kernel Action"] --> TEL["Telemetry"] --> MET

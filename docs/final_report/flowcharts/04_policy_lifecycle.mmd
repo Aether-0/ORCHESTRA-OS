@@ -1,0 +1,7 @@
+flowchart TD
+    TRAIN["TRAIN\n(exploration + updates)"] -->|"Export"| PERSIST["Policy File\n(.pol binary)"]
+    PERSIST -->|"Validate"| LOAD["Loaded Q-table"]
+    LOAD --> ADAPT["ADAPT\n(bounded updates)"]
+    ADAPT -->|"Freeze"| EVAL["EVALUATE\n(reproducible)"]
+    EVAL -->|"New training"| TRAIN
+    PERSIST -->|"Reject"| FAIL["Validation Failed\n(magic/digest/dims)"]

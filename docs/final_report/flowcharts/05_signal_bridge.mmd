@@ -1,0 +1,7 @@
+flowchart LR
+    US["Userspace Bridge"] -->|"1. Write inactive slot"| SLOT["Directive Map\n(slot 0 or 1)"]
+    US -->|"2. Read-back verify"| SLOT
+    US -->|"3. Increment generation"| CTL["Control Map\n(active_slot, generation)"]
+    BPF["BPF Scheduler"] -->|"Read control"| CTL
+    BPF -->|"Read active slot"| SLOT
+    BPF -->|"Validate: gen, identity, expiry"| ACT["Execute Action\nor RUN fallback"]

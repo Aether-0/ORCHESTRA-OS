@@ -1,0 +1,11 @@
+flowchart LR
+    S1["✓ Stg1\nCore"] --> S2["✓ Stg2\nMetrics"]
+    S2 --> S3["✓ Stg3\nSignalBus"]
+    S3 --> S4["✓ Stg4\nController"]
+    S4 --> S5["✓ Stg5\nPolicy"]
+    S5 --> S6["✓ Stg6\nsched_ext"]
+    S6 --> S6B["✓ Stg6B\nRuntime"]
+    S6B --> S7["✓ Stg7\nBridge"]
+    S7 --> S8["✓ Stg8\nValidation"]
+    S8 --> S9["✓ Stg9\nBenchmark"]
+    S9 --> FUTURE["Stg10+\nFuture"]
