@@ -38,3 +38,4 @@ vgcore.*
 .env.*
 *.pem
 *.key
+artifacts/initramfs*.img
