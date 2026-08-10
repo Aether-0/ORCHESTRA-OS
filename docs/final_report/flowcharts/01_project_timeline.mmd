@@ -1,0 +1,11 @@
+flowchart TD
+    S1["Stage 1\nUserspace Core\n(Aug 2)"] --> S2["Stage 2\nMetrics v2-v6\n(Aug 3)"]
+    S2 --> S3["Stage 3\nSignal Bus\n(Aug 3)"]
+    S3 --> S4["Stage 4\nController\n(Aug 4)"]
+    S4 --> S5["Stage 5\nPolicy Lifecycle\n(Aug 4)"]
+    S5 --> S6["Stage 6\nsched_ext MVP\n(Aug 5)"]
+    S6 --> S6B["Stage 6B\nRuntime Validation\n(Aug 5)"]
+    S6B --> S7["Stage 7\nSignal Bridge\n(Aug 5)"]
+    S7 --> S8["Stage 8\nKernel Validation\n(Aug 6)"]
+    S8 --> S9["Stage 9\nBenchmarking\n(Aug 7)"]
+    S9 --> S10["Stage 10+\nFuture Work"]

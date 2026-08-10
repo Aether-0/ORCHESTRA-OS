@@ -1,0 +1,6 @@
+flowchart TD
+    W["Workers\n(12 processes)"] --> O["Observations\n(S1-S4, actions)"]
+    O --> CSV["CSV Output\n(120 columns v6)"]
+    CSV --> VAL["Validator\n(34 contract tests)"]
+    VAL --> BENCH["Benchmark Runner\n(trials, summaries)"]
+    BENCH --> REP["Report\n(CSV + JSON)"]

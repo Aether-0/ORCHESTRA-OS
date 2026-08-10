@@ -1,0 +1,384 @@
+{
+  "project": "ORCHESTRA-OS",
+  "commit": "0ab5d7a",
+  "date": "2026-08-07",
+  "stages_completed": 9,
+  "total_files": 403,
+  "documents": [
+    {
+      "path": "./AGENTS.md",
+      "size": 48777,
+      "mtime": 1785695107.0820239
+    },
+    {
+      "path": "./README.md",
+      "size": 1369,
+      "mtime": 1785935295.7556832
+    },
+    {
+      "path": "./artifacts/README.md",
+      "size": 1234,
+      "mtime": 1785935390.4039161
+    },
+    {
+      "path": "./artifacts/test-results/2026-08-03/README.md",
+      "size": 4733,
+      "mtime": 1785701742.104513
+    },
+    {
+      "path": "./docs/adr/0009-sched-ext-virtualbox-mvp.md",
+      "size": 2338,
+      "mtime": 1785983930.6731892
+    },
+    {
+      "path": "./docs/adr/0004-effective-userspace-action-metrics.md",
+      "size": 12495,
+      "mtime": 1785784026.1253724
+    },
+    {
+      "path": "./docs/adr/0008-policy-lifecycle-and-persistence.md",
+      "size": 4352,
+      "mtime": 1785953703.6950438
+    },
+    {
+      "path": "./docs/adr/0006-generation-stamped-signal-publication.md",
+      "size": 17046,
+      "mtime": 1785790881.9951644
+    },
+    {
+      "path": "./docs/adr/0007-controller-safety-state-machine.md",
+      "size": 5249,
+      "mtime": 1785946433.356803
+    },
+    {
+      "path": "./docs/adr/0012-stage9-production-validation.md",
+      "size": 1307,
+      "mtime": 1786080796.9465227
+    },
+    {
+      "path": "./docs/adr/0011-stage8-full-kernel-validation.md",
+      "size": 4123,
+      "mtime": 1786080708.1352386
+    },
+    {
+      "path": "./docs/adr/0003-metrics-v3-conditioned-coherence.md",
+      "size": 1087,
+      "mtime": 1785782724.1636631
+    },
+    {
+      "path": "./docs/adr/0010-userspace-bpf-signal-bridge.md",
+      "size": 3917,
+      "mtime": 1785991177.5776713
+    },
+    {
+      "path": "./docs/adr/0001-userspace-state-metric-controller-contract.md",
+      "size": 24120,
+      "mtime": 1785699144.6348355
+    },
+    {
+      "path": "./docs/adr/0005-burst-sensitive-temporal-stability.md",
+      "size": 10641,
+      "mtime": 1785786128.3585937
+    },
+    {
+      "path": "./docs/adr/0002-userspace-signal-frame-contract.md",
+      "size": 30974,
+      "mtime": 1785790882.0031643
+    },
+    {
+      "path": "./docs/architecture/sched-ext-preparation.md",
+      "size": 2794,
+      "mtime": 1785782724.1636631
+    },
+    {
+      "path": "./docs/experiments/paper_cpu_smoke_v1.md",
+      "size": 6059,
+      "mtime": 1785698937.674107
+    },
+    {
+      "path": "./docs/experiments/signal_publication_microbenchmark_v1_result_2026-08-05.md",
+      "size": 3224,
+      "mtime": 1785935388.4702506
+    },
+    {
+      "path": "./docs/experiments/stage9-benchmark-methodology.md",
+      "size": 954,
+      "mtime": 1786081058.94424
+    },
+    {
+      "path": "./docs/experiments/signal_publication_microbenchmark_v1.md",
+      "size": 12035,
+      "mtime": 1785790882.0031643
+    },
+    {
+      "path": "./docs/experiments/paper_cpu_metrics_v4.md",
+      "size": 10638,
+      "mtime": 1785786128.3585937
+    },
+    {
+      "path": "./docs/experiments/paper_cpu_smoke_v1_result_2026-08-03.md",
+      "size": 8198,
+      "mtime": 1785701625.679953
+    },
+    {
+      "path": "./docs/experiments/paper_cpu_metrics_v3.md",
+      "size": 3988,
+      "mtime": 1785783767.1322362
+    },
+    {
+      "path": "./docs/experiments/figures/paper_cpu_smoke_v1_2026-08-03/README.md",
+      "size": 3738,
+      "mtime": 1785701661.4181452
+    },
+    {
+      "path": "./docs/kernel/sched-ext-vbox-runtime-result.md",
+      "size": 3520,
+      "mtime": 1785991177.5776713
+    },
+    {
+      "path": "./docs/kernel/stage8-exact-kernel-blocked.md",
+      "size": 1561,
+      "mtime": 1786080708.1352386
+    },
+    {
+      "path": "./docs/kernel/virtualbox-bringup.md",
+      "size": 5233,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./docs/kernel/stage8-kernel-build-log.md",
+      "size": 1342,
+      "mtime": 1786080708.1352386
+    },
+    {
+      "path": "./docs/kernel/stage8-exact-kernel-validated.md",
+      "size": 1590,
+      "mtime": 1786080708.1352386
+    },
+    {
+      "path": "./docs/security/stage8-threat-model.md",
+      "size": 2396,
+      "mtime": 1786080708.136539
+    },
+    {
+      "path": "./docs/security/bridge-hardening.md",
+      "size": 1611,
+      "mtime": 1786080708.1352386
+    },
+    {
+      "path": "./docs/operations/release-readiness-plan.md",
+      "size": 35225,
+      "mtime": 1785935299.711693
+    },
+    {
+      "path": "./docs/operations/release-readiness-brief-manifest.md",
+      "size": 2307,
+      "mtime": 1785701701.1523192
+    },
+    {
+      "path": "./docs/operations/figures/README.md",
+      "size": 689,
+      "mtime": 1785700478.1835008
+    },
+    {
+      "path": "./kernel/sched_ext/README.md",
+      "size": 3135,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./release/CHANGELOG.md",
+      "size": 1514,
+      "mtime": 1786082061.47884
+    },
+    {
+      "path": "./release/SYSTEM_INFORMATION.md",
+      "size": 1013,
+      "mtime": 1786082096.565476
+    },
+    {
+      "path": "./release/FINAL_REPORT.md",
+      "size": 6102,
+      "mtime": 1786082027.657669
+    },
+    {
+      "path": "./release/FUTURE_WORK.md",
+      "size": 835,
+      "mtime": 1786082061.4777777
+    },
+    {
+      "path": "./release/REPRODUCTION_GUIDE.md",
+      "size": 2057,
+      "mtime": 1786082096.5635176
+    },
+    {
+      "path": "./release/PROJECT_TIMELINE.md",
+      "size": 3284,
+      "mtime": 1786082061.4754856
+    },
+    {
+      "path": "./release/BENCHMARK_RESULTS.md",
+      "size": 1253,
+      "mtime": 1786082096.564469
+    },
+    {
+      "path": "./release/ARCHITECTURE.md",
+      "size": 4537,
+      "mtime": 1786082096.5581288
+    },
+    {
+      "path": "./release/INSTALLATION_GUIDE.md",
+      "size": 2286,
+      "mtime": 1786082116.0049176
+    },
+    {
+      "path": "./release/KNOWN_LIMITATIONS.md",
+      "size": 1503,
+      "mtime": 1786082061.476663
+    },
+    {
+      "path": "./release/README.md",
+      "size": 2503,
+      "mtime": 1786081999.8853683
+    },
+    {
+      "path": "./orchestra_paper_cpu_demo/README.md",
+      "size": 15084,
+      "mtime": 1785790790.9106724
+    },
+    {
+      "path": "./tools/reporting/README.md",
+      "size": 999,
+      "mtime": 1785701617.587913
+    },
+    {
+      "path": "./research/experiments/README.md",
+      "size": 630,
+      "mtime": 1785935290.0394936
+    },
+    {
+      "path": "./research/experiments/process-group-prototype/README.md",
+      "size": 3245,
+      "mtime": 1785935294.923681
+    }
+  ],
+  "sources": [
+    {
+      "path": "./tests/unit/test_orchestra_paper_cpu.c",
+      "size": 85347,
+      "mtime": 1785940566.659066
+    },
+    {
+      "path": "./tests/unit/test_signal_publication_stress.c",
+      "size": 24741,
+      "mtime": 1785789853.518731
+    },
+    {
+      "path": "./tests/integration/test_signal_publication_integration.c",
+      "size": 46379,
+      "mtime": 1785790981.0356739
+    },
+    {
+      "path": "./kernel/sched_ext/orchestra_scx_stage7.bpf.c",
+      "size": 15425,
+      "mtime": 1785991177.5776713
+    },
+    {
+      "path": "./kernel/sched_ext/orchestra_scx.bpf.c",
+      "size": 3529,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./kernel/sched_ext/orchestra_scx.c",
+      "size": 6622,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./kernel/sched_ext/bridge/orchestra_bridge.c",
+      "size": 15075,
+      "mtime": 1785991177.5776713
+    },
+    {
+      "path": "./kernel/sched_ext/include/orchestra_bridge_v1.h",
+      "size": 5621,
+      "mtime": 1785991177.5776713
+    },
+    {
+      "path": "./kernel/sched_ext/include/orchestra_scx.h",
+      "size": 3105,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./orchestra_paper_cpu_demo/orchestra_paper_cpu.c",
+      "size": 173001,
+      "mtime": 1785953703.6950438
+    },
+    {
+      "path": "./tools/benchmark/signal_publication_microbenchmark.c",
+      "size": 41391,
+      "mtime": 1785790418.1925817
+    },
+    {
+      "path": "./research/experiments/process-group-prototype/orchestra_real_cpu.c",
+      "size": 20071,
+      "mtime": 1785691798.0
+    }
+  ],
+  "scripts": [
+    {
+      "path": "./tests/unit/run.sh",
+      "size": 3847,
+      "mtime": 1785790558.0132797
+    },
+    {
+      "path": "./tests/integration/run.sh",
+      "size": 4220,
+      "mtime": 1785953703.6950438
+    },
+    {
+      "path": "./kernel/sched_ext/scripts/reproduce_stage7_runtime.sh",
+      "size": 7950,
+      "mtime": 1785992870.35656
+    },
+    {
+      "path": "./kernel/sched_ext/scripts/check_kernel_config.sh",
+      "size": 2061,
+      "mtime": 1785983930.6739926
+    },
+    {
+      "path": "./kernel/sched_ext/scripts/stage8_validate.sh",
+      "size": 8341,
+      "mtime": 1786080708.136539
+    },
+    {
+      "path": "./release/test.sh",
+      "size": 345,
+      "mtime": 1786082116.0081983
+    },
+    {
+      "path": "./release/benchmark.sh",
+      "size": 202,
+      "mtime": 1786082116.009995
+    },
+    {
+      "path": "./release/build.sh",
+      "size": 144,
+      "mtime": 1786082116.0059304
+    },
+    {
+      "path": "./release/run_stage8.sh",
+      "size": 225,
+      "mtime": 1786082116.0116315
+    },
+    {
+      "path": "./release/run_stage9.sh",
+      "size": 286,
+      "mtime": 1786082116.013355
+    },
+    {
+      "path": "./benchmarks/stage9/benchmark_compare.sh",
+      "size": 5052,
+      "mtime": 1786080827.9266899
+    }
+  ],
+  "artifacts": []
+}

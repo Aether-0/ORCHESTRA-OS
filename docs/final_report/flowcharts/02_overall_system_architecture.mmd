@@ -1,0 +1,9 @@
+flowchart TD
+    USR["Userspace Controller\n+ Policy Engine"] --> SIG["Signal Bus\n(C11 Atomic)"]
+    SIG --> BR["Bridge CLI\n(Two-Slot Publication)"]
+    BR --> BPF["BPF Maps\n(control/directive/task/telemetry)"]
+    BPF --> SCX["sched_ext Ops\n(enqueue/dispatch/...)"]
+    SCX --> KERN["Linux Kernel\n(SCX_OPS_SWITCH_PARTIAL)"]
+    KERN --> CPU["CPU Cores"]
+    CPU --> OBS["Observations\n(/proc/stat, meminfo)"]
+    OBS --> USR

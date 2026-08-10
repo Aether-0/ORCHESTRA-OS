@@ -1,0 +1,13 @@
+flowchart TD
+    TASK["Task Arrives"] --> READ["Read Bridge Directive"]
+    READ --> VALID{"Valid\nDirective?"}
+    VALID -->|"No"| FALLBACK["RUN (safe)"]
+    VALID -->|"Yes"| GATE{"Controller\nAllows?"}
+    GATE -->|"No"| FALLBACK
+    GATE -->|"Yes"| ACTION{"Action?"}
+    ACTION -->|"RUN"| RUN["Dispatch 5ms"]
+    ACTION -->|"YIELD"| YIELD["Dispatch 1ms"]
+    ACTION -->|"MIGRATE"| MIG["CPU validate\nDispatch"]
+    ACTION -->|"THROTTLE"| THR["Reduced slice\nDispatch"]
+    ACTION -->|"SLEEP"| SLP["Deferred\nEligibility"]
+    ACTION -->|"Unknown"| FALLBACK
