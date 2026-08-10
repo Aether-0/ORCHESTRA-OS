@@ -1,0 +1,116 @@
+[
+  {
+    "sched": "CFS",
+    "angle": "yield_throughput",
+    "workers": 1,
+    "total_ops": 13208465,
+    "elapsed_s": 4.51472020149231,
+    "ops_per_sec": 2925644.2061756193
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "yield_throughput",
+    "workers": 1,
+    "total_ops": 9446726,
+    "elapsed_s": 4.296267509460449,
+    "ops_per_sec": 2198821.6467429367
+  },
+  {
+    "sched": "CFS",
+    "angle": "yield_throughput",
+    "workers": 2,
+    "total_ops": 24591609,
+    "elapsed_s": 4.6079792976379395,
+    "ops_per_sec": 5336744.679518355
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "yield_throughput",
+    "workers": 2,
+    "total_ops": 21740716,
+    "elapsed_s": 4.393258810043335,
+    "ops_per_sec": 4948653.594069854
+  },
+  {
+    "sched": "CFS",
+    "angle": "yield_throughput",
+    "workers": 4,
+    "total_ops": 38548603,
+    "elapsed_s": 4.617885112762451,
+    "ops_per_sec": 8347674.7599162245
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "yield_throughput",
+    "workers": 4,
+    "total_ops": 33879391,
+    "elapsed_s": 4.369645595550537,
+    "ops_per_sec": 7753349.8447787715
+  },
+  {
+    "sched": "CFS",
+    "angle": "interactive_latency",
+    "workers": 1,
+    "cycles": 3342,
+    "avg_delay_us": 411.0356944943148
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "interactive_latency",
+    "workers": 1,
+    "cycles": 3108,
+    "avg_delay_us": 406.8119494851995
+  },
+  {
+    "sched": "CFS",
+    "angle": "interactive_latency",
+    "workers": 2,
+    "cycles": 8047,
+    "avg_delay_us": 161.657249285448
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "interactive_latency",
+    "workers": 2,
+    "cycles": 6376,
+    "avg_delay_us": 337.46162766624843
+  },
+  {
+    "sched": "CFS",
+    "angle": "interactive_latency",
+    "workers": 4,
+    "cycles": 15411,
+    "avg_delay_us": 209.59808454999677
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "interactive_latency",
+    "workers": 4,
+    "cycles": 12906,
+    "avg_delay_us": 312.91331589958156
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "action_directive",
+    "action": "RUN",
+    "total_ops": 27791871,
+    "elapsed_s": 4.331082820892334,
+    "ops_per_sec": 6416841.272565191
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "action_directive",
+    "action": "YIELD",
+    "total_ops": 31489580,
+    "elapsed_s": 4.4779767990112305,
+    "ops_per_sec": 7032099.855218796
+  },
+  {
+    "sched": "ORCHESTRA",
+    "angle": "action_directive",
+    "action": "THROTTLE",
+    "total_ops": 29610933,
+    "elapsed_s": 4.467280626296997,
+    "ops_per_sec": 6628402.260134035
+  }
+]
