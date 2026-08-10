@@ -1,0 +1,6 @@
+flowchart TD
+    A["Userspace Controller"] -->|"Signal Frames"| B["Bridge CLI"]
+    B -->|"BPF Maps"| C["Kernel Scheduler"]
+    C -->|"5 Actions"| D["Linux sched ext"]
+    D --> E["CPU Cores"]
+    E -->|"Telemetry"| A

@@ -1,0 +1,9 @@
+flowchart TD
+    TASK["Task Arrives"] --> DIR{"Directive?"}
+    DIR -->|"Valid"| ACT{"Action"}
+    DIR -->|"Invalid"| FALL["Safe RUN"]
+    ACT -->|"RUN"| R["5ms Dispatch"]
+    ACT -->|"YIELD"| Y["1ms Dispatch"]
+    ACT -->|"MIGRATE"| M["CPU Target"]
+    ACT -->|"THROTTLE"| TH["Reduced Slice"]
+    ACT -->|"SLEEP"| S["Deferred"]

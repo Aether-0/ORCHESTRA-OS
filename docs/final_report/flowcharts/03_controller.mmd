@@ -1,0 +1,8 @@
+flowchart TD
+    N["NORMAL\nAll Actions"] -->|"Low Metrics"| D["DEGRADED\nRestricted"]
+    D -->|"Recovered"| N
+    D -->|"Saturated"| SAT["SATURATED\nRUN Only"]
+    SAT -->|"Timeout"| RB["ROLLBACK\nRestore LKG"]
+    RB --> RC["RECOVERY\nConservative"]
+    RC -->|"Stable"| N
+    RC -->|"Failed"| DIS["DISABLED\nNo Adapt"]

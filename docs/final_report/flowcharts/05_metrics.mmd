@@ -1,0 +1,6 @@
+flowchart TD
+    W["Workers"] -->|"Observe"| S["S1 Fidelity\nS2 Compliance\nS3 Coherence\nS4 Stability"]
+    S --> Q["Q = S1·S2·S3·S4 ^ 1/4"]
+    Q --> CSV["CSV Output"]
+    CSV --> VAL["Validator"]
+    VAL --> REP["Report"]

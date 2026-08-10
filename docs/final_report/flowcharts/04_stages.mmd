@@ -1,0 +1,9 @@
+flowchart LR
+    S1["Stage 1\nCore"] --> S2["Stage 2\nMetrics"]
+    S2 --> S3["Stage 3\nSignal Bus"]
+    S3 --> S4["Stage 4\nController"]
+    S4 --> S5["Stage 5\nPolicy"]
+    S5 --> S6["Stage 6\nKernel"]
+    S6 --> S7["Stage 7\nBridge"]
+    S7 --> S8["Stage 8\nValidation"]
+    S8 --> S9["Stage 9\nBenchmark"]

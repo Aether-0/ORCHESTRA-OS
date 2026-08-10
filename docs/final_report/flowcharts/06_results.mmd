@@ -1,0 +1,4 @@
+flowchart TD
+    CFS["Linux CFS\n2419 ms"] -->|"Baseline"| COMP["Comparison\n4 CPU workers"]
+    ORCH["ORCHESTRA\n2898 ms"] -->|"+20% overhead"| COMP
+    COMP --> SUM["Overhead from:\nBPF callbacks\nBridge maps\nIdentity checks\nTelemetry"]
