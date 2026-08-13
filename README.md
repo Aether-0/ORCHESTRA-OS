@@ -14,6 +14,7 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
 | **Kernel Benchmark Report** (HTML + graphs, VirtualBox) | [ORCHESTRA_Kernel_Benchmark_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Benchmark_Report.html) |
+| **Kernel Improvement Report** (findings & fix map) | [ORCHESTRA_Kernel_Improvement_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Improvement_Report.html) |
 | **VBox Test Ladder Summary** | [SUMMARY.md](./artifacts/test-results/2026-08-13/vbox-mcp/SUMMARY.md) |
 | **Architecture Decisions** (12 ADRs) | [docs/adr/](./docs/adr/) |
 | **Kernel BPF Scheduler Source** | [kernel/sched_ext/](./kernel/sched_ext/) |
