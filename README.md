@@ -2,7 +2,7 @@
 
 Predictive, cryptographically protected, hierarchical, signal-coordinated scheduling architecture for Linux.
 
-**Status:** Research prototype — 9 stages validated, exact kernel boot achieved, real-machine benchmarks ready.
+**Status:** Kernel-prototyped and VirtualBox-runtime-validated. Controlled real-machine testing is **blocked pending the K0 fixes** identified by the 2026-08-14 deep kernel and algorithm audit.
 
 ---
 
@@ -10,6 +10,7 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 
 | What | Link |
 |------|------|
+| **Deep Kernel + Algorithm Code Review** (HTML, 2026-08-14) | [ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) |
 | **USB Deployment Kit** (everything for real machine) | [orchestra-usb-final.zip](./orchestra-usb-final.zip) |
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
@@ -36,7 +37,7 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 ORCHESTRA-OS/
 │
 ├── orchestra_paper_cpu_demo/      Userspace prototype (C11, RL, controller)
-│   ├── orchestra_paper_cpu.c       Main implementation (3384 lines)
+│   ├── orchestra_paper_cpu.c       Canonical userspace algorithm implementation
 │   ├── Makefile                    Build
 │   └── README.md                   Usage
 │
@@ -116,6 +117,8 @@ make clean && make && make test
 ---
 
 ## 2. Real-Machine Kernel Setup
+
+> **Safety gate:** Do not load ORCHESTRA sched_ext on a physical machine yet. The current audit verdict is **CONDITIONAL — FIX K0 FIRST**. Complete the dependency-ordered fixes and post-fix verifier/VM tests in the [deep kernel and algorithm review](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) before using the commands below. The commands remain documented as a future controlled-test procedure, not as present authorization or evidence of readiness.
 
 ### Prerequisites
 - Linux 6.12+ with `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_DEBUG_INFO_BTF=y`
