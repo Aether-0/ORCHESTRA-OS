@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ORCHESTRA-OS Before / After Report — P0 Ownership Fix · VirtualBox 2026-08-13</title>
+<style>
+:root {
+  --bg: #f7f5f1;
+  --ink: #1a1a1a;
+  --muted: #5c5c5c;
+  --line: #d4cfc4;
+  --card: #fffdf9;
+  --pass: #1b7f4a;
+  --fail: #a32020;
+  --warn: #9a6700;
+  --accent: #0b3d4a;
+  --chip: #e8f1f3;
+  --before: #a32020;
+  --after: #1b7f4a;
+  --cfs: #5c6b70;
+  --scx: #0b5f78;
+  --orch: #1b7f4a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Source Sans 3", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 480px at 8% -8%, #dfecee 0%, transparent 55%),
+    linear-gradient(180deg, #efeae2 0%, var(--bg) 30%);
+  line-height: 1.55;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+header.hero {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.brand {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+h1 {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  margin: 0.4rem 0 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.lede { font-size: 1.05rem; color: var(--muted); max-width: 72ch; margin: 0; }
+.badge {
+  display: inline-block;
+  background: var(--chip);
+  color: var(--accent);
+  border: 1px solid #b7d0d6;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+}
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.meta div {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0.75rem 0.9rem;
+}
+.meta dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.meta dd {
+  margin: 0.15rem 0 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 1.25rem 1.35rem 1.5rem;
+  margin: 1.15rem 0;
+}
+h2 {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 1.35rem;
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.4rem;
+}
+h3 { font-size: 1.02rem; margin: 1.1rem 0 0.45rem; color: #20343a; }
+p { margin: 0.55rem 0; }
+.muted { color: var(--muted); font-size: 0.92rem; }
+ul, ol { margin: 0.4rem 0 0.4rem 1.15rem; padding: 0; }
+li { margin: 0.3rem 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+th, td {
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: #eef4f5;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+tr:nth-child(even) td { background: #fbfaf7; }
+td.num, th.num { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.tag {
+  display: inline-block;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.12rem 0.4rem;
+  color: #fff;
+}
+.tag-before { background: var(--before); }
+.tag-after { background: var(--after); }
+.tag-fail { background: var(--fail); }
+.tag-pass { background: var(--pass); }
+.tag-warn { background: var(--warn); }
+.callout {
+  background: #fff7e8;
+  border-left: 4px solid #c48a1a;
+  padding: 0.75rem 0.9rem;
+  margin: 0.9rem 0;
+}
+.callout.danger { background: #fbebeb; border-left-color: #a32020; }
+.callout.ok { background: #eaf7ef; border-left-color: #1b7f4a; }
+code, .mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.86em;
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+.kpi {
+  border: 1px solid var(--line);
+  padding: 0.85rem 1rem;
+  background: #fffcf7;
+}
+.kpi .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.kpi .v { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 1.35rem; font-weight: 700; margin-top: 0.2rem; }
+.kpi .s { font-size: 0.82rem; color: var(--muted); }
+.bar-block { margin: 0.85rem 0 1.1rem; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr 5.5rem;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0.35rem 0;
+  font-size: 0.82rem;
+}
+.bar-track {
+  height: 14px;
+  background: #ece8e0;
+  border: 1px solid var(--line);
+}
+.bar { height: 100%; }
+.bar.before { background: var(--before); }
+.bar.after { background: var(--after); }
+.bar.cfs { background: var(--cfs); }
+.bar.scx { background: var(--scx); }
+.bar.orch { background: var(--orch); }
+.legend span { margin-right: 1rem; font-size: 0.82rem; }
+.swatch {
+  display: inline-block;
+  width: 11px; height: 11px;
+  margin-right: 0.3rem;
+  vertical-align: -1px;
+}
+.toc a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted #7aa0aa; }
+.toc a:hover { border-bottom-style: solid; }
+.compare td.before-cell { color: var(--fail); font-weight: 600; }
+.compare td.after-cell { color: var(--pass); font-weight: 600; }
+footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="brand">ORCHESTRA-OS · Research Evidence</div>
+  <h1>Before / After Report</h1>
+  <p class="lede">
+    Side-by-side comparison of the VirtualBox kernel campaign <strong>before</strong>
+    the known recommendations were applied (Stage 8/9, 2026-08-13 morning)
+    and <strong>after</strong> the P0 ownership fix (same guest, same day).
+  </p>
+  <p style="margin-top:1rem">
+    <span class="badge">Claim class: VirtualBox kernel-prototyped</span>
+    <span class="badge">Not bare-metal</span>
+    <span class="badge">Not a publishable performance claim</span>
+  </p>
+  <div class="meta">
+    <div><dt>Guest</dt><dd>orchestra-scx-lab · Fedora 40 · Linux 6.12.96 · 4 vCPU / 8 GB</dd></div>
+    <div><dt>Before commit / object</dt><dd>pre-fix orchestra_scx_stage7.bpf.o · SWITCH_PARTIAL, no worker opt-in</dd></div>
+    <div><dt>After commit</dt><dd>997bb7f · opt-in + ENQ_LAST + place() + LOCAL_ON MIGRATE</dd></div>
+    <div><dt>After BPF SHA-256</dt><dd>34437524dce40855427368ed9fda1038be74b6671e032a948778760a3ac006a0</dd></div>
+  </div>
+</header>
+
+<section class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#exec">Executive comparison</a></li>
+    <li><a href="#ownership">Ownership (the P0 gate)</a></li>
+    <li><a href="#actions">Canonical actions</a></li>
+    <li><a href="#bench">Scheduler benches</a></li>
+    <li><a href="#harness">Harness honesty</a></li>
+    <li><a href="#changed">What changed in code</a></li>
+    <li><a href="#open">Still open</a></li>
+    <li><a href="#sources">Source artifacts</a></li>
+  </ol>
+</section>
+
+<section id="exec">
+  <h2>1. Executive comparison</h2>
+  <div class="grid2">
+    <div class="kpi">
+      <div class="k">Before — Stage 8 “ORCHESTRA” load</div>
+      <div class="v" style="color:var(--fail)">enqueue = 0 · run = 0</div>
+      <div class="s">Idle <span class="mono">dispatch</span> rose; workers were still on CFS under <span class="mono">SCX_OPS_SWITCH_PARTIAL</span>.</div>
+    </div>
+    <div class="kpi">
+      <div class="k">After — owned P0 retest + 5 s bench</div>
+      <div class="v" style="color:var(--pass)">owned = yes</div>
+      <div class="s">Opt-in RUN: enqueue=9, run=13, running=91, enable=1. 4-worker bench: enqueue=69002, running=80557.</div>
+    </div>
+  </div>
+  <div class="callout ok">
+    <strong>Verdict:</strong> The before campaign did <em>not</em> prove that busy-loop workers were scheduled by ORCHESTRA.
+    After the recommended fix, the same guest shows non-zero <span class="mono">enqueue</span> / <span class="mono">running</span> / <span class="mono">task_enable</span>
+    and <span class="mono">MIGRATE</span> telemetry on opted-in tasks. That is the scientific improvement.
+    Wall-clock of fixed-duration spins is still not a throughput metric.
+  </div>
+  <p class="legend">
+    <span><i class="swatch" style="background:var(--before)"></i>Before (un-owned)</span>
+    <span><i class="swatch" style="background:var(--after)"></i>After (owned SCHED_EXT)</span>
+  </p>
+</section>
+
+<section id="ownership">
+  <h2>2. Ownership (the P0 gate)</h2>
+  <p>
+    Recommendation: every run labeled ORCHESTRA must show rising
+    <span class="mono">enqueue_count</span> / <span class="mono">task_enable_count</span> / <span class="mono">running_count</span>.
+  </p>
+
+  <h3>Stage 8 multicore probe vs P0 / owned 5 s bench</h3>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Workers</th>
+        <th>Metric</th>
+        <th class="num">Before (~10 s)</th>
+        <th class="num">After</th>
+        <th>Interpretation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td><td>enqueue</td>
+        <td class="num before-cell">0</td>
+        <td class="num after-cell">10 709 <span class="muted">(5 s bench)</span></td>
+        <td>Before: ops loaded, task not in SCX. After: opt-in + ENQ_LAST.</td>
+      </tr>
+      <tr>
+        <td>2</td><td>enqueue</td>
+        <td class="num before-cell">0</td>
+        <td class="num after-cell">33 109</td>
+        <td>Same.</td>
+      </tr>
+      <tr>
+        <td>4</td><td>enqueue</td>
+        <td class="num before-cell">0</td>
+        <td class="num after-cell">69 002</td>
+        <td>Same.</td>
+      </tr>
+      <tr>
+        <td>1–4</td><td>run</td>
+        <td class="num before-cell">0</td>
+        <td class="num after-cell">non-zero (P0 run=13; bench running 12k–80k)</td>
+        <td>Before run never incremented. After <span class="mono">orchestra_place()</span> counts RUN.</td>
+      </tr>
+      <tr>
+        <td>1–4</td><td>dispatch / idle_dispatch</td>
+        <td class="num">6 926 → 13 234</td>
+        <td class="num">idle_dispatch still rises with no opt-in (730→1142 in P0 negative test)</td>
+        <td>Idle callback noise existed before and after. It is <em>not</em> ownership.</td>
+      </tr>
+      <tr>
+        <td>—</td><td>owned gate</td>
+        <td class="num before-cell">no (implicit)</td>
+        <td class="num after-cell">yes on all 3 ORCHESTRA bench rows</td>
+        <td>Harness now fails a row if enqueue=0 or running=0.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Enqueue counts (before Stage 8 10 s vs after 5 s owned bench)</h3>
+  <p class="muted">Bar scale is linear to after 4-worker enqueue = 69 002. Before bars are zero.</p>
+  <div class="bar-block">
+    <div class="bar-row"><span>1w before</span><div class="bar-track"><div class="bar before" style="width:0%"></div></div><span class="mono">0</span></div>
+    <div class="bar-row"><span>1w after</span><div class="bar-track"><div class="bar after" style="width:15.5%"></div></div><span class="mono">10709</span></div>
+    <div class="bar-row"><span>2w before</span><div class="bar-track"><div class="bar before" style="width:0%"></div></div><span class="mono">0</span></div>
+    <div class="bar-row"><span>2w after</span><div class="bar-track"><div class="bar after" style="width:48%"></div></div><span class="mono">33109</span></div>
+    <div class="bar-row"><span>4w before</span><div class="bar-track"><div class="bar before" style="width:0%"></div></div><span class="mono">0</span></div>
+    <div class="bar-row"><span>4w after</span><div class="bar-track"><div class="bar after" style="width:100%"></div></div><span class="mono">69002</span></div>
+  </div>
+
+  <h3>P0 negative control (after only)</h3>
+  <table>
+    <thead>
+      <tr><th>Condition</th><th class="num">enqueue</th><th class="num">running</th><th class="num">idle_dispatch</th><th>Gate</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Busy worker <strong>without</strong> <span class="mono">--opt-in</span></td>
+        <td class="num">0 → 0</td>
+        <td class="num">0 → 0</td>
+        <td class="num">730 → 1142</td>
+        <td><span class="tag tag-pass">PASS</span> partial switch holds</td>
+      </tr>
+      <tr>
+        <td>Same binary <strong>with</strong> opt-in + RUN directive</td>
+        <td class="num">9</td>
+        <td class="num">91</td>
+        <td class="num">—</td>
+        <td><span class="tag tag-pass">PASS</span> ownership</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="muted">
+    Protocol: <span class="mono">kernel/sched_ext/scripts/p0_ownership_retest.sh</span>
+    · evidence <a href="./p0-ownership-retest/">p0-ownership-retest/</a>
+    · fail_count = 0.
+  </p>
+</section>
+
+<section id="actions">
+  <h2>3. Canonical actions</h2>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Before (Stage 8 stability 1802 s)</th>
+        <th>After (P0 retest)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RUN</td>
+        <td class="before-cell">run = 0 for the whole soak</td>
+        <td class="after-cell">run = 13, running = 91 on a ~3 s opted-in worker</td>
+      </tr>
+      <tr>
+        <td>MIGRATE</td>
+        <td class="before-cell">migrate = 0; BPF still dispatched to SCX_DSQ_LOCAL</td>
+        <td class="after-cell">requested = 27, effective = 27 via SCX_DSQ_LOCAL_ON | cpu 1</td>
+      </tr>
+      <tr>
+        <td>YIELD / THROTTLE / SLEEP</td>
+        <td>counters stayed 0 (no owned worker, no matching directive)</td>
+        <td>not re-soaked in this P0; slice contracts documented. SLEEP/THROTTLE still min-slice approximations</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    Identity cookie was also wrong before: userspace <span class="mono">/proc</span> starttime (ticks)
+    was compared to <span class="mono">p-&gt;start_boottime</span> (ns). After, cookie 0 means “do not check,”
+    so a published RUN/MIGRATE can match the opted-in PID.
+  </div>
+</section>
+
+<section id="bench">
+  <h2>4. Scheduler benches</h2>
+  <div class="callout danger">
+    <strong>Do not treat wall time as a win/loss.</strong> Both campaigns used fixed-duration busy loops,
+    so elapsed_ms ≈ duration for CFS, scx_simple, and ORCHESTRA.
+    Before used ~30 s and <em>cumulative</em> <span class="mono">/proc/stat ctxt</span>.
+    After used 5 s and <em>per-run</em> <span class="mono">ctx_delta</span>. Those ctxt columns are not paired.
+  </div>
+
+  <h3>Before — Phase D fixed suite (~30 s loops, cumulative ctxt)</h3>
+  <table>
+    <thead>
+      <tr><th>Scheduler</th><th class="num">1w ms</th><th class="num">2w ms</th><th class="num">4w ms</th><th class="num">4w ctxt (cumulative)</th><th>Owned?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CFS</td><td class="num">29533</td><td class="num">29997</td><td class="num">29998</td><td class="num">10222019</td><td>n/a</td></tr>
+      <tr><td>scx_simple</td><td class="num">29733</td><td class="num">29995</td><td class="num">29996</td><td class="num">10809156</td><td>n/a (full scx)</td></tr>
+      <tr><td>ORCHESTRA</td><td class="num">29410</td><td class="num">29996</td><td class="num">29998</td><td class="num">12143619</td><td><span class="tag tag-fail">NO</span> enqueue was 0 in Stage 8</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Source: <span class="mono">phase-d/benchmark-suite-fixed/results.csv</span>. Higher ORCHESTRA ctxt cannot be attributed to adaptive policy if workers were on CFS plus idle dispatch noise.</p>
+
+  <h3>After — owned 5 s suite (per-run ctxt_delta)</h3>
+  <table>
+    <thead>
+      <tr><th>Scheduler</th><th class="num">1w ms</th><th class="num">2w ms</th><th class="num">4w ms</th><th class="num">1w Δctxt</th><th class="num">4w Δctxt</th><th class="num">4w enqueue / running</th><th>Owned?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CFS</td><td class="num">4361</td><td class="num">4992</td><td class="num">4992</td><td class="num">34113</td><td class="num">108379</td><td class="num">n/a</td><td>n/a</td></tr>
+      <tr><td>scx_simple</td><td class="num">4974</td><td class="num">4992</td><td class="num">4990</td><td class="num">16391</td><td class="num">48117</td><td class="num">n/a</td><td>n/a</td></tr>
+      <tr><td>ORCHESTRA</td><td class="num">4362</td><td class="num">4941</td><td class="num">4944</td><td class="num">15609</td><td class="num">55720</td><td class="num">69002 / 80557</td><td><span class="tag tag-pass">YES</span></td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Source: <a href="./p0-owned-bench/results.csv">p0-owned-bench/results.csv</a>. Duration 5 s, n=1 per cell, VirtualBox.</p>
+
+  <h3>After — per-run context-switch deltas (4 workers)</h3>
+  <p class="muted">Scale = CFS 4w Δctxt 108 379. This is after-only; before cumulative totals are omitted on purpose.</p>
+  <div class="bar-block">
+    <div class="bar-row"><span>CFS 4w</span><div class="bar-track"><div class="bar cfs" style="width:100%"></div></div><span class="mono">108379</span></div>
+    <div class="bar-row"><span>scx_simple 4w</span><div class="bar-track"><div class="bar scx" style="width:44.4%"></div></div><span class="mono">48117</span></div>
+    <div class="bar-row"><span>ORCHESTRA 4w</span><div class="bar-track"><div class="bar orch" style="width:51.4%"></div></div><span class="mono">55720</span></div>
+  </div>
+
+  <h3>Completion-time probe (after only, n=1)</h3>
+  <table>
+    <thead>
+      <tr><th>Workload</th><th class="num">CFS</th><th class="num">ORCHESTRA owned</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="mono">fixed_work</span> 80×10<sup>6</sup> iterations</td>
+        <td class="num">160 ms</td>
+        <td class="num">7723 ms</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="muted">
+    Single VirtualBox sample. <span class="mono">SCX_OPS_ENQ_LAST</span> plus BPF place on a lone spinner
+    increases scheduling events; this is <strong>not</strong> a calibrated overhead result and must not be cited as
+    “ORCHESTRA is 48× slower.”
+  </p>
+</section>
+
+<section id="harness">
+  <h2>5. Harness honesty</h2>
+  <table>
+    <thead>
+      <tr><th>Defect (before)</th><th>After</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="mono">wait $(jobs -p)</span> hung on background <span class="mono">scx_simple</span></td>
+        <td>Wait only worker PIDs; kill scx without waiting it as a job</td>
+      </tr>
+      <tr>
+        <td>Cumulative <span class="mono">/proc/stat ctxt</span></td>
+        <td>Per-run <span class="mono">ctx_delta</span></td>
+      </tr>
+      <tr>
+        <td>Stage 8 <span class="mono">set -e</span> aborted on invalid PID</td>
+        <td><span class="mono">set +e</span> around the expected rejection</td>
+      </tr>
+      <tr>
+        <td>Bash <span class="mono">volatile</span> in worker</td>
+        <td><span class="mono">while true; do :; done</span> / <span class="mono">fixed_work.c</span></td>
+      </tr>
+      <tr>
+        <td>Maps re-pinned by hand; glob <span class="mono">sudo rm /sys/fs/bpf/*</span> missed root-only pins</td>
+        <td><span class="mono">orchestra_bridge --pin-maps</span>; <span class="mono">sudo bash -c 'rm -rf /sys/fs/bpf/*'</span></td>
+      </tr>
+      <tr>
+        <td>No ownership column</td>
+        <td><span class="mono">owned=yes|no</span> on ORCHESTRA rows</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="changed">
+  <h2>6. What changed in code</h2>
+  <table>
+    <thead>
+      <tr><th>Area</th><th>Files</th><th>After behavior</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Partial switch + last-task enqueue</td>
+        <td><span class="mono">orchestra_scx_stage7.bpf.c</span></td>
+        <td>Keep SWITCH_PARTIAL (safety). Add ENQ_LAST so a lone spinner is placed. Shared <span class="mono">orchestra_place()</span> from <span class="mono">select_cpu</span> and <span class="mono">enqueue</span>.</td>
+      </tr>
+      <tr>
+        <td>Opt-in</td>
+        <td><span class="mono">orchestra_bridge.c</span></td>
+        <td><span class="mono">--opt-in --target-pid</span> → <span class="mono">sched_setattr(SCHED_EXT)</span></td>
+      </tr>
+      <tr>
+        <td>Fast path</td>
+        <td>BPF <span class="mono">dir_cache_map</span></td>
+        <td>Skip full re-parse when generation is unchanged; identity mismatch uses <span class="mono">fast_run</span> without a task-map write</td>
+      </tr>
+      <tr>
+        <td>MIGRATE</td>
+        <td>BPF MIGRATE branch</td>
+        <td><span class="mono">SCX_DSQ_LOCAL_ON | cpu</span> + <span class="mono">scx_bpf_kick_cpu</span></td>
+      </tr>
+      <tr>
+        <td>Telemetry</td>
+        <td><span class="mono">orchestra_bridge_v1.h</span></td>
+        <td><span class="mono">running_count</span>, <span class="mono">idle_dispatch_count</span>, <span class="mono">fastpath_run_count</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="open">
+  <h2>7. Still open</h2>
+  <ul>
+    <li>SLEEP / THROTTLE remain min-slice approximations (<span class="mono">scx_bpf_consume</span> previously failed on this 6.12 path).</li>
+    <li>Completion-time cost under ENQ_LAST is uncalibrated (n=1, VirtualBox).</li>
+    <li>No bare-metal, no NUMA, no repeated statistical protocol (WP7).</li>
+    <li><span class="mono">cgroup cpu.weight</span> dmesg warning remains (same class as <span class="mono">scx_simple</span>).</li>
+    <li>Bridge maps are still local-trust only (no cryptographic authentication).</li>
+  </ul>
+  <p>
+    Publication wording: “the VirtualBox guest demonstrated owned SCHED_EXT placement after opt-in” —
+    not deployment-ready, not universally faster, not a paper reproduction of userspace Q(t).
+  </p>
+</section>
+
+<section id="sources">
+  <h2>8. Source artifacts</h2>
+  <table>
+    <thead>
+      <tr><th>Side</th><th>Artifact</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-before">BEFORE</span></td>
+        <td>
+          <a href="./ORCHESTRA_Kernel_Benchmark_Report.html">Kernel Benchmark Report</a> ·
+          <a href="./ORCHESTRA_Kernel_Improvement_Report.html">Improvement / fix map</a> ·
+          <a href="./SUMMARY.md">VBox ladder SUMMARY</a> ·
+          <span class="mono">phase-e/stage8-validation-*/results.csv</span> ·
+          <span class="mono">phase-d/benchmark-suite-fixed/results.csv</span>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-after">AFTER</span></td>
+        <td>
+          <a href="./p0-ownership-retest/">p0-ownership-retest/</a> ·
+          <a href="./p0-owned-bench/">p0-owned-bench/</a> ·
+          <a href="../../../../known_recommand_fix.md">known_recommand_fix.md</a> ·
+          git <span class="mono">997bb7f</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  ORCHESTRA-OS · 2026-08-13 · VirtualBox evidence only · generated as a comparison of Stage 8/9 (un-owned) vs P0 ownership retest (owned).
+</footer>
+</div>
+</body>
+</html>

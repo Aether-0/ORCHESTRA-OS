@@ -14,6 +14,7 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
 | **Known Recommendations & Fixes** (Markdown) | [known_recommand_fix.md](./known_recommand_fix.md) |
+| **Before / After Report** (HTML, ownership fix vs Stage 8/9) | [ORCHESTRA_Before_After_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Before_After_Report.html) |
 | **P0 ownership retest** (VirtualBox, after recommended fixes) | [p0-ownership-retest/](./artifacts/test-results/2026-08-13/vbox-mcp/p0-ownership-retest/) |
 | **P0 owned 5s bench CSV** (CFS / scx_simple / ORCHESTRA) | [p0-owned-bench/](./artifacts/test-results/2026-08-13/vbox-mcp/p0-owned-bench/) |
 | **Kernel Benchmark Report** (HTML + graphs, VirtualBox) | [ORCHESTRA_Kernel_Benchmark_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Benchmark_Report.html) |

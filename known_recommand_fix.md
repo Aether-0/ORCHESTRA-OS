@@ -7,6 +7,7 @@
 
 Companion reports:
 
+- [Before / After Report (HTML)](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Before_After_Report.html)
 - [Kernel Benchmark Report (HTML)](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Benchmark_Report.html)
 - [Kernel Improvement Report (HTML)](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Improvement_Report.html)
 - [VBox Test Ladder Summary](./artifacts/test-results/2026-08-13/vbox-mcp/SUMMARY.md)
@@ -173,6 +174,7 @@ A kernel change counts as improved only when all hold:
 
 ```text
 artifacts/test-results/2026-08-13/vbox-mcp/
+├── ORCHESTRA_Before_After_Report.html
 ├── ORCHESTRA_Kernel_Benchmark_Report.html
 ├── ORCHESTRA_Kernel_Improvement_Report.html
 ├── SUMMARY.md
