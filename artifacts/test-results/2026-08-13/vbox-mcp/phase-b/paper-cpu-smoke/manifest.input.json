@@ -1,0 +1,26 @@
+{
+  "manifest_schema_id": "orchestra.paper_cpu.benchmark_manifest/v1",
+  "experiment_id": "paper_cpu_smoke_v1",
+  "metrics_schema_id": "orchestra.paper_cpu.metrics/v2",
+  "maturity_class": "userspace-validated",
+  "comparison_design": "descriptive-unpaired-endogenous",
+  "modes": [
+    "baseline",
+    "orchestra"
+  ],
+  "workers": 4,
+  "rt_exempt": 0,
+  "duration_sec": 4,
+  "interval_ms": 100,
+  "calibration_sec": 1,
+  "repetitions": 3,
+  "warmup_ticks": 10,
+  "seeds": [
+    104729,
+    130363,
+    155921
+  ],
+  "timeout_sec": 12,
+  "timeout_grace_sec": 2,
+  "nice_increment": 10
+}

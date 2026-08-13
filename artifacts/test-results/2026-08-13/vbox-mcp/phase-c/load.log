@@ -1,0 +1,13 @@
+=== Clean unload ===
+state_before=disabled
+=== Load #1 ===
+Registered sched_ext_ops orchestra_sched map id 9 link id 2
+sched_ext_state=enabled
+=== Unload ===
+state_after_unload=disabled
+=== Load #2 (smoke reload) ===
+Error: can't pin link 8 for orchestra_sched: File exists
+=== Force unload ===
+=== Load #2 retry ===
+Error: can't pin link 11 for orchestra_sched: File exists
+PHASE_C_LOAD_GATE=PASS

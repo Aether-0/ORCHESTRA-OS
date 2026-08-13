@@ -1,0 +1,4 @@
+make -C orchestra_paper_cpu_demo check
+make[1]: Entering directory '/home/vagrant/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo'
+cc -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror -fsyntax-only orchestra_paper_cpu.c
+make[1]: Leaving directory '/home/vagrant/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo'

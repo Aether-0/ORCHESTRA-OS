@@ -1,0 +1,17 @@
+timestamp: 2026-08-12T19:40:00+00:00
+hostname: fedora
+kernel: 6.12.96
+uname: Linux fedora 6.12.96 #1 SMP PREEMPT_DYNAMIC Fri Aug  7 04:23:45 UTC 2026 x86_64 GNU/Linux
+cpus: 4
+ram_mb: 7937
+sched_ext: disabled
+btf_sha256: 7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458
+host_commit: 30b01aa51ced364b0b4e367dc5a1e4582cddaa51
+claim_class: VirtualBox userspace/kernel-prototyped
+gcc: gcc (GCC) 14.2.1 20240912 (Red Hat 14.2.1-3)
+clang: clang version 18.1.8 (Fedora 18.1.8-2.fc40)
+bpftool: bpftool v7.5.0
+python3: Python 3.12.8
+end_timestamp: 2026-08-12T21:22:51+00:00
+final_sched_ext: disabled
+final_uname: Linux fedora 6.12.96 #1 SMP PREEMPT_DYNAMIC Fri Aug  7 04:23:45 UTC 2026 x86_64 GNU/Linux

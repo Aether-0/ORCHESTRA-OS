@@ -1,0 +1,397 @@
+{
+  "comparison_design": "descriptive-unpaired-endogenous",
+  "interpretation": "Mode summaries are descriptive and unpaired because each mode changes the endogenous host CPU signal; no causal performance difference is computed.",
+  "metrics_schema_id": "orchestra.paper_cpu.metrics/v2",
+  "modes": {
+    "baseline": {
+      "independent_run_count": 0,
+      "metrics": {
+        "Q_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S1_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S2_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S3_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S4_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "confidence_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "consensus_blend_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "controller_updates": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "cpu_now_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "cpu_pred_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "decision_cpu_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "fallback_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "fallback_workers_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "forecast_error_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "frame_age_ms_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "jitter_sigma_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "mem_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "migrate_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "missed_deadlines_final": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "prediction_used_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "rejected_frames_final": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "run_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "sleep_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "switch_penalty_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "thermal_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "throttle_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "yield_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        }
+      },
+      "statistical_unit": "one validated invocation after declared warm-up"
+    },
+    "orchestra": {
+      "independent_run_count": 0,
+      "metrics": {
+        "Q_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S1_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S2_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S3_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "S4_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "confidence_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "consensus_blend_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "controller_updates": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "cpu_now_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "cpu_pred_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "decision_cpu_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "fallback_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "fallback_workers_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "forecast_error_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "frame_age_ms_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "jitter_sigma_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "mem_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "migrate_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "missed_deadlines_final": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "prediction_used_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "rejected_frames_final": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "run_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "sleep_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "switch_penalty_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "thermal_mean": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "throttle_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        },
+        "yield_action_fraction": {
+          "ci95_lower": null,
+          "ci95_upper": null,
+          "mean": null,
+          "n": 0,
+          "stdev": null
+        }
+      },
+      "statistical_unit": "one validated invocation after declared warm-up"
+    }
+  }
+}

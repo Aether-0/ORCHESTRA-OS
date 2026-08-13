@@ -1,0 +1,151 @@
+START 2026-08-12T19:45:56+00:00
+=== Stress CFS 60s ===
+19:45:56 === ORCHESTRA Stress Suite ===
+19:45:56 Mode: cfs | Duration: 60s | CPUs: 4 | RAM: 7937MB
+19:45:56 Output: /tmp/orchestra-stress-20260812-194556
+19:45:56 --- CPU Stress (4 workers) ---
+19:46:56   CPU: 60s, 0 errors
+19:46:56 --- Memory Stress (3968MB) ---
+rm: cannot remove '/tmp/orchestra-stress-20260812-194556': Is a directory
+=== Load ORCHESTRA for stress ===
+Registered sched_ext_ops orchestra_sched map id 81 link id 19
+state=enabled
+=== Stress ORCHESTRA 120s ===
+19:48:13 === ORCHESTRA Stress Suite ===
+19:48:13 Mode: orchestra | Duration: 120s | CPUs: 4 | RAM: 7937MB
+19:48:13 Output: /tmp/orchestra-stress-20260812-194813
+19:48:13 --- CPU Stress (4 workers) ---
+19:50:13   CPU: 120s, 0 errors
+19:50:13 --- Memory Stress (3968MB) ---
+=== Benchmark suite ===
+19:52:15 === Real-Machine Benchmark Suite ===
+19:52:15 CPU: 4 cores  | Output: /tmp/orchestra-bench-20260812-195215
+19:52:15 --- CFS Baseline ---
+19:52:15   cfs: 1 workers, 30s...
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+bash: line 3: volatile: command not found
+... truncated scx_simple spam ...
+local=62988 global=102113
+local=63011 global=102117
+local=63033 global=102120
+local=63056 global=102122
+local=63080 global=102129
+local=63104 global=102132
+local=63126 global=102133
+local=63148 global=102135
+local=63170 global=102137
+local=63193 global=102138
+local=63217 global=102140
+local=63239 global=102141
+local=63261 global=102142
+local=63285 global=102144
+local=63307 global=102145
+local=63330 global=102146
+local=63353 global=102148
+local=63377 global=102150
+local=63400 global=102152
+local=63423 global=102155
+local=63452 global=102157
+local=63475 global=102160
+local=63498 global=102162
+local=63521 global=102165
+local=63544 global=102167
+local=63568 global=102169
+local=63591 global=102170
+local=63615 global=102173
+local=63639 global=102174
+local=64048 global=102218
+local=64073 global=102223
+local=64097 global=102228
+local=64122 global=102231
+local=64147 global=102236
+local=64175 global=102249
+local=64201 global=102254
+local=64226 global=102257
+local=64647 global=102303
+local=64669 global=102306
+local=64698 global=102310
+local=64724 global=102314
+local=64749 global=102318
+local=64778 global=102322
+local=64803 global=102324
+local=64831 global=102329
+local=64857 global=102330
+local=64883 global=102335
+local=64908 global=102337
+local=64933 global=102342
+local=64959 global=102346

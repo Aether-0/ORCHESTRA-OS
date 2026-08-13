@@ -1,0 +1,63 @@
+START 2026-08-12T20:24:33+00:00
+=== Fixed stress CFS 30s ===
+=== Fixed stress ORCHESTRA 30s ===
+state=enabled
+=== Fixed benchmark suite ===
+--- CFS ---
+  cfs workers=1 => 29533ms
+  cfs workers=2 => 29997ms
+  cfs workers=4 => 29998ms
+--- scx_simple ---
+  scx_simple workers=1 => 29733ms
+  scx_simple workers=2 => 29995ms
+  scx_simple workers=4 => 29996ms
+--- ORCHESTRA ---
+  orchestra workers=1 => 29410ms
+  orchestra workers=2 => 29996ms
+  orchestra workers=4 => 29998ms
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+cfs,cpu_1w,1,29533,9137720,ok
+cfs,cpu_2w,2,29997,9569364,ok
+cfs,cpu_4w,4,29998,10222019,ok
+scx_simple,cpu_1w,1,29733,10327281,ok
+scx_simple,cpu_2w,2,29995,10508587,ok
+scx_simple,cpu_4w,4,29996,10809156,ok
+orchestra,cpu_1w,1,29410,11054752,ok
+orchestra,cpu_2w,2,29996,11482487,ok
+orchestra,cpu_4w,4,29998,12143619,ok
+=== Fixed full compare ===
+--- CFS compare ---
+  cfs workers=1 => 29505ms
+  cfs mixed workers=1 => 30045ms
+  cfs workers=2 => 29949ms
+  cfs mixed workers=2 => 30029ms
+  cfs workers=4 => 29966ms
+  cfs mixed workers=4 => 30047ms
+--- scx_simple compare ---
+  scx_simple workers=1 => 29691ms
+  scx_simple workers=2 => 29997ms
+  scx_simple workers=4 => 29997ms
+--- ORCHESTRA compare ---
+  orchestra workers=1 => 29417ms
+  orchestra mixed workers=1 => 30033ms
+  orchestra workers=2 => 29961ms
+  orchestra mixed workers=2 => 30046ms
+  orchestra workers=4 => 29949ms
+  orchestra mixed workers=4 => 30035ms
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+cfs,cpu_1w,1,29505,12374271,ok
+cfs,mixed_1w,1,30045,12393444,ok
+cfs,cpu_2w,2,29949,12843030,ok
+cfs,mixed_2w,2,30029,13092241,ok
+cfs,cpu_4w,4,29966,13754666,ok
+cfs,mixed_4w,4,30047,14171547,ok
+scx_simple,cpu_1w,1,29691,14276445,ok
+scx_simple,cpu_2w,2,29997,14458487,ok
+scx_simple,cpu_4w,4,29997,14754956,ok
+orchestra,cpu_1w,1,29417,15000337,ok
+orchestra,mixed_1w,1,30033,15016641,ok
+orchestra,cpu_2w,2,29961,15456695,ok
+orchestra,mixed_2w,2,30046,15709806,ok
+orchestra,cpu_4w,4,29949,16344160,ok
+orchestra,mixed_4w,4,30035,16755654,ok
+DONE 2026-08-12T20:38:39+00:00

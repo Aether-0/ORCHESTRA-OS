@@ -1,0 +1,11 @@
+ORCHESTRA-OS paper-aligned real-CPU userspace prototype
+Collecting 3-second calibration trace...
+calibration samples=60 fixed_gain=0.010 sigma_obs=0.00100 jitter_floor=0.00150
+[rt-bypass] worker 0 could not enter SCHED_FIFO: Operation not permitted; deterministic userspace loop retained
+[rt-bypass] worker 1 could not enter SCHED_FIFO: Operation not permitted; deterministic userspace loop retained
+workers=4 eligible=2 rt-exempt=2 mode=orchestra tick=100ms tamper-every=0 seed=42 signal-schema=1 state-schema=2 policy-mode=TRAIN
+CSV metrics are written to stdout.
+
+[signal-publication] path=generation-stamped publications=100/100 contention=0 generation-exhaustion=0 read-attempts=1144 verified=200 retries=0 retry-exhaustion=0 unstable-slot=0 safe-fallback=0 invalid={fields:0,schema:0,tier:0,source:0,directive:0,sequence:0,stale:0,epoch:0,hmac:0}
+Policy mode=TRAIN load=SKIP save=OK suppr=NONE
+Finished.

@@ -1,0 +1,12 @@
+{
+  "environment": "timestamp: 2026-08-12T20:40:24+00:00\nhostname: fedora\nkernel: 6.12.96\nos: NAME=\"Fedora Linux\" VERSION=\"40 (Forty)\" ID=fedora \ncpus: 4\nram_total: 7937\ndisk_free: 52G\nbtf_sha256: 7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458\nsched_ext: disabled\n",
+  "build_hashes": "609e6974af2b5cf69571d87332a8c0c29020110ade83a38453263efd9dd68ca0  orchestra_scx_stage7.bpf.o\nbe31a86aeb95300b14b8fb720bc6b5a688f03bef774b6a585c535c4d05815ba3  bridge/orchestra_bridge",
+  "results_csv": "/home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-e/stage8-validation-20260812-204024/results.csv",
+  "files": [
+    "environment.txt",
+    "build_hashes.txt",
+    "results.csv"
+  ],
+  "stage8_exit_note": "Original stage8_validate exited during fault injection due to set -e on rejected invalid PID; stability+multicore completed; faults completed manually.",
+  "claim_class": "VirtualBox kernel-prototyped"
+}

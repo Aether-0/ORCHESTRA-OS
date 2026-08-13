@@ -1,0 +1,18 @@
+bridge/orchestra_bridge.c: In function ‘cmd_publish’:
+bridge/orchestra_bridge.c:211:36: warning: unused parameter ‘policy_path’ [-Wunused-parameter]
+  211 |                        const char *policy_path) {
+      |                        ~~~~~~~~~~~~^~~~~~~~~~~
+bridge/orchestra_bridge.c: At top level:
+bridge/orchestra_bridge.c:381:12: warning: ‘parse_ctrl’ defined but not used [-Wunused-function]
+  381 | static int parse_ctrl(const char *s) {
+      |            ^~~~~~~~~~
+In function ‘get_task_info’,
+    inlined from ‘cmd_publish.constprop’ at bridge/orchestra_bridge.c:227:9:
+bridge/orchestra_bridge.c:204:23: warning: ‘start_time’ may be used uninitialized [-Wmaybe-uninitialized]
+  204 |     return (*tgid > 0 && *start_time > 0) ? 0 : -1;
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+bridge/orchestra_bridge.c: In function ‘cmd_publish.constprop’:
+bridge/orchestra_bridge.c:226:14: note: ‘start_time’ was declared here
+  226 |     uint64_t start_time;
+      |              ^~~~~~~~~~
+BRIDGE_BUILD_EXIT=0

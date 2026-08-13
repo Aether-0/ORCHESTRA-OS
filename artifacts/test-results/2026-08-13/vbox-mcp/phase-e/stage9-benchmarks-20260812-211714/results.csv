@@ -1,0 +1,7 @@
+timestamp,scheduler,workload,workers,elapsed_ms,ctx
+2026-08-12T21:17:14+00:00,cfs,cpu,4,29991,17844721
+2026-08-12T21:17:14+00:00,cfs,mixed,4,30000,0
+2026-08-12T21:17:14+00:00,scx_simple,cpu,4,29747,18624312
+2026-08-12T21:17:14+00:00,scx_simple,mixed,4,30003,0
+2026-08-12T21:17:14+00:00,orchestra,cpu,4,29447,19502095
+2026-08-12T21:17:14+00:00,orchestra,mixed,4,30000,0

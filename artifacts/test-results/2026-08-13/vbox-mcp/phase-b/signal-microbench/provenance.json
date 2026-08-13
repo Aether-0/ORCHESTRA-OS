@@ -1,0 +1,57 @@
+{
+  "benchmark_start_utc": "2026-08-12T19:42:53.431190Z",
+  "claim_limitation": "This isolated userspace microbenchmark measures bounded authenticated signal publication/read API behavior only. It does not prove kernel scheduler behavior, end-to-end ORCHESTRA performance, or a causal scheduling improvement.",
+  "comparison_design": "descriptive-unpaired-microbenchmark",
+  "configured_max_readers": 4,
+  "controls": {
+    "base_seed": 20260804,
+    "drain_reads": 4,
+    "external_timeout_grace_sec": 2,
+    "external_timeout_sec": 10,
+    "internal_join_budget_ms": 2000,
+    "iterations": 200,
+    "max_runtime_ms": 3000,
+    "repetitions": 2,
+    "startup_timeout_ms": 1000,
+    "warmup": 20
+  },
+  "environment": {
+    "available_processor_count": 4,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "cpu_count": 4,
+    "load_average": [
+      0.73388671875,
+      0.73828125,
+      0.34814453125
+    ],
+    "machine": "x86_64",
+    "pid": 2698,
+    "platform": "Linux-6.12.96-x86_64-with-glibc2.39",
+    "processor": "",
+    "python": "3.12.8 (main, Dec  6 2024, 00:00:00) [GCC 14.2.1 20240912 (Red Hat 14.2.1-3)]"
+  },
+  "host_processor_count": 4,
+  "inputs": {
+    "canonical_source": {
+      "path": "/home/vagrant/Documents/ORCHESTRA-OS/orchestra_paper_cpu_demo/orchestra_paper_cpu.c",
+      "sha256": "5fc21224846a2a17db0f02ce02efe8ebbe1067e40b0ad78e82419839d73657b9"
+    },
+    "microbenchmark_source": {
+      "path": "/home/vagrant/Documents/ORCHESTRA-OS/tools/benchmark/signal_publication_microbenchmark.c",
+      "sha256": "9baa859ac9a6ccc44d2d8fd6381d292c74361a16c6b8bf92824888b942f8e40c"
+    }
+  },
+  "microbenchmark_schema_id": "orchestra.signal_publication.microbenchmark/v1",
+  "output_directory": "/home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-b/signal-microbench",
+  "reader_counts": [
+    1,
+    2,
+    4
+  ],
+  "repository_root": "/home/vagrant/Documents/ORCHESTRA-OS"
+}

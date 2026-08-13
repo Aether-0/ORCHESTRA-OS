@@ -1,0 +1,58 @@
+[
+  {
+    "binary_created": true,
+    "binary_sha256": "1491714eba8505fd96cc416d4aeade711f1d454e88f3066a352646a3676e4f5f",
+    "command_argv": [
+      "/usr/bin/cc",
+      "-O2",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wconversion",
+      "-Wshadow",
+      "-Wformat=2",
+      "-Werror",
+      "-pthread",
+      "-DORCHESTRA_SIGNAL_PUBLICATION_LEGACY=1",
+      "/home/vagrant/Documents/ORCHESTRA-OS/tools/benchmark/signal_publication_microbenchmark.c",
+      "-lm",
+      "-o",
+      "/home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-b/signal-microbench/build/signal_publication_microbenchmark_legacy"
+    ],
+    "command_shell_escaped": "/usr/bin/cc -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror -pthread -DORCHESTRA_SIGNAL_PUBLICATION_LEGACY=1 /home/vagrant/Documents/ORCHESTRA-OS/tools/benchmark/signal_publication_microbenchmark.c -lm -o /home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-b/signal-microbench/build/signal_publication_microbenchmark_legacy",
+    "mode": "legacy",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "",
+    "timed_out_or_execution_failed": false
+  },
+  {
+    "binary_created": true,
+    "binary_sha256": "b7c51be50ab086686fabc4d2185d3e70a054f446a1d3c3b0d002ff49dba33af9",
+    "command_argv": [
+      "/usr/bin/cc",
+      "-O2",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wconversion",
+      "-Wshadow",
+      "-Wformat=2",
+      "-Werror",
+      "-pthread",
+      "-DORCHESTRA_SIGNAL_PUBLICATION_LEGACY=0",
+      "/home/vagrant/Documents/ORCHESTRA-OS/tools/benchmark/signal_publication_microbenchmark.c",
+      "-lm",
+      "-o",
+      "/home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-b/signal-microbench/build/signal_publication_microbenchmark_generation_stamped"
+    ],
+    "command_shell_escaped": "/usr/bin/cc -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror -pthread -DORCHESTRA_SIGNAL_PUBLICATION_LEGACY=0 /home/vagrant/Documents/ORCHESTRA-OS/tools/benchmark/signal_publication_microbenchmark.c -lm -o /home/vagrant/Documents/ORCHESTRA-OS/artifacts/test-results/2026-08-13/vbox-mcp/phase-b/signal-microbench/build/signal_publication_microbenchmark_generation_stamped",
+    "mode": "generation_stamped",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "",
+    "timed_out_or_execution_failed": false
+  }
+]

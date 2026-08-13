@@ -1,0 +1,26 @@
+{
+  "attempted_run_count": 12,
+  "benchmark_end_utc": "2026-08-12T19:42:56.639827Z",
+  "benchmark_start_utc": "2026-08-12T19:42:53.431190Z",
+  "binary_hashes": {
+    "generation_stamped": "b7c51be50ab086686fabc4d2185d3e70a054f446a1d3c3b0d002ff49dba33af9",
+    "legacy": "1491714eba8505fd96cc416d4aeade711f1d454e88f3066a352646a3676e4f5f"
+  },
+  "canonical_source_sha256_end": "5fc21224846a2a17db0f02ce02efe8ebbe1067e40b0ad78e82419839d73657b9",
+  "canonical_source_sha256_start": "5fc21224846a2a17db0f02ce02efe8ebbe1067e40b0ad78e82419839d73657b9",
+  "claim_limitation": "This isolated userspace microbenchmark measures bounded authenticated signal publication/read API behavior only. It does not prove kernel scheduler behavior, end-to-end ORCHESTRA performance, or a causal scheduling improvement.",
+  "comparison_design": "descriptive-unpaired-microbenchmark",
+  "expected_run_count": 12,
+  "failed_or_excluded_run_count": 0,
+  "microbenchmark_schema_id": "orchestra.signal_publication.microbenchmark/v1",
+  "operator_interrupted": false,
+  "processed_outputs": {
+    "invocation_summaries_csv": "processed/invocation_summaries.csv",
+    "invocation_summaries_json": "processed/invocation_summaries.json",
+    "summary_json": "processed/summary.json"
+  },
+  "source_sha256_end": "9baa859ac9a6ccc44d2d8fd6381d292c74361a16c6b8bf92824888b942f8e40c",
+  "source_sha256_start": "9baa859ac9a6ccc44d2d8fd6381d292c74361a16c6b8bf92824888b942f8e40c",
+  "status": "complete",
+  "validated_run_count": 12
+}

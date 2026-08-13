@@ -1,0 +1,54 @@
+{
+  "benchmark_time": "2026-08-12T21:17:14+00:00",
+  "results": [
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "cfs",
+      "workload": "cpu",
+      "workers": "4",
+      "elapsed_ms": "29991",
+      "ctx": "17844721"
+    },
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "cfs",
+      "workload": "mixed",
+      "workers": "4",
+      "elapsed_ms": "30000",
+      "ctx": "0"
+    },
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "scx_simple",
+      "workload": "cpu",
+      "workers": "4",
+      "elapsed_ms": "29747",
+      "ctx": "18624312"
+    },
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "scx_simple",
+      "workload": "mixed",
+      "workers": "4",
+      "elapsed_ms": "30003",
+      "ctx": "0"
+    },
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "orchestra",
+      "workload": "cpu",
+      "workers": "4",
+      "elapsed_ms": "29447",
+      "ctx": "19502095"
+    },
+    {
+      "timestamp": "2026-08-12T21:17:14+00:00",
+      "scheduler": "orchestra",
+      "workload": "mixed",
+      "workers": "4",
+      "elapsed_ms": "30000",
+      "ctx": "0"
+    }
+  ],
+  "claim_class": "VirtualBox kernel-prototyped"
+}

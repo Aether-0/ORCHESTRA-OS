@@ -1,0 +1,52 @@
+./tests/integration/run.sh
+process-reader=0 status=0 attempts=14853 valid=1994 verified=1994 retries=1255 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=1 status=0 attempts=15028 valid=1996 verified=1996 retries=1274 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=2 status=0 attempts=15600 valid=1995 verified=1995 retries=1248 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=3 status=0 attempts=4270 valid=1145 verified=1145 retries=1508 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-stress-summary publisher-success=2000 publisher-attempts=3685 publisher-contention=1685 read-attempts=49751 verified=7130 retries=5285 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=18987 final-generation=2000 final-slot=1
+PASS signal publication MAP_SHARED integration scenarios
+test_bounded_sleep_aggregate_is_rejected_above_schema_limit (__main__.CsvValidatorTests.test_bounded_sleep_aggregate_is_rejected_above_schema_limit) ... ok
+test_effective_compliance_cannot_exceed_one (__main__.CsvValidatorTests.test_effective_compliance_cannot_exceed_one) ... ok
+test_effective_successes_cannot_exceed_attempts (__main__.CsvValidatorTests.test_effective_successes_cannot_exceed_attempts) ... ok
+test_fatal_action_error_cannot_also_be_effective (__main__.CsvValidatorTests.test_fatal_action_error_cannot_also_be_effective) ... ok
+test_inconsistent_action_totals_are_rejected (__main__.CsvValidatorTests.test_inconsistent_action_totals_are_rejected) ... ok
+test_migration_success_requires_valid_requested_cpu (__main__.CsvValidatorTests.test_migration_success_requires_valid_requested_cpu) ... ok
+test_negative_observed_sleep_is_rejected (__main__.CsvValidatorTests.test_negative_observed_sleep_is_rejected) ... ok
+test_nonfinite_telemetry_is_rejected (__main__.CsvValidatorTests.test_nonfinite_telemetry_is_rejected) ... ok
+test_truncated_v3_row_is_rejected (__main__.CsvValidatorTests.test_truncated_v3_row_is_rejected) ... ok
+test_truncated_v4_row_is_rejected (__main__.CsvValidatorTests.test_truncated_v4_row_is_rejected) ... ok
+test_unknown_fallback_reason_is_rejected (__main__.CsvValidatorTests.test_unknown_fallback_reason_is_rejected) ... ok
+test_v2_row_cannot_be_falsely_labeled_v3 (__main__.CsvValidatorTests.test_v2_row_cannot_be_falsely_labeled_v3) ... ok
+test_v3_row_falsely_labeled_v2_is_rejected (__main__.CsvValidatorTests.test_v3_row_falsely_labeled_v2_is_rejected) ... ok
+test_v3_row_falsely_labeled_v4_is_rejected (__main__.CsvValidatorTests.test_v3_row_falsely_labeled_v4_is_rejected) ... ok
+test_v4_changed_count_cannot_exceed_eligible (__main__.CsvValidatorTests.test_v4_changed_count_cannot_exceed_eligible) ... ok
+test_v4_dominant_count_cannot_exceed_changed (__main__.CsvValidatorTests.test_v4_dominant_count_cannot_exceed_changed) ... ok
+test_v4_invalid_dominant_action_enum_is_rejected (__main__.CsvValidatorTests.test_v4_invalid_dominant_action_enum_is_rejected) ... ok
+test_v4_justified_count_cannot_exceed_changed (__main__.CsvValidatorTests.test_v4_justified_count_cannot_exceed_changed) ... ok
+test_v4_no_change_row_cannot_report_a_burst_window (__main__.CsvValidatorTests.test_v4_no_change_row_cannot_report_a_burst_window) ... ok
+test_v4_no_changes_require_zero_dominant_transition (__main__.CsvValidatorTests.test_v4_no_changes_require_zero_dominant_transition) ... ok
+test_v4_nonburst_row_does_not_carry_forward_burst_count (__main__.CsvValidatorTests.test_v4_nonburst_row_does_not_carry_forward_burst_count) ... ok
+test_v4_nonfinite_oscillation_penalty_is_rejected (__main__.CsvValidatorTests.test_v4_nonfinite_oscillation_penalty_is_rejected) ... ok
+test_v4_rejected_frame_cannot_mark_transition_justified (__main__.CsvValidatorTests.test_v4_rejected_frame_cannot_mark_transition_justified) ... ok
+test_v4_row_falsely_labeled_v3_is_rejected (__main__.CsvValidatorTests.test_v4_row_falsely_labeled_v3_is_rejected) ... ok
+test_v4_s4_burst_cannot_be_negative (__main__.CsvValidatorTests.test_v4_s4_burst_cannot_be_negative) ... ok
+test_v4_s4_burst_cannot_exceed_one (__main__.CsvValidatorTests.test_v4_s4_burst_cannot_exceed_one) ... ok
+test_v4_single_change_is_not_a_population_burst (__main__.CsvValidatorTests.test_v4_single_change_is_not_a_population_burst) ... ok
+test_v4_stale_or_invalid_frame_cannot_mark_transition_justified (__main__.CsvValidatorTests.test_v4_stale_or_invalid_frame_cannot_mark_transition_justified) ... ok
+test_v4_validated_directive_transition_and_reversal (__main__.CsvValidatorTests.test_v4_validated_directive_transition_and_reversal) ... ok
+test_v4_zero_eligible_workers_are_neutral_and_unjustified (__main__.CsvValidatorTests.test_v4_zero_eligible_workers_are_neutral_and_unjustified) ... ok
+test_valid_historical_v2_contract (__main__.CsvValidatorTests.test_valid_historical_v2_contract) ... ok
+test_valid_v3_contract (__main__.CsvValidatorTests.test_valid_v3_contract) ... ok
+test_valid_v4_contract (__main__.CsvValidatorTests.test_valid_v4_contract) ... ok
+test_zero_denominator_policy_is_explicit (__main__.CsvValidatorTests.test_zero_denominator_policy_is_explicit) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.019s
+
+OK
+PASS csv=/tmp/orchestra-integration.OgkadO/baseline.csv rows=10 mode=baseline schema=orchestra.paper_cpu.metrics/v6
+PASS csv=/tmp/orchestra-integration.OgkadO/orchestra.csv rows=30 mode=orchestra schema=orchestra.paper_cpu.metrics/v6
+PASS csv=/tmp/orchestra-integration.OgkadO/tamper.csv rows=20 mode=orchestra schema=orchestra.paper_cpu.metrics/v6
+PASS csv=/tmp/orchestra-integration.OgkadO/controller-tamper.csv rows=30 mode=orchestra schema=orchestra.paper_cpu.metrics/v6
+PASS csv=/tmp/orchestra-integration.OgkadO/signal-stop.csv rows=19 mode=orchestra schema=orchestra.paper_cpu.metrics/v6
+PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2/v3/v4 validator contracts, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown

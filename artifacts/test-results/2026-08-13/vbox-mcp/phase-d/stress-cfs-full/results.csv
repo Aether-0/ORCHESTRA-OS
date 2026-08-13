@@ -1,0 +1,2 @@
+test,duration_s,cpu_workers,memory_mb,io_files,errors,warnings,completed
+cpu_stress,60,4,0,0,0,0,PASS

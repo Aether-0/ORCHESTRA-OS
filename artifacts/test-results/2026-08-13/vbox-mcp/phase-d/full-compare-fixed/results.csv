@@ -1,0 +1,16 @@
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+cfs,cpu_1w,1,29505,12374271,ok
+cfs,mixed_1w,1,30045,12393444,ok
+cfs,cpu_2w,2,29949,12843030,ok
+cfs,mixed_2w,2,30029,13092241,ok
+cfs,cpu_4w,4,29966,13754666,ok
+cfs,mixed_4w,4,30047,14171547,ok
+scx_simple,cpu_1w,1,29691,14276445,ok
+scx_simple,cpu_2w,2,29997,14458487,ok
+scx_simple,cpu_4w,4,29997,14754956,ok
+orchestra,cpu_1w,1,29417,15000337,ok
+orchestra,mixed_1w,1,30033,15016641,ok
+orchestra,cpu_2w,2,29961,15456695,ok
+orchestra,mixed_2w,2,30046,15709806,ok
+orchestra,cpu_4w,4,29949,16344160,ok
+orchestra,mixed_4w,4,30035,16755654,ok

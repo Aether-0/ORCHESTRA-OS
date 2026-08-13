@@ -1,0 +1,25 @@
+=== CFS ===
+21:17:17 CPU cfs 30s
+  elapsed=29991ms ctx=17844721
+21:17:47 Mixed cfs 30s
+  elapsed=30000ms
+=== scx_simple ===
+21:18:21 CPU scx_simple 30s
+  elapsed=29747ms ctx=18624312
+21:18:51 Mixed scx_simple 30s
+  elapsed=30003ms
+=== ORCHESTRA ===
+Registered sched_ext_ops orchestra_sched map id 333 link id 75
+21:19:27 CPU orchestra 30s
+  elapsed=29447ms ctx=19502095
+21:19:57 Mixed orchestra 30s
+  elapsed=30000ms
+EVDIR=/home/vagrant/stage9-benchmarks-20260812-211714
+timestamp,scheduler,workload,workers,elapsed_ms,ctx
+2026-08-12T21:17:14+00:00,cfs,cpu,4,29991,17844721
+2026-08-12T21:17:14+00:00,cfs,mixed,4,30000,0
+2026-08-12T21:17:14+00:00,scx_simple,cpu,4,29747,18624312
+2026-08-12T21:17:14+00:00,scx_simple,mixed,4,30003,0
+2026-08-12T21:17:14+00:00,orchestra,cpu,4,29447,19502095
+2026-08-12T21:17:14+00:00,orchestra,mixed,4,30000,0
+

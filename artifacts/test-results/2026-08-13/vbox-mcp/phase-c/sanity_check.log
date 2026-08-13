@@ -1,0 +1,23 @@
+=== ORCHESTRA Real-Machine Sanity Check ===
+
+Kernel: 6.12.96 | CPUs: 4 | RAM: 7.8Gi
+
+Required tools:
+  [OK] gcc
+  [OK] clang
+  [OK] make
+  [OK] bpftool
+  [OK] python3
+
+Kernel capabilities:
+  [OK] CONFIG_SCHED_CLASS_EXT=y
+  [OK] CONFIG_DEBUG_INFO_BTF=y
+  [OK] CONFIG_BPF_SYSCALL=y
+  [OK] CONFIG_BPF_JIT=y
+
+[OK] sched_ext: disabled
+[OK] BTF: 6.4M
+  SHA-256: 7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458
+
+Network: 10.0.2.15/24
+Disk:   52G free

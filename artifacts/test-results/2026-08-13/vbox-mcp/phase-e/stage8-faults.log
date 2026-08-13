@@ -1,0 +1,6 @@
+=== Manual fault injection ===
+fault_invalid_pid,rc=6,PID 99999 not found
+fault_invalid_cpu,rc=0,published gen=1 slot=1 action=MIGRATE pid=1
+published gen=2 slot=0 action=RUN pid=3259778
+fault_unload_runnable ok
+reload ok state=enabled

@@ -1,0 +1,6 @@
+19:48:13 === ORCHESTRA Stress Suite ===
+19:48:13 Mode: orchestra | Duration: 120s | CPUs: 4 | RAM: 7937MB
+19:48:13 Output: /tmp/orchestra-stress-20260812-194813
+19:48:13 --- CPU Stress (4 workers) ---
+19:50:13   CPU: 120s, 0 errors
+19:50:13 --- Memory Stress (3968MB) ---

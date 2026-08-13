@@ -1,0 +1,6 @@
+timestamp: 2026-08-12T21:17:14+00:00
+kernel: 6.12.96
+cpus: 4
+ram_mb: 7937
+btf: 7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458
+claim_class: VirtualBox kernel-prototyped

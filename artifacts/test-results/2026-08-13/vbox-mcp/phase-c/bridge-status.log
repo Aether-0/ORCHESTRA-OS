@@ -1,0 +1,16 @@
+scheduler:     loaded
+ctl_map:       present
+dir_map:       present
+bridge_magic:  0x4f524342 (OK)
+fmt_version:   1
+schema_ver:    1
+active_slot:   0
+pub_gen:       0
+policy_gen:    0
+ctrl_state:    NORMAL (0)
+policy_mode:   TRAIN
+caps:          0x0
+pub_status:    0
+slot[0]:       gen=0 action=RUN pid=0 cpu=0
+slot[1]:       gen=0 action=RUN pid=0 cpu=0
+telemetry:     load=1 run=0 yield=0 mig=0 thr=0 sleep=0
