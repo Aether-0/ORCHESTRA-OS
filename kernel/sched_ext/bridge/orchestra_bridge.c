@@ -18,7 +18,28 @@
 #include <time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include "orchestra_bridge_v1.h"
+
+#ifndef SCHED_EXT
+#define SCHED_EXT 7
+#endif
+#ifndef SYS_sched_setattr
+#define SYS_sched_setattr 314
+#endif
+
+struct orchestra_sched_attr {
+    uint32_t size;
+    uint32_t sched_policy;
+    uint64_t sched_flags;
+    int32_t sched_nice;
+    uint32_t sched_priority;
+    uint64_t sched_runtime;
+    uint64_t sched_deadline;
+    uint64_t sched_period;
+    uint32_t sched_util_min;
+    uint32_t sched_util_max;
+};
 #undef __BPF__
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
@@ -142,13 +163,19 @@ static int cmd_status(void) {
         struct bridge_telemetry tel;
         uint32_t k = 0;
         if (bpf_map_lookup_elem(tel_fd, &k, &tel) == 0) {
-            printf("telemetry:     load=%llu run=%llu yield=%llu mig=%llu thr=%llu sleep=%llu\n",
+            printf("telemetry:     load=%llu enable=%llu enqueue=%llu run=%llu running=%llu\n",
                    (unsigned long long)tel.load_count,
+                   (unsigned long long)tel.task_enable_count,
+                   (unsigned long long)tel.enqueue_count,
                    (unsigned long long)tel.run_count,
+                   (unsigned long long)tel.running_count);
+            printf("telemetry2:    yield=%llu mig=%llu thr=%llu sleep=%llu idle_disp=%llu fast_run=%llu\n",
                    (unsigned long long)tel.yield_count,
                    (unsigned long long)tel.migrate_requested,
                    (unsigned long long)tel.throttle_requested,
-                   (unsigned long long)tel.sleep_requested);
+                   (unsigned long long)tel.sleep_requested,
+                   (unsigned long long)tel.idle_dispatch_count,
+                   (unsigned long long)tel.fastpath_run_count);
         }
     }
 
@@ -207,8 +234,9 @@ static int get_task_info(uint32_t pid, uint32_t *tgid, uint64_t *start_time) {
 /* Publish a directive */
 static int cmd_publish(uint32_t action, uint32_t target_pid, uint32_t target_cpu,
                        uint64_t slice_ns, uint64_t not_before_ns,
-                       uint64_t throttle_interval_ns, int dry_run,
+                        uint64_t throttle_interval_ns, int dry_run,
                        const char *policy_path) {
+    (void)policy_path;
     if (!scheduler_loaded()) {
         fprintf(stderr, "scheduler not loaded\n");
         return EXIT_NO_SCHED;
@@ -223,7 +251,9 @@ static int cmd_publish(uint32_t action, uint32_t target_pid, uint32_t target_cpu
     }
 
     uint32_t tgid;
-    uint64_t start_time;
+    uint64_t start_time = 0;
+
+    (void)start_time;
     if (get_task_info(target_pid, &tgid, &start_time) != 0) {
         fprintf(stderr, "cannot read task info for PID %u\n", target_pid);
         return EXIT_TASK;
@@ -263,7 +293,8 @@ static int cmd_publish(uint32_t action, uint32_t target_pid, uint32_t target_cpu
         .generation = new_gen,
         .target_tgid = tgid,
         .target_pid = target_pid,
-        .task_cookie = start_time,
+        /* Cookie 0: skip BPF start_boottime check. /proc starttime is
+         * in ticks, not ns, so it cannot match p->start_boottime. */
         .action = action,
         .target_cpu = target_cpu,
         .slice_ns = slice_ns,
@@ -271,6 +302,11 @@ static int cmd_publish(uint32_t action, uint32_t target_pid, uint32_t target_cpu
         .throttle_interval_ns = throttle_interval_ns,
         .expiry_ns = monotonic_ns() + 30000000000ULL, /* 30s expiry */
     };
+
+    if (action == BRIDGE_ACT_THROTTLE && dir.throttle_interval_ns == 0)
+        dir.throttle_interval_ns = 10000000ULL; /* 10 ms default */
+    if (action == BRIDGE_ACT_SLEEP && dir.not_before_ns == 0)
+        dir.not_before_ns = monotonic_ns() + 20000000ULL; /* 20 ms */
 
     if (dry_run) {
         printf("DRY-RUN: would write slot %u gen %llu action=%s pid=%u tgid=%u cookie=%llu\n",
@@ -350,6 +386,85 @@ static int cmd_clear(void) {
     return EXIT_OK;
 }
 
+static int cmd_optin(uint32_t pid)
+{
+    struct orchestra_sched_attr attr;
+
+    if (pid == 0) {
+        fprintf(stderr, "--opt-in requires --target-pid\n");
+        return EXIT_ARGS;
+    }
+    if (!pid_exists(pid)) {
+        fprintf(stderr, "PID %u not found\n", pid);
+        return EXIT_TASK;
+    }
+
+    memset(&attr, 0, sizeof(attr));
+    attr.size = sizeof(attr);
+    attr.sched_policy = SCHED_EXT;
+    if (syscall(SYS_sched_setattr, (pid_t)pid, &attr, 0) != 0) {
+        fprintf(stderr, "sched_setattr(SCHED_EXT) pid=%u: %s\n",
+                pid, strerror(errno));
+        return EXIT_TASK;
+    }
+    printf("opt-in pid=%u policy=SCHED_EXT\n", pid);
+    return EXIT_OK;
+}
+
+static int cmd_pin_maps(void)
+{
+    static const struct {
+        const char *name_prefix;
+        const char *path;
+    } pins[] = {
+        { "bridge_control_", BRIDGE_CTL_PATH },
+        { "bridge_directiv", BRIDGE_DIR_PATH },
+        { "bridge_telemetr", BRIDGE_TEL_PATH },
+        { "bridge_task_map", BRIDGE_TASK_PATH },
+    };
+    uint32_t id = 0;
+    int pinned = 0;
+
+    if (!scheduler_loaded()) {
+        fprintf(stderr, "scheduler not loaded\n");
+        return EXIT_NO_SCHED;
+    }
+
+    while (bpf_map_get_next_id(id, &id) == 0) {
+        struct bpf_map_info info;
+        uint32_t info_len = sizeof(info);
+        int fd = bpf_map_get_fd_by_id(id);
+
+        if (fd < 0)
+            continue;
+        memset(&info, 0, sizeof(info));
+        if (bpf_map_get_info_by_fd(fd, &info, &info_len) != 0) {
+            close(fd);
+            continue;
+        }
+        for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
+            if (strncmp(info.name, pins[i].name_prefix,
+                        strlen(pins[i].name_prefix)) != 0)
+                continue;
+            unlink(pins[i].path);
+            if (bpf_obj_pin(fd, pins[i].path) != 0) {
+                fprintf(stderr, "pin %s -> %s failed: %s\n",
+                        info.name, pins[i].path, strerror(errno));
+                close(fd);
+                return EXIT_MAP_MISSING;
+            }
+            printf("pinned %s -> %s\n", info.name, pins[i].path);
+            pinned++;
+        }
+        close(fd);
+    }
+    if (pinned < 4) {
+        fprintf(stderr, "pinned %d/4 bridge maps\n", pinned);
+        return EXIT_MAP_MISSING;
+    }
+    return EXIT_OK;
+}
+
 static void usage(const char *prog) {
     fprintf(stderr,
         "ORCHESTRA Stage 7 Bridge CLI\n\n"
@@ -365,6 +480,8 @@ static void usage(const char *prog) {
         "    --throttle-interval-ns  THROTTLE interval (0 = default)\n"
         "    --expiry-ns <ns>        Directive expiry (default: 30s)\n"
         "    --dry-run               Validate without mutation\n"
+        "  --opt-in --target-pid <pid>  Move a task to SCHED_EXT (partial switch)\n"
+        "  --pin-maps                 Pin bridge maps under /sys/fs/bpf/\n"
         "  --clear                   Clear all directives\n"
         "  --controller-state <s>    Set NORMAL|DEGRADED|SATURATED|DISABLED|ROLLBACK|RECOVERY\n"
         "  --json                    Output in JSON format\n\n"
@@ -386,6 +503,7 @@ static int parse_ctrl(const char *s) {
 
 int main(int argc, char **argv) {
     int do_status = 0, do_publish = 0, do_clear = 0, dry_run = 0;
+    int do_optin = 0, do_pin = 0;
     uint32_t action = 0, target_pid = 0, target_cpu = BRIDGE_CPU_ANY;
     uint64_t slice_ns = 0, not_before_ns = 0, throttle_interval_ns = 0;
     const char *policy_path = NULL;
@@ -397,6 +515,8 @@ int main(int argc, char **argv) {
         if (!strcmp(argv[i], "--status")) do_status = 1;
         else if (!strcmp(argv[i], "--publish")) do_publish = 1;
         else if (!strcmp(argv[i], "--clear")) do_clear = 1;
+        else if (!strcmp(argv[i], "--opt-in")) do_optin = 1;
+        else if (!strcmp(argv[i], "--pin-maps")) do_pin = 1;
         else if (!strcmp(argv[i], "--dry-run")) dry_run = 1;
         else if (!strcmp(argv[i], "--action") && i + 1 < argc)
             action = (uint32_t)parse_action(argv[++i]);
@@ -415,6 +535,8 @@ int main(int argc, char **argv) {
 
     if (do_status) return cmd_status();
     if (do_clear) return cmd_clear();
+    if (do_optin) return cmd_optin(target_pid);
+    if (do_pin) return cmd_pin_maps();
     if (do_publish)
         return cmd_publish(action, target_pid, target_cpu,
                           slice_ns, not_before_ns, throttle_interval_ns,

@@ -39,10 +39,18 @@ run_cpu_workload() {
     local workers=$(nproc)
     
     # Spawn CPU-bound workers
+    local PIDS=()
     for i in $(seq 1 $workers); do
         taskset -c $((i-1)) bash -c "s=0; e=\$(($(date +%s) + $DURATION)); while [ \$(date +%s) -lt \$e ]; do :; done" &
+        PIDS+=($!)
     done
-    for pid in $(jobs -p); do wait $pid 2>/dev/null; done
+    if [ "$NAME" = "orchestra" ]; then
+        for pid in "${PIDS[@]}"; do
+            sudo "$SCHED_DIR/bridge/orchestra_bridge" --opt-in --target-pid "$pid" >/dev/null 2>&1 || true
+            sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+        done
+    fi
+    for pid in "${PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
     
     local end_ns=$(date +%s%N)
     local elapsed=$(( (end_ns - start_ns) / 1000000 ))
@@ -106,13 +114,8 @@ run_orchestra() {
     sudo bpftool struct_ops register orchestra_scx_stage7.bpf.o /sys/fs/bpf/orch9 2>&1 | tail -1
     sleep 2
     [ "$(cat /sys/kernel/sched_ext/state)" = "enabled" ] || { log "ORCHESTRA failed to enable"; return 1; }
-    
-    for m in bridge_control_ bridge_directiv bridge_telemetr bridge_task_map; do
-        ID=$(sudo bpftool map list 2>&1 | grep -m1 "name $m" | awk '{print $1}' | tr -d ':')
-        [ -n "$ID" ] && sudo bpftool map pin id $ID "/sys/fs/bpf/$m" 2>/dev/null
-    done
-    
-    sudo ./bridge/orchestra_bridge --publish --action RUN --target-pid 1 2>&1 | tail -1
+
+    sudo ./bridge/orchestra_bridge --pin-maps
     
     run_cpu_workload "orchestra" 10
     run_mixed_workload "orchestra" 10

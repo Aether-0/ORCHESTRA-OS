@@ -12,7 +12,7 @@
 - **Initramfs:** Must be regenerated for different hardware.
 
 ## Bridge
-- **Map pinning:** Maps must be individually pinned after struct_ops registration.
+- **Map pinning:** `orchestra_bridge --pin-maps` pins the four bridge maps after struct_ops register. Harnesses must still call it after every load.
 - **Privileges:** Bridge CLI requires CAP_BPF + CAP_SYS_ADMIN.
 - **Map names:** Truncated to 15 characters by bpftool.
 
@@ -21,9 +21,10 @@
 - **Recovery:** Uses rolling window hysteresis; may be slow to detect drift.
 
 ## Actions
-- **SLEEP:** Uses deferred eligibility (not_before_ns), not true kernel sleep.
-- **MIGRATE:** Uses SCX_DSQ_LOCAL dispatch; targeted DSQ pending for true migration.
-- **THROTTLE:** Uses reduced slice; not precise bandwidth control.
+- **SLEEP:** Min-slice deferral until `not_before_ns`; not a kernel `TASK_INTERRUPTIBLE` sleep. Custom-DSQ hold was not used because `scx_bpf_consume` previously failed on this 6.12 path.
+- **MIGRATE:** Dispatches to `SCX_DSQ_LOCAL_ON | target_cpu` and kicks that CPU. Effectiveness still needs ownership-proven traces (running CPU of the opted-in task).
+- **THROTTLE:** Min slice (`BRIDGE_SLICE_MIN_NS`); not precise bandwidth control.
+- **Partial switch:** `SCX_OPS_SWITCH_PARTIAL` is retained. Benchmarks must `sched_setattr(SCHED_EXT)` (`orchestra_bridge --opt-in`) or enqueue/run stay 0.
 
 ## Security
 - **Authentication:** Bridge maps have no cryptographic authentication (local trust only).

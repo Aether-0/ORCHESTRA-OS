@@ -1,0 +1,15 @@
+04:46:52 === Environment ===
+04:46:52 === Build ===
+04:46:53 === Load + pin ===
+04:46:56 === Negative: no opt-in (enqueue must stay 0 while idle_dispatch may rise) ===
+04:46:57 no-optin enqueue 0->0 running 0->0 idle_disp 730->1142
+04:46:57 PASS: partial switch: CFS worker did not enter enqueue
+04:46:57 === Ownership: opt-in worker ===
+04:47:01 owned enqueue=9 run=13 running=91 enable=1 fastpath=0
+04:47:01 PASS: ownership gate (enqueue>0 running>0 enable>0)
+04:47:01 === MIGRATE targeting ===
+04:47:03 migrate requested=27 effective=27 target_cpu=1
+04:47:03 PASS: MIGRATE requested on owned task
+04:47:03 === Completion-time (owned vs CFS) ===
+04:47:11 completion CFS=160ms ORCHESTRA_owned=7723ms (VirtualBox, n=1)
+04:47:12 === COMPLETE fails=0 evidence=/tmp/p0-ownership-clean ===

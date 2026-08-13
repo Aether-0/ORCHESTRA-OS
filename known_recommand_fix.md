@@ -177,7 +177,54 @@ artifacts/test-results/2026-08-13/vbox-mcp/
 ├── ORCHESTRA_Kernel_Improvement_Report.html
 ├── SUMMARY.md
 ├── graphs/
-├── phase-a/ … phase-e/
+├── p0-ownership-retest/
+├── p0-owned-bench/
 ```
 
 Wording for publication: “the VirtualBox guest demonstrated…” — not deployment-ready, not bare-metal performance proof.
+
+---
+
+## Retest after applying this document (2026-08-13)
+
+**Claim class:** VirtualBox / kernel-prototyped  
+**Object:** rebuilt `orchestra_scx_stage7.bpf.o` with the P0/P1 changes below  
+**Harness:** `kernel/sched_ext/scripts/p0_ownership_retest.sh` then `BENCH_SECS=5 benchmarks/real-machine/benchmark_suite.sh`  
+**Evidence:**
+- [`p0-ownership-retest/`](./artifacts/test-results/2026-08-13/vbox-mcp/p0-ownership-retest/)
+- [`p0-owned-bench/`](./artifacts/test-results/2026-08-13/vbox-mcp/p0-owned-bench/)
+
+### What was implemented
+
+| Item | Change |
+|------|--------|
+| P0 ownership | Keep `SCX_OPS_SWITCH_PARTIAL`. Workers use `orchestra_bridge --opt-in` (`sched_setattr(SCHED_EXT)`). Gate on `enqueue`, `running`, and `task_enable`. |
+| P0 enqueue skip | Lone spinning tasks never hit `.enqueue`. Added `SCX_OPS_ENQ_LAST`. Shared `orchestra_place()` from `.select_cpu` and `.enqueue`. |
+| P0 fast path | Cached directive in `dir_cache_map`; identity mismatch / missing directive uses `fast_run` (no task-map write). |
+| P0 pin UX | `orchestra_bridge --pin-maps`. |
+| P1 MIGRATE | `SCX_DSQ_LOCAL_ON \| cpu` + `scx_bpf_kick_cpu`. Cookie default 0 (proc starttime ≠ `start_boottime`). |
+| P1 telemetry | `.running`, `idle_dispatch_count`, `fastpath_run_count`. Idle `.dispatch` is not treated as work. |
+| P1 harness | Opt-in workers; `jobs -p` no longer waits on `scx_simple`; ctxt **deltas**; `sudo bash -c 'rm -rf /sys/fs/bpf/*'` (sticky bpf fs). |
+
+### Results (guest fedora, Linux 6.12.96, 4 vCPU)
+
+| Check | Result |
+|-------|--------|
+| CFS worker without opt-in | enqueue 0→0, running 0→0; idle_dispatch rose (PASS) |
+| Opt-in RUN worker | enqueue=9 run=13 running=91 enable=1 (PASS) |
+| Opt-in MIGRATE cpu 1 | migrate_requested=27 effective=27 (PASS) |
+| Fail count | 0 |
+
+Owned 5 s busy-loop bench (`owned=yes` on every ORCHESTRA row). Wall time ≈ duration for all three schedulers (not a throughput metric). Per-run `ctx_delta`:
+
+| Scheduler | 1w | 2w | 4w | enqueue / running (4w) |
+|-----------|----|----|----|------------------------|
+| CFS | 34113 | 69258 | 108379 | n/a |
+| scx_simple | 16391 | 28996 | 48117 | n/a |
+| ORCHESTRA (owned) | 15609 | 30260 | 55720 | 69002 / 80557 |
+
+Completion-time (`fixed_work` 80e6 iters): CFS 160 ms vs opted-in ORCHESTRA 7723 ms on this **single** VirtualBox run. That is **not** a publishable overhead number: `ENQ_LAST` increases place frequency, n=1, no repetition, VM noise. It does show the worker was on the SCX path.
+
+`cgroup cpu.weight` dmesg warnings remain (same class as `scx_simple`); they are not ownership failures.
+
+SLEEP/THROTTLE still use slice approximation (`scx_bpf_consume` was previously unsafe on this 6.12 path). Bare-metal statistical benches remain P2.

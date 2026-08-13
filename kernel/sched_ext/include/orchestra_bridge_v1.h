@@ -179,6 +179,11 @@ struct bridge_telemetry {
 
     uint64_t adaptive_slice_count;
     uint64_t slice_overflow;
+
+    /* P0 ownership / hot-path (appended; bpftool dumps by BTF name) */
+    uint64_t running_count;
+    uint64_t idle_dispatch_count;
+    uint64_t fastpath_run_count;
 } __attribute__((packed));
 
 #endif /* ORCHESTRA_BRIDGE_V1_H */

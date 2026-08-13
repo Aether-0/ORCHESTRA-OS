@@ -7,6 +7,7 @@ OUT="/tmp/orchestra-compare-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUT"
 NCPU=$(nproc)
 BPF="/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/orchestra_scx_stage7.bpf.o"
+BRIDGE="${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}"
 
 log() { echo "$(date +%H:%M:%S) $*" | tee -a "$OUT/run.log"; }
 
@@ -18,20 +19,25 @@ run_test() {
     local SCHED=$1 LABEL=$2 WORKERS=$3 SECS=$4 TYPE=$5
     log "  $SCHED/$LABEL: $WORKERS $TYPE workers × ${SECS}s"
     
+    local PIDS=()
     local start_ns=$(date +%s%N)
+    local ctx0
+    ctx0=$(awk '/^ctxt/{print $2}' /proc/stat)
     for i in $(seq 1 $WORKERS); do
         case $TYPE in
             cpu)
                 taskset -c $(( (i-1) % NCPU )) bash -c "
                     e=\$((\$(date +%s) + $SECS))
                     while [ \$(date +%s) -lt \$e ]; do :; done
-                " & ;;
+                " &
+                PIDS+=($!) ;;
             mixed)
                 if [ $((i % 2)) -eq 0 ]; then
                     taskset -c $(( (i-1) % NCPU )) bash -c "
                         e=\$((\$(date +%s) + $SECS))
                         while [ \$(date +%s) -lt \$e ]; do :; done
                     " &
+                    PIDS+=($!)
                 else
                     taskset -c $(( (i-1) % NCPU )) bash -c "
                         e=\$((\$(date +%s) + $SECS))
@@ -40,15 +46,25 @@ run_test() {
                             sleep 0.05
                         done
                     " &
+                    PIDS+=($!)
                 fi ;;
         esac
     done
-    for pid in $(jobs -p); do wait $pid 2>/dev/null; done
+    if [ "$SCHED" = "orchestra" ] && [ -x "${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}" ]; then
+        local BR="${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}"
+        for pid in "${PIDS[@]}"; do
+            sudo "$BR" --opt-in --target-pid "$pid" >/dev/null 2>&1 || true
+            sudo "$BR" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+        done
+    fi
+    for pid in "${PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
     local end_ns=$(date +%s%N)
     local ms=$(( (end_ns - start_ns) / 1000000 ))
-    local ctx=$(grep ctxt /proc/stat | awk '{print $2}')
-    echo "$SCHED,$LABEL,$WORKERS,$ms,$ctx,ok" >> "$OUT/results.csv"
-    log "    => ${ms}ms"
+    local ctx1 ctxd
+    ctx1=$(awk '/^ctxt/{print $2}' /proc/stat)
+    ctxd=$((ctx1 - ctx0))
+    echo "$SCHED,$LABEL,$WORKERS,$ms,$ctxd,ok" >> "$OUT/results.csv"
+    log "    => ${ms}ms ctx_delta=$ctxd"
 }
 
 # ====== MAIN ======
@@ -74,7 +90,12 @@ if [ -x /usr/bin/scx_simple ]; then
         [ $w -le $NCPU ] || break
         run_test "scx_simple" "cpu_${w}w" "$w" 30 cpu
     done
-    sudo kill $SCX 2>/dev/null; wait $SCX 2>/dev/null; sleep 2
+    sudo kill $SCX 2>/dev/null || true
+    sleep 2
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null || true
+    done
+    sleep 1
 fi
 
 # ---- ORCHESTRA ----
@@ -88,6 +109,7 @@ if [ -f "$BPF" ]; then
     sleep 2
     
     if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+        sudo "$BRIDGE" --pin-maps || true
         for w in 1 2 4 8; do
             [ $w -le $NCPU ] || break
             run_test "orchestra" "cpu_${w}w" "$w" 30 cpu

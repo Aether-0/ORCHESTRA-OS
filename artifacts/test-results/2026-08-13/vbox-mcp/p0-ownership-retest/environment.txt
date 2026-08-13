@@ -1,0 +1,5 @@
+timestamp: 2026-08-13T04:46:52+00:00
+hostname: fedora
+kernel: 6.12.96
+cpus: 4
+sched_ext: disabled
