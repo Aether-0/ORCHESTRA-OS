@@ -13,8 +13,9 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 | **USB Deployment Kit** (everything for real machine) | [orchestra-usb-final.zip](./orchestra-usb-final.zip) |
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
+| **Known Recommendations & Fixes** (Markdown) | [known_recommand_fix.md](./known_recommand_fix.md) |
 | **Kernel Benchmark Report** (HTML + graphs, VirtualBox) | [ORCHESTRA_Kernel_Benchmark_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Benchmark_Report.html) |
-| **Kernel Improvement Report** (findings & fix map) | [ORCHESTRA_Kernel_Improvement_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Improvement_Report.html) |
+| **Kernel Improvement Report** (HTML findings & fix map) | [ORCHESTRA_Kernel_Improvement_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Improvement_Report.html) |
 | **VBox Test Ladder Summary** | [SUMMARY.md](./artifacts/test-results/2026-08-13/vbox-mcp/SUMMARY.md) |
 | **Architecture Decisions** (12 ADRs) | [docs/adr/](./docs/adr/) |
 | **Kernel BPF Scheduler Source** | [kernel/sched_ext/](./kernel/sched_ext/) |
