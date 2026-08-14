@@ -2,7 +2,7 @@
 
 Predictive, cryptographically protected, hierarchical, signal-coordinated scheduling architecture for Linux.
 
-**Status:** Kernel-prototyped and bounded VirtualBox-runtime-validated. The source remediation and VM gate passed on 2026-08-14. The project is **conditionally ready for a narrowly controlled first physical-machine pilot**, but is not deployment-ready and has no physical-machine performance or long-duration evidence.
+**Status:** Kernel-prototyped. VirtualBox runtime gate passed on 2026-08-14. First physical-machine campaign on Kali 7.0.12 (HP Pro Tower 280 G9) is **PARTIALLY_VALIDATED**: userspace tests passed; 7.0-ported Stage-7 BPF loaded/unloaded cleanly; canonical kernel actions were **not** shown effective. Not experimentally validated, not deployment-ready. Dedicated ORCHESTRA vs CFS vs `scx_simple` benchmarking is deferred.
 
 ---
 
@@ -10,7 +10,9 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 
 | What | Link |
 |------|------|
-| **Deep Kernel + C Source Code Audit** (HTML, 2026-08-14; current machine-test gate) | [ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html) |
+| **Physical machine Kali report** (HTML, 2026-08-14; this host) | [ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html](./ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html) |
+| **Physical campaign evidence** (checklist + findings) | [artifacts/real-world/20260814-104600-kali-checklist/](./artifacts/real-world/20260814-104600-kali-checklist/) |
+| **Deep Kernel + C Source Code Audit** (HTML, 2026-08-14; VM/source gate) | [ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html) |
 | **Deep Kernel + Algorithm Code Review** (HTML, 2026-08-14) | [ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) |
 | **Runtime Validation Report** (HTML, 2026-08-14) | [ORCHESTRA_Runtime_Validation_Report_2026-08-14.html](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) |
 | **VirtualBox Runtime Evidence** (Markdown, 2026-08-14) | [SUMMARY.md](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md) |
@@ -122,7 +124,9 @@ make clean && make && make test
 
 ## 2. Real-Machine Kernel Setup
 
-> **Safety gate:** The K/C/ALG remediation and bounded VirtualBox runtime gate have passed. A first physical test is permitted only as a controlled pilot on a disposable host with out-of-band console access, rollback, explicit abort thresholds, and bounded non-production workloads. This is not authorization for production use, performance benchmarking, or unrestricted real-world deployment. See the [runtime validation report](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) and [runtime evidence](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md).
+> **Physical campaign (2026-08-14, this Kali host):** attach/unload **PASS** after a 7.0 `scx_bpf_dsq_insert*` port; MIGRATE/SLEEP **not effective** as observed. See the [Kali physical report](./ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html). Do **not** boot `artifacts/kernel-v6.12.96-orchestra-stage8.bzImage` on NVMe hardware (that image has NVMe disabled).
+>
+> **Safety gate:** The VirtualBox runtime gate still applies as 6.12 guest evidence. Physical use remains a controlled pilot: disposable host, rollback, abort thresholds, no production workloads. This is not authorization for deployment. VM evidence: [runtime validation report](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html).
 
 ### Prerequisites
 - Linux 6.12+ with `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_DEBUG_INFO_BTF=y`
@@ -166,24 +170,19 @@ cc -O2 -Wall -Wextra -I kernel/sched_ext/include \
 
 ### Load / Unload
 
+On Linux 7.0 (this Kali host) the BPF object must be built against `scx_bpf_dsq_insert*` (`ORCHESTRA_SCX_API_VERSION=70012`). Pin maps **before** attach via the loader. Do not wipe all of `/sys/fs/bpf`.
+
 ```bash
-# Load
-sudo bpftool struct_ops register orchestra_scx_stage7.bpf.o /sys/fs/bpf/orch
-cat /sys/kernel/sched_ext/state   # Should show "enabled"
-
-# Pin maps
-for m in bridge_control_ bridge_directiv bridge_telemetr bridge_task_map; do
-  ID=$(sudo bpftool map list | grep -m1 "name $m" | awk '{print $1}' | tr -d ':')
-  sudo bpftool map pin id $ID /sys/fs/bpf/$m
-done
-
-# Use bridge
-sudo ./bridge --status
-sudo ./bridge --publish --action RUN --target-pid <PID>
-
-# Unload
-sudo rm -rf /sys/fs/bpf/*
+cd kernel/sched_ext
+sudo ./bridge/orchestra_loader --load ./orchestra_scx_stage7.bpf.o
+cat /sys/kernel/sched_ext/state          # enabled
+sudo ./bridge/orchestra_bridge --status
+sudo ./bridge/orchestra_bridge --publish --action RUN --target-pid <PID>
+sudo ./bridge/orchestra_loader --unload
+cat /sys/kernel/sched_ext/state          # disabled
 ```
+
+Bare `bpftool struct_ops register` is insufficient for this object (timer map). Scripts that `rm -rf /sys/fs/bpf/*` were not used on this host.
 
 ---
 
@@ -229,15 +228,15 @@ sudo bash benchmarks/real-machine/full_compare.sh
 
 Runs all three schedulers through all worker counts. Exports to `/tmp/orchestra-compare-<timestamp>/results.csv`.
 
-### Expected Overhead
+### Expected Overhead (historical estimate — not a Kali measurement)
 
 | Scheduler | Relative to CFS |
 |-----------|----------------|
 | CFS | 1.00× (baseline) |
-| scx_simple | ~1.02× |
-| ORCHESTRA | ~1.20× |
+| scx_simple | ~1.02× (not installed on this Kali host) |
+| ORCHESTRA | ~1.20× (design estimate only) |
 
-ORCHESTRA's overhead comes from BPF callbacks, bridge maps, identity checks, controller gating, and telemetry counters.
+These figures are **not** results from the 2026-08-14 physical campaign. One 4-worker 8s run while ORCHESTRA was loaded finished in 7997 ms versus CFS ~7993 ms (n=1, full-switch, ownership not isolated). A proper comparison is deferred.
 
 ---
 
@@ -299,10 +298,19 @@ See [docs/adr/](docs/adr/) for all 12 Architecture Decision Records.
 
 ## 8. Key Hashes
 
+VirtualBox / release artifacts:
+
 | File | SHA-256 |
 |------|---------|
 | Userspace source | `5fc21224846a2a17db0f02ce02efe8ebbe1067e40b0ad78e82419839d73657b9` |
 | Userspace binary | `3a68b633e29e9d91060fa9bba0305940f02d04678573da115796f23850383e03` |
 | Bridge contract | `08eaa93725f98331edffa67d3255b25bebcb589e8299401c40a089dc70007c97` |
-| Kernel bzImage | `d3d50d26b3d1a91196318a2c99d1c71a859c3171b69276bd26414ae6dfa9e912` |
-| Kernel BTF | `7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458` |
+| Kernel bzImage (6.12.96 VBox; NVMe off) | `d3d50d26b3d1a91196318a2c99d1c71a859c3171b69276bd26414ae6dfa9e912` |
+| Kernel BTF (that bzImage) | `7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458` |
+
+This Kali 7.0.12 host (2026-08-14):
+
+| File | SHA-256 |
+|------|---------|
+| Running BTF vmlinux | `3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76` |
+| 7.0-ported BPF object | `ba82987fb2aa09d1746c7dbc1937830965182612c23377fd61c3ee75fc38dab4` |
