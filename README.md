@@ -14,6 +14,7 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 | **Deep Kernel + Algorithm Code Review** (HTML, 2026-08-14) | [ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) |
 | **Runtime Validation Report** (HTML, 2026-08-14) | [ORCHESTRA_Runtime_Validation_Report_2026-08-14.html](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) |
 | **VirtualBox Runtime Evidence** (Markdown, 2026-08-14) | [SUMMARY.md](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md) |
+| **VirtualBox Post-Fix Benchmark Comparison** (HTML, 2026-08-14) | [ORCHESTRA_VM_Benchmark_Comparison_2026-08-14.html](./ORCHESTRA_VM_Benchmark_Comparison_2026-08-14.html) |
 | **USB Deployment Kit** (everything for real machine) | [orchestra-usb-final.zip](./orchestra-usb-final.zip) |
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORCHESTRA-OS VirtualBox Benchmark Comparison — 2026-08-14</title>
+  <style>
+    body{font:16px/1.5 system-ui,sans-serif;color:#18212b;background:#f6f8fa;margin:0}main{max-width:1100px;margin:auto;background:#fff;padding:32px 22px 60px;min-height:100vh}h1{margin-top:0}h2{border-bottom:1px solid #d9e0e7;padding-bottom:5px;margin-top:28px}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #d9e0e7;padding:8px;text-align:left}th{background:#eef2f5}.note{background:#fff7e6;border-left:5px solid #8a5a00;padding:12px 16px}.ok{color:#126b43;font-weight:700}code{background:#f0f3f5;padding:2px 4px}
+  </style>
+</head>
+<body><main>
+  <h1>ORCHESTRA-OS VirtualBox Benchmark Comparison</h1>
+  <p>Post-fix run: 2026-08-14 · Guest: Fedora, Linux 6.12.96, 4 vCPU · Workload: pinned CPU busy loops, 1/2/4 workers, 30 seconds per case.</p>
+  <div class="note"><strong>Interpretation boundary:</strong> this is a VirtualBox comparison, not a physical-machine result. Fixed-duration busy loops make wall time approximately equal to the requested duration; context-switch deltas are the more informative secondary signal. Run-to-run VM variance is not a causal performance proof.</div>
+
+  <h2>Current post-fix results</h2>
+  <table><thead><tr><th>Scheduler</th><th>Workers</th><th>Elapsed (ms)</th><th>Context-switch delta</th></tr></thead><tbody>
+    <tr><td>CFS</td><td>1</td><td>29596</td><td>33984</td></tr><tr><td>CFS</td><td>2</td><td>29965</td><td>54232</td></tr><tr><td>CFS</td><td>4</td><td>29978</td><td>96670</td></tr>
+    <tr><td>scx_simple</td><td>1</td><td>29936</td><td>26476</td></tr><tr><td>scx_simple</td><td>2</td><td>29945</td><td>38804</td></tr><tr><td>scx_simple</td><td>4</td><td>29964</td><td>48408</td></tr>
+    <tr><td>ORCHESTRA</td><td>1</td><td>30029</td><td>6363</td></tr><tr><td>ORCHESTRA</td><td>2</td><td>30030</td><td>10466</td></tr><tr><td>ORCHESTRA</td><td>4</td><td>29412</td><td>54126</td></tr>
+  </tbody></table>
+
+  <h2>Comparison with the 2026-08-13 VM report</h2>
+  <table><thead><tr><th>Scheduler / workers</th><th>Previous ms</th><th>Current ms</th><th>Δ elapsed</th><th>Previous ctx</th><th>Current ctx</th><th>Δ ctx</th></tr></thead><tbody>
+    <tr><td>CFS / 1</td><td>29533</td><td>29596</td><td>+0.21%</td><td>34113</td><td>33984</td><td>-0.38%</td></tr>
+    <tr><td>CFS / 2</td><td>29997</td><td>29965</td><td>-0.11%</td><td>69258</td><td>54232</td><td>-21.70%</td></tr>
+    <tr><td>CFS / 4</td><td>29998</td><td>29978</td><td>-0.07%</td><td>108379</td><td>96670</td><td>-10.80%</td></tr>
+    <tr><td>scx_simple / 1</td><td>29733</td><td>29936</td><td>+0.68%</td><td>16391</td><td>26476</td><td>+61.53%</td></tr>
+    <tr><td>scx_simple / 2</td><td>29995</td><td>29945</td><td>-0.17%</td><td>28996</td><td>38804</td><td>+33.83%</td></tr>
+    <tr><td>scx_simple / 4</td><td>29996</td><td>29964</td><td>-0.11%</td><td>48117</td><td>48408</td><td>+0.60%</td></tr>
+    <tr><td>ORCHESTRA / 1</td><td>29410</td><td>30029</td><td>+2.10%</td><td>15609</td><td>6363</td><td>-59.24%</td></tr>
+    <tr><td>ORCHESTRA / 2</td><td>29996</td><td>30030</td><td>+0.11%</td><td>30260</td><td>10466</td><td>-65.41%</td></tr>
+    <tr><td>ORCHESTRA / 4</td><td>29998</td><td>29412</td><td>-1.95%</td><td>55720</td><td>54126</td><td>-2.86%</td></tr>
+  </tbody></table>
+
+  <h2>Runtime integrity</h2>
+  <ul><li class="ok">All nine cases completed.</li><li class="ok">ORCHESTRA loaded through <code>orchestra_loader --load</code>, with maps pinned before attach.</li><li class="ok">ORCHESTRA telemetry after the matrix: accepted 19390, dispatched 19390, running 63285, fallback 41839, scheduler errors 0.</li><li class="ok">VM ended with sched_ext disabled after loader unload.</li></ul>
+
+  <h2>Conclusion</h2>
+  <p>The fixed VM comparison shows no new attach, progress, or unload failure after remediation. ORCHESTRA completed the workload matrix and its 4-worker elapsed time was 1.95% lower than the prior VM run, while context-switch delta was 2.86% lower. The 1- and 2-worker context-switch reductions are larger, but single-run VM measurements are not sufficient to attribute those changes to a code fix. Repeated runs and physical hardware remain required for performance claims.</p>
+
+  <p>Raw data: <a href="artifacts/test-results/vbox-benchmark-2026-08-14/results.csv">results.csv</a> · <a href="artifacts/test-results/vbox-benchmark-2026-08-14/environment.txt">environment.txt</a> · <a href="artifacts/test-results/vbox-benchmark-2026-08-14/orchestra-status.log">ORCHESTRA telemetry</a>.</p>
+</main></body></html>

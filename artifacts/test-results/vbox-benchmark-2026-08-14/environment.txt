@@ -1,0 +1,4 @@
+kernel=6.12.96 cpus=4
+state_after_scx=disabled
+state_after_orchestra_load=enabled
+state_final=disabled
