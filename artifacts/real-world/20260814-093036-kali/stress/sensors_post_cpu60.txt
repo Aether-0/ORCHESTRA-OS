@@ -1,0 +1,35 @@
+hp-isa-0000
+Adapter: ISA adapter
+pwm1:             N/A
+
+acpitz-acpi-0
+Adapter: ACPI interface
+temp1:        +81.0°C  
+temp2:        +27.8°C  
+
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 0:        +77.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 4:        +78.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 8:        +77.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 12:       +77.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 16:       +77.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 20:       +76.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 24:       +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 28:       +78.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 32:       +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 33:       +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 34:       +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 35:       +79.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 36:       +78.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 37:       +78.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 38:       +78.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 39:       +78.0°C  (high = +80.0°C, crit = +100.0°C)
+
+nvme-pci-e100
+Adapter: PCI adapter
+Composite:    +46.9°C  (low  =  -5.2°C, high = +82.8°C)
+                       (crit = +84.8°C)
+Sensor 1:     +46.9°C  (low  = -273.1°C, high = +65261.8°C)
+

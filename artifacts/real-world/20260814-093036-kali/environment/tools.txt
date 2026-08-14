@@ -1,0 +1,9 @@
+=== tools ===
+/usr/bin/gcc
+gcc (Debian 15.3.0-2) 15.3.0
+/usr/bin/clang
+Debian clang version 21.1.8 (10)
+/usr/bin/make
+GNU Make 4.4.1
+/usr/bin/python3
+Python 3.13.14

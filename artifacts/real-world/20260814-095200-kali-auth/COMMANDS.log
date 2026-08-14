@@ -1,0 +1,23 @@
+===== 2026-08-14T09:53:20+01:00 apt-get update =====
+rc_update=0
+===== 2026-08-14T09:53:38+01:00 apt-get install toolchain =====
+rc_install=0
+===== 2026-08-14T09:58:24+01:00 bridge compile =====
+bridge_rc=0
+===== 2026-08-14T09:58:25+01:00 bpftool btf dump =====
+vmlinux_rc=0
+loader_rc=0
+===== 2026-08-14T10:01:01+01:00 BPF compile stage7 vs linux-source-7.0 =====
+stage7_rc=1
+===== 2026-08-14T10:01:20+01:00 BPF compile stage7 retry with uapi =====
+stage7b_rc=1
+===== 2026-08-14T10:01:41+01:00 stress_suite 10 cfs =====
+rc=0
+===== 2026-08-14T10:06:22+01:00 BPF compile stage7 vs v6.12.96 headers + 7.0 vmlinux.h =====
+bpf612_rc=1
+===== 2026-08-14T10:06:34+01:00 BPF compile 6.12 headers + /usr/include =====
+rc=0
+===== 2026-08-14T10:06:48+01:00 pre-load bpf/sched state =====
+===== 2026-08-14T10:06:48+01:00 bpftool struct_ops register =====
+register_rc=255
+===== 2026-08-14T10:07:27+01:00 stress_suite 30 cfs =====

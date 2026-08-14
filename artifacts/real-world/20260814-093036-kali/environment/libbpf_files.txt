@@ -1,0 +1,2 @@
+lrwxrwxrwx 1 root root     15 Mar 31 21:40 /usr/lib/x86_64-linux-gnu/libbpf.so.1 -> libbpf.so.1.7.0
+-rw-r--r-- 1 root root 448600 Mar 31 21:40 /usr/lib/x86_64-linux-gnu/libbpf.so.1.7.0

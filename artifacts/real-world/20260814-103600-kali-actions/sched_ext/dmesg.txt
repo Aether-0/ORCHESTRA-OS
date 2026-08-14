@@ -1,0 +1,7 @@
+[Fri Aug 14 10:24:08 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 14 10:24:08 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (runtime error)
+[Fri Aug 14 10:24:08 2026] sched_ext: orchestra_scx_stage7: non-existent DSQ 0x0 for ksoftirqd/22[104]
+[Fri Aug 14 10:26:16 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 14 10:26:53 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 14 10:37:55 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 14 10:39:06 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)

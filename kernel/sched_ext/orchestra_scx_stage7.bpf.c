@@ -2,10 +2,9 @@
 /*
  * ORCHESTRA-OS sched_ext prototype, bridge ABI v2.
  *
- * Target API: upstream Linux v6.12 sched_ext.  This file intentionally uses
- * the v6.12 scx_bpf_dispatch* names behind the wrappers below.  Any port to a
- * kernel with the renamed dsq_insert API must update the wrappers and repeat
- * the semantic review; a compile-only rename is not an approved port.
+ * Target API: Linux 7.0 sched_ext (dsq_insert / dsq_move). Wrappers below were
+ * reviewed against v6.13+ kfunc rename: insert replaces dispatch, move
+ * replaces dispatch_from_dsq. A compile-only token rename is still not a port.
  *
  * Safety model:
  *   - full switch avoids fair-class-over-ext starvation from partial mode;
@@ -21,17 +20,32 @@
 #include <scx/common.bpf.h>
 #include "include/orchestra_bridge_v1.h"
 
+/*
+ * tools/sched_ext/include/scx/enums.autogen.bpf.h replaces DSQ/kick/enq
+ * constants with zeroed volatile ksyms filled only by SCX_OPS_LOAD(). This
+ * loader uses generic libbpf, so restore the running kernel's vmlinux enum
+ * values or enqueue hits DSQ 0x0 and the scheduler aborts.
+ */
+#undef SCX_DSQ_GLOBAL
+#undef SCX_DSQ_LOCAL
+#undef SCX_DSQ_LOCAL_ON
+#undef SCX_DSQ_FLAG_BUILTIN
+#undef SCX_KICK_IDLE
+#undef SCX_ENQ_HEAD
+
 char _license[] SEC("license") = "GPL";
 
-#if ORCHESTRA_SCX_API_VERSION != 61200u
+#if ORCHESTRA_SCX_API_VERSION != 70012u
 #error "Review DSQ insertion/struct_ops semantics before changing the sched_ext API target"
 #endif
 
 #define ORCHESTRA_U64_MAX (~(uint64_t)0)
 #define orchestra_dsq_insert(p, dsq, slice, flags) \
-    scx_bpf_dispatch((p), (dsq), (slice), (flags))
+    scx_bpf_dsq_insert((p), (dsq), (slice), (flags))
 #define orchestra_dsq_insert_vtime(p, dsq, slice, vtime, flags) \
-    scx_bpf_dispatch_vtime((p), (dsq), (slice), (vtime), (flags))
+    scx_bpf_dsq_insert_vtime((p), (dsq), (slice), (vtime), (flags))
+#define orchestra_dsq_move_from_dsq(it, p, dsq, flags) \
+    scx_bpf_dsq_move((it), (p), (dsq), (flags))
 
 struct {
     __uint(type, BPF_MAP_TYPE_ARRAY);
@@ -726,7 +740,7 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
             }
             bpf_spin_unlock(&state->lock);
         }
-        if (__COMPAT_scx_bpf_dispatch_from_dsq(
+        if (orchestra_dsq_move_from_dsq(
                 BPF_FOR_EACH_ITER, p, SCX_DSQ_LOCAL_ON | cpu, 0)) {
             if (global) {
                 tel_inc(&global->deferred_release_count);

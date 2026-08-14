@@ -1,0 +1,9 @@
+ORCHESTRA-OS paper-aligned real-CPU userspace prototype
+Collecting 1-second calibration trace...
+predictor_model=1 calibration_samples=14 evaluation_samples=6 fixed_gain=0.210 held_out_mse=0.00076092 sigma_obs=0.01581 jitter_floor=0.02371
+workers=4 eligible=4 rt-exempt-requested=0 rt-exempt-admitted=0 mode=baseline tick=100ms tamper-every=0 seed=104729 signal-schema=1 state-schema=2 policy-mode=TRAIN
+CSV metrics are written to stdout.
+
+[signal-publication] path=generation-stamped publications=40/40 contention=0 generation-exhaustion=0 read-attempts=448 verified=160 retries=0 retry-exhaustion=0 unstable-slot=0 safe-fallback=0 invalid={fields:0,schema:0,tier:0,source:0,directive:0,sequence:0,stale:0,epoch:0,hmac:0}
+Policy mode=TRAIN load=SKIP save=OK suppr=NONE
+Finished.

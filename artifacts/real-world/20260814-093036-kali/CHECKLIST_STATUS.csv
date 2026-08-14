@@ -1,0 +1,92 @@
+item_id,phase,item,status,reason_code,test_ids,evidence,severity,notes
+G1.1,1-governance,Campaign workspace created,PASS,,T0,/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali,,
+G1.2,1-governance,Repository identity recorded,PASS,,T0,environment/repo.txt,,Not a git repository; zip/source tree recorded
+G1.3,1-governance,Machine inventory captured,PASS,,T0,environment/,,HP Pro Tower 280 G9; i7-13700; 24 CPU; 15Gi; Kali 2026.3
+G1.4,1-governance,Pre-existing kernel health captured,PASS,,T0,environment/dmesg_pre.txt,,Pre-existing ACPI BIOS errors at boot; time-jump journal note
+G1.5,1-governance,Linux baseline metrics before ORCHESTRA load,PASS,,T4,baseline/linux_pre.txt,,sched_ext=disabled; ~99% idle
+G1.6,1-governance,Command log maintained,PASS,,T0,COMMANDS.log,,
+G1.7,1-governance,Implementation maturity audit,PASS,,T1,docs/status/current-state.md + kernel/sched_ext,,Stage7 BPF prototype; userspace WP2-6; no kernel S1-Q/predictor/controller
+K2.1,2-kernel-ready,CONFIG_SCHED_CLASS_EXT=y on running kernel,PASS,,T3,raw/kconfig.stdout,,
+K2.2,2-kernel-ready,CONFIG_DEBUG_INFO_BTF=y and /sys/kernel/btf/vmlinux,PASS,,T3,raw/sanity.stdout,,BTF SHA-256 3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76
+K2.3,2-kernel-ready,BPF syscall/JIT present,PASS,,T3,raw/kconfig.stdout,,
+K2.4,2-kernel-ready,sched_ext sysfs present and initially disabled,PASS,,T3,environment/kernel_sched.txt,
+K2.5,2-kernel-ready,ORCHESTRA-validated kernel 6.12.96 installed/booted,BLOCKED,BLOCKED_KERNEL_CAPABILITY,T3,environment/os.txt,HIGH,"Running 7.0.12+kali-amd64, not the VBox-validated 6.12.96"
+K2.6,2-kernel-ready,Matching kernel source tree available,BLOCKED,BLOCKED_MISSING_TOOL,T5,environment/tools_cont.txt,HIGH,ORCHESTRA_KERNEL_SRC unset; ~/src/linux-v6.12.96 absent
+K2.7,2-kernel-ready,bpftool available,BLOCKED,BLOCKED_MISSING_TOOL,T3,environment/tools_cont.txt,HIGH,bpftool not installed; packages not installed per policy
+K2.8,2-kernel-ready,libbpf development headers/link library,BLOCKED,BLOCKED_MISSING_TOOL,T5,raw/bridge_compile.stderr,HIGH,libbpf1 runtime present; -lbpf link fails; no /usr/include/bpf
+K2.9,2-kernel-ready,clang/gcc/make/python3 present,PASS,,T3,environment/compiler_versions.txt,,gcc 15.3.0 clang 21.1.8 make 4.4.1 python 3.13.14
+K2.10,2-kernel-ready,Generate vmlinux.h from running BTF,BLOCKED,BLOCKED_MISSING_TOOL,T5,,HIGH,Requires bpftool btf dump
+K3.1,3-sched-integration,Real-machine sanity_check.sh executed,PASS,,T3,raw/sanity.stdout,,Exit 0; reports bpftool MISSING
+K3.2,3-sched-integration,check_kernel_config.sh,PASS,,T3,raw/kconfig.stdout,
+K3.3,3-sched-integration,Compile orchestra_scx_stage7.bpf.c,BLOCKED,BLOCKED_MISSING_TOOL,T5,raw/bpf_compile.stderr,HIGH,fatal error: scx/common.bpf.h not found; no KSRC
+K3.4,3-sched-integration,Compile orchestra_bridge,BLOCKED,BLOCKED_MISSING_TOOL,T5,raw/bridge_compile.stderr,HIGH,cannot find -lbpf
+K3.5,3-sched-integration,Load ORCHESTRA struct_ops,BLOCKED,BLOCKED_MISSING_TOOL,T6,,HIGH,"No BPF object, no bpftool"
+K3.6,3-sched-integration,Unload ORCHESTRA and confirm disabled,BLOCKED,BLOCKED_MISSING_TOOL,T6,,,Dependent on load
+K3.7,3-sched-integration,Task ownership / opt-in gate,BLOCKED,BLOCKED_MISSING_TOOL,T7,,HIGH,"p0_ownership_retest.sh not run: bpftool, KSRC, destructive bpffs cleanup, hardcoded paths"
+K3.8,3-sched-integration,reproduce_stage7_runtime.sh,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,T6,,,Hardcoded $HOME/Documents/ORCHESTRA-OS and linux-v6.12.96
+K3.9,3-sched-integration,stage8_validate.sh,BLOCKED,BLOCKED_FOR_SAFETY,T6,,HIGH,Script rm -rf /sys/fs/bpf/* ; also missing tools
+K3.10,3-sched-integration,p0_ownership_retest.sh,BLOCKED,BLOCKED_FOR_SAFETY,T7,,HIGH,Script rm -rf /sys/fs/bpf/*
+A8.1,8-actions,RUN kernel effective,BLOCKED,BLOCKED_MISSING_TOOL,T8,,,Userspace approximation tested separately
+A8.2,8-actions,YIELD kernel effective,BLOCKED,BLOCKED_MISSING_TOOL,T8,,
+A8.3,8-actions,MIGRATE kernel effective,BLOCKED,BLOCKED_MISSING_TOOL,T8,,
+A8.4,8-actions,THROTTLE kernel effective,BLOCKED,BLOCKED_MISSING_TOOL,T8,,
+A8.5,8-actions,SLEEP kernel effective,BLOCKED,BLOCKED_MISSING_TOOL,T8,,
+H4.1,4-hybrid-rt,Kernel Hybrid Safety Layer / RT bypass,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T9,docs/status/current-state.md,,Kernel prototype does not implement paper Hybrid Safety Layer
+H4.2,4-hybrid-rt,Host SCHED_FIFO/SCHED_RR available with sudo,PASS,,T9,baseline/rt_sudo.txt,,Unprivileged chrt denied; sudo chrt -f/-r 10 succeeded. Not ORCHESTRA coexistence.
+H4.3,4-hybrid-rt,ORCHESTRA vs RT coexistence under load,BLOCKED,BLOCKED_MISSING_TOOL,T9,,,Scheduler never loaded
+S5.1,5-signal,Kernel authenticated predictive signal frame,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T10,docs/status/current-state.md,,"Bridge ABI is local native-endian maps, not HMAC signal frame"
+S5.2,5-signal,Userspace canonical 128-byte HMAC signal,PASS,,T2,build/make_test.stdout,,Unit+integration including tamper
+S6.1,6-integrity,Kernel tamper/freshness injection,BLOCKED,BLOCKED_NO_SAFE_INJECTION_INTERFACE,T10,,,No kernel injector; also no load
+S6.2,6-integrity,Userspace --tamper-every rejection,PASS,,T10u,security/paper_cpu_tamper.csv,,rejected_frames=32 last-row Q=0 S2=0
+P7.1,7-predictor,Kernel predictor outputs,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T11,,,
+P7.2,7-predictor,Userspace predictor telemetry present,PASS,,T11u,workload/paper_cpu_orchestra_1.csv,,"USERSPACE_VALIDATED only; 4s runs, high Q variance"
+C9.1,9-coordination,Kernel S1/S2/S3/S4/Q,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T12,,,
+C9.2,9-coordination,Userspace S1-S4/Q last-row reported,PASS,,T12u,workload/paper_cpu_s1s4_summary.txt,,Exploratory N=3; orchestra Q 0.30-0.79; not kernel Q
+C10.1,10-controller,Kernel feedback controller,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T13,,,
+C10.2,10-controller,Userspace controller columns present,PASS,,T13u,workload/paper_cpu_orchestra_1.csv,,USERSPACE_VALIDATED
+I11.1,11-instrumentation,Kernel BPF telemetry maps readable,BLOCKED,BLOCKED_MISSING_TOOL,T14,,,
+I11.2,11-instrumentation,Userspace CSV v7 emission,PASS,,T14u,workload/paper_cpu_orchestra_1.csv,,schema orchestra.paper_cpu.metrics/v7
+P12.1,12-overhead,ORCHESTRA vs CFS kernel overhead,BLOCKED,BLOCKED_MISSING_TOOL,T15,,,Ownership cannot be proven
+P12.2,12-overhead,Linux/CFS CPU completion times N=3,PASS,,T15,workload/benchmark_suite*.stdout,,1/2/4 workers x 8s
+W13.1,13-workload,"CPU workers 1,2,4 CFS",PASS,,T15,workload/,,N=3 of benchmark_suite
+W13.2,13-workload,CPU workers 8 CFS,PASS,,T17,workload/full_compare.stdout,,30s cpu_8w 29940ms
+W13.3,13-workload,CPU workers = nproc (24) CFS 10s,PASS,,T16,stress/stress_10_cfs.stdout,
+W13.4,13-workload,CPU workers = nproc (24) CFS 60s,PASS,,T16b,stress/cpu60.txt,,Package reached 79C near high=80C; no panic
+W13.5,13-workload,CPU workers > nproc,N/A,,,,,No existing script oversubscribe path beyond nproc stress
+W13.6,13-workload,Memory pressure via stress_suite,FAIL,,T16,stress/mem_fail_diag.txt,MEDIUM,stress missing; dd fallback wrote ~7.8Gi to 7.7Gi tmpfs; suite aborted rc=1
+W13.7,13-workload,I/O stress_suite phase,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,T16,stress/stress_10_cfs.stdout,,Suite stopped in memory phase; not executed
+W13.8,13-workload,Mixed CFS full_compare 1-8 workers 30s,PASS,,T17,workload/full_compare.stdout,
+W13.9,13-workload,Network throughput/packet/burst suite,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,T18,,,No existing network benchmark peer protocol
+D14.1,14-dynamic,Kernel dynamic workload timeline,BLOCKED,BLOCKED_MISSING_TOOL,T19,,,
+D14.2,14-dynamic,Userspace ticks show directive/S*/Q change,PASS,,T19u,workload/paper_cpu_orchestra_1.csv,,Short 4s; not kernel path
+TH16.1,16-thundering-herd,Kernel action-switch / S4,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T20,,,Kernel Q/S4 not implemented
+TH16.2,16-thundering-herd,Userspace S4_burst columns,PASS,,T20u,workload/paper_cpu_orchestra_1.csv,,USERSPACE_VALIDATED telemetry only
+F17.1,17-fairness,Kernel fairness/starvation,BLOCKED,BLOCKED_INSUFFICIENT_OBSERVABILITY,T21,,,No ORCHESTRA-owned tasks
+M18.1,18-migration,Kernel MIGRATE placement,BLOCKED,BLOCKED_MISSING_TOOL,T22,,,
+M18.2,18-migration,Userspace migrate affinity telemetry,PASS,,T2,build/make_test.stdout,,Unit test migrate_restores_affinity
+ST15.1,15-stress,stress_suite.sh 10s cfs complete,FAIL,,T16,/tmp/orchestra-stress-20260814-093430,MEDIUM,CPU PASS then memory filled /tmp
+ST15.2,15-stress,stress_suite.sh 60s cfs,BLOCKED,BLOCKED_FOR_SAFETY,T16,,MEDIUM,Not rerun after tmpfs exhaustion; CPU-only 60s done instead
+ST15.3,15-stress,stress_suite.sh orchestra,BLOCKED,BLOCKED_MISSING_TOOL,T16,,,sched_ext never enabled
+ST15.4,15-stress,Kernel health after CPU 60s,PASS,,T16b,stress/dmesg_post_cpu60.txt,,No new panic/stall in dmesg tail vs boot
+FR19.1,19-failure,Kernel fault/recovery campaign,BLOCKED,BLOCKED_MISSING_TOOL,T23,,,
+SE20.1,20-security,Kernel cryptographic integrity,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T24,,,
+SE20.2,20-security,Bridge CLI invalid-input tests,BLOCKED,BLOCKED_MISSING_TOOL,T24,,,Bridge binary not built
+MC21.1,21-multicore,CFS 1/2/4/8 cores,PASS,,"T15,T17",workload/,,Not ORCHESTRA ownership
+MC21.2,21-multicore,ORCHESTRA multicore ownership,BLOCKED,BLOCKED_MISSING_TOOL,T21k,,,
+N22.1,22-numa,Multi-node NUMA hardware,N/A,,T22,environment/lscpu.txt,,Single NUMA node 0; 15GB
+N22.2,22-numa,WP8 NUMA-aware scheduler,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T22,,,
+SC23.1,23-scalability,Distributed/cluster,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T23,,,Single host
+SC23.2,23-scalability,Worker scaling CFS 1-8,PASS,,T17,workload/full_compare.stdout,,
+B24.1,24-ablation,scx_simple comparison,BLOCKED,BLOCKED_MISSING_TOOL,T17,workload/benchmark_suite.stdout,,scx_simple not installed
+B24.2,24-ablation,ORCHESTRA vs CFS vs scx_simple,BLOCKED,BLOCKED_MISSING_TOOL,T17,,INCONCLUSIVE_OWNERSHIP_NOT_PROVEN if run without load
+ST25.1,25-stats,Exploratory N>=3 CFS 8s benches,PASS,,T15,workload/,,3 reps
+ST25.2,25-stats,N>=5 kernel ORCHESTRA,BLOCKED,BLOCKED_MISSING_TOOL,T25,,,
+R26.1,26-reproducibility,Userspace make test reproducible here,PASS,,T2,build/make_summary.txt,,"33s, rc=0"
+R26.2,26-reproducibility,Kernel BPF load reproducible,BLOCKED,BLOCKED_MISSING_TOOL,T26,,,
+L28.1,28-longrun,ORCHESTRA 10min+ loaded,BLOCKED,BLOCKED_MISSING_TOOL,T28,,,Would also be thermal-limited at 24-way 100%
+U2.1,2-userspace,make clean && make && make test,PASS,,T2,build/make_summary.txt,,30/30 unit x4 compiler passes; 21+4+34 python; 5 integration scenarios
+FA27.1,27-acceptance,Physical-machine kernel pilot gate,BLOCKED,BLOCKED_BY_ENVIRONMENT,T27,,HIGH,Missing bpftool/libbpf-dev/KSRC; kernel 7.0 vs 6.12 API
+FA27.2,27-acceptance,Deployment ready,N/A,,,,,Out of scope; repo not deployment-ready
+G1.8,1-governance,Do not modify source during campaign,PASS,,,,IMPLEMENTATION MODIFIED: NO
+W13.10,13-workload,Bursty CPU existing tool,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,,,
+W13.11,13-workload,Near-exhaustion memory,BLOCKED,BLOCKED_FOR_SAFETY,,,Not attempted after tmpfs fill

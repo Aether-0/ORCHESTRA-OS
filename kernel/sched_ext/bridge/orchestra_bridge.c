@@ -947,7 +947,14 @@ static int status_command(void)
                " migrate_target=%" PRIu64 " migrate_other=%" PRIu64
                " timer_ticks=%" PRIu64 " deferred_scans=%" PRIu64
                " deferred_future=%" PRIu64 " deferred_release_fail=%" PRIu64
-               " deferred_cpu_fail=%" PRIu64 "\n",
+               " deferred_cpu_fail=%" PRIu64
+               " enqueue=%" PRIu64 " run_disp=%" PRIu64 " yield_disp=%" PRIu64
+               " mig_acc=%" PRIu64 " mig_disp=%" PRIu64
+               " throttle_acc=%" PRIu64 " throttle_def=%" PRIu64
+               " sleep_acc=%" PRIu64 " sleep_def=%" PRIu64
+               " deferred=%" PRIu64 " deferred_rel=%" PRIu64
+               " stale_lease=%" PRIu64 " bad_id=%" PRIu64 " expired=%" PRIu64
+               " bad_cpu=%" PRIu64 " map_err=%" PRIu64 "\n",
                telemetry.accepted_directive_count,
                telemetry.dispatched_action_count, telemetry.running_count,
                telemetry.fallback_count, telemetry.migrate_running_target_count,
@@ -956,7 +963,23 @@ static int status_command(void)
                telemetry.deferred_timer_scanned_count,
                telemetry.deferred_timer_future_count,
                telemetry.deferred_release_failure_count,
-               telemetry.deferred_cpu_failure_count);
+               telemetry.deferred_cpu_failure_count,
+               telemetry.enqueue_callback_count,
+               telemetry.run_dispatched_count,
+               telemetry.yield_dispatched_count,
+               telemetry.migrate_accepted_count,
+               telemetry.migrate_dispatched_count,
+               telemetry.throttle_accepted_count,
+               telemetry.throttle_deferred_count,
+               telemetry.sleep_accepted_count,
+               telemetry.sleep_deferred_count,
+               telemetry.deferred_count,
+               telemetry.deferred_release_count,
+               telemetry.stale_lease_count,
+               telemetry.invalid_identity_count,
+               telemetry.expired_directive_count,
+               telemetry.invalid_cpu_count,
+               telemetry.map_error_count);
     }
     map_set_close(&maps);
     return EXIT_OK;

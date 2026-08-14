@@ -1,0 +1,301 @@
+=== journalctl kernel ===
+Aug 14 13:48:20 kali kernel: input: Sleep Button as /devices/platform/PNP0C0E:00/input/input0
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: [8086:7a34] type 01 class 0x060400 PCIe Root Port
+Aug 14 13:48:20 kali kernel: ACPI: button: Sleep Button [SLPB]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: PCI bridge to [bus e1]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4:   bridge window [io  0x0000-0x0fff]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4:   bridge window [mem 0x82100000-0x821fffff]
+Aug 14 13:48:20 kali kernel: input: Power Button as /devices/platform/PNP0C0C:00/input/input1
+Aug 14 13:48:20 kali kernel: ACPI: button: Power Button [PWRB]
+Aug 14 13:48:20 kali kernel: input: Power Button as /devices/platform/LNXPWRBN:00/input/input2
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: PME# supported from D0 D3hot D3cold
+Aug 14 13:48:20 kali kernel: ACPI: button: Power Button [PWRF]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: PTM enabled (root), 4ns granularity
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: Adding to iommu group 4
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: Primary bus is hard wired to 0
+Aug 14 13:48:20 kali kernel: pci 10000:e1:00.0: [1987:5027] type 00 class 0x010802 PCIe Endpoint
+Aug 14 13:48:20 kali kernel: pci 10000:e1:00.0: BAR 0 [mem 0x82100000-0x82103fff 64bit]
+Aug 14 13:48:20 kali kernel: pci 10000:e1:00.0: Adding to iommu group 4
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: PCI bridge to [bus e1]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: Primary bus is hard wired to 0
+Aug 14 13:48:20 kali kernel: i801_smbus 0000:00:1f.4: SPD Write Disable is set
+Aug 14 13:48:20 kali kernel: i801_smbus 0000:00:1f.4: SMBus using PCI interrupt
+Aug 14 13:48:20 kali kernel: intel-lpss 0000:00:15.0: enabling device (0004 -> 0006)
+Aug 14 13:48:20 kali kernel: idma64 idma64.0: Found Intel integrated DMA 64-bit
+Aug 14 13:48:20 kali kernel: ACPI: bus type USB registered
+Aug 14 13:48:20 kali kernel: usbcore: registered new interface driver usbfs
+Aug 14 13:48:20 kali kernel: usbcore: registered new interface driver hub
+Aug 14 13:48:20 kali kernel: usbcore: registered new device driver usb
+Aug 14 13:48:20 kali kernel: r8169 0000:01:00.0: can't disable ASPM; OS doesn't have ASPM control
+Aug 14 13:48:20 kali kernel: iTCO_wdt iTCO_wdt: Found a Intel PCH TCO device (Version=6, TCOBASE=0x0400)
+Aug 14 13:48:20 kali kernel: iTCO_wdt iTCO_wdt: initialized. heartbeat=30 sec (nowayout=0)
+Aug 14 13:48:20 kali kernel: r8169 0000:01:00.0 eth0: RTL8168h/8111h, 10:b6:76:4f:a0:80, XID 541, IRQ 142
+Aug 14 13:48:20 kali kernel: r8169 0000:01:00.0 eth0: jumbo features [frames: 9194 bytes, tx checksumming: ko]
+Aug 14 13:48:20 kali kernel: ACPI: bus type drm_connector registered
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: xHCI Host Controller
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: new USB bus registered, assigned bus number 1
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: hcc params 0x20007fc1 hci version 0x120 quirks 0x0000000200009810
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: xHCI Host Controller
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: new USB bus registered, assigned bus number 2
+Aug 14 13:48:20 kali kernel: xhci_hcd 0000:00:14.0: Host supports USB 3.2 Enhanced SuperSpeed
+Aug 14 13:48:20 kali kernel: usb usb1: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 7.00
+Aug 14 13:48:20 kali kernel: usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Aug 14 13:48:20 kali kernel: usb usb1: Product: xHCI Host Controller
+Aug 14 13:48:20 kali kernel: usb usb1: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+Aug 14 13:48:20 kali kernel: usb usb1: SerialNumber: 0000:00:14.0
+Aug 14 13:48:20 kali kernel: hub 1-0:1.0: USB hub found
+Aug 14 13:48:20 kali kernel: hub 1-0:1.0: 16 ports detected
+Aug 14 13:48:20 kali kernel: usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 7.00
+Aug 14 13:48:20 kali kernel: usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Aug 14 13:48:20 kali kernel: usb usb2: Product: xHCI Host Controller
+Aug 14 13:48:20 kali kernel: usb usb2: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+Aug 14 13:48:20 kali kernel: usb usb2: SerialNumber: 0000:00:14.0
+Aug 14 13:48:20 kali kernel: hub 2-0:1.0: USB hub found
+Aug 14 13:48:20 kali kernel: hub 2-0:1.0: 10 ports detected
+Aug 14 13:48:20 kali kernel: usb: port power management may be unreliable
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: disabling bridge window [mem size 0x00000000 64bit pref disabled] to [bus e1] (unused)
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: bridge window [mem 0x82000000-0x820fffff]: assigned
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 0 [mem 0x82100000-0x82101fff]: assigned
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 5 [mem 0x82102000-0x821027ff]: assigned
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 1 [mem 0x82102800-0x821028ff]: assigned
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+Aug 14 13:48:20 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+Aug 14 13:48:20 kali kernel: pci 10000:e1:00.0: BAR 0 [mem 0x82000000-0x82003fff 64bit]: assigned
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4: PCI bridge to [bus e1]
+Aug 14 13:48:20 kali kernel: pci 10000:e0:1d.4:   bridge window [mem 0x82000000-0x820fffff]
+Aug 14 13:48:20 kali kernel: pci 10000:e1:00.0: can't override BIOS ASPM; OS doesn't have ASPM control
+Aug 14 13:48:20 kali kernel: pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+Aug 14 13:48:20 kali kernel: pcieport 10000:e0:1d.4: PCI INT A: no GSI
+Aug 14 13:48:20 kali kernel: pcieport 10000:e0:1d.4: PME: Signaling with IRQ 151
+Aug 14 13:48:20 kali kernel: pcieport 10000:e0:1d.4: AER: enabled with IRQ 151
+Aug 14 13:48:20 kali kernel: vmd 0000:00:0e.0: Bound to PCI domain 10000
+Aug 14 13:48:20 kali kernel: Key type psk registered
+Aug 14 13:48:20 kali kernel: SCSI subsystem initialized
+Aug 14 13:48:20 kali kernel: usb 1-1: new low-speed USB device number 2 using xhci_hcd
+Aug 14 13:48:20 kali kernel: usb 1-1: New USB device found, idVendor=03f0, idProduct=564a, bcdDevice= 1.08
+Aug 14 13:48:20 kali kernel: usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Aug 14 13:48:20 kali kernel: usb 1-1: Product: HP 125 Wired Keyboard
+Aug 14 13:48:20 kali kernel: usb 1-1: Manufacturer: LITEON Technology Corp.
+Aug 14 13:48:20 kali kernel: hid: raw HID events driver (C) Jiri Kosina
+Aug 14 13:48:20 kali kernel: nvme nvme0: pci function 10000:e1:00.0
+Aug 14 13:48:20 kali kernel: pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+Aug 14 13:48:20 kali kernel: nvme 10000:e1:00.0: PCI INT A: no GSI
+Aug 14 13:48:20 kali kernel: libata version 3.00 loaded.
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] Found alderlake_s/raptorlake_s (device ID a780) integrated display version 12.00 stepping D0
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] VT-d active for gfx access
+Aug 14 13:48:20 kali kernel: Console: switching to colour dummy device 80x25
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: vgaarb: deactivate vga console
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] Using Transparent Hugepages
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=io+mem:owns=io+mem
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] Finished loading DMC firmware i915/adls_dmc_ver2_01.bin (v2.1)
+Aug 14 13:48:20 kali kernel: nvme nvme0: missing or invalid SUBNQN field.
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: GuC firmware i915/tgl_guc_70.bin version 70.49.4
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: HuC firmware i915/tgl_huc.bin version 7.9.3
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: HuC: authenticated for all workloads
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: submission enabled
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: SLPC enabled
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: RC enabled
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] Protected Xe Path (PXP) protected content support initialized
+Aug 14 13:48:20 kali kernel: usbcore: registered new interface driver usbhid
+Aug 14 13:48:20 kali kernel: usbhid: USB HID core driver
+Aug 14 13:48:20 kali kernel: nvme nvme0: allocated 64 MiB host memory buffer (1 segment).
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+Aug 14 13:48:20 kali kernel: nvme nvme0: 24/0/0 default/read/poll queues
+Aug 14 13:48:20 kali kernel: [drm] Initialized i915 1.6.0 for 0000:00:02.0 on minor 0
+Aug 14 13:48:20 kali kernel:  nvme0n1: p1 p2 p3 p4 p5 p6 p7 p8
+Aug 14 13:48:20 kali kernel: ACPI: video: Video Device [GFX0] (multi-head: yes  rom: no  post: no)
+Aug 14 13:48:20 kali kernel: input: Video Bus as /devices/pci0000:00/acpi.video_bus.0/input/input3
+Aug 14 13:48:20 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/0003:03F0:564A.0001/input/input4
+Aug 14 13:48:20 kali kernel: usb 1-9: new low-speed USB device number 3 using xhci_hcd
+Aug 14 13:48:20 kali kernel: ahci 10000:e0:17.0: can't derive routing for PCI INT A
+Aug 14 13:48:20 kali kernel: ahci 10000:e0:17.0: PCI INT A: no GSI
+Aug 14 13:48:20 kali kernel: ahci 10000:e0:17.0: AHCI vers 0001.0301, 32 command slots, 6 Gbps, SATA mode
+Aug 14 13:48:20 kali kernel: ahci 10000:e0:17.0: 4/4 ports implemented (port mask 0xf0)
+Aug 14 13:48:20 kali kernel: ahci 10000:e0:17.0: flags: 64bit ncq sntf pm led clo only pio slum part ems deso sadm sds 
+Aug 14 13:48:20 kali kernel: fbcon: i915drmfb (fb0) is primary device
+Aug 14 13:48:20 kali kernel: scsi host0: ahci
+Aug 14 13:48:20 kali kernel: scsi host1: ahci
+Aug 14 13:48:20 kali kernel: scsi host2: ahci
+Aug 14 13:48:20 kali kernel: scsi host3: ahci
+Aug 14 13:48:20 kali kernel: scsi host4: ahci
+Aug 14 13:48:20 kali kernel: scsi host5: ahci
+Aug 14 13:48:20 kali kernel: scsi host6: ahci
+Aug 14 13:48:20 kali kernel: scsi host7: ahci
+Aug 14 13:48:20 kali kernel: ata1: DUMMY
+Aug 14 13:48:20 kali kernel: ata2: DUMMY
+Aug 14 13:48:20 kali kernel: ata3: DUMMY
+Aug 14 13:48:20 kali kernel: ata4: DUMMY
+Aug 14 13:48:20 kali kernel: ata5: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102300 irq 178 lpm-pol 3
+Aug 14 13:48:20 kali kernel: ata6: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102380 irq 178 lpm-pol 3
+Aug 14 13:48:20 kali kernel: ata7: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102400 irq 178 lpm-pol 3
+Aug 14 13:48:20 kali kernel: ata8: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102480 irq 178 lpm-pol 3
+Aug 14 13:48:20 kali kernel: Console: switching to colour frame buffer device 240x67
+Aug 14 13:48:20 kali kernel: i915 0000:00:02.0: [drm] fb0: i915drmfb frame buffer device
+Aug 14 13:48:20 kali kernel: usb 1-9: New USB device found, idVendor=03f0, idProduct=584a, bcdDevice= 1.00
+Aug 14 13:48:20 kali kernel: usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Aug 14 13:48:20 kali kernel: usb 1-9: Product: HP 125 USB Optical Mouse
+Aug 14 13:48:20 kali kernel: usb 1-9: Manufacturer: PixArt
+Aug 14 13:48:20 kali kernel: input: PixArt HP 125 USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9:1.0/0003:03F0:584A.0003/input/input5
+Aug 14 13:48:20 kali kernel: hid-generic 0003:03F0:564A.0001: input,hidraw0: USB HID v1.11 Keyboard [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input0
+Aug 14 13:48:20 kali kernel: hid-generic 0003:03F0:584A.0003: input,hidraw1: USB HID v1.11 Mouse [PixArt HP 125 USB Optical Mouse] on usb-0000:00:14.0-9/input0
+Aug 14 13:48:20 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input6
+Aug 14 13:48:20 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard System Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input7
+Aug 14 13:48:20 kali kernel: hid-generic 0003:03F0:564A.0002: input,hidraw2: USB HID v1.11 Device [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input1
+Aug 14 13:48:20 kali kernel: ata6: SATA link down (SStatus 4 SControl 300)
+Aug 14 13:48:20 kali kernel: ata5: SATA link down (SStatus 4 SControl 300)
+Aug 14 13:48:20 kali kernel: ata8: SATA link down (SStatus 4 SControl 300)
+Aug 14 13:48:20 kali kernel: ata7: SATA link down (SStatus 4 SControl 300)
+Aug 14 13:48:20 kali kernel: PM: Image not found (code -22)
+Aug 14 13:48:20 kali kernel: EXT4-fs (nvme0n1p6): orphan cleanup on readonly fs
+Aug 14 13:48:20 kali kernel: EXT4-fs (nvme0n1p6): mounted filesystem ba748417-bde3-40af-8f54-01947d49ffa8 ro with ordered data mode. Quota mode: none.
+Aug 14 13:48:20 kali kernel: Not activating Mandatory Access Control as /sbin/tomoyo-init does not exist.
+Aug 14 13:48:20 kali systemd[1]: RTC configured in localtime, applying delta of 60 minutes to system time.
+Aug 14 13:48:20 kali systemd[1]: Inserted module 'autofs4'
+Aug 14 13:48:20 kali systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+Aug 14 13:48:20 kali systemd[1]: Detected architecture x86-64.
+Aug 14 13:48:20 kali systemd[1]: Hostname set to <kali>.
+Aug 14 13:48:20 kali systemd[1]: bpf-restrict-fs: LSM BPF program attached
+Aug 14 13:48:20 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 14 13:48:20 kali systemd[1]: Queued start job for default target graphical.target.
+Aug 14 13:48:20 kali systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+Aug 14 13:48:20 kali systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+Aug 14 13:48:20 kali systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+Aug 14 13:48:20 kali systemd[1]: Created slice user.slice - User and Session Slice.
+Aug 14 13:48:20 kali systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+Aug 14 13:48:20 kali systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+Aug 14 13:48:20 kali systemd[1]: Expecting device dev-disk-by\x2duuid-1c29ce44\x2d2c4f\x2d4f4d\x2d832f\x2db4d02a0d5aed.device - /dev/disk/by-uuid/1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed...
+Aug 14 13:48:20 kali systemd[1]: Expecting device dev-disk-by\x2duuid-5463983b\x2da228\x2d4805\x2dadae\x2d4dd27af9b33e.device - /dev/disk/by-uuid/5463983b-a228-4805-adae-4dd27af9b33e...
+Aug 14 13:48:20 kali systemd[1]: Expecting device dev-disk-by\x2duuid-9012\x2dEB79.device - /dev/disk/by-uuid/9012-EB79...
+Aug 14 13:48:20 kali systemd[1]: Reached target imports.target - Image Downloads.
+Aug 14 13:48:20 kali systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+Aug 14 13:48:20 kali systemd[1]: Reached target slices.target - Slice Units.
+Aug 14 13:48:20 kali systemd[1]: Reached target stunnel.target - TLS tunnels for network services - per-config-file target.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-ask-password.socket - Query the User Interactively for a Password.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-factory-reset.socket - Factory Reset Management.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-mute-console.socket - Console Output Muting Service Socket.
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-udevd-varlink.socket - udev Varlink Socket.
+Aug 14 13:48:20 kali systemd[1]: Listening on systemd-userdbd.socket - User Database Manager Socket.
+Aug 14 13:48:20 kali systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+Aug 14 13:48:20 kali systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+Aug 14 13:48:20 kali systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+Aug 14 13:48:20 kali systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+Aug 14 13:48:20 kali systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+Aug 14 13:48:20 kali systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+Aug 14 13:48:20 kali systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+Aug 14 13:48:20 kali systemd[1]: modprobe@configfs.service - Load Kernel Module configfs skipped, unmet condition check ConditionKernelModuleLoaded=!configfs
+Aug 14 13:48:20 kali systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+Aug 14 13:48:20 kali systemd[1]: modprobe@drm.service - Load Kernel Module drm skipped, unmet condition check ConditionKernelModuleLoaded=!drm
+Aug 14 13:48:20 kali systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+Aug 14 13:48:20 kali systemd[1]: modprobe@fuse.service - Load Kernel Module fuse skipped, unmet condition check ConditionKernelModuleLoaded=!fuse
+Aug 14 13:48:20 kali systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+Aug 14 13:48:20 kali systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+Aug 14 13:48:20 kali systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-journald.service - Journal Service...
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrosseparator.service - TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+Aug 14 13:48:20 kali systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrnvdone.service - TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+Aug 14 13:48:20 kali systemd[1]: systemd-pcrproduct.service - TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+Aug 14 13:48:20 kali systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+Aug 14 13:48:20 kali systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+Aug 14 13:48:20 kali systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+Aug 14 13:48:20 kali systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+Aug 14 13:48:20 kali systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+Aug 14 13:48:20 kali kernel: pstore: Using crash dump compression: deflate
+Aug 14 13:48:20 kali systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+Aug 14 13:48:20 kali systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+Aug 14 13:48:20 kali systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+Aug 14 13:48:20 kali systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+Aug 14 13:48:20 kali systemd-journald[547]: Collecting audit messages is disabled.
+Aug 14 13:48:20 kali kernel: pstore: Registered efi_pstore as persistent store backend
+Aug 14 13:48:20 kali systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+Aug 14 13:48:20 kali systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+Aug 14 13:48:20 kali kernel: ppdev: user-space parallel port driver
+Aug 14 13:48:20 kali kernel: lp: driver loaded but no devices found
+Aug 14 13:48:20 kali systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+Aug 14 13:48:20 kali systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+Aug 14 13:48:20 kali systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+Aug 14 13:48:20 kali systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+Aug 14 13:48:20 kali systemd[1]: Started systemd-journald.service - Journal Service.
+Aug 14 13:48:20 kali kernel: EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+Aug 14 13:48:20 kali systemd-journald[547]: Received client request to flush runtime journal.
+Aug 14 13:48:21 kali kernel: mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+Aug 14 13:48:21 kali kernel: EDAC ie31200: No ECC support
+Aug 14 13:48:21 kali kernel: EDAC ie31200: No ECC support
+Aug 14 13:48:21 kali kernel: input: PC Speaker as /devices/platform/pcspkr/input/input8
+Aug 14 13:48:21 kali kernel: intel_pmc_core INT33A1:00:  initialized
+Aug 14 13:48:21 kali kernel: mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+Aug 14 13:48:21 kali kernel: mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+Aug 14 13:48:21 kali kernel: RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+Aug 14 13:48:21 kali kernel: RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+Aug 14 13:48:21 kali kernel: RAPL PMU: hw unit of domain package 2^-14 Joules
+Aug 14 13:48:21 kali kernel: RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+Aug 14 13:48:21 kali kernel: input: HP WMI hotkeys as /devices/virtual/input/input9
+Aug 14 13:48:21 kali kernel: Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+Aug 14 13:48:21 kali kernel: EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+Aug 14 13:48:21 kali kernel: ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+Aug 14 13:48:21 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+Aug 14 13:48:21 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+Aug 14 13:48:22 kali kernel: snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+Aug 14 13:48:22 kali kernel: snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+Aug 14 13:48:22 kali kernel: intel_rapl_msr: PL4 support detected.
+Aug 14 13:48:22 kali kernel: intel_rapl_common: Found RAPL domain package
+Aug 14 13:48:22 kali kernel: intel_rapl_common: Found RAPL domain core
+Aug 14 13:48:22 kali kernel: intel_rapl_common: Found RAPL domain uncore
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+Aug 14 13:48:22 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+Aug 14 13:48:22 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+Aug 14 13:48:22 kali kernel: ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+Aug 14 13:48:22 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+Aug 14 13:48:22 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+Aug 14 13:48:22 kali kernel: hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+Aug 14 13:48:22 kali kernel: nvme nvme0: using unchecked data buffer
+Aug 14 13:48:22 kali kernel: NET: Registered PF_QIPCRTR protocol family
+Aug 14 13:48:22 kali kernel: Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+Aug 14 13:48:23 kali kernel: r8169 0000:01:00.0 eth0: Link is Down
+Aug 14 13:48:23 kali kernel: RPC: Registered named UNIX socket transport module.
+Aug 14 13:48:23 kali kernel: RPC: Registered udp transport module.
+Aug 14 13:48:23 kali kernel: RPC: Registered tcp transport module.
+Aug 14 13:48:23 kali kernel: RPC: Registered tcp-with-tls transport module.
+Aug 14 13:48:23 kali kernel: RPC: Registered tcp NFSv4.1 backchannel transport module.
+Aug 14 13:48:26 kali kernel: r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+Aug 14 09:18:53 kali systemd-journald[547]: Time jumped backwards, rotating.

@@ -1,0 +1,20 @@
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 14 09:18:22 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 14 09:18:22 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 14 09:18:22 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 14 09:18:22 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 14 09:18:22 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 14 09:18:22 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 14 09:18:22 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 14 09:18:22 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 14 09:18:23 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered udp transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 14 09:18:25 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 14 09:18:53 2026] systemd-journald[547]: Time jumped backwards, rotating.

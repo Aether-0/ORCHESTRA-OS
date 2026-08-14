@@ -1,0 +1,99 @@
+item_id,phase,item,status,reason_code,test_ids,evidence,severity,notes
+G1.1,1-governance,Campaign workspace created,PASS,,T0,artifacts/real-world/20260814-104600-kali-checklist,,Consolidates 093036 095200 102000 103600
+G1.2,1-governance,Repository identity recorded,PASS,,T0,20260814-093036-kali/environment/repo.txt,,Not a git repository; zip/source tree recorded
+G1.3,1-governance,Machine inventory captured,PASS,,T0,20260814-093036-kali/environment/,,HP Pro Tower 280 G9; i7-13700; 24 CPU; 15Gi; Kali 2026.3
+G1.4,1-governance,Pre-existing kernel health captured,PASS,,T0,20260814-093036-kali/environment/dmesg_pre.txt,,Pre-existing ACPI BIOS errors; journal time-jump
+G1.5,1-governance,Linux baseline metrics before ORCHESTRA load,PASS,,T4,20260814-093036-kali/baseline/linux_pre.txt,,sched_ext=disabled; ~99% idle before first load
+G1.6,1-governance,Command log maintained,PASS,,T0,COMMANDS.log + prior campaign COMMANDS.log,,
+G1.7,1-governance,Implementation maturity audit,PASS,,T1,docs/status/current-state.md + kernel/sched_ext,,Stage7 BPF prototype; userspace WP2-6; no kernel S1-Q/predictor/controller
+G1.8,1-governance,Source-change policy,PASS,,T0,CAMPAIGN_STATUS.md,,Default no-edit waived by operator for 7.0 API port and bridge --status telemetry only
+K2.1,2-kernel-ready,CONFIG_SCHED_CLASS_EXT=y on running kernel,PASS,,T3,20260814-093036-kali/raw/kconfig.stdout,,
+K2.2,2-kernel-ready,CONFIG_DEBUG_INFO_BTF=y and /sys/kernel/btf/vmlinux,PASS,,T3,20260814-093036-kali/raw/sanity.stdout,,BTF SHA-256 3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76
+K2.3,2-kernel-ready,BPF syscall/JIT present,PASS,,T3,20260814-093036-kali/raw/kconfig.stdout,,
+K2.4,2-kernel-ready,sched_ext sysfs present and initially disabled,PASS,,T3,20260814-093036-kali/environment/kernel_sched.txt,,
+K2.5,2-kernel-ready,ORCHESTRA-validated kernel 6.12.96 installed/booted,BLOCKED,BLOCKED_KERNEL_CAPABILITY,T3,20260814-102000-kali-7port/CAMPAIGN_STATUS.md,HIGH,Running 7.0.12; in-tree 6.12.96 bzImage has NVMe disabled
+K2.6,2-kernel-ready,Matching kernel source/headers for running kernel,PASS,,T5,20260814-095200-kali-auth/environment/apt_install.stdout,,linux-source-7.0 and linux-headers-7.0.12+kali installed after authorization
+K2.7,2-kernel-ready,bpftool available,PASS,,T3,20260814-095200-kali-auth/environment/apt_install.stdout,,Installed after authorization
+K2.8,2-kernel-ready,libbpf development headers/link library,PASS,,T5,20260814-095200-kali-auth/CAMPAIGN_STATUS.md,,libbpf-dev installed; bridge/loader linked
+K2.9,2-kernel-ready,clang/gcc/make/python3 present,PASS,,T3,20260814-093036-kali/environment/compiler_versions.txt,,gcc 15.3.0 clang 21.1.8 make 4.4.1 python 3.13.14
+K2.10,2-kernel-ready,Generate vmlinux.h from running BTF,PASS,,T5,20260814-095200-kali-auth/build/vmlinux_wc.txt,,137726 lines
+K3.1,3-sched-integration,Real-machine sanity_check.sh executed,PASS,,T3,20260814-093036-kali/raw/sanity.stdout,,Exit 0; later tools installed
+K3.2,3-sched-integration,check_kernel_config.sh,PASS,,T3,20260814-093036-kali/raw/kconfig.stdout,,
+K3.3,3-sched-integration,Compile orchestra_scx_stage7.bpf.c,PASS,,T5,20260814-102000-kali-7port/build/hashes.txt,,7.0 port object SHA-256 ba82987fb2aa09d1746c7dbc1937830965182612c23377fd61c3ee75fc38dab4
+K3.4,3-sched-integration,Compile orchestra_bridge and orchestra_loader,PASS,,T5,kernel/sched_ext/bridge/,,bridge 5d9caadd... loader f420363e...
+K3.5,3-sched-integration,Load ORCHESTRA via orchestra_loader,PASS,,T6,20260814-104600-kali-checklist/sched_ext/cycle1_load.txt,,state=enabled switch_all=1; do not use bare bpftool register for timer map
+K3.6,3-sched-integration,Unload ORCHESTRA and confirm disabled,PASS,,T6,20260814-104600-kali-checklist/sched_ext/,,3/3 cycles disabled; dmesg unregistered from user space
+K3.7,3-sched-integration,Task ownership / opt-in gate,INCONCLUSIVE,INCONCLUSIVE_OWNERSHIP_NOT_PROVEN,T7,20260814-103600-kali-actions/workload/,,Full-switch owns all tasks (running tens-hundreds of k); isolated opt-in match not proven (accepted ~+1)
+K3.8,3-sched-integration,reproduce_stage7_runtime.sh,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,T6,,,Hardcoded $HOME/Documents/ORCHESTRA-OS and linux-v6.12.96
+K3.9,3-sched-integration,stage8_validate.sh,BLOCKED,BLOCKED_FOR_SAFETY,T6,,HIGH,Script rm -rf /sys/fs/bpf/*
+K3.10,3-sched-integration,p0_ownership_retest.sh,BLOCKED,BLOCKED_FOR_SAFETY,T7,,HIGH,Script rm -rf /sys/fs/bpf/*
+K3.11,3-sched-integration,Three load/unload cycles,PASS,,T6c,20260814-104600-kali-checklist/sched_ext/,,3/3 load_rc=0 unload_rc=0 enabled then disabled
+A8.1,8-actions,RUN kernel effective,INCONCLUSIVE,,T8,20260814-103600-kali-actions/actions/RUN_status.txt,,Published; accepted did not track wakeups; system-wide run_disp is fallback RUN
+A8.2,8-actions,YIELD kernel effective,INCONCLUSIVE,,T8,20260814-103600-kali-actions/actions/YIELD_status.txt,,accepted +1; yield_disp not a clear per-task yield
+A8.3,8-actions,MIGRATE kernel effective,FAIL,,T8,20260814-103600-kali-actions/actions/MIGRATE_status.txt,HIGH,PSR stayed 0; mig_acc=0 mig_disp=0; also affinity -c 0 vs target 3
+A8.4,8-actions,THROTTLE kernel effective,INCONCLUSIVE,,T8,20260814-103600-kali-actions/actions/THROTTLE_status.txt,,throttle_acc later 1; throttle_def=0; not proven effective
+A8.5,8-actions,SLEEP kernel effective,FAIL,,T8,20260814-103600-kali-actions/actions/SLEEP_status.txt,HIGH,sleep_acc=0 sleep_def=0 deferred=0
+H4.1,4-hybrid-rt,Kernel Hybrid Safety Layer / RT bypass,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T9,docs/status/current-state.md,,Paper Hybrid Safety Layer not in this BPF
+H4.2,4-hybrid-rt,Host SCHED_FIFO/SCHED_RR available with sudo,PASS,,T9,20260814-093036-kali/baseline/rt_sudo.txt,,Unprivileged chrt denied
+H4.3,4-hybrid-rt,ORCHESTRA vs RT coexistence (short),INCONCLUSIVE,,T9,20260814-104600-kali-checklist/rt/fifo_under_orch.txt,,FIFO prio 20 under loaded orchestra; policy remained FIFO; no RT load/starvation study
+S5.1,5-signal,Kernel authenticated predictive signal frame,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T10,docs/status/current-state.md,,Bridge ABI is local native-endian maps not HMAC frame
+S5.2,5-signal,Userspace canonical 128-byte HMAC signal,PASS,,T2,20260814-093036-kali/build/make_test.stdout,,Unit+integration including tamper
+S6.1,6-integrity,Kernel tamper/freshness injection,BLOCKED,BLOCKED_NO_SAFE_INJECTION_INTERFACE,T10,,,No kernel injector; do not patch kernel memory
+S6.2,6-integrity,Userspace --tamper-every rejection,PASS,,T10u,20260814-093036-kali/security/paper_cpu_tamper.csv,,rejected_frames=32 last-row Q=0 S2=0
+P7.1,7-predictor,Kernel predictor outputs,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T11,,,
+P7.2,7-predictor,Userspace predictor telemetry present,PASS,,T11u,20260814-093036-kali/workload/paper_cpu_orchestra_1.csv,,USERSPACE_VALIDATED only
+C9.1,9-coordination,Kernel S1/S2/S3/S4/Q,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T12,,,Do not report Q from simulation
+C9.2,9-coordination,Userspace S1-S4/Q last-row reported,PASS,,T12u,20260814-093036-kali/workload/paper_cpu_s1s4_summary.txt,,Exploratory N=3; orchestra Q 0.30-0.79; not kernel Q
+C10.1,10-controller,Kernel feedback controller,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T13,,,
+C10.2,10-controller,Userspace controller columns present,PASS,,T13u,20260814-093036-kali/workload/paper_cpu_orchestra_1.csv,,USERSPACE_VALIDATED
+I11.1,11-instrumentation,Kernel BPF telemetry maps readable,PASS,,T14,20260814-104600-kali-checklist/sched_ext/cycle1_status.txt,,--status after load; per-task identity lines never appeared
+I11.2,11-instrumentation,Userspace CSV v7 emission,PASS,,T14u,20260814-093036-kali/workload/paper_cpu_orchestra_1.csv,,schema orchestra.paper_cpu.metrics/v7
+I11.3,11-instrumentation,Directive match observability,INCONCLUSIVE,BLOCKED_INSUFFICIENT_OBSERVABILITY,T14,20260814-103600-kali-actions/,,bad_id/stale/expired/map_err stayed 0 while accepted ~+1; snapshot fail may be silent
+P12.1,12-overhead,ORCHESTRA vs CFS kernel overhead,INCONCLUSIVE,INCONCLUSIVE_OWNERSHIP_NOT_PROVEN,T15,20260814-103600-kali-actions/workload/owned_4w8s.txt,,4w 8s orchestra 7997ms vs CFS ~7993ms; full-switch whole machine not isolated
+P12.2,12-overhead,Linux/CFS CPU completion times N=3,PASS,,T15,20260814-093036-kali/workload/,,1/2/4 workers x 8s
+W13.1,13-workload,"CPU workers 1,2,4 CFS",PASS,,T15,20260814-093036-kali/workload/,,N=3 of benchmark_suite
+W13.2,13-workload,CPU workers 8 CFS,PASS,,T17,20260814-093036-kali/workload/full_compare.stdout,,30s cpu_8w 29940ms
+W13.3,13-workload,CPU workers = nproc (24) CFS 10s,PASS,,T16,20260814-095200-kali-auth/stress/,,After stress installed
+W13.4,13-workload,CPU workers = nproc (24) CFS 60s,PASS,,T16b,20260814-093036-kali/stress/cpu60.txt,,Package ~79C near high=80C; no panic
+W13.5,13-workload,CPU workers > nproc,N/A,,,,,No existing script oversubscribe path beyond nproc stress
+W13.6,13-workload,Memory pressure via stress_suite,PASS,,T16r,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100727/results.csv,,First run FAIL without stress (F2); retry PASS mem_stress 30s
+W13.7,13-workload,I/O stress_suite phase,PASS,,T16r,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100727/results.csv,,io_stress 30s PASS
+W13.8,13-workload,Mixed CFS full_compare 1-8 workers 30s,PASS,,T17,20260814-093036-kali/workload/full_compare.stdout,,
+W13.9,13-workload,Network throughput/packet/burst suite,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,T18,,,No existing network benchmark peer protocol
+W13.10,13-workload,Bursty CPU existing tool,BLOCKED,BLOCKED_MISSING_TEST_INFRASTRUCTURE,,,No dedicated burst harness beyond paper-cpu userspace
+W13.11,13-workload,Near-exhaustion memory,BLOCKED,BLOCKED_FOR_SAFETY,,,Not attempted; 15Gi RAM / 7.7G tmpfs
+W13.12,13-workload,CPU 4 workers under ORCHESTRA 8s,INCONCLUSIVE,INCONCLUSIVE_OWNERSHIP_NOT_PROVEN,T15o,20260814-103600-kali-actions/workload/owned_4w8s.txt,,7997ms ctx_delta=231675; full-switch
+D14.1,14-dynamic,Kernel dynamic workload timeline,BLOCKED,BLOCKED_INSUFFICIENT_OBSERVABILITY,T19,,,No predictor/directive timeline; actions not matching
+D14.2,14-dynamic,Userspace ticks show directive/S*/Q change,PASS,,T19u,20260814-093036-kali/workload/paper_cpu_orchestra_1.csv,,Short 4s; not kernel path
+TH16.1,16-thundering-herd,Kernel action-switch / S4,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T20,,,Kernel Q/S4 not implemented
+TH16.2,16-thundering-herd,Userspace S4_burst columns,PASS,,T20u,20260814-093036-kali/workload/paper_cpu_orchestra_1.csv,,USERSPACE_VALIDATED telemetry only
+F17.1,17-fairness,Kernel fairness/starvation,BLOCKED,BLOCKED_INSUFFICIENT_OBSERVABILITY,T21,,,No per-task CPU time under proven isolated ownership
+M18.1,18-migration,Kernel MIGRATE placement,FAIL,,T22,20260814-103600-kali-actions/actions/MIGRATE_status.txt,HIGH,See F8; requested not accepted
+M18.2,18-migration,Userspace migrate affinity telemetry,PASS,,T2,20260814-093036-kali/build/make_test.stdout,,Unit test migrate_restores_affinity
+ST15.1,15-stress,stress_suite.sh 10s cfs complete,PASS,,T16,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100141/results.csv,,Retry after stress install; health WARN is ACPI false positive
+ST15.2,15-stress,stress_suite.sh 30s cfs,PASS,,T16,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100727/results.csv,,CPU/mem/io/mixed PASS
+ST15.3,15-stress,stress_suite.sh orchestra,BLOCKED,BLOCKED_FOR_SAFETY,T16,,MEDIUM,24-way would approach package high=80C; actions not effective; not started
+ST15.4,15-stress,Kernel health after CPU 60s CFS,PASS,,T16b,20260814-093036-kali/stress/dmesg_post_cpu60.txt,,No new panic/stall vs boot
+FR19.1,19-failure,Invalid PID opt-in/publish,PASS,,T23,20260814-104600-kali-checklist/recovery/,,rc=6; TID 999999 has no current kernel identity record
+FR19.2,19-failure,Invalid MIGRATE CPU,PASS,,T23,recovery/migrate_badcpu.txt,,rc=7; CPU 99 is not currently allowed
+FR19.3,19-failure,Stale SLEEP not-before,PASS,,T23,recovery/sleep_stale.txt,,rc=7; must be in the next five seconds
+FR19.4,19-failure,Unload while worker exists,PASS,,T23,recovery/unload_with_work.txt,,unload_rc=0; state=disabled; worker_exit=0
+FR19.5,19-failure,Publish/status without maps,PASS,,T23,security/status_noload.txt,,status rc=3 maps missing; publish noload rc=2 not orchestra_scx_stage7
+SE20.1,20-security,Kernel cryptographic integrity,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T24,,,CLI validation is not HMAC
+SE20.2,20-security,Bridge CLI invalid-input tests,PASS,,T24,security/bad_action.txt,,unknown action and missing PID print usage rc=1
+MC21.1,21-multicore,CFS 1/2/4/8 cores,PASS,,"T15,T17",20260814-093036-kali/workload/,,Not ORCHESTRA ownership
+MC21.2,21-multicore,ORCHESTRA multicore ownership,INCONCLUSIVE,INCONCLUSIVE_OWNERSHIP_NOT_PROVEN,T21k,20260814-103600-kali-actions/workload/,,4 workers under full switch; not 1/2/8/24 ORCHESTRA matrix
+N22.1,22-numa,Multi-node NUMA hardware,N/A,,T22,20260814-093036-kali/environment/lscpu.txt,,Single NUMA node 0; 15GB
+N22.2,22-numa,WP8 NUMA-aware scheduler,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T22,,,
+SC23.1,23-scalability,Distributed/cluster,BLOCKED,BLOCKED_NOT_IMPLEMENTED,T23,,,Single host
+SC23.2,23-scalability,Worker scaling CFS 1-8,PASS,,T17,20260814-093036-kali/workload/full_compare.stdout,,
+B24.1,24-ablation,scx_simple comparison,BLOCKED,BLOCKED_MISSING_TOOL,T17,,,scx_simple not installed
+B24.2,24-ablation,ORCHESTRA vs CFS vs scx_simple,BLOCKED,BLOCKED_MISSING_TOOL,T17,,,Do not compare single orchestra 8s vs CFS average as a scheduler ranking
+ST25.1,25-stats,Exploratory N>=3 CFS 8s benches,PASS,,T15,20260814-093036-kali/workload/,,3 reps
+ST25.2,25-stats,N>=5 kernel ORCHESTRA,BLOCKED,INCONCLUSIVE_INSUFFICIENT_SAMPLES,T25,,,Kernel orchestra 4w n=1; actions n=1
+R26.1,26-reproducibility,Userspace make test reproducible here,PASS,,T2,20260814-093036-kali/build/make_summary.txt,,"33s, rc=0"
+R26.2,26-reproducibility,Kernel BPF load reproducible,PASS,,T26,20260814-104600-kali-checklist/sched_ext/,,3/3 cycles after enum restore
+L28.1,28-longrun,ORCHESTRA 10min+ loaded,BLOCKED,BLOCKED_FOR_SAFETY,T28,,,Not started; thermal headroom small at 24-way; short cycles already proven
+U2.1,2-userspace,make clean && make && make test,PASS,,T2,20260814-093036-kali/build/make_summary.txt,,30/30 unit x4 compiler passes; 21+4+34 python; 5 integration scenarios
+FA27.1,27-acceptance,Physical-machine kernel pilot gate,INCONCLUSIVE,,T27,,HIGH,Attach/unload PASS; canonical actions not effective; not EXPERIMENTALLY_VALIDATED
+FA27.2,27-acceptance,Deployment ready,N/A,,,,,Out of scope; DEPLOYMENT_READY not claimed

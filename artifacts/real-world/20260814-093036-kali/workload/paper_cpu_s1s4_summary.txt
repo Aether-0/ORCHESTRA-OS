@@ -1,0 +1,10 @@
+== baseline ==
+paper_cpu_baseline_1.csv {'S1': '1.00000000', 'S2': '1.00000000', 'S3': '1.00000000', 'S4': '1.00000000', 'Q': '1.00000000', 'S2_selected': '1.00000000', 'S2_effective': '0.00000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'baseline'}
+paper_cpu_baseline_2.csv {'S1': '1.00000000', 'S2': '1.00000000', 'S3': '1.00000000', 'S4': '1.00000000', 'Q': '1.00000000', 'S2_selected': '1.00000000', 'S2_effective': '0.00000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'baseline'}
+paper_cpu_baseline_3.csv {'S1': '1.00000000', 'S2': '1.00000000', 'S3': '1.00000000', 'S4': '1.00000000', 'Q': '1.00000000', 'S2_selected': '1.00000000', 'S2_effective': '0.25000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'baseline'}
+== orchestra ==
+paper_cpu_orchestra_1.csv {'S1': '0.52397831', 'S2': '1.00000000', 'S3': '1.00000000', 'S4': '0.75000000', 'Q': '0.79176016', 'S2_selected': '1.00000000', 'S2_effective': '0.75000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'orchestra'}
+paper_cpu_orchestra_2.csv {'S1': '0.82058355', 'S2': '0.50000000', 'S3': '0.35398516', 'S4': '0.50000000', 'Q': '0.51911308', 'S2_selected': '0.50000000', 'S2_effective': '0.75000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'orchestra'}
+paper_cpu_orchestra_3.csv {'S1': '0.17720432', 'S2': '0.50000000', 'S3': '0.35398516', 'S4': '0.25000000', 'Q': '0.29757219', 'S2_selected': '0.50000000', 'S2_effective': '1.00000000', 'rejected_frames': '0', 'eligible_workers': '4', 'ticks': 40, 'mode': 'orchestra'}
+== tamper ==
+paper_cpu_tamper.csv {'S1': '0.49221421', 'S2': '0.00000000', 'S3': '0.35398516', 'S4': '0.50000000', 'Q': '0.00000000', 'S2_selected': '0.00000000', 'S2_effective': '0.00000000', 'rejected_frames': '32', 'eligible_workers': '4', 'ticks': 40, 'mode': 'orchestra'}

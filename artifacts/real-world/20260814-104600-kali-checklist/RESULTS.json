@@ -1,0 +1,47 @@
+{
+  "campaign_id": "20260814-104600-kali-checklist",
+  "consolidates": [
+    "20260814-093036-kali",
+    "20260814-095200-kali-auth",
+    "20260814-102000-kali-7port",
+    "20260814-103600-kali-actions"
+  ],
+  "date": "2026-08-14",
+  "host": "kali",
+  "machine": "HP Pro Tower 280 G9",
+  "cpu": "13th Gen Intel Core i7-13700",
+  "logical_cpus": 24,
+  "numa_nodes": 1,
+  "ram_gib": 15,
+  "kernel": "7.0.12+kali-amd64",
+  "distro": "Kali GNU/Linux Rolling 2026.3",
+  "orchestra_tree": "/home/sharda/Downloads/ORCHESTRA-OS-main",
+  "git": null,
+  "sched_ext_at_close": "disabled",
+  "decision": "PARTIALLY_VALIDATED",
+  "claim_class": {
+    "userspace": "USERSPACE_VALIDATED",
+    "kernel": "KERNEL_PROTOTYPED",
+    "experimental_validation": false,
+    "deployment_ready": false
+  },
+  "implementation_modified": true,
+  "implementation_modified_scope": "7.0 scx kfunc wrappers, DSQ enum restore, ORCHESTRA_SCX_API_VERSION=70012, bridge --status extra counters",
+  "hashes": {
+    "btf_vmlinux_sha256": "3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76",
+    "bpf_object_sha256": "ba82987fb2aa09d1746c7dbc1937830965182612c23377fd61c3ee75fc38dab4",
+    "bridge_sha256": "5d9caadd45328f5760f6cbbae959b8b0f020ef54513cc669853825525c56f745",
+    "loader_sha256": "f420363ea67f4301d69ca37189ee613bbf3d6b340889846d204d96558cec6e5d"
+  },
+  "checklist": {
+    "rows": 98,
+    "PASS": 58,
+    "FAIL": 3,
+    "BLOCKED": 24,
+    "INCONCLUSIVE": 10,
+    "N/A": 3
+  },
+  "critical_findings": [],
+  "high_findings": ["F6", "F7", "F8"],
+  "artifacts": "/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-104600-kali-checklist"
+}

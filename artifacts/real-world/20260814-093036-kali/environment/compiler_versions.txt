@@ -1,0 +1,4 @@
+gcc: gcc (Debian 15.3.0-2) 15.3.0
+clang: Debian clang version 21.1.8 (10)
+make: GNU Make 4.4.1
+python: Python 3.13.14

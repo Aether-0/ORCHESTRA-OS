@@ -1,0 +1,8 @@
+=== sudo SCHED_FIFO ===
+pid 350363's current scheduling policy: SCHED_FIFO
+pid 350363's current scheduling priority: 10
+fifo_ok
+=== sudo SCHED_RR ===
+pid 350367's current scheduling policy: SCHED_RR
+pid 350367's current scheduling priority: 10
+rr_ok

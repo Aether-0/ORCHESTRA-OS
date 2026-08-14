@@ -1,0 +1,2 @@
+pid 1776016's current scheduling policy: SCHED_FIFO
+pid 1776016's current scheduling priority: 20

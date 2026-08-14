@@ -1,0 +1,33 @@
+09:39:01 === Full Comparison ===
+09:39:01 Machine: 7.0.12+kali-amd64 | CPUs: 24
+09:39:01 --- CFS Baseline ---
+09:39:01   cfs/cpu_1w: 1 cpu workers × 30s
+09:39:31     => 29445ms ctx_delta=420766
+09:39:31   cfs/mixed_1w: 1 mixed workers × 30s
+09:40:01     => 29997ms ctx_delta=63112
+09:40:01   cfs/cpu_2w: 2 cpu workers × 30s
+09:40:31     => 29986ms ctx_delta=597936
+09:40:31   cfs/mixed_2w: 2 mixed workers × 30s
+09:41:01     => 30002ms ctx_delta=448486
+09:41:01   cfs/cpu_4w: 4 cpu workers × 30s
+09:41:31     => 29986ms ctx_delta=1251990
+09:41:31   cfs/mixed_4w: 4 mixed workers × 30s
+09:42:01     => 30042ms ctx_delta=834343
+09:42:01   cfs/cpu_8w: 8 cpu workers × 30s
+09:42:31     => 29940ms ctx_delta=2394746
+09:42:31   cfs/mixed_8w: 8 mixed workers × 30s
+09:43:01     => 30047ms ctx_delta=1720380
+09:43:01 === COMPLETE ===
+
+======== RESULTS ========
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+cfs,cpu_1w,1,29445,420766,ok
+cfs,mixed_1w,1,29997,63112,ok
+cfs,cpu_2w,2,29986,597936,ok
+cfs,mixed_2w,2,30002,448486,ok
+cfs,cpu_4w,4,29986,1251990,ok
+cfs,mixed_4w,4,30042,834343,ok
+cfs,cpu_8w,8,29940,2394746,ok
+cfs,mixed_8w,8,30047,1720380,ok
+
+Full: /tmp/orchestra-compare-20260814-093901

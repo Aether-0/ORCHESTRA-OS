@@ -1,0 +1,29 @@
+orchestra_scx_stage7.bpf.c:447:5: error: call to undeclared function 'scx_bpf_dispatch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  447 |     orchestra_dsq_insert(p, direct_local ? SCX_DSQ_LOCAL : SCX_DSQ_GLOBAL,
+      |     ^
+orchestra_scx_stage7.bpf.c:32:5: note: expanded from macro 'orchestra_dsq_insert'
+   32 |     scx_bpf_dispatch((p), (dsq), (slice), (flags))
+      |     ^
+orchestra_scx_stage7.bpf.c:469:5: error: call to undeclared function 'scx_bpf_dispatch_vtime'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  469 |     orchestra_dsq_insert_vtime(p, BRIDGE_DEFERRED_DSQ,
+      |     ^
+orchestra_scx_stage7.bpf.c:34:5: note: expanded from macro 'orchestra_dsq_insert_vtime'
+   34 |     scx_bpf_dispatch_vtime((p), (dsq), (slice), (vtime), (flags))
+      |     ^
+orchestra_scx_stage7.bpf.c:469:5: note: did you mean 'scx_bpf_dispatch_cancel'?
+orchestra_scx_stage7.bpf.c:34:5: note: expanded from macro 'orchestra_dsq_insert_vtime'
+   34 |     scx_bpf_dispatch_vtime((p), (dsq), (slice), (vtime), (flags))
+      |     ^
+/home/sharda/src/linux-source-7.0/tools/sched_ext/include/scx/common.bpf.h:67:6: note: 'scx_bpf_dispatch_cancel' declared here
+   67 | void scx_bpf_dispatch_cancel(void) __ksym;
+      |      ^
+orchestra_scx_stage7.bpf.c:525:9: error: call to undeclared function 'scx_bpf_dispatch'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  525 |         orchestra_dsq_insert(p, direct_local ? SCX_DSQ_LOCAL : SCX_DSQ_GLOBAL,
+      |         ^
+orchestra_scx_stage7.bpf.c:32:5: note: expanded from macro 'orchestra_dsq_insert'
+   32 |     scx_bpf_dispatch((p), (dsq), (slice), (flags))
+      |     ^
+orchestra_scx_stage7.bpf.c:729:13: error: call to undeclared function '__COMPAT_scx_bpf_dispatch_from_dsq'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  729 |         if (__COMPAT_scx_bpf_dispatch_from_dsq(
+      |             ^
+4 errors generated.

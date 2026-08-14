@@ -1,0 +1,10 @@
+[Fri Aug 14 09:18:17 2026] LSM support for eBPF active
+[Fri Aug 14 09:18:20 2026] systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 14 09:18:20 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 14 10:24:08 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 14 10:24:08 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (runtime error)
+[Fri Aug 14 10:24:08 2026] sched_ext: orchestra_scx_stage7: non-existent DSQ 0x0 for ksoftirqd/22[104]
+[Fri Aug 14 10:24:08 2026]    scx_exit+0x50/0x70
+[Fri Aug 14 10:24:08 2026]    enqueue_task_scx+0x1ea/0x350
+[Fri Aug 14 10:24:08 2026]    scx_bypass+0x184/0x340
+[Fri Aug 14 10:24:08 2026]    scx_enable_workfn+0xbd0/0xed0

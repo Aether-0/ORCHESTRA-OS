@@ -1,0 +1,27 @@
+=== sched_ext ===
+total 0
+drwxr-xr-x  2 root root    0 Aug 14 09:30 .
+drwxr-xr-x 19 root root    0 Aug 14  2026 ..
+-r--r--r--  1 root root 4096 Aug 14 09:30 enable_seq
+-r--r--r--  1 root root 4096 Aug 14 09:30 hotplug_seq
+-r--r--r--  1 root root 4096 Aug 14 09:30 nr_rejected
+-r--r--r--  1 root root 4096 Aug 14 09:30 state
+-r--r--r--  1 root root 4096 Aug 14 09:30 switch_all
+disabled
+=== btf ===
+-r--r--r-- 1 root root 5350931 Aug 14  2026 /sys/kernel/btf/vmlinux
+3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76  /sys/kernel/btf/vmlinux
+=== kernel config snippets ===
+CONFIG_BPF=y
+CONFIG_BPF_SYSCALL=y
+CONFIG_BPF_JIT=y
+# CONFIG_BPF_JIT_ALWAYS_ON is not set
+CONFIG_BPF_JIT_DEFAULT_ON=y
+CONFIG_BPF_UNPRIV_DEFAULT_OFF=y
+# CONFIG_BPF_PRELOAD is not set
+CONFIG_BPF_LSM=y
+CONFIG_SCHED_CLASS_EXT=y
+CONFIG_BPF_STREAM_PARSER=y
+CONFIG_DEBUG_INFO_BTF=y
+CONFIG_DEBUG_INFO_BTF_MODULES=y
+CONFIG_BPF_EVENTS=y

@@ -1,0 +1,13 @@
+09:35:43 === Real-Machine Benchmark Suite ===
+09:35:43 CPU: 24 cores  | Output: /tmp/orchestra-bench-20260814-093543 | duration=8s
+09:35:43 --- CFS Baseline ---
+09:35:43   cfs: 1 workers, 8s...
+09:35:51     7318ms ctx_delta=148016 enq=0 running=0 owned=n/a
+09:35:51   cfs: 2 workers, 8s...
+09:35:59     7993ms ctx_delta=217714 enq=0 running=0 owned=n/a
+09:35:59   cfs: 4 workers, 8s...
+09:36:07     7993ms ctx_delta=363784 enq=0 running=0 owned=n/a
+09:36:07 scx_simple not installed (dnf install scx_c_schedulers)
+09:36:07 --- ORCHESTRA ---
+09:36:07 BPF object missing: /home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/orchestra_scx_stage7.bpf.o
+09:36:07 === COMPLETE ===

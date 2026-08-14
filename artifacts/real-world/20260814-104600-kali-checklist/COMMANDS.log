@@ -1,0 +1,28 @@
+===== 2026-08-14T10:46:57+01:00 CLI no-sched =====
+rc_status_noload=3
+rc_pub_noload=2
+rc_optin_noload=3
+rc_help=1
+rc_bad_action=1
+rc_missing_pid=1
+===== 2026-08-14T10:47:03+01:00 cycle 1 load =====
+cycle1_load_rc=0
+===== 2026-08-14T10:47:04+01:00 cycle 1 unload =====
+cycle1_unload_rc=0
+===== 2026-08-14T10:47:05+01:00 cycle 2 load =====
+cycle2_load_rc=0
+===== 2026-08-14T10:47:06+01:00 cycle 2 unload =====
+cycle2_unload_rc=0
+===== 2026-08-14T10:47:08+01:00 cycle 3 load =====
+cycle3_load_rc=0
+===== 2026-08-14T10:47:09+01:00 cycle 3 unload =====
+cycle3_unload_rc=0
+===== 2026-08-14T10:47:10+01:00 load for faults =====
+rc_optin_badpid=6
+rc_pub_badpid=6
+rc_mig_badcpu=7
+rc_sleep_stale=7
+===== 2026-08-14T10:47:11+01:00 unload while worker exists =====
+rc_unload_work=0
+===== 2026-08-14T10:47:19+01:00 RT with orchestra loaded =====
+rc_fifo=0

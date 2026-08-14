@@ -1,0 +1,9 @@
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+cfs,cpu_1w,1,29445,420766,ok
+cfs,mixed_1w,1,29997,63112,ok
+cfs,cpu_2w,2,29986,597936,ok
+cfs,mixed_2w,2,30002,448486,ok
+cfs,cpu_4w,4,29986,1251990,ok
+cfs,mixed_4w,4,30042,834343,ok
+cfs,cpu_8w,8,29940,2394746,ok
+cfs,mixed_8w,8,30047,1720380,ok

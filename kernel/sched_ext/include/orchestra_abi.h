@@ -13,7 +13,7 @@
 #define ORCHESTRA_ABI_MAGIC          0x4f524342u /* "ORCB" */
 #define ORCHESTRA_ABI_VERSION        2u
 #define ORCHESTRA_ABI_SCHEMA_VERSION 2u
-#define ORCHESTRA_SCX_API_VERSION     61200u /* upstream Linux 6.12 semantics */
+#define ORCHESTRA_SCX_API_VERSION     70012u /* Linux 7.0 dsq_insert/dsq_move semantics */
 
 enum orchestra_action_id {
     ORCHESTRA_ACTION_RUN = 0,

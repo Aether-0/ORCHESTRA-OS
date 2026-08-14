@@ -1,0 +1,54 @@
+{
+  "campaign_id": "20260814-093036-kali",
+  "date": "2026-08-14",
+  "host": "kali",
+  "decision": "BLOCKED_BY_ENVIRONMENT",
+  "claim_class": {
+    "userspace": "USERSPACE_VALIDATED",
+    "kernel_sched_ext": "NOT_VALIDATED",
+    "deployment": "not claimed"
+  },
+  "implementation_modified": false,
+  "orchestra_revision": "not_a_git_repository",
+  "userspace_binary_sha256": "eecd6c80a6c8470c3d8b759020b2e75213ed21a935cf4ce3d4dc0645184726b2",
+  "kernel": "7.0.12+kali-amd64",
+  "sched_ext_state_throughout": "disabled",
+  "enable_seq": 0,
+  "hardware": {
+    "vendor": "HP",
+    "model": "HP Pro Tower 280 G9 E PCI Desktop PC",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13700",
+    "logical_cpus": 24,
+    "sockets": 1,
+    "numa_nodes": 1,
+    "ram_gi": 15
+  },
+  "checklist": {"total_rows": 91, "PASS": 37, "FAIL": 2, "BLOCKED": 49, "N/A": 3},
+  "make_test": {
+    "rc": 0,
+    "duration_s": 33,
+    "named_unit_tests_per_pass": "30/30",
+    "compiler_passes_reporting_30": 4,
+    "benchmark_validator_tests": 21,
+    "signal_pub_runner_tests": 4,
+    "csv_validator_tests": 34
+  },
+  "cfs_bench_8s_n3_elapsed_ms": {
+    "w1": [7318, 7426, 7965],
+    "w2": [7993, 7991, 7993],
+    "w4": [7993, 7994, 7993]
+  },
+  "full_compare_cfs_30s_elapsed_ms": {
+    "cpu_1w": 29445, "mixed_1w": 29997,
+    "cpu_2w": 29986, "mixed_2w": 30002,
+    "cpu_4w": 29986, "mixed_4w": 30042,
+    "cpu_8w": 29940, "mixed_8w": 30047
+  },
+  "userspace_paper_cpu_last_row_Q": {
+    "baseline": [1.0, 1.0, 1.0],
+    "orchestra": [0.79176016, 0.51911308, 0.29757219],
+    "tamper": 0.0,
+    "tamper_rejected_frames": 32
+  },
+  "blockers": ["bpftool missing", "libbpf-dev missing", "kernel source missing", "vmlinux.h missing", "kernel 7.0.12 vs BPF API 6.12", "scx_simple missing"]
+}

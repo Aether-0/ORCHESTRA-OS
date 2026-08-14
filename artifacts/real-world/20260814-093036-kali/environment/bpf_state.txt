@@ -1,0 +1,11 @@
+=== bpftool prog ===
+sudo: bpftool: command not found
+bpftool prog failed
+=== bpftool map ===
+sudo: bpftool: command not found
+bpftool map failed
+=== bpftool link ===
+sudo: bpftool: command not found
+bpftool link failed
+=== bpffs ===
+/sys/fs/bpf

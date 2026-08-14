@@ -1,0 +1,8 @@
+=== after cleanup ===
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           7.7G  1.6M  7.7G   1% /tmp
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.3Gi       8.2Gi       487Mi       3.6Gi        10Gi
+Swap:          7.5Gi          0B       7.5Gi
+results.csv
+stress.log

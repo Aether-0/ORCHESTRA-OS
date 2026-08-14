@@ -1,0 +1,15 @@
+In file included from orchestra_scx_stage7.bpf.c:21:
+/home/sharda/src/linux-v6.12.96/tools/sched_ext/include/scx/common.bpf.h:357:9: warning: 'likely' macro redefined [-Wmacro-redefined]
+  357 | #define likely(x) __builtin_expect(!!(x), 1)
+      |         ^
+/usr/include/bpf/bpf_helpers.h:19:9: note: previous definition is here
+   19 | #define likely(x)      (__builtin_expect(!!(x), 1))
+      |         ^
+In file included from orchestra_scx_stage7.bpf.c:21:
+/home/sharda/src/linux-v6.12.96/tools/sched_ext/include/scx/common.bpf.h:358:9: warning: 'unlikely' macro redefined [-Wmacro-redefined]
+  358 | #define unlikely(x) __builtin_expect(!!(x), 0)
+      |         ^
+/usr/include/bpf/bpf_helpers.h:23:9: note: previous definition is here
+   23 | #define unlikely(x)    (__builtin_expect(!!(x), 0))
+      |         ^
+2 warnings generated.

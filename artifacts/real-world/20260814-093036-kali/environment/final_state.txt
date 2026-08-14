@@ -1,0 +1,65 @@
+date=2026-08-14T09:43:22+01:00
+sched_ext=disabled
+enable_seq=0
+nr_rejected=0
+loadavg=5.73 6.31 3.69 2/1294 3482405
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.0Gi       7.8Gi       479Mi       4.3Gi        11Gi
+Swap:          7.5Gi          0B       7.5Gi
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p6   46G   21G   23G  48% /
+tmpfs           7.7G  1.6M  7.7G   1% /tmp
+/dev/nvme0n1p8   43G  2.9G   38G   8% /home
+=== bpffs ===
+/sys/fs/bpf
+=== dmesg tail 50 ===
+[Fri Aug 14 09:18:21 2026] input: PC Speaker as /devices/platform/pcspkr/input/input8
+[Fri Aug 14 09:18:21 2026] intel_pmc_core INT33A1:00:  initialized
+[Fri Aug 14 09:18:21 2026] mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+[Fri Aug 14 09:18:21 2026] mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+[Fri Aug 14 09:18:21 2026] RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+[Fri Aug 14 09:18:21 2026] RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+[Fri Aug 14 09:18:21 2026] RAPL PMU: hw unit of domain package 2^-14 Joules
+[Fri Aug 14 09:18:21 2026] RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+[Fri Aug 14 09:18:21 2026] input: HP WMI hotkeys as /devices/virtual/input/input9
+[Fri Aug 14 09:18:21 2026] Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+[Fri Aug 14 09:18:21 2026] EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+[Fri Aug 14 09:18:21 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 14 09:18:21 2026] ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 14 09:18:21 2026] ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 14 09:18:21 2026] snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+[Fri Aug 14 09:18:22 2026] snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+[Fri Aug 14 09:18:22 2026] intel_rapl_msr: PL4 support detected.
+[Fri Aug 14 09:18:22 2026] intel_rapl_common: Found RAPL domain package
+[Fri Aug 14 09:18:22 2026] intel_rapl_common: Found RAPL domain core
+[Fri Aug 14 09:18:22 2026] intel_rapl_common: Found RAPL domain uncore
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+[Fri Aug 14 09:18:22 2026] snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 14 09:18:22 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 14 09:18:22 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 14 09:18:22 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 14 09:18:22 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 14 09:18:22 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 14 09:18:22 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 14 09:18:22 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 14 09:18:22 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 14 09:18:22 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 14 09:18:23 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered udp transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 14 09:18:23 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 14 09:18:25 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 14 09:18:53 2026] systemd-journald[547]: Time jumped backwards, rotating.

@@ -1,0 +1,12 @@
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:PASS summary: 30/30 named unit tests passed
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:PASS summary: 30/30 named unit tests passed
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:PASS summary: 30/30 named unit tests passed
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:PASS summary: 30/30 named unit tests passed
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:All requested unit-test compiler passes completed
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stdout:PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2/v3/v4 validator contracts, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:Ran 21 tests in 0.113s
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:OK
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:Ran 4 tests in 0.000s
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:OK
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:Ran 34 tests in 0.007s
+/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/build/make_test.stderr:OK

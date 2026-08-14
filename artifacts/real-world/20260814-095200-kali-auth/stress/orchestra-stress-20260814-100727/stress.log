@@ -1,0 +1,14 @@
+10:07:27 === ORCHESTRA Stress Suite ===
+10:07:27 Mode: cfs | Duration: 30s | CPUs: 24 | RAM: 15675MB
+10:07:27 Output: /tmp/orchestra-stress-20260814-100727
+10:07:27 --- CPU Stress (24 workers) ---
+10:07:57   CPU: 30s, 0 errors
+10:07:57 --- Memory Stress (7837MB) ---
+10:08:27   Memory: done
+10:08:27 --- I/O Stress ---
+10:08:57   I/O: 30s
+10:08:57 --- Mixed Workload ---
+10:09:27   Mixed: 30s
+10:09:27 --- Health Check ---
+10:09:27 === COMPLETE ===
+10:09:27 Results: /tmp/orchestra-stress-20260814-100727/results.csv

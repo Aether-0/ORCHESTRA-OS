@@ -1,0 +1,5 @@
+In file included from orchestra_scx_stage7.bpf.c:21:
+/home/sharda/src/linux-source-7.0/tools/sched_ext/include/scx/common.bpf.h:26:10: fatal error: 'asm-generic/errno.h' file not found
+   26 | #include <asm-generic/errno.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.

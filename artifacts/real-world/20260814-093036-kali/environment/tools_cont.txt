@@ -1,0 +1,17 @@
+=== bpftool ===
+bpftool missing
+Command 'bpftool' not found, but can be installed with:
+sudo apt install bpftool
+=== perf ===
+perf missing
+Command 'perf' not found, but can be installed with:
+=== scx_simple ===
+scx_simple missing
+=== libbpf ===
+ii  libbpf1:amd64                          1:1.7.0-1                                amd64        eBPF helper library (shared library)
+ii  libelf1t64:amd64                       0.195-1                                  amd64        library to read and write ELF files
+ls: cannot access '/usr/include/bpf': No such file or directory
+=== kernel src ===
+no kernel src found
+=== KSRC env ===
+ORCHESTRA_KERNEL_SRC=unset

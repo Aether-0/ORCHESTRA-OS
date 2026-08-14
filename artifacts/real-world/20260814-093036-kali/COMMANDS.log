@@ -1,0 +1,46 @@
+===== 2026-08-14T09:32:12+01:00 cwd=/home/sharda/Downloads/ORCHESTRA-OS-main cmd: bash benchmarks/real-machine/sanity_check.sh =====
+rc=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/sanity.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/sanity.stderr
+===== 2026-08-14T09:32:12+01:00 cwd=/home/sharda/Downloads/ORCHESTRA-OS-main cmd: bash kernel/sched_ext/scripts/check_kernel_config.sh =====
+rc=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/kconfig.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/kconfig.stderr
+===== 2026-08-14T09:32:16+01:00 cwd=/home/sharda/Downloads/ORCHESTRA-OS-main cmd: bash -c 
+cd kernel/sched_ext
+KSRC="${ORCHESTRA_KERNEL_SRC:-$HOME/src/linux-v6.12.96}"
+echo "KSRC=$KSRC exists=$(test -d "$KSRC" && echo yes || echo no)"
+echo "vmlinux.h exists=$(test -f include/vmlinux.h && echo yes || echo no)"
+echo "scx/common.bpf.h search:"
+find /usr -name "common.bpf.h" 2>/dev/null | head
+clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+  -I include -I "$KSRC/tools/lib" -I "$KSRC/include" -I "$KSRC/include/uapi" \
+  -I "$KSRC/arch/x86/include" -I "$KSRC/arch/x86/include/generated" \
+  -I "$KSRC/tools/sched_ext/include" -I /usr/include/bpf \
+  -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member \
+  -c orchestra_scx_stage7.bpf.c -o /tmp/orchestra_scx_stage7.bpf.o
+ =====
+rc=1 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/bpf_compile.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/bpf_compile.stderr
+===== 2026-08-14T09:32:21+01:00 cwd=/home/sharda/Downloads/ORCHESTRA-OS-main cmd: bash -c 
+cc -O2 -Wall -Wextra -I kernel/sched_ext/include \
+  kernel/sched_ext/bridge/orchestra_bridge.c \
+  -o /tmp/orchestra_bridge -lbpf
+ =====
+rc=1 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/bridge_compile.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260814-093036-kali/raw/bridge_compile.stderr
+===== 2026-08-14T09:32:32+01:00 cwd=/home/sharda/Downloads/ORCHESTRA-OS-main cmd: make clean && make && make test =====
+rc_clean=0 rc_make=0 rc_test=0 duration=33s
+baseline_1 rc=0 csv=41
+baseline_2 rc=0 csv=41
+baseline_3 rc=0 csv=41
+orchestra_1 rc=0 csv=41
+orchestra_2 rc=0 csv=41
+orchestra_3 rc=0 csv=41
+tamper rc=0 lines=41
+===== 2026-08-14T09:34:30+01:00 stress_suite 10 cfs =====
+rc=1
+===== 2026-08-14T09:35:43+01:00 benchmark_suite.sh =====
+rc=0
+===== 2026-08-14T09:36:37+01:00 benchmark_suite.sh rep=2 =====
+rc=0
+===== 2026-08-14T09:37:01+01:00 benchmark_suite.sh rep=3 =====
+rc=0
+===== 2026-08-14T09:37:25+01:00 cpu-only 60s cfs n=24 =====
+cpu60 elapsed=60
+===== 2026-08-14T09:39:01+01:00 full_compare.sh =====
+rc=0

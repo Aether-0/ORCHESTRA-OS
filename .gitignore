@@ -39,3 +39,9 @@ vgcore.*
 *.pem
 *.key
 artifacts/initramfs*.img
+
+# Nested duplicate checkout — do not commit
+ORCHESTRA-OS/
+
+# Generated from running-kernel BTF; do not commit host copy
+kernel/sched_ext/include/vmlinux.h

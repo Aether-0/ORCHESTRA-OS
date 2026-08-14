@@ -1,0 +1,6 @@
+=== leftover /tmp orchestra files before cleanup ===
+3.9G	/tmp/orchestra-stress-1
+3.9G	/tmp/orchestra-stress-2
+8.0K	/tmp/orchestra-stress-20260814-093430
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           7.7G  7.7G   56K 100% /tmp

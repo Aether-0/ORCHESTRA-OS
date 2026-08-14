@@ -1,0 +1,12 @@
+=== chrt capabilities ===
+SCHED_OTHER min/max priority	: 0/0
+SCHED_FIFO min/max priority	: 1/99
+SCHED_RR min/max priority	: 1/99
+SCHED_BATCH min/max priority	: 0/0
+SCHED_IDLE min/max priority	: 0/0
+SCHED_DEADLINE min/max priority	: 0/0
+SCHED_EXT min/max priority	: 0/0
+=== SCHED_FIFO self test ===
+chrt: failed to set pid 0's policy: Operation not permitted
+=== SCHED_RR self test ===
+chrt: failed to set pid 0's policy: Operation not permitted

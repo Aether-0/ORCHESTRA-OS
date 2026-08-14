@@ -1,0 +1,22 @@
+test_id,timestamp,phase,test_name,configuration,status,return_code,duration_s,repetitions,evidence_dir,primary_metric,metric_value,units,baseline_value,delta,notes
+T2,2026-08-14T09:30:00+01:00,userspace,make_clean_make_test,gcc/clang unit+integration,PASS,0,33,1,20260814-093036-kali/build,named_unit_pass,30,tests,,,30/30 x4 compiler passes
+T3,2026-08-14T09:32:00+01:00,kernel-ready,sanity_check_and_kconfig,running 7.0.12,PASS,0,,1,20260814-093036-kali/raw,sched_ext_config,1,bool,,,CONFIG_SCHED_CLASS_EXT=y BTF present
+T4,2026-08-14T09:33:00+01:00,baseline,linux_pre_load_idle,CFS disabled scx,PASS,0,,1,20260814-093036-kali/baseline,idle_pct,99,percent,,,
+T10u,2026-08-14T09:40:00+01:00,integrity,paper_cpu_tamper,4 workers 4s seed 104729,PASS,0,4,1,20260814-093036-kali/security,rejected_frames,32,count,,,last-row Q=0 S2=0 USERSPACE_VALIDATED
+T12u,2026-08-14T09:40:00+01:00,coordination,paper_cpu_orchestra_Q,4w 4s N=3,PASS,0,4,3,20260814-093036-kali/workload,Q_last_row,0.30-0.79,index,1.0,,"baseline Q=1.0; not kernel Q"
+T15,2026-08-14T09:45:00+01:00,overhead,benchmark_suite_cfs,1/2/4 workers 8s N=3,PASS,0,8,3,20260814-093036-kali/workload,elapsed_ms_1w_mean,7569.7,ms,,,min 7318 max 7965
+T16,2026-08-14T09:34:00+01:00,stress,stress_suite_10_cfs_no_stress,24 cpu then dd /tmp,FAIL,1,10,1,20260814-093036-kali/stress,mem_phase,,,"tmpfs fill ~7.8Gi; F2"
+T16r10,2026-08-14T10:01:41+01:00,stress,stress_suite_10_cfs,stress installed,PASS,0,10,1,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100141,cpu_mem_io_mixed,PASS,enum,,,health WARN ACPI
+T16r30,2026-08-14T10:07:27+01:00,stress,stress_suite_30_cfs,stress installed,PASS,0,30,1,20260814-095200-kali-auth/stress/orchestra-stress-20260814-100727,cpu_mem_io_mixed,PASS,enum,,,
+T16b,2026-08-14T09:50:00+01:00,stress,cpu24_60s_cfs,24 workers,PASS,0,60,1,20260814-093036-kali/stress,package_temp,79,C,80,,"near high trip; no panic"
+T17,2026-08-14T09:55:00+01:00,compare,full_compare_cfs,cpu+mixed 1-8 30s,PASS,0,30,1,20260814-093036-kali/workload,cpu_8w_ms,29940,ms,,,scx_simple skipped
+T-load-register,2026-08-14T09:52:00+01:00,sched_ext,bpftool_struct_ops_6.12_object,7.0.12 BTF,FAIL,255,,1,20260814-095200-kali-auth/sched_ext,load,0,bool,,,scx_bpf_dispatch missing; F6
+T-load-dsq0,2026-08-14T10:24:08+01:00,sched_ext,loader_7.0_without_enum_undef,orchestra_loader,FAIL,,1,1,20260814-102000-kali-7port/sched_ext,runtime_error,DSQ_0,enum,,,F7 ksoftirqd/22
+T6,2026-08-14T10:26:16+01:00,sched_ext,loader_7.0_with_enum_restore,orchestra_loader,PASS,0,,1,20260814-102000-kali-7port/sched_ext,state,enabled,enum,,,scx_api=70012
+T6c,2026-08-14T10:47:03+01:00,sched_ext,load_unload_cycles,3 cycles,PASS,0,,3,20260814-104600-kali-checklist/sched_ext,cycles_ok,3,count,,,all unload to disabled
+T8,2026-08-14T10:37:55+01:00,actions,canonical_actions_publish,RUN YIELD SLEEP THROTTLE MIGRATE,FAIL,,60,1,20260814-103600-kali-actions/actions,mig_acc,0,count,,,SLEEP acc=0; MIGRATE CPU unchanged; F8
+T15o,2026-08-14T10:42:00+01:00,workload,cpu4_8s_under_orchestra,full switch,INCONCLUSIVE,0,8,1,20260814-103600-kali-actions/workload,elapsed_ms,7997,ms,7993,4,ctx_delta=231675
+T23,2026-08-14T10:47:10+01:00,failure,cli_and_faults,bad pid/cpu/stale/noload,PASS,6,,1,20260814-104600-kali-checklist/recovery,reject,1,bool,,,optin/publish badpid rc=6; badcpu/stale rc=7
+T23u,2026-08-14T10:47:11+01:00,failure,unload_with_live_worker,bash sleep loop,PASS,0,,1,20260814-104600-kali-checklist/recovery,state,disabled,enum,,,worker_exit=0
+T9,2026-08-14T10:47:19+01:00,hybrid-rt,chrt_fifo_under_orchestra,prio 20,INCONCLUSIVE,0,,1,20260814-104600-kali-checklist/rt,policy,SCHED_FIFO,enum,,,not Hybrid Safety Layer
+T24,2026-08-14T10:46:57+01:00,security,bridge_cli_validation,no maps / bad action,PASS,1,,1,20260814-104600-kali-checklist/security,status_noload_rc,3,code,,,not cryptographic integrity

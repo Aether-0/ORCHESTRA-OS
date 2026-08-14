@@ -1,0 +1,6 @@
+test,duration_s,cpu_workers,memory_mb,io_files,errors,warnings,completed
+cpu_stress,10,24,0,0,0,0,PASS
+mem_stress,10,0,7837,0,0,0,PASS
+io_stress,10,0,0,12,0,0,PASS
+mixed,10,12,7837,12,0,0,PASS
+health_check,0,0,0,0,0,1,WARN
