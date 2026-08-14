@@ -95,6 +95,7 @@ ORCHESTRA-OS/
 ├── experiments/                    JSON manifests + metric schemas (v2-v6)
 ├── tools/                          Benchmark runner, PDF report generator
 │
+├── ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html  ** Physical Kali campaign **
 ├── ORCHESTRA-OS-Final-Report.md    ** Single-file complete report **
 ├── ORCHESTRA-OS-Final-Report.pdf   ** Single-file PDF report **
 ├── orchestra-usb-final.zip         ** USB deployment kit **
