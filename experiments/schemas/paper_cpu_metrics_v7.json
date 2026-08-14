@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_id": "orchestra.paper_cpu.metrics/v7",
+  "format": "csv",
+  "maturity_class": "userspace-validated source telemetry; kernel execution remains unvalidated",
+  "compatibility": {
+    "prefix": "The first 120 columns retain the v6 order.",
+    "append_only": "coordination_semantics_version is appended as column 121 and must equal 7.",
+    "reader_contract": "Readers must require the exact ordered header and metrics_schema value."
+  },
+  "canonical_action_ids": {
+    "RUN": 0,
+    "SLEEP": 1,
+    "MIGRATE": 2,
+    "THROTTLE": 3,
+    "YIELD": 4
+  },
+  "metric_identities": {
+    "S1": "bounded signal fidelity, freshness, calibrated confidence, and accepted-reader reach",
+    "S2": "S2_selected; only eligible workers accepting the current signal sequence can comply",
+    "S3": "S3_conditioned; worker coherence is computed within equal discretized state",
+    "S4": "min(1-change_fraction, S4_burst), with first decisions excluded from change counts",
+    "Q": "(S1*S2*S3*S4)^(1/4), or exactly zero when any factor is zero"
+  },
+  "zero_denominator_policy": {
+    "eligible_workers": "S2 and S3 are 1 when no eligible worker exists",
+    "changed_workers": "change fractions are 0 and S4 is 1 when no prior action exists or no worker changes"
+  },
+  "validation": {
+    "implementation": "tests/integration/validate_paper_cpu_csv.py",
+    "required_schema_argument": "orchestra.paper_cpu.metrics/v7",
+    "coordination_semantics_version": 7
+  },
+  "claim_limit": "This schema distinguishes userspace action requests from effects. It is not evidence of BPF verifier acceptance, sched_ext attachment, actual kernel CPU placement, or real-machine safety."
+}

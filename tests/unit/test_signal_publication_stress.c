@@ -310,7 +310,9 @@ static bool stress_reference_visibility(void) {
     CHECK(legacy_copy_canonical_frame(&legacy, copied, &diagnostics)
           == SIGNAL_SNAPSHOT_COPIED);
     CHECK(memcmp(bytes, copied, sizeof(bytes)) == 0);
-    CHECK(isfinite(population_utility_reference(actions, previous, 0, ACT_RUN)));
+    int states[MAX_WORKERS] = {0};
+    CHECK(isfinite(population_utility_reference(actions, previous, states, 0,
+                                                ACT_RUN)));
 
     memset(&selected, 0, sizeof(selected));
     memset(&gates, 0, sizeof(gates));

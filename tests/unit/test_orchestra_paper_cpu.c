@@ -67,6 +67,7 @@ static void test_init_bus(signal_bus_t *bus) {
     initialize_signal_publisher_diagnostics(&bus->diagnostics);
     atomic_init(&bus->consensus_lock, 0);
     atomic_init(&bus->stop, 0);
+    atomic_init(&bus->kernel_bridge_enabled, 0);
 }
 
 static void test_init_worker(worker_state_t *worker) {
@@ -74,6 +75,7 @@ static void test_init_worker(worker_state_t *worker) {
     atomic_init(&worker->decision_version, UINT64_C(0));
     atomic_init(&worker->action, ACT_SLEEP);
     atomic_init(&worker->previous_action, ACT_SLEEP);
+    atomic_init(&worker->has_previous_action, 0);
     atomic_init(&worker->proposed_action, ACT_SLEEP);
     atomic_init(&worker->state_index, 0);
     atomic_init(&worker->next_state_index, 0);
@@ -101,6 +103,8 @@ static void test_init_worker(worker_state_t *worker) {
     atomic_init(&worker->throttle_attempted, 0);
     atomic_init(&worker->effective_action_result, EFFECTIVE_RESULT_NOT_ATTEMPTED);
     atomic_init(&worker->action_sequence, UINT64_C(0));
+    atomic_init(&worker->kernel_publish_sequence, UINT64_C(0));
+    atomic_init(&worker->kernel_publish_status, EXIT_FAILURE);
     atomic_init(&worker->reward, 0.0);
     atomic_init(&worker->reward_sequence, UINT64_C(0));
     initialize_signal_reader_diagnostics(&worker->publication_diagnostics);
@@ -119,6 +123,7 @@ static void test_set_worker_snapshot(worker_state_t *worker, action_t action,
                                      bool alive, bool exempt, bool fallback) {
     atomic_store(&worker->action, action);
     atomic_store(&worker->previous_action, previous);
+    atomic_store(&worker->has_previous_action, 1);
     atomic_store(&worker->accepted_sequence, sequence);
     atomic_store(&worker->alive, alive ? 1 : 0);
     atomic_store(&worker->exempt_rt, exempt ? 1 : 0);
@@ -666,6 +671,14 @@ static bool test_publication_fault_injection(void) {
 }
 
 static bool test_directive_boundaries_and_precedence(void) {
+    uint32_t wire = UINT32_MAX;
+    CHECK(canonical_action_to_wire(ACT_RUN, &wire) && wire == ORCHESTRA_ACTION_RUN);
+    CHECK(canonical_action_to_wire(ACT_SLEEP, &wire) && wire == ORCHESTRA_ACTION_SLEEP);
+    CHECK(canonical_action_to_wire(ACT_MIGRATE, &wire) && wire == ORCHESTRA_ACTION_MIGRATE);
+    CHECK(canonical_action_to_wire(ACT_THROTTLE, &wire) && wire == ORCHESTRA_ACTION_THROTTLE);
+    CHECK(canonical_action_to_wire(ACT_YIELD, &wire) && wire == ORCHESTRA_ACTION_YIELD);
+    CHECK(!canonical_action_to_wire((action_t)ACTION_COUNT, &wire));
+    CHECK(!canonical_action_to_wire(ACT_RUN, NULL));
     const double low_memory = 0.10;
     const double low_thermal = 0.10;
 
@@ -876,6 +889,7 @@ static bool test_metrics_scenarios(void) {
     coord_metrics_t unaccepted = compute_metrics(&workers, &frame, 0.0, 1000, NULL);
     CHECK(unaccepted.eligible_workers == 4);
     CHECK(unaccepted.accepted_workers == 0);
+    CHECK(unaccepted.s2 == 0.0);
     CHECK(unaccepted.s1 < 1.0);
     CHECK(!coordination_sample_complete(&workers, &unaccepted));
 
@@ -1211,6 +1225,7 @@ static bool test_state_conditioned_coherence(void) {
     coord_metrics_t homogeneous = compute_metrics(&workers, &frame, 0.0, 1000, NULL);
     CHECK_NEAR(homogeneous.s3_global, 1.0, 1e-15);
     CHECK_NEAR(homogeneous.s3_conditioned, 1.0, 1e-15);
+    CHECK_NEAR(homogeneous.s3, homogeneous.s3_conditioned, 1e-15);
 
     /* Different states legitimately choose different actions: global diversity
      * is retained, while each state-local cohort is coherent. */
@@ -1223,6 +1238,7 @@ static bool test_state_conditioned_coherence(void) {
     coord_metrics_t heterogeneous = compute_metrics(&workers, &frame, 0.0, 1000, NULL);
     CHECK(heterogeneous.s3_global < 1.0);
     CHECK_NEAR(heterogeneous.s3_conditioned, 1.0, 1e-15);
+    CHECK_NEAR(heterogeneous.s3, 1.0, 1e-15);
 
     for (int index = 0; index < workers.worker_count; ++index) {
         action_t action = (action_t)index;
@@ -1233,6 +1249,22 @@ static bool test_state_conditioned_coherence(void) {
     coord_metrics_t divergent = compute_metrics(&workers, &frame, 0.0, 1000, NULL);
     CHECK(divergent.s3_global < 1.0);
     CHECK(divergent.s3_conditioned < 1.0);
+    CHECK_NEAR(divergent.s3, divergent.s3_conditioned, 1e-15);
+    return true;
+}
+
+static bool test_first_decision_has_no_s4_penalty(void) {
+    worker_block_t workers;
+    signal_payload_t frame = test_valid_payload(UINT64_C(78));
+
+    test_init_workers(&workers, 1);
+    record_worker_decision(&workers.worker[0], ACT_RUN, 1, false,
+                           FALLBACK_REASON_NONE, frame.sequence);
+    CHECK(atomic_load(&workers.worker[0].has_previous_action) == 1);
+    CHECK(atomic_load(&workers.worker[0].previous_action) == ACT_RUN);
+    atomic_store(&workers.worker[0].alive, 1);
+    coord_metrics_t metrics = compute_metrics(&workers, &frame, 0.0, 1000, NULL);
+    CHECK_NEAR(metrics.s4, 1.0, 1e-15);
     return true;
 }
 
@@ -1305,6 +1337,19 @@ static bool test_effective_action_rules(void) {
     CHECK(classify_effective_action(&observation) == EFFECTIVE_RESULT_ACTION_ERROR);
     observation.fallback_reason = FALLBACK_REASON_NO_VALID_FRAME;
     CHECK(classify_effective_action(&observation) == EFFECTIVE_RESULT_FALLBACK);
+    return true;
+}
+
+static bool test_migrate_restores_affinity(void) {
+    cpu_set_t before, after;
+    uint64_t rng = UINT64_C(0x41f23ac782b9d501);
+
+    CHECK(sched_getaffinity(0, sizeof(before), &before) == 0);
+    action_observation_t observation = perform_action(
+        ACT_MIGRATE, 0, &rng, FALLBACK_REASON_NONE);
+    CHECK(sched_getaffinity(0, sizeof(after), &after) == 0);
+    CHECK(CPU_EQUAL(&before, &after));
+    CHECK(observation.requested_cpu_valid);
     return true;
 }
 
@@ -1472,23 +1517,26 @@ static bool test_difference_reward_aggregate_equivalence(void) {
         for (int trial = 0; trial < 200; ++trial) {
             action_t actions[MAX_WORKERS] = {0};
             action_t previous[MAX_WORKERS] = {0};
+            int states[MAX_WORKERS] = {0};
             population_counters_t counters = {.eligible = sizes[size_index]};
             action_t directive = (action_t)(rng_next(&rng) % ACTION_COUNT);
             for (int i = 0; i < counters.eligible; ++i) {
                 actions[i] = (action_t)(rng_next(&rng) % ACTION_COUNT);
                 previous[i] = (action_t)(rng_next(&rng) % ACTION_COUNT);
-                counters.action_counts[actions[i]]++;
+                states[i] = (int)(rng_next(&rng) % STATE_COUNT);
+                counters.state_totals[states[i]]++;
+                counters.state_actions[states[i]][actions[i]]++;
                 if (actions[i] == directive) counters.compliant++;
                 if (actions[i] != previous[i]) counters.changed++;
             }
             CHECK_NEAR(population_utility_from_counters(&counters),
-                       population_utility_reference(actions, previous,
+                       population_utility_reference(actions, previous, states,
                                                     counters.eligible, directive),
                        1e-15);
             for (int i = 0; i < counters.eligible; ++i) {
                 population_counters_t changed = counters;
-                changed.action_counts[actions[i]]--;
-                changed.action_counts[ACT_YIELD]++;
+                changed.state_actions[states[i]][actions[i]]--;
+                changed.state_actions[states[i]][ACT_YIELD]++;
                 if (actions[i] == directive) changed.compliant--;
                 if (ACT_YIELD == directive) changed.compliant++;
                 if (actions[i] != previous[i]) changed.changed--;
@@ -1498,6 +1546,7 @@ static bool test_difference_reward_aggregate_equivalence(void) {
                 reference_actions[i] = ACT_YIELD;
                 CHECK_NEAR(population_utility_from_counters(&changed),
                            population_utility_reference(reference_actions, previous,
+                                                        states,
                                                         counters.eligible, directive),
                            1e-15);
             }
@@ -1516,7 +1565,8 @@ static signal_payload_t test_controller_payload(double jitter, double switching,
 }
 
 static bool test_controller_mapping_rate_and_bounds(void) {
-    coord_metrics_t metrics = {.s3_global = 1.0, .s4 = 1.0, .s4_burst = 1.0};
+    coord_metrics_t metrics = {.s2 = 1.0, .s3 = 1.0, .s3_global = 1.0,
+                               .s4 = 1.0, .s4_burst = 1.0};
     controller_machine_t machine = {0};
     controller_window_t window = {0};
     oscillation_window_t osc_window = {0};
@@ -1534,7 +1584,7 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK_NEAR(next.switch_penalty, 0.10 - none.beta * 0.04, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 - none.beta * 0.03, 1e-15);
 
-    metrics.s3_global = 0.0;
+    metrics.s3 = metrics.s3_global = 0.0;
     metrics.s4 = 1.0;
     machine.applied.jitter_sigma = 0.10;
     machine.applied.switch_penalty = 0.10;
@@ -1548,7 +1598,7 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK_NEAR(next.switch_penalty, 0.10 + s3.beta * 0.15, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 + s3.beta * 0.10, 1e-15);
 
-    metrics.s3_global = 1.0;
+    metrics.s3 = metrics.s3_global = 1.0;
     metrics.s4 = 0.0;
     machine.applied.jitter_sigma = 0.10;
     machine.applied.switch_penalty = 0.10;
@@ -1562,7 +1612,7 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK_NEAR(next.switch_penalty, 0.10 + s4.beta * 0.15, 1e-15);
     CHECK_NEAR(next.consensus_blend, 0.10 - s4.beta * 0.03, 1e-15);
 
-    metrics.s3_global = 0.0;
+    metrics.s3 = metrics.s3_global = 0.0;
     metrics.s4 = 0.0;
     machine.applied.jitter_sigma = 0.10;
     machine.applied.switch_penalty = 0.10;
@@ -1597,7 +1647,7 @@ static bool test_controller_mapping_rate_and_bounds(void) {
     CHECK(next.switch_penalty == 0.30);
     CHECK(next.consensus_blend == 0.15);
 
-    metrics.s3_global = 1.0;
+    metrics.s3 = metrics.s3_global = 1.0;
     metrics.s4 = 1.0;
     machine.applied.jitter_sigma = 0.0;
     machine.applied.switch_penalty = 0.0;
@@ -1641,6 +1691,9 @@ static bool test_predictor_calibration_and_noise(void) {
     const double short_trace[] = {0.1, 0.2, 0.3};
     CHECK_NEAR(calibrate_fixed_gain(short_trace, 3), 0.90, 0.0);
     CHECK_NEAR(robust_noise_sigma(short_trace, 3), 0.02, 0.0);
+    CHECK(calibration_sample_target(0) == 0);
+    CHECK(calibration_sample_target(1) == 20);
+    CHECK(calibration_sample_target(INT_MAX) == MAX_CAL_SAMPLES);
 
     const double constant_trace[] = {0.4, 0.4, 0.4, 0.4, 0.4};
     CHECK_NEAR(calibrate_fixed_gain(constant_trace, 5), 0.01, 0.0);
@@ -1661,6 +1714,88 @@ static bool test_predictor_calibration_and_noise(void) {
     const double alternating[] = {0.0, 1.0, 0.0, 1.0, 0.0};
     CHECK_NEAR(robust_noise_sigma(alternating, 5),
                1.4826 / sqrt(2.0), 1e-15);
+    const double held_out[] = {0.2, 0.25, 0.30};
+    double held_out_mse = evaluate_fixed_gain_held_out(
+        varied_trace, varied_count, held_out, 3, selected_gain);
+    CHECK(isfinite(held_out_mse));
+    CHECK(held_out_mse >= 0.0);
+    CHECK(evaluate_fixed_gain_held_out(varied_trace, 0, held_out, 3,
+                                       selected_gain) == HUGE_VAL);
+    CHECK_NEAR(calibrated_prediction_confidence(0.0, 0.01, 0.02), 1.0, 0.0);
+    double moderate = calibrated_prediction_confidence(0.1, 0.01, 0.02);
+    double large = calibrated_prediction_confidence(0.4, 0.01, 0.02);
+    CHECK(moderate > large);
+    CHECK(moderate >= 0.0 && moderate <= 1.0);
+    CHECK(large >= 0.0 && large <= 1.0);
+    CHECK(calibrated_prediction_confidence(NAN, 0.01, 0.02) == 0.0);
+    CHECK(calibrated_prediction_confidence(0.1, HUGE_VAL, 0.02) == 0.0);
+    CHECK(calibrated_prediction_confidence(0.1, 0.01, 0.0) == 0.0);
+    return true;
+}
+
+static bool test_strict_cli_numeric_parsing(void) {
+    int signed_value = 0;
+    uint64_t unsigned_value = 0;
+
+    CHECK(parse_int_arg("-12", &signed_value) && signed_value == -12);
+    CHECK(!parse_int_arg(" 12", &signed_value));
+    CHECK(!parse_int_arg("12x", &signed_value));
+    CHECK(!parse_int_arg("", &signed_value));
+    CHECK(parse_u64_arg("18446744073709551615", &unsigned_value));
+    CHECK(unsigned_value == UINT64_MAX);
+    CHECK(!parse_u64_arg("-1", &unsigned_value));
+    CHECK(!parse_u64_arg(" 1", &unsigned_value));
+    CHECK(!parse_u64_arg("18446744073709551616", &unsigned_value));
+    return true;
+}
+
+static bool test_policy_aggregation_excludes_rt(void) {
+    worker_block_t workers;
+    double aggregate[QTABLE_SIZE];
+
+    test_init_workers(&workers, 3);
+    for (int q = 0; q < QTABLE_SIZE; q++) {
+        workers.worker[0].qtable[q] = 1000.0;
+        workers.worker[1].qtable[q] = 2.0;
+        workers.worker[2].qtable[q] = 4.0;
+    }
+    atomic_store(&workers.worker[0].exempt_rt, 1);
+    CHECK(aggregate_adaptive_policy(&workers, aggregate) == 2);
+    for (int q = 0; q < QTABLE_SIZE; q++)
+        CHECK_NEAR(aggregate[q], 3.0, 0.0);
+    return true;
+}
+
+static bool test_policy_atomic_save_uses_private_temp(void) {
+    char directory[] = "/tmp/orchestra-policy-unit.XXXXXX";
+    char path[PATH_MAX];
+    double qtable[QTABLE_SIZE];
+    struct stat state;
+    uint8_t serialized[POLICY_MAX_FILE_SIZE];
+
+    CHECK(mkdtemp(directory) != NULL);
+    int written = snprintf(path, sizeof(path), "%s/policy.bin", directory);
+    CHECK(written > 0 && (size_t)written < sizeof(path));
+    for (int index = 0; index < QTABLE_SIZE; ++index)
+        qtable[index] = (double)index / 100.0;
+    CHECK(policy_save_atomic(qtable, path, 7, 8, 9) == POLICY_SAVE_OK);
+    CHECK(stat(path, &state) == 0);
+    CHECK(S_ISREG(state.st_mode));
+    CHECK((state.st_mode & 0777u) == 0600u);
+
+    FILE *file = fopen(path, "rb");
+    CHECK(file != NULL);
+    size_t bytes = fread(serialized, 1, sizeof(serialized), file);
+    CHECK(ferror(file) == 0);
+    CHECK(fclose(file) == 0);
+    double loaded[QTABLE_SIZE];
+    uint64_t generation = 0, train = 0, adapt = 0;
+    CHECK(policy_deserialize(serialized, bytes, loaded, &generation,
+                             &train, &adapt) == POLICY_LOAD_OK);
+    CHECK(generation == 7 && train == 8 && adapt == 9);
+    CHECK(memcmp(qtable, loaded, sizeof(qtable)) == 0);
+    CHECK(unlink(path) == 0);
+    CHECK(rmdir(directory) == 0);
     return true;
 }
 
@@ -1756,7 +1891,9 @@ int main(void) {
         {"s4_burst_invalid_and_zero_semantics", test_s4_burst_invalid_and_zero_semantics},
         {"s4_burst_history_and_random_invariants", test_s4_burst_history_and_random_invariants},
         {"state_conditioned_coherence", test_state_conditioned_coherence},
+        {"first_decision_has_no_s4_penalty", test_first_decision_has_no_s4_penalty},
         {"effective_action_rules", test_effective_action_rules},
+        {"migrate_restores_affinity", test_migrate_restores_affinity},
         {"bounded_run_action_execution", test_bounded_run_action_execution},
         {"bounded_yield_action_execution", test_bounded_yield_action_execution},
         {"effective_metric_aggregation", test_effective_metric_aggregation},
@@ -1764,6 +1901,9 @@ int main(void) {
         {"difference_reward_aggregate_equivalence", test_difference_reward_aggregate_equivalence},
         {"controller_mapping_rate_and_bounds", test_controller_mapping_rate_and_bounds},
         {"predictor_calibration_and_noise", test_predictor_calibration_and_noise},
+        {"strict_cli_numeric_parsing", test_strict_cli_numeric_parsing},
+        {"policy_aggregation_excludes_rt", test_policy_aggregation_excludes_rt},
+        {"policy_atomic_save_uses_private_temp", test_policy_atomic_save_uses_private_temp},
         {"consensus_blending_and_timeout", test_consensus_blending}
     };
     const size_t test_count = sizeof(tests) / sizeof(tests[0]);

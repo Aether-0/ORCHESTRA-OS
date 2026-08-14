@@ -1,0 +1,5 @@
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=61200 epoch=70911255533762 generation=1 policy_generation=0 controller=NORMAL lease=30000000000ns
+directive identity=3984977:3984977:70926158872258 generation=1 action=SLEEP cpu=4294967295
+task identity=3984977:3984977:70926158872258 generation=1 action=SLEEP requested_cpu=4294967295 dispatched_cpu=2 actual_cpu=2 accepted=4 dispatched=1 running=4 effective=1 fallback=3 errors=0
+telemetry accepted=4 dispatched=1 running=1600 fallback=1596 migrate_target=0 migrate_other=0 timer_ticks=20302 deferred_scans=1265 deferred_future=1264 deferred_release_fail=0 deferred_cpu_fail=0

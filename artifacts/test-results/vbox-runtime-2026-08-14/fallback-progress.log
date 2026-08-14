@@ -1,0 +1,2 @@
+fallback_progress_completed=24/24
+telemetry accepted=498 dispatched=481 running=6735 fallback=6223 migrate_target=10 migrate_other=0 timer_ticks=85768 deferred_scans=1736 deferred_future=1732 deferred_release_fail=0 deferred_cpu_fail=0

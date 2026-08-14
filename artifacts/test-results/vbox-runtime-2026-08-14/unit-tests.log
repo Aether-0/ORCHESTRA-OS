@@ -1,0 +1,156 @@
+Running GCC ASan+UBSan unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Running GCC ASan+UBSan generation-publication thread stress
+reader=0 attempts=3993 verified=1003 valid=1003 no-new=2990 unstable=0 retries=1397 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=1 attempts=38867 verified=1990 valid=1990 no-new=36877 unstable=0 retries=396 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=2 attempts=35691 verified=1956 valid=1956 no-new=33735 unstable=0 retries=424 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=3 attempts=33244 verified=1950 valid=1950 no-new=31294 unstable=0 retries=420 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+stress-summary publisher-success=2000 publisher-attempts=3863 publisher-contention=1863 read-attempts=111795 verified=6899 retries=2637 retry-exhaustions=0 unstable=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=38671
+PASS generation publication thread stress
+Running GCC ASan+UBSan bridge parser/ABI tests
+PASS bridge parser/ABI/publication-source tests
+Running GCC ASan+UBSan legacy-publication reference unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Checking direct GCC legacy-reference source build
+Running Clang policy-warning unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Running Clang generation-publication thread stress
+reader=0 attempts=24598 verified=1978 valid=1978 no-new=22620 unstable=0 retries=1116 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=1 attempts=21550 verified=1969 valid=1969 no-new=19581 unstable=0 retries=1102 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=2 attempts=25111 verified=1980 valid=1980 no-new=23131 unstable=0 retries=1148 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=3 attempts=4696 verified=1182 valid=1182 no-new=3514 unstable=0 retries=1494 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+stress-summary publisher-success=2000 publisher-attempts=3681 publisher-contention=1681 read-attempts=75955 verified=7109 retries=4860 retry-exhaustions=0 unstable=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=27492
+PASS generation publication thread stress
+Running Clang bridge parser/ABI tests
+PASS bridge parser/ABI/publication-source tests
+Running Clang legacy-publication reference unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Checking direct Clang legacy-reference source build
+Running benchmark-validator unit tests
+Traceback (most recent call last):
+  File "/home/vagrant/runtime-validation-20260814/tests/unit/test_benchmark_validator.py", line 29, in <module>
+    spec.loader.exec_module(harness)
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1132, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1190, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/vagrant/runtime-validation-20260814/tools/benchmark/run_paper_cpu_benchmark.py'

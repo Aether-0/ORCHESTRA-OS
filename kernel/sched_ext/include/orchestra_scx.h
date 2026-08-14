@@ -9,6 +9,8 @@
 #ifndef ORCHESTRA_SCX_H
 #define ORCHESTRA_SCX_H
 
+#include "orchestra_abi.h"
+
 /*
  * When compiled for BPF target (-target bpf): vmlinux.h must be included
  * before this header (common.bpf.h does this).  Kernel types __u32/__u64
@@ -27,11 +29,15 @@ typedef __s32 int32_t;
 
 /* --- Canonical actions (subset for Stage 6) --- */
 
-enum orchestra_action {
-    ORCHESTRA_ACT_RUN    = 0,
-    ORCHESTRA_ACT_YIELD  = 4,
-    ORCHESTRA_ACT_UNKNOWN = 0xff
-};
+/* Historical spellings remain source-compatible, but their values come from
+ * the single canonical C/BPF action ABI and cover all five actions. */
+#define ORCHESTRA_ACT_RUN       ORCHESTRA_ACTION_RUN
+#define ORCHESTRA_ACT_SLEEP     ORCHESTRA_ACTION_SLEEP
+#define ORCHESTRA_ACT_MIGRATE   ORCHESTRA_ACTION_MIGRATE
+#define ORCHESTRA_ACT_THROTTLE  ORCHESTRA_ACTION_THROTTLE
+#define ORCHESTRA_ACT_YIELD     ORCHESTRA_ACTION_YIELD
+#define ORCHESTRA_ACT_UNKNOWN   0xffu
+typedef enum orchestra_action_id orchestra_action;
 
 /* The frozen policy maps a compact state index to a canonical action.
  * Stage 6 uses a small, hardcoded 30-state lookup table. */
@@ -89,7 +95,7 @@ static inline int orchestra_should_optin(void)
 }
 
 /* --- Minimal frozen policy for Stage 6 --- */
-static inline enum orchestra_action orchestra_frozen_policy(uint32_t state)
+static inline orchestra_action orchestra_frozen_policy(uint32_t state)
 {
     if (state >= ORCHESTRA_POLICY_STATE_COUNT)
         return ORCHESTRA_ACT_RUN;

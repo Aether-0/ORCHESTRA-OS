@@ -2,7 +2,7 @@
 
 Predictive, cryptographically protected, hierarchical, signal-coordinated scheduling architecture for Linux.
 
-**Status:** Kernel-prototyped and VirtualBox-runtime-validated. Physical-machine testing is **blocked pending the K0 and C0 fixes** identified by the 2026-08-14 deep kernel and C source audit.
+**Status:** Kernel-prototyped and bounded VirtualBox-runtime-validated. The source remediation and VM gate passed on 2026-08-14. The project is **conditionally ready for a narrowly controlled first physical-machine pilot**, but is not deployment-ready and has no physical-machine performance or long-duration evidence.
 
 ---
 
@@ -12,6 +12,8 @@ Predictive, cryptographically protected, hierarchical, signal-coordinated schedu
 |------|------|
 | **Deep Kernel + C Source Code Audit** (HTML, 2026-08-14; current machine-test gate) | [ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html) |
 | **Deep Kernel + Algorithm Code Review** (HTML, 2026-08-14) | [ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) |
+| **Runtime Validation Report** (HTML, 2026-08-14) | [ORCHESTRA_Runtime_Validation_Report_2026-08-14.html](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) |
+| **VirtualBox Runtime Evidence** (Markdown, 2026-08-14) | [SUMMARY.md](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md) |
 | **USB Deployment Kit** (everything for real machine) | [orchestra-usb-final.zip](./orchestra-usb-final.zip) |
 | **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
 | **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
@@ -119,7 +121,7 @@ make clean && make && make test
 
 ## 2. Real-Machine Kernel Setup
 
-> **Safety gate:** Do not load ORCHESTRA sched_ext on a physical machine yet. The current source-audit verdicts are **FIX K0 BEFORE MACHINE TEST** and **FIX C0 BEFORE MACHINE TEST**. Complete the dependency-ordered fixes and post-fix verifier/VM tests in the [deep kernel and C source code audit](./output/doc/ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html) before using the commands below. The commands remain documented as a future controlled-test procedure, not as present authorization or evidence of readiness.
+> **Safety gate:** The K/C/ALG remediation and bounded VirtualBox runtime gate have passed. A first physical test is permitted only as a controlled pilot on a disposable host with out-of-band console access, rollback, explicit abort thresholds, and bounded non-production workloads. This is not authorization for production use, performance benchmarking, or unrestricted real-world deployment. See the [runtime validation report](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) and [runtime evidence](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md).
 
 ### Prerequisites
 - Linux 6.12+ with `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_DEBUG_INFO_BTF=y`

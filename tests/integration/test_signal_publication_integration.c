@@ -432,6 +432,7 @@ static bool integration_test_reference_visibility(void) {
     uint8_t copied[SIGNAL_FRAME_SIZE] = {0};
     action_t actions[MAX_WORKERS] = {ACT_RUN};
     action_t previous[MAX_WORKERS] = {ACT_RUN};
+    int states[MAX_WORKERS] = {0};
     memset(&legacy, 0, sizeof(legacy));
     atomic_init(&legacy.publish_version, 0);
     for (size_t index = 0; index < SIGNAL_WIRE_SIZE; ++index)
@@ -443,7 +444,8 @@ static bool integration_test_reference_visibility(void) {
     CHECK(legacy_copy_canonical_frame(&legacy, copied, &diagnostics)
           == SIGNAL_SNAPSHOT_COPIED);
     CHECK(memcmp(bytes, copied, sizeof(bytes)) == 0);
-    CHECK(isfinite(population_utility_reference(actions, previous, 0, ACT_RUN)));
+    CHECK(isfinite(population_utility_reference(actions, previous, states, 0,
+                                                ACT_RUN)));
     return true;
 }
 

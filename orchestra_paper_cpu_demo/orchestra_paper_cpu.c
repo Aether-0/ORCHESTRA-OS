@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -15,10 +16,13 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "../kernel/sched_ext/include/orchestra_bridge_v1.h"
 
 /*
  * ORCHESTRA-OS paper-aligned real-CPU userspace research prototype.
@@ -29,8 +33,8 @@
  *   - per-process Adaptive Response Function with tabular Q-learning
  *   - RUN/SLEEP/MIGRATE/THROTTLE/YIELD actions on real Linux processes
  *   - hard-real-time bypass path (attempts SCHED_FIFO; requires privilege)
- *   - historical S1/S2/S3/S4 coordination index with geometric-mean aggregation
- *   - experimental selected-action S4_burst telemetry outside historical Q
+ *   - corrected S1/S2/conditioned-S3/burst-sensitive-S4 coordination index
+ *     with geometric-mean aggregation
  *   - reward/directive consistency, aligned state buckets, epsilon annealing
  *   - anti-synchronization perceptual jitter sized from calibration noise
  *   - difference-reward credit assignment
@@ -43,7 +47,7 @@
 
 #define MAX_WORKERS 64
 #define MAX_CAL_SAMPLES 1024
-#define ACTION_COUNT 5
+#define ACTION_COUNT ((int)ORCHESTRA_ACTION_COUNT)
 #define CPU_BUCKETS 5
 #define MEMORY_BUCKETS 2
 #define THERMAL_BUCKETS 3
@@ -89,6 +93,7 @@
 #define DEFAULT_DURATION_SEC 30
 #define DEFAULT_INTERVAL_MS 100
 #define DEFAULT_CALIBRATION_SEC 3
+#define PREDICTOR_MODEL_VERSION 1u
 #define CONTROLLER_PERIOD_TICKS 20
 #define KEY_EPOCH_TICKS 100
 
@@ -254,13 +259,28 @@ static bool constant_time_equal(const uint8_t *a, const uint8_t *b, size_t n) {
 
 /* ------------------------------- Model -------------------------------- */
 
-typedef enum {
-    ACT_RUN = 0,
-    ACT_SLEEP = 1,
-    ACT_MIGRATE = 2,
-    ACT_THROTTLE = 3,
-    ACT_YIELD = 4
-} action_t;
+typedef enum orchestra_action_id action_t;
+#define ACT_RUN ORCHESTRA_ACTION_RUN
+#define ACT_SLEEP ORCHESTRA_ACTION_SLEEP
+#define ACT_MIGRATE ORCHESTRA_ACTION_MIGRATE
+#define ACT_THROTTLE ORCHESTRA_ACTION_THROTTLE
+#define ACT_YIELD ORCHESTRA_ACTION_YIELD
+
+_Static_assert(ACT_RUN == 0 && ACT_SLEEP == 1 && ACT_MIGRATE == 2 &&
+               ACT_THROTTLE == 3 && ACT_YIELD == 4,
+               "userspace action ABI must equal the C/BPF wire ABI");
+
+static bool canonical_action_to_wire(action_t action, uint32_t *wire_action) {
+    if (wire_action == NULL) return false;
+    switch (action) {
+        case ACT_RUN: *wire_action = ORCHESTRA_ACTION_RUN; return true;
+        case ACT_SLEEP: *wire_action = ORCHESTRA_ACTION_SLEEP; return true;
+        case ACT_MIGRATE: *wire_action = ORCHESTRA_ACTION_MIGRATE; return true;
+        case ACT_THROTTLE: *wire_action = ORCHESTRA_ACTION_THROTTLE; return true;
+        case ACT_YIELD: *wire_action = ORCHESTRA_ACTION_YIELD; return true;
+        default: return false;
+    }
+}
 
 typedef enum {
     ACTION_ATTEMPT_NOT_ATTEMPTED = 0,
@@ -298,6 +318,11 @@ typedef enum {
     POLICY_MODE_ADAPT = 1,
     POLICY_MODE_EVALUATE = 2
 } policy_mode_t;
+
+_Static_assert((int)POLICY_MODE_TRAIN == (int)ORCHESTRA_POLICY_TRAIN &&
+               (int)POLICY_MODE_ADAPT == (int)ORCHESTRA_POLICY_ADAPT &&
+               (int)POLICY_MODE_EVALUATE == (int)ORCHESTRA_POLICY_EVALUATE,
+               "policy mode ABI drift");
 
 typedef enum {
     POLICY_LOAD_OK = 0,
@@ -493,12 +518,14 @@ typedef struct {
     _Atomic int policy_update_allowed;
     _Atomic int policy_exploration_enabled;
     _Atomic int policy_consensus_enabled;
+    _Atomic int kernel_bridge_enabled;
 } signal_bus_t;
 
 typedef struct {
     _Atomic uint64_t decision_version; /* per-worker seqlock: odd=update */
     _Atomic int action;
     _Atomic int previous_action;
+    _Atomic int has_previous_action;
     _Atomic int proposed_action;
     _Atomic int state_index;
     _Atomic int next_state_index;
@@ -526,6 +553,8 @@ typedef struct {
     _Atomic int throttle_attempted;
     _Atomic int effective_action_result;
     _Atomic uint64_t action_sequence;
+    _Atomic uint64_t kernel_publish_sequence;
+    _Atomic int kernel_publish_status;
     _Atomic double reward;
     _Atomic uint64_t reward_sequence;
     signal_reader_diagnostics_t publication_diagnostics;
@@ -628,6 +657,14 @@ typedef enum {
     CONTROL_STATE_RECOVERY = 5
 } controller_state_t;
 
+_Static_assert((int)CONTROL_STATE_NORMAL == (int)ORCHESTRA_CTRL_NORMAL &&
+               (int)CONTROL_STATE_DEGRADED == (int)ORCHESTRA_CTRL_DEGRADED &&
+               (int)CONTROL_STATE_SATURATED == (int)ORCHESTRA_CTRL_SATURATED &&
+               (int)CONTROL_STATE_DISABLED == (int)ORCHESTRA_CTRL_DISABLED &&
+               (int)CONTROL_STATE_ROLLBACK == (int)ORCHESTRA_CTRL_ROLLBACK &&
+               (int)CONTROL_STATE_RECOVERY == (int)ORCHESTRA_CTRL_RECOVERY,
+               "controller state ABI drift");
+
 typedef enum {
     TRANSITION_REASON_NONE = 0,
     TRANSITION_REASON_DEGRADED_COORDINATION = 1,
@@ -652,7 +689,7 @@ typedef struct {
 #define CONTROLLER_OSCILLATION_WINDOW 8
 
 typedef struct {
-    double s3_global[CONTROLLER_WINDOW_SIZE];
+    double s3[CONTROLLER_WINDOW_SIZE];
     double s4[CONTROLLER_WINDOW_SIZE];
     double s4_burst[CONTROLLER_WINDOW_SIZE];
     size_t index;
@@ -707,6 +744,7 @@ typedef struct {
     bool alive;
     bool exempt_rt;
     bool fallback_active;
+    bool has_previous_action;
     uint64_t accepted_sequence;
     bool action_attempted;
     action_attempt_result_t action_attempt_result;
@@ -727,6 +765,14 @@ typedef struct {
 } worker_snapshot_t;
 
 typedef struct {
+    int request_fd;
+    int response_fd;
+    pid_t pid;
+    uint64_t next_sequence;
+    bool active;
+} kernel_bridge_session_t;
+
+typedef struct {
     action_t selected_action;
     bool action_attempted;
     action_attempt_result_t action_attempt_result;
@@ -742,6 +788,7 @@ typedef struct {
     bool throttle_attempted;
     fallback_reason_t fallback_reason;
     effective_action_result_t effective_action_result;
+    bool fatal_process_state;
 } action_observation_t;
 
 static volatile sig_atomic_t g_stop = 0;
@@ -817,6 +864,7 @@ static void initialize_shared_state(signal_bus_t *bus, signal_reader_gates_t *ga
     atomic_init(&bus->policy_update_allowed, 1);
     atomic_init(&bus->policy_exploration_enabled, 1);
     atomic_init(&bus->policy_consensus_enabled, 1);
+    atomic_init(&bus->kernel_bridge_enabled, 0);
     workers->worker_count = worker_count;
     workers->rt_exempt_count = rt_exempt_count;
     for (int i = 0; i < worker_count; ++i) {
@@ -824,6 +872,7 @@ static void initialize_shared_state(signal_bus_t *bus, signal_reader_gates_t *ga
         atomic_init(&worker->decision_version, 0);
         atomic_init(&worker->action, ACT_SLEEP);
         atomic_init(&worker->previous_action, ACT_SLEEP);
+        atomic_init(&worker->has_previous_action, 0);
         atomic_init(&worker->proposed_action, ACT_SLEEP);
         atomic_init(&worker->state_index, 0);
         atomic_init(&worker->next_state_index, 0);
@@ -851,6 +900,8 @@ static void initialize_shared_state(signal_bus_t *bus, signal_reader_gates_t *ga
         atomic_init(&worker->throttle_attempted, 0);
         atomic_init(&worker->effective_action_result, EFFECTIVE_RESULT_NOT_ATTEMPTED);
         atomic_init(&worker->action_sequence, 0);
+        atomic_init(&worker->kernel_publish_sequence, 0);
+        atomic_init(&worker->kernel_publish_status, EXIT_FAILURE);
         atomic_init(&worker->reward, 0.0);
         atomic_init(&worker->reward_sequence, 0);
         initialize_signal_reader_diagnostics(&worker->publication_diagnostics);
@@ -919,6 +970,187 @@ static uint64_t monotonic_ns(void) {
     return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
 }
 
+static bool read_worker_snapshot(const worker_state_t *ws,
+                                 worker_snapshot_t *out);
+
+static bool fd_write_full(int fd, const void *buffer, size_t size) {
+    const uint8_t *cursor = buffer;
+    size_t offset = 0;
+    while (offset < size) {
+        ssize_t count = write(fd, cursor + offset, size - offset);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) return false;
+        offset += (size_t)count;
+    }
+    return true;
+}
+
+static bool fd_read_full(int fd, void *buffer, size_t size) {
+    uint8_t *cursor = buffer;
+    size_t offset = 0;
+    while (offset < size) {
+        ssize_t count = read(fd, cursor + offset, size - offset);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) return false;
+        offset += (size_t)count;
+    }
+    return true;
+}
+
+static void kernel_bridge_close_fds(kernel_bridge_session_t *session) {
+    if (session->request_fd >= 0) close(session->request_fd);
+    if (session->response_fd >= 0) close(session->response_fd);
+    session->request_fd = -1;
+    session->response_fd = -1;
+}
+
+static bool kernel_bridge_start(kernel_bridge_session_t *session,
+                                const char *bridge_path) {
+    int requests[2] = {-1, -1};
+    int responses[2] = {-1, -1};
+    pid_t pid;
+
+    memset(session, 0, sizeof(*session));
+    session->request_fd = -1;
+    session->response_fd = -1;
+    if (pipe2(requests, O_CLOEXEC) != 0 || pipe2(responses, O_CLOEXEC) != 0) {
+        if (requests[0] >= 0) close(requests[0]);
+        if (requests[1] >= 0) close(requests[1]);
+        if (responses[0] >= 0) close(responses[0]);
+        if (responses[1] >= 0) close(responses[1]);
+        return false;
+    }
+    pid = fork();
+    if (pid < 0) {
+        close(requests[0]); close(requests[1]);
+        close(responses[0]); close(responses[1]);
+        return false;
+    }
+    if (pid == 0) {
+        if (dup2(requests[0], STDIN_FILENO) < 0
+            || dup2(responses[1], STDOUT_FILENO) < 0)
+            _exit(126);
+        close(requests[0]); close(requests[1]);
+        close(responses[0]); close(responses[1]);
+        execl(bridge_path, bridge_path, "--stream", (char *)NULL);
+        _exit(127);
+    }
+    close(requests[0]);
+    close(responses[1]);
+    session->request_fd = requests[1];
+    session->response_fd = responses[0];
+    session->pid = pid;
+    session->next_sequence = 1;
+    session->active = true;
+    return true;
+}
+
+static void kernel_bridge_stop(kernel_bridge_session_t *session) {
+    int status;
+
+    if (!session->active) return;
+    kernel_bridge_close_fds(session);
+    while (waitpid(session->pid, &status, 0) < 0 && errno == EINTR) {}
+    session->active = false;
+}
+
+static int choose_migration_cpu_for_pid(pid_t pid, int worker_index) {
+    cpu_set_t allowed;
+    int first = -1;
+
+    CPU_ZERO(&allowed);
+    if (sched_getaffinity(pid, sizeof(allowed), &allowed) != 0) return -1;
+    for (int cpu = 0; cpu < CPU_SETSIZE; ++cpu) {
+        if (!CPU_ISSET((size_t)(unsigned int)cpu, &allowed)) continue;
+        if (first < 0) first = cpu;
+        if ((cpu + worker_index) % 2 == 0) return cpu;
+    }
+    return first;
+}
+
+static bool kernel_bridge_publish(kernel_bridge_session_t *session,
+                                  worker_state_t *worker, pid_t tid,
+                                  int worker_index,
+                                  const worker_snapshot_t *snapshot,
+                                  uint64_t frame_max_age_ns,
+                                  uint32_t controller_state,
+                                  uint32_t policy_mode,
+                                  uint64_t policy_generation) {
+    if (session->next_sequence == 0 || session->next_sequence == UINT64_MAX)
+        return false;
+    struct bridge_stream_request request = {
+        .magic = BRIDGE_STREAM_MAGIC,
+        .abi_version = ORCHESTRA_ABI_VERSION,
+        .value_size = sizeof(request),
+        .sequence = session->next_sequence++,
+        .target_tid = (uint32_t)tid,
+        .target_cpu = ORCHESTRA_CPU_ANY,
+        .controller_state = controller_state,
+        .policy_mode = policy_mode,
+        .policy_generation = policy_generation,
+        .expiry_duration_ns = frame_max_age_ns
+    };
+    struct bridge_stream_response response;
+    uint32_t wire_action;
+    uint64_t now = monotonic_ns();
+
+    if (!canonical_action_to_wire(snapshot->action, &wire_action))
+        wire_action = ORCHESTRA_ACTION_RUN;
+    request.action = wire_action;
+    if (snapshot->action == ACT_SLEEP) {
+        request.not_before_ns = now + UINT64_C(35000000);
+    } else if (snapshot->action == ACT_THROTTLE) {
+        request.throttle_period_ns = UINT64_C(27000000);
+        request.throttle_budget_ns = UINT64_C(2000000);
+    } else if (snapshot->action == ACT_MIGRATE) {
+        int target = choose_migration_cpu_for_pid(tid, worker_index);
+        if (target < 0) return false;
+        request.target_cpu = (uint32_t)target;
+    }
+    if (!fd_write_full(session->request_fd, &request, sizeof(request))
+        || !fd_read_full(session->response_fd, &response, sizeof(response))
+        || response.magic != BRIDGE_STREAM_MAGIC
+        || response.abi_version != ORCHESTRA_ABI_VERSION
+        || response.value_size != sizeof(response)
+        || response.sequence != request.sequence) {
+        return false;
+    }
+    atomic_store_explicit(&worker->kernel_publish_status, response.status,
+                          memory_order_relaxed);
+    atomic_store_explicit(&worker->kernel_publish_sequence,
+                          snapshot->accepted_sequence, memory_order_release);
+    return response.status == 0;
+}
+
+static bool publish_kernel_decisions(kernel_bridge_session_t *session,
+                                     worker_block_t *workers,
+                                     const pid_t pids[MAX_WORKERS],
+                                     uint64_t frame_sequence,
+                                     uint64_t frame_max_age_ns,
+                                     const signal_bus_t *bus) {
+    bool all_ok = true;
+
+    for (int i = 0; i < workers->worker_count; ++i) {
+        worker_snapshot_t snapshot;
+        if (!read_worker_snapshot(&workers->worker[i], &snapshot)
+            || !snapshot.alive || snapshot.exempt_rt
+            || snapshot.accepted_sequence != frame_sequence)
+            continue;
+        if (!kernel_bridge_publish(session, &workers->worker[i], pids[i], i,
+                                   &snapshot, frame_max_age_ns,
+                                   (uint32_t)atomic_load_explicit(
+                                       &bus->controller_state,
+                                       memory_order_relaxed),
+                                   (uint32_t)atomic_load_explicit(
+                                       &bus->policy_mode,
+                                       memory_order_relaxed),
+                                   atomic_load_explicit(&g_policy_generation,
+                                                        memory_order_relaxed)))
+            all_ok = false;
+    }
+    return all_ok;
+}
+
 static double clamp01(double x) {
     if (!isfinite(x)) return 0.0;
     if (x < 0.0) return 0.0;
@@ -951,10 +1183,14 @@ static void record_worker_decision(worker_state_t *ws, action_t action, int stat
                                    bool fallback_active,
                                    fallback_reason_t fallback_reason,
                                    uint64_t accepted_sequence) {
+    int had_previous = atomic_load_explicit(&ws->has_previous_action,
+                                             memory_order_relaxed);
+    action_t previous = had_previous
+        ? (action_t)atomic_load_explicit(&ws->action, memory_order_relaxed)
+        : action;
     atomic_fetch_add_explicit(&ws->decision_version, 1u, memory_order_acq_rel);
-    atomic_store_explicit(&ws->previous_action,
-                          atomic_load_explicit(&ws->action, memory_order_relaxed),
-                          memory_order_relaxed);
+    atomic_store_explicit(&ws->previous_action, previous, memory_order_relaxed);
+    atomic_store_explicit(&ws->has_previous_action, 1, memory_order_relaxed);
     atomic_store_explicit(&ws->proposed_action, action, memory_order_relaxed);
     atomic_store_explicit(&ws->state_index, state, memory_order_relaxed);
     atomic_store_explicit(&ws->action, action, memory_order_relaxed);
@@ -1034,6 +1270,8 @@ static bool read_worker_snapshot(const worker_state_t *ws, worker_snapshot_t *ou
             .action = (action_t)atomic_load_explicit(&ws->action, memory_order_relaxed),
             .previous_action = (action_t)atomic_load_explicit(&ws->previous_action,
                                                                memory_order_relaxed),
+            .has_previous_action = atomic_load_explicit(&ws->has_previous_action,
+                                                        memory_order_relaxed) != 0,
             .state_index = atomic_load_explicit(&ws->state_index, memory_order_relaxed),
             .alive = atomic_load_explicit(&ws->alive, memory_order_relaxed) != 0,
             .exempt_rt = atomic_load_explicit(&ws->exempt_rt, memory_order_relaxed) != 0,
@@ -1276,6 +1514,14 @@ static action_observation_t perform_action(action_t action, int worker_index,
             }
             break;
         case ACT_MIGRATE: {
+            cpu_set_t original_set;
+            bool affinity_changed = false;
+
+            if (sched_getaffinity(0, sizeof(original_set), &original_set) != 0) {
+                observation.action_attempt_result = ACTION_ATTEMPT_FAILED;
+                observation.action_errno = errno;
+                break;
+            }
             observation.requested_cpu = choose_migration_cpu(observation.cpu_before_action,
                                                               worker_index,
                                                               &observation.requested_cpu_valid);
@@ -1292,11 +1538,40 @@ static action_observation_t perform_action(action_t action, int worker_index,
                 observation.action_errno = errno;
                 break;
             }
+            affinity_changed = true;
             busy_work_ms(5, rng);
-            (void)sched_yield();
+            if (sched_yield() != 0) {
+                observation.action_attempt_result = ACTION_ATTEMPT_FAILED;
+                observation.action_errno = errno;
+            }
             observation.cpu_after_action = sched_getcpu();
             observation.migration_observed = observation.cpu_after_action
                 == observation.requested_cpu;
+            /* MIGRATE is one decision, not a permanent affinity policy. */
+            if (affinity_changed) {
+                int restore_error = 0;
+                bool restored = false;
+                for (int attempt = 0; attempt < 3; ++attempt) {
+                    if (sched_setaffinity(0, sizeof(original_set),
+                                          &original_set) == 0) {
+                        restored = true;
+                        break;
+                    }
+                    restore_error = errno;
+                    if (restore_error != EINTR)
+                        break;
+                }
+                if (!restored) {
+                    /* Continuing would silently turn one MIGRATE decision
+                     * into permanent affinity policy.  Stop the run after
+                     * recording the failed action; process exit removes the
+                     * narrowed affinity state. */
+                    observation.action_attempt_result = ACTION_ATTEMPT_FAILED;
+                    observation.action_errno = restore_error != 0 ?
+                        restore_error : EIO;
+                    observation.fatal_process_state = true;
+                }
+            }
             break;
         }
         case ACT_THROTTLE:
@@ -2016,11 +2291,14 @@ static signal_publish_result_t publish_frame(signal_bus_t *bus,
     return result;
 }
 
-static void realtime_bypass_loop(signal_bus_t *bus, worker_state_t *ws, int worker_index) {
+static bool realtime_bypass_loop(signal_bus_t *bus, worker_state_t *ws,
+                                 int worker_index) {
     struct sched_param sp = { .sched_priority = 1 };
     if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
-        fprintf(stderr, "[rt-bypass] worker %d could not enter SCHED_FIFO: %s; deterministic userspace loop retained\n",
+        fprintf(stderr, "[rt-bypass] worker %d could not enter SCHED_FIFO: %s; worker remains ORCHESTRA-eligible\n",
                 worker_index, strerror(errno));
+        atomic_store(&ws->exempt_rt, 0);
+        return false;
     }
     uint64_t rng = ((uint64_t)getpid() << 32) ^ monotonic_ns();
     atomic_store(&ws->exempt_rt, 1);
@@ -2034,7 +2312,7 @@ static void realtime_bypass_loop(signal_bus_t *bus, worker_state_t *ws, int work
         sleep_ms(17);
     }
     atomic_store(&ws->alive, 0);
-    _exit(0);
+    return true;
 }
 
 /*
@@ -2090,7 +2368,8 @@ static void adaptive_worker_loop(signal_bus_t *bus, signal_reader_gates_t *gates
     atomic_store(&ws->alive, 1);
 
     while (!atomic_load(&bus->stop)) {
-        signal_payload_t frame;
+        /* The invalid-frame diagnostics may inspect the rejected snapshot. */
+        signal_payload_t frame = {0};
         frame_read_result_t frame_result = read_verified_frame_with_diagnostics(
             bus, gates, master, last_sequence, &frame, &ws->publication_diagnostics);
 
@@ -2101,8 +2380,14 @@ static void adaptive_worker_loop(signal_bus_t *bus, signal_reader_gates_t *gates
             have_last_good = true;
             double perceived_cpu = clamp01(frame.decision_cpu
                                           + rng_normal(&rng) * frame.jitter_sigma);
-            int current_state = state_index(perceived_cpu, frame.memory_pressure,
-                                            frame.thermal_proxy);
+            double perceived_memory = clamp01(frame.memory_pressure
+                                             + rng_normal(&rng)
+                                               * frame.jitter_sigma);
+            double perceived_thermal = clamp01(frame.thermal_proxy
+                                              + rng_normal(&rng)
+                                                * frame.jitter_sigma);
+            int current_state = state_index(perceived_cpu, perceived_memory,
+                                            perceived_thermal);
             atomic_store(&ws->next_state_index, current_state);
 
             action_t proposed;
@@ -2179,12 +2464,52 @@ static void adaptive_worker_loop(signal_bus_t *bus, signal_reader_gates_t *gates
 
         worker_snapshot_t action_snapshot;
         if (read_worker_snapshot(ws, &action_snapshot)) {
-            action_observation_t observation = perform_action(
-                action_snapshot.action, worker_index, &rng,
-                action_snapshot.fallback_active ? action_snapshot.fallback_reason
-                                                : FALLBACK_REASON_NONE);
+            action_observation_t observation;
+            if (atomic_load_explicit(&bus->kernel_bridge_enabled,
+                                     memory_order_relaxed)) {
+                uint64_t wait_ns = frame_result == FRAME_VALID ? frame.max_age_ns
+                    : (have_last_good ? last_good.max_age_ns
+                                      : UINT64_C(100000000));
+                uint64_t deadline = monotonic_ns() + wait_ns;
+                while (atomic_load_explicit(&ws->kernel_publish_sequence,
+                                            memory_order_acquire)
+                           < action_snapshot.accepted_sequence
+                       && monotonic_ns() < deadline
+                       && !atomic_load_explicit(&bus->stop,
+                                                memory_order_relaxed))
+                    sleep_ms(1);
+                bool accepted = atomic_load_explicit(
+                    &ws->kernel_publish_sequence, memory_order_acquire)
+                    == action_snapshot.accepted_sequence
+                    && atomic_load_explicit(&ws->kernel_publish_status,
+                                            memory_order_relaxed) == 0;
+                observation = (action_observation_t) {
+                    .selected_action = action_snapshot.action,
+                    .action_attempted = accepted,
+                    .action_attempt_result = accepted
+                        ? ACTION_ATTEMPT_SUCCEEDED : ACTION_ATTEMPT_FAILED,
+                    .action_errno = accepted ? 0 : EIO,
+                    .cpu_before_action = sched_getcpu(),
+                    .requested_cpu = -1,
+                    .requested_cpu_valid = false,
+                    .cpu_after_action = sched_getcpu(),
+                    .fallback_reason = action_snapshot.fallback_active
+                        ? action_snapshot.fallback_reason : FALLBACK_REASON_NONE,
+                    /* Request acceptance is not kernel execution proof. */
+                    .effective_action_result = EFFECTIVE_RESULT_NOT_ATTEMPTED
+                };
+            } else {
+                observation = perform_action(
+                    action_snapshot.action, worker_index, &rng,
+                    action_snapshot.fallback_active ? action_snapshot.fallback_reason
+                                                    : FALLBACK_REASON_NONE);
+            }
             record_worker_action_observation(ws, &observation,
                                              action_snapshot.accepted_sequence);
+            if (observation.fatal_process_state) {
+                atomic_store_explicit(&bus->stop, 1, memory_order_release);
+                break;
+            }
         }
         atomic_fetch_add(&ws->heartbeat, 1u);
     }
@@ -2279,6 +2604,14 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
         worker_snapshot_t snapshot;
         if (!read_worker_snapshot(w, &snapshot) || snapshot.exempt_rt || !snapshot.alive)
             continue;
+        if (snapshot.action < ACT_RUN || snapshot.action >= ACTION_COUNT ||
+            snapshot.state_index < 0 || snapshot.state_index >= STATE_COUNT ||
+            (snapshot.has_previous_action &&
+             (snapshot.previous_action < ACT_RUN ||
+              snapshot.previous_action >= ACTION_COUNT))) {
+            /* Corrupt state cannot index fixed metric tables. */
+            continue;
+        }
         action_t a = snapshot.action;
         action_t prev = snapshot.previous_action;
         if (a >= 0 && a < ACTION_COUNT) m.counts[a]++;
@@ -2287,9 +2620,11 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
             state_totals[snapshot.state_index]++;
             state_actions[snapshot.state_index][a]++;
         }
-        if (a == (action_t)frame->directive) compliant++;
-        if (a != prev) changed++;
-        if (a >= ACT_RUN && a < ACTION_COUNT
+        if (!snapshot.fallback_active && snapshot.accepted_sequence == frame->sequence
+            && a == (action_t)frame->directive)
+            compliant++;
+        if (snapshot.has_previous_action && a != prev) changed++;
+        if (snapshot.has_previous_action && a >= ACT_RUN && a < ACTION_COUNT
             && prev >= ACT_RUN && prev < ACTION_COUNT && a != prev) {
             transition_counts[prev][a]++;
             m.changed_eligible_workers++;
@@ -2367,7 +2702,7 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
     double signal_reach = eligible ? signal_reach_sum / eligible : 1.0;
     m.s1 = clamp01(freshness * accuracy * frame->confidence * signal_reach);
     m.s2_selected = eligible ? (double)compliant / eligible : 1.0;
-    /* Historical S2 is deliberately retained as selected-action compliance. */
+    /* Compliance is attributable only to the currently accepted frame. */
     m.s2 = m.s2_selected;
     m.s2_effective = eligible == 0 ? 1.0
         : clamp01((double)m.effective_action_success_count / (double)eligible);
@@ -2385,8 +2720,9 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
     }
     m.s3_conditioned = conditioned_workers > 0
         ? clamp01(conditioned_sum / (double)conditioned_workers) : 1.0;
-    /* v2 compatibility: S3 remains the global entropy-derived metric. */
-    m.s3 = m.s3_global;
+    /* Canonical S3 is state-conditioned coherence. Global entropy remains
+     * diagnostic only and cannot reward meaningless population uniformity. */
+    m.s3 = m.s3_conditioned;
     m.s4 = eligible ? 1.0 - (double)changed / eligible : 1.0;
     m.eligible_workers = eligible;
 
@@ -2397,11 +2733,9 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
     m.change_fraction = eligible > 0
         ? clamp01((double)m.changed_eligible_workers / (double)eligible) : 0.0;
 
-    int expected_eligible = workers->worker_count - workers->rt_exempt_count;
     m.current_directive_valid = metric_frame_is_valid_and_fresh(frame)
-        && expected_eligible > 0
-        && eligible == expected_eligible
-        && m.accepted_workers == expected_eligible
+        && eligible > 0
+        && m.accepted_workers == eligible
         && m.fallback_workers == 0;
     m.previous_directive_valid = burst_tracker != NULL
         && burst_tracker->previous_directive_valid;
@@ -2484,6 +2818,9 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
         m.throttle_operation_success_count, m.throttle_attempt_count);
     m.fallback_fraction = eligible > 0
         ? clamp01((double)m.fallback_workers / (double)eligible) : 0.0;
+    /* Burst-aware stability is now part of canonical S4/Q/control. The
+     * conservative minimum preserves the exact all-stable/all-switch bounds. */
+    if (m.s4_burst < m.s4) m.s4 = m.s4_burst;
     const double factors[] = {m.s1, m.s2, m.s3, m.s4};
     m.q = normalized_geometric_mean(factors, sizeof(factors) / sizeof(factors[0]));
     return m;
@@ -2491,27 +2828,37 @@ static coord_metrics_t compute_metrics(worker_block_t *workers,
 
 static bool coordination_sample_complete(const worker_block_t *workers,
                                          const coord_metrics_t *metrics) {
-    int expected = workers->worker_count - workers->rt_exempt_count;
-    return expected > 0
-        && metrics->eligible_workers == expected
-        && metrics->accepted_workers == expected;
+    (void)workers;
+    return metrics->eligible_workers > 0
+        && metrics->accepted_workers == metrics->eligible_workers;
 }
 
 #ifdef ORCHESTRA_UNIT_TEST
 /* Kept as a test oracle for the aggregate implementation below. */
 static double population_utility_reference(const action_t actions[MAX_WORKERS],
                                            const action_t previous[MAX_WORKERS],
+                                           const int states[MAX_WORKERS],
                                            int n, action_t directive) {
     if (n <= 0) return 1.0;
-    int counts[ACTION_COUNT] = {0};
+    int state_totals[STATE_COUNT] = {0};
+    int state_actions[STATE_COUNT][ACTION_COUNT] = {{0}};
     int compliant = 0, changed = 0;
     for (int i = 0; i < n; ++i) {
-        counts[actions[i]]++;
+        state_totals[states[i]]++;
+        state_actions[states[i]][actions[i]]++;
         if (actions[i] == directive) compliant++;
         if (actions[i] != previous[i]) changed++;
     }
     double s2 = (double)compliant / n;
-    double s3 = clamp01(1.0 - normalized_entropy_from_counts(counts, n));
+    double coherent = 0.0;
+    for (int state = 0; state < STATE_COUNT; ++state) {
+        if (state_totals[state] == 0) continue;
+        double state_coherence = state_totals[state] == 1 ? 1.0
+            : clamp01(1.0 - normalized_entropy_from_counts(state_actions[state],
+                                                            state_totals[state]));
+        coherent += state_coherence * (double)state_totals[state];
+    }
+    double s3 = clamp01(coherent / (double)n);
     double s4 = 1.0 - (double)changed / n;
     const double factors[] = {s2, s3, s4};
     return normalized_geometric_mean(factors, sizeof(factors) / sizeof(factors[0]));
@@ -2520,7 +2867,8 @@ static double population_utility_reference(const action_t actions[MAX_WORKERS],
 
 typedef struct {
     int eligible;
-    int action_counts[ACTION_COUNT];
+    int state_totals[STATE_COUNT];
+    int state_actions[STATE_COUNT][ACTION_COUNT];
     int compliant;
     int changed;
 } population_counters_t;
@@ -2528,8 +2876,16 @@ typedef struct {
 static double population_utility_from_counters(const population_counters_t *counters) {
     if (counters->eligible <= 0) return 1.0;
     double s2 = (double)counters->compliant / (double)counters->eligible;
-    double s3 = clamp01(1.0 - normalized_entropy_from_counts(counters->action_counts,
-                                                               counters->eligible));
+    double coherent = 0.0;
+    for (int state = 0; state < STATE_COUNT; ++state) {
+        int count = counters->state_totals[state];
+        if (count == 0) continue;
+        double state_coherence = count == 1 ? 1.0
+            : clamp01(1.0 - normalized_entropy_from_counts(
+                counters->state_actions[state], count));
+        coherent += state_coherence * (double)count;
+    }
+    double s3 = clamp01(coherent / (double)counters->eligible);
     double s4 = 1.0 - (double)counters->changed / (double)counters->eligible;
     const double factors[] = {s2, s3, s4};
     return normalized_geometric_mean(factors, sizeof(factors) / sizeof(factors[0]));
@@ -2539,34 +2895,45 @@ static void assign_difference_rewards(worker_block_t *workers,
                                       const signal_payload_t *frame) {
     action_t actions[MAX_WORKERS] = {0}, previous[MAX_WORKERS] = {0};
     int indices[MAX_WORKERS] = {0};
+    int states[MAX_WORKERS] = {0};
+    bool has_previous[MAX_WORKERS] = {false};
     int n = 0;
     for (int i = 0; i < workers->worker_count; ++i) {
         worker_state_t *w = &workers->worker[i];
         worker_snapshot_t snapshot;
         if (!read_worker_snapshot(w, &snapshot) || snapshot.exempt_rt || !snapshot.alive)
             continue;
+        if (snapshot.action < ACT_RUN || snapshot.action >= ACTION_COUNT ||
+            snapshot.state_index < 0 || snapshot.state_index >= STATE_COUNT ||
+            (snapshot.has_previous_action &&
+             (snapshot.previous_action < ACT_RUN ||
+              snapshot.previous_action >= ACTION_COUNT)))
+            continue;
         indices[n] = i;
         actions[n] = snapshot.action;
         previous[n] = snapshot.previous_action;
+        states[n] = snapshot.state_index;
+        has_previous[n] = snapshot.has_previous_action;
         n++;
     }
     population_counters_t counters = {.eligible = n};
     for (int j = 0; j < n; ++j) {
-        counters.action_counts[actions[j]]++;
+        counters.state_totals[states[j]]++;
+        counters.state_actions[states[j]][actions[j]]++;
         if (actions[j] == (action_t)frame->directive) counters.compliant++;
-        if (actions[j] != previous[j]) counters.changed++;
+        if (has_previous[j] && actions[j] != previous[j]) counters.changed++;
     }
     double global = population_utility_from_counters(&counters);
     for (int j = 0; j < n; ++j) {
         action_t original = actions[j];
         /* The fixed counterfactual alters only this worker's aggregate terms. */
         population_counters_t counterfactual = counters;
-        counterfactual.action_counts[original]--;
-        counterfactual.action_counts[ACT_YIELD]++;
+        counterfactual.state_actions[states[j]][original]--;
+        counterfactual.state_actions[states[j]][ACT_YIELD]++;
         if (original == (action_t)frame->directive) counterfactual.compliant--;
         if (ACT_YIELD == (action_t)frame->directive) counterfactual.compliant++;
-        if (original != previous[j]) counterfactual.changed--;
-        if (ACT_YIELD != previous[j]) counterfactual.changed++;
+        if (has_previous[j] && original != previous[j]) counterfactual.changed--;
+        if (has_previous[j] && ACT_YIELD != previous[j]) counterfactual.changed++;
         double counterfactual_utility = population_utility_from_counters(&counterfactual);
         double difference = (double)n * (global - counterfactual_utility);
         if (difference > LOCAL_REWARD_MATCH) difference = LOCAL_REWARD_MATCH;
@@ -2574,7 +2941,8 @@ static void assign_difference_rewards(worker_block_t *workers,
         double local = (original == (action_t)frame->directive)
                      ? LOCAL_REWARD_MATCH : LOCAL_REWARD_MISMATCH;
         if (frame->thermal_proxy > 0.90 && original == ACT_RUN) local -= 0.40;
-        if (original != previous[j]) local -= frame->switch_penalty;
+        if (has_previous[j] && original != previous[j])
+            local -= frame->switch_penalty;
         double reward = (1.0 - DIFFERENCE_WEIGHT) * local + DIFFERENCE_WEIGHT * difference;
         atomic_store(&workers->worker[indices[j]].reward, reward);
         atomic_store_explicit(&workers->worker[indices[j]].reward_sequence,
@@ -2649,7 +3017,7 @@ static const char* transition_reason_name(transition_reason_t r) {
 }
 
 static void window_add(controller_window_t *w, double s3, double s4, double s4_burst) {
-    w->s3_global[w->index] = s3;
+    w->s3[w->index] = s3;
     w->s4[w->index] = s4;
     w->s4_burst[w->index] = s4_burst;
     w->index = (w->index + 1) % CONTROLLER_WINDOW_SIZE;
@@ -2701,9 +3069,9 @@ static controller_event_t controller_machine_update(signal_payload_t *next, cons
     machine->valid_control_history_count++;
     machine->update_accepted = 1;
 
-    window_add(window, m->s3_global, m->s4, m->s4_burst);
+    window_add(window, m->s3, m->s4, m->s4_burst);
     
-    double avg_s3 = window_avg(window->s3_global, window->count);
+    double avg_s3 = window_avg(window->s3, window->count);
     double avg_s4 = window_avg(window->s4, window->count);
     
     if (machine->state == CONTROL_STATE_NORMAL) {
@@ -2749,10 +3117,15 @@ static controller_event_t controller_machine_update(signal_payload_t *next, cons
         double beta = CONTROLLER_BETA0 / sqrt(1.0 + (double)controller_step);
         event.updated = true;
         event.beta = beta;
-        if (m->s3_global < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S3;
+        if (m->s3 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S3;
         if (m->s4 < CONTROLLER_THRESHOLD) event.reason |= CONTROL_REASON_S4;
 
-        double raw_jitter = machine->applied.jitter_sigma + ((event.reason & CONTROL_REASON_S4) ? beta * 0.20 : -beta * 0.05);
+        /* Jitter may repair a herd only while directive compliance is healthy;
+         * otherwise more perturbation would amplify the S2 failure. */
+        bool jitter_can_increase = (event.reason & CONTROL_REASON_S4)
+                                && m->s2 >= CONTROLLER_THRESHOLD;
+        double raw_jitter = machine->applied.jitter_sigma
+            + (jitter_can_increase ? beta * 0.20 : -beta * 0.05);
         
         double raw_switch = machine->applied.switch_penalty + ((event.reason != CONTROL_REASON_NONE) ? beta * 0.15 : -beta * 0.04);
         double raw_consensus = machine->applied.consensus_blend + ((event.reason & CONTROL_REASON_S3) ? beta * 0.10 : -beta * 0.03);
@@ -2785,6 +3158,15 @@ static controller_event_t controller_machine_update(signal_payload_t *next, cons
     event.consensus_saturated = (machine->requested.consensus_blend < 0.0 || machine->requested.consensus_blend > 0.15);
     
     machine->saturation_bitmask = (event.jitter_saturated ? 1 : 0) | (event.switch_saturated ? 2 : 0) | (event.consensus_saturated ? 4 : 0);
+    machine->saturation_direction = 0;
+    if (machine->requested.jitter_sigma > 0.20
+        || machine->requested.switch_penalty > 0.30
+        || machine->requested.consensus_blend > 0.15)
+        machine->saturation_direction = 1;
+    if (machine->requested.jitter_sigma < jitter_min
+        || machine->requested.switch_penalty < 0.0
+        || machine->requested.consensus_blend < 0.0)
+        machine->saturation_direction = machine->saturation_direction == 1 ? 0 : -1;
     if (machine->saturation_bitmask != 0 && event.reason != CONTROL_REASON_NONE) {
         machine->saturation_persistence++;
     } else {
@@ -2951,21 +3333,34 @@ static policy_save_status_t policy_save_atomic(const double qtable[QTABLE_SIZE],
         return POLICY_SAVE_VALIDATION_FAILED;
 
     char tmp_path[1024];
-    int written = snprintf(tmp_path, sizeof(tmp_path), "%s.tmp.%d", path, getpid());
+    int written = snprintf(tmp_path, sizeof(tmp_path), "%s.tmp.XXXXXX", path);
     if (written < 0 || (size_t)written >= sizeof(tmp_path)) return POLICY_SAVE_WRITE_ERROR;
-
-    FILE *f = fopen(tmp_path, "wb");
-    if (!f) return POLICY_SAVE_WRITE_ERROR;
-    size_t w = fwrite(buf, 1u, out_len, f);
-    if (w != out_len || fflush(f) != 0) { fclose(f); unlink(tmp_path); return POLICY_SAVE_WRITE_ERROR; }
-    fclose(f);
-
-    FILE *vf = fopen(tmp_path, "rb");
-    if (!vf) { unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED; }
+    int fd = mkstemp(tmp_path);
+    if (fd < 0) return POLICY_SAVE_TEMP_FAILED;
+    if (fchmod(fd, S_IRUSR | S_IWUSR) != 0) {
+        close(fd); unlink(tmp_path); return POLICY_SAVE_WRITE_ERROR;
+    }
+    size_t offset = 0;
+    while (offset < out_len) {
+        ssize_t count = write(fd, buf + offset, out_len - offset);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) { close(fd); unlink(tmp_path); return POLICY_SAVE_WRITE_ERROR; }
+        offset += (size_t)count;
+    }
+    if (fsync(fd) != 0 || lseek(fd, 0, SEEK_SET) < 0) {
+        close(fd); unlink(tmp_path); return POLICY_SAVE_WRITE_ERROR;
+    }
     uint8_t verify_buf[POLICY_MAX_FILE_SIZE];
-    size_t vr = fread(verify_buf, 1u, out_len, vf);
-    fclose(vf);
-    if (vr != out_len) { unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED; }
+    offset = 0;
+    while (offset < out_len) {
+        ssize_t count = read(fd, verify_buf + offset, out_len - offset);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) { close(fd); unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED; }
+        offset += (size_t)count;
+    }
+    if (close(fd) != 0 || memcmp(buf, verify_buf, out_len) != 0) {
+        unlink(tmp_path); return POLICY_SAVE_TEMP_FAILED;
+    }
 
     if (rename(tmp_path, path) != 0) { unlink(tmp_path); return POLICY_SAVE_RENAME_ERROR; }
     return POLICY_SAVE_OK;
@@ -3017,11 +3412,52 @@ static double calibrate_fixed_gain(const double *x, int n) {
     return best_gain;
 }
 
+static int calibration_sample_target(int seconds) {
+    if (seconds <= 0) return 0;
+    uint64_t requested = (uint64_t)(unsigned int)seconds * UINT64_C(20);
+    return requested > MAX_CAL_SAMPLES ? MAX_CAL_SAMPLES : (int)requested;
+}
+
+static double evaluate_fixed_gain_held_out(const double *calibration,
+                                           int calibration_count,
+                                           const double *evaluation,
+                                           int evaluation_count,
+                                           double gain) {
+    if (calibration_count <= 0 || evaluation_count <= 0 ||
+        !isfinite(gain) || gain <= 0.0 || gain >= 1.0)
+        return HUGE_VAL;
+    double estimate = calibration[calibration_count - 1];
+    double sum = 0.0;
+    for (int i = 0; i < evaluation_count; ++i) {
+        /* Score the forecast before incorporating the held-out observation. */
+        double error = evaluation[i] - estimate;
+        sum += error * error;
+        estimate += gain * error;
+    }
+    return sum / (double)evaluation_count;
+}
+
+/* Convert one-step error into a bounded validity score using only error scale
+ * measured on the held-out calibration suffix.  This is deliberately not an
+ * online covariance estimator: no runtime sample mutates the calibrated scale. */
+static double calibrated_prediction_confidence(double absolute_error,
+                                                double held_out_mse,
+                                                double observation_sigma) {
+    if (!isfinite(absolute_error) || absolute_error < 0.0 ||
+        !isfinite(held_out_mse) || held_out_mse < 0.0 ||
+        !isfinite(observation_sigma) || observation_sigma <= 0.0)
+        return 0.0;
+    double scale = fmax(sqrt(held_out_mse), observation_sigma);
+    scale = fmax(scale, 0.001);
+    double normalized = absolute_error / scale;
+    if (!isfinite(normalized) || normalized >= 8.0) return 0.0;
+    return clamp01(exp(-0.5 * normalized * normalized));
+}
+
 static int collect_calibration_trace(double samples[MAX_CAL_SAMPLES], int seconds) {
     cpu_sample_t prev, cur;
     if (!read_cpu_sample(&prev)) return 0;
-    int target = seconds * 20; /* 50 ms cadence */
-    if (target > MAX_CAL_SAMPLES) target = MAX_CAL_SAMPLES;
+    int target = calibration_sample_target(seconds);
     int n = 0;
     while (n < target && !g_stop) {
         sleep_ms(50);
@@ -3038,11 +3474,30 @@ static bool random_key(uint8_t key[MASTER_KEY_SIZE]) {
     size_t off = 0;
     while (off < MASTER_KEY_SIZE) {
         ssize_t n = read(fd, key + off, MASTER_KEY_SIZE - off);
+        if (n < 0 && errno == EINTR) continue;
         if (n <= 0) { close(fd); return false; }
         off += (size_t)n;
     }
-    close(fd);
-    return true;
+    return close(fd) == 0;
+}
+
+static int aggregate_adaptive_policy(const worker_block_t *workers,
+                                     double output[QTABLE_SIZE]) {
+    int policy_workers = 0;
+    memset(output, 0, sizeof(double) * (size_t)QTABLE_SIZE);
+    for (int i = 0; i < workers->worker_count; ++i) {
+        if (atomic_load_explicit(&workers->worker[i].exempt_rt,
+                                 memory_order_relaxed))
+            continue;
+        for (int q = 0; q < QTABLE_SIZE; q++)
+            output[q] += workers->worker[i].qtable[q];
+        policy_workers++;
+    }
+    if (policy_workers > 0) {
+        for (int q = 0; q < QTABLE_SIZE; q++)
+            output[q] /= (double)policy_workers;
+    }
+    return policy_workers;
 }
 
 /* ------------------------------- Main --------------------------------- */
@@ -3054,7 +3509,9 @@ static int spawn_worker(signal_bus_t *bus, signal_reader_gates_t *gates,
     pid_t pid = fork();
     if (pid < 0) return -1;
     if (pid == 0) {
-        if (index < workers->rt_exempt_count) realtime_bypass_loop(bus, &workers->worker[index], index);
+        if (index < workers->rt_exempt_count
+            && realtime_bypass_loop(bus, &workers->worker[index], index))
+            _exit(0);
         adaptive_worker_loop(bus, gates, &workers->worker[index], index, master, mode,
                              base_seed);
     }
@@ -3073,6 +3530,16 @@ static bool wait_for_workers_ready(worker_block_t *workers, int timeout_ms) {
         sleep_ms(5);
     }
     return false;
+}
+
+static int actual_rt_exempt_count(const worker_block_t *workers) {
+    int count = 0;
+    for (int i = 0; i < workers->worker_count; ++i) {
+        if (atomic_load_explicit(&workers->worker[i].exempt_rt,
+                                 memory_order_relaxed))
+            count++;
+    }
+    return count;
 }
 
 static int reap_workers_nonblocking(pid_t pids[MAX_WORKERS], int count) {
@@ -3225,7 +3692,7 @@ static const char *controller_reason_name(uint32_t reason) {
 }
 
 static void print_header(void) {
-    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event,controller_state,previous_state,transition_reason,state_residence_time,valid_control_history_count,invalid_frame_fault_count,saturation_bitmask,saturation_direction,saturation_persistence,oscillation_score,oscillation_event,rollback_event,rollback_reason,recovery_progress,last_known_good_available,requested_jitter,applied_jitter,requested_switch,applied_switch,requested_consensus,applied_consensus,update_accepted,update_suppressed,suppression_reason,policy_mode,policy_schema_version,policy_generation,policy_update_allowed,policy_update_applied,policy_update_suppression_reason,policy_exploration_enabled,policy_train_update_count,policy_adapt_update_count,policy_load_status,policy_save_status,policy_digest_prefix,policy_format_version\n");
+    printf("tick,mode,cpu_now,cpu_pred,decision_cpu,prediction_used,confidence,forecast_error,frame_age_ms,mem,thermal,directive,run,sleep,migrate,throttle,yield,eligible_workers,fallback_workers,S1,S2,S3,S4,Q,jitter_sigma,switch_penalty,consensus_blend,next_jitter_sigma,next_switch_penalty,next_consensus_blend,controller_updated,controller_step,controller_reason,controller_beta,jitter_saturated,switch_saturated,consensus_saturated,consensus_applied,rejected_frames,missed_deadlines,metrics_schema,S3_global,S3_conditioned,S2_selected,S2_effective,action_attempt_count,effective_action_success_count,action_error_count,migration_attempt_count,migration_valid_requested_cpu_count,migration_affinity_success_count,migration_observed_success_count,migration_observed_success_fraction,sleep_attempt_count,sleep_effective_success_count,sleep_effectiveness_fraction,requested_sleep_ns_total,observed_sleep_ns_total,yield_attempt_count,yield_call_success_count,yield_call_success_fraction,throttle_attempt_count,throttle_operation_success_count,throttle_operation_success_fraction,fallback_fraction,fallback_reason,S4_burst,change_fraction,dominant_transition_fraction,justified_change_fraction,oscillation_penalty,dominant_old_action,dominant_new_action,changed_eligible_workers,justified_changed_workers,dominant_transition_count,rolling_window_burst_count,rolling_window_oscillation_count,current_directive_valid,previous_directive_valid,directive_transition_valid,large_burst_event,repeated_oscillation_event,controller_state,previous_state,transition_reason,state_residence_time,valid_control_history_count,invalid_frame_fault_count,saturation_bitmask,saturation_direction,saturation_persistence,oscillation_score,oscillation_event,rollback_event,rollback_reason,recovery_progress,last_known_good_available,requested_jitter,applied_jitter,requested_switch,applied_switch,requested_consensus,applied_consensus,update_accepted,update_suppressed,suppression_reason,policy_mode,policy_schema_version,policy_generation,policy_update_allowed,policy_update_applied,policy_update_suppression_reason,policy_exploration_enabled,policy_train_update_count,policy_adapt_update_count,policy_load_status,policy_save_status,policy_digest_prefix,policy_format_version,coordination_semantics_version\n");
 }
 
 static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *applied,
@@ -3239,6 +3706,17 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
         rejected += atomic_load(&workers->worker[i].rejected_frames);
     double frame_age_ms = fmax(0.0,
         (double)(monotonic_ns() - applied->monotonic_ns) / 1000000.0);
+    /* Metrics are a declared eight-decimal wire format.  Compute the reported
+     * aggregate from the same rounded factors a downstream validator sees. */
+    double emitted_s1 = round(m->s1 * 1e8) / 1e8;
+    double emitted_s2 = round(m->s2 * 1e8) / 1e8;
+    double emitted_s3 = round(m->s3 * 1e8) / 1e8;
+    double emitted_s4 = round(m->s4 * 1e8) / 1e8;
+    const double emitted_factors[] = {
+        emitted_s1, emitted_s2, emitted_s3, emitted_s4
+    };
+    double emitted_q = normalized_geometric_mean(
+        emitted_factors, sizeof(emitted_factors) / sizeof(emitted_factors[0]));
     printf("%llu,%s,%.8f,%.8f,%.8f,%u,%.8f,%.8f,%.8f,%.8f,%.8f,%s,"
            "%d,%d,%d,%d,%d,%d,%d,"
            "%.8f,%.8f,%.8f,%.8f,%.8f,"
@@ -3248,7 +3726,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            "%d,%d,%.8f,%d,%d,%.8f,%.8f,%s,"
            "%.8f,%.8f,%.8f,%.8f,%.8f,"
            "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,"
-           "%s,%s,%s,%llu,%llu,%llu,%u,%d,%llu,%.8f,%d,%d,%s,%.8f,%d,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d,%d,%d,%s,%u,%llu,%d,%d,%s,%d,%llu,%llu,%s,%s,%016llx,%u\n",
+           "%s,%s,%s,%llu,%llu,%llu,%u,%d,%llu,%.8f,%d,%d,%s,%.8f,%d,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d,%d,%d,%s,%u,%llu,%d,%d,%s,%d,%llu,%llu,%s,%s,%016llx,%u,%u\n",
            (unsigned long long)tick,
            mode == MODE_ORCHESTRA ? "orchestra" : "baseline",
            applied->cpu_now, applied->cpu_pred, applied->decision_cpu,
@@ -3258,7 +3736,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            m->counts[ACT_RUN], m->counts[ACT_SLEEP], m->counts[ACT_MIGRATE],
            m->counts[ACT_THROTTLE], m->counts[ACT_YIELD],
            m->eligible_workers, m->fallback_workers,
-           m->s1, m->s2, m->s3, m->s4, m->q,
+           emitted_s1, emitted_s2, emitted_s3, emitted_s4, emitted_q,
            applied->jitter_sigma, applied->switch_penalty, applied->consensus_blend,
            next->jitter_sigma, next->switch_penalty, next->consensus_blend,
            event->updated ? 1 : 0, (unsigned long long)event->step,
@@ -3269,7 +3747,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            event->consensus_applied ? 1 : 0,
            (unsigned long long)rejected,
            (unsigned long long)missed_deadlines,
-           "orchestra.paper_cpu.metrics/v6", m->s3_global, m->s3_conditioned,
+           "orchestra.paper_cpu.metrics/v7", m->s3_global, m->s3_conditioned,
            m->s2_selected, m->s2_effective,
            m->action_attempt_count, m->effective_action_success_count,
            m->action_error_count, m->migration_attempt_count,
@@ -3333,7 +3811,7 @@ static void print_row(uint64_t tick, run_mode_t mode, const signal_payload_t *ap
            policy_load_status_name((policy_load_status_t)atomic_load_explicit(&g_policy_load_status, memory_order_relaxed)),
            policy_save_status_name((policy_save_status_t)atomic_load_explicit(&g_policy_save_status, memory_order_relaxed)),
            (unsigned long long)atomic_load_explicit(&g_policy_digest_prefix, memory_order_relaxed),
-           POLICY_FORMAT_VERSION);
+           POLICY_FORMAT_VERSION, 7u);
     fflush(stdout);
 }
 
@@ -3352,12 +3830,15 @@ static void usage(const char *prog) {
         "  --policy-mode MODE   train|adapt|evaluate (default train)\n"
         "  --policy-in PATH     load policy file\n"
         "  --policy-out PATH    save policy file at exit\n"
+        "  --kernel-bridge PATH publish decisions through bridge --stream; disables userspace action emulation\n"
         "  --help\n",
         prog, DEFAULT_WORKERS, DEFAULT_RT_EXEMPT, DEFAULT_DURATION_SEC,
         DEFAULT_INTERVAL_MS, DEFAULT_CALIBRATION_SEC);
 }
 
 static bool parse_int_arg(const char *text, int *out) {
+    if (text == NULL || *text == '\0' || isspace((unsigned char)*text))
+        return false;
     char *end = NULL;
     errno = 0;
     long value = strtol(text, &end, 10);
@@ -3368,7 +3849,9 @@ static bool parse_int_arg(const char *text, int *out) {
 }
 
 static bool parse_u64_arg(const char *text, uint64_t *out) {
-    if (text[0] == '-') return false;
+    if (text == NULL || *text == '\0' || text[0] == '-' ||
+        isspace((unsigned char)*text))
+        return false;
     char *end = NULL;
     errno = 0;
     unsigned long long value = strtoull(text, &end, 10);
@@ -3389,6 +3872,7 @@ int main(int argc, char **argv) {
     policy_mode_t policy_mode = POLICY_MODE_TRAIN;
     const char *policy_in_path = NULL;
     const char *policy_out_path = NULL;
+    const char *kernel_bridge_path = NULL;
 
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--workers") && i + 1 < argc) {
@@ -3421,6 +3905,8 @@ int main(int argc, char **argv) {
             policy_in_path = argv[++i];
         } else if (!strcmp(argv[i], "--policy-out") && i + 1 < argc) {
             policy_out_path = argv[++i];
+        } else if (!strcmp(argv[i], "--kernel-bridge") && i + 1 < argc) {
+            kernel_bridge_path = argv[++i];
         } else if (!strcmp(argv[i], "--help")) { usage(argv[0]); return 0; }
         else { usage(argv[0]); return 2; }
     }
@@ -3434,6 +3920,7 @@ int main(int argc, char **argv) {
 
     signal(SIGINT, on_signal);
     signal(SIGTERM, on_signal);
+    signal(SIGPIPE, SIG_IGN);
 
     fprintf(stderr, "ORCHESTRA-OS paper-aligned real-CPU userspace prototype\n");
     fprintf(stderr, "Collecting %d-second calibration trace...\n", calibration_sec);
@@ -3443,12 +3930,23 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Calibration failed: /proc/stat unavailable or insufficient samples.\n");
         return 1;
     }
-    double gain = calibrate_fixed_gain(cal, cal_n);
+    int calibration_count = (cal_n * 7) / 10;
+    if (calibration_count < 4) calibration_count = 4;
+    if (calibration_count >= cal_n) calibration_count = cal_n - 1;
+    int evaluation_count = cal_n - calibration_count;
+    double gain = calibrate_fixed_gain(cal, calibration_count);
+    double held_out_mse = evaluate_fixed_gain_held_out(
+        cal, calibration_count, cal + calibration_count, evaluation_count, gain);
     double sigma_obs = robust_noise_sigma(cal, cal_n);
+    if (!isfinite(held_out_mse)) {
+        fprintf(stderr, "Predictor held-out evaluation failed.\n");
+        return 1;
+    }
     double jitter_floor = JITTER_MULTIPLIER_DEFAULT * sigma_obs;
     if (jitter_floor > 0.20) jitter_floor = 0.20;
-    fprintf(stderr, "calibration samples=%d fixed_gain=%.3f sigma_obs=%.5f jitter_floor=%.5f\n",
-            cal_n, gain, sigma_obs, jitter_floor);
+    fprintf(stderr, "predictor_model=%u calibration_samples=%d evaluation_samples=%d fixed_gain=%.3f held_out_mse=%.8f sigma_obs=%.5f jitter_floor=%.5f\n",
+            PREDICTOR_MODEL_VERSION, calibration_count, evaluation_count, gain,
+            held_out_mse, sigma_obs, jitter_floor);
 
     uint64_t effective_seed = requested_seed;
     if (effective_seed == 0)
@@ -3498,9 +3996,21 @@ int main(int argc, char **argv) {
             explicit_bzero(master, sizeof(master));
             return 1;
         }
-        fseek(pf, 0, SEEK_END);
+        if (fseek(pf, 0, SEEK_END) != 0) {
+            fclose(pf);
+            fprintf(stderr, "Policy seek failed\n");
+            munmap(bus, sizeof(*bus)); munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers)); explicit_bzero(master, sizeof(master));
+            return 1;
+        }
         long fsz = ftell(pf);
-        fseek(pf, 0, SEEK_SET);
+        if (fseek(pf, 0, SEEK_SET) != 0) {
+            fclose(pf);
+            fprintf(stderr, "Policy rewind failed\n");
+            munmap(bus, sizeof(*bus)); munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers)); explicit_bzero(master, sizeof(master));
+            return 1;
+        }
         if (fsz <= 0 || (uint64_t)fsz > (uint64_t)POLICY_MAX_FILE_SIZE) {
             fclose(pf);
             atomic_store_explicit(&g_policy_load_status, POLICY_LOAD_OVERSIZED,
@@ -3582,8 +4092,28 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    fprintf(stderr, "workers=%d eligible=%d rt-exempt=%d mode=%s tick=%dms tamper-every=%d seed=%llu signal-schema=%u state-schema=%u policy-mode=%s\n",
-            worker_count, worker_count - rt_exempt, rt_exempt,
+    kernel_bridge_session_t kernel_session = {
+        .request_fd = -1, .response_fd = -1
+    };
+    if (kernel_bridge_path) {
+        if (!kernel_bridge_start(&kernel_session, kernel_bridge_path)) {
+            fprintf(stderr, "Cannot start kernel bridge stream %s: %s\n",
+                    kernel_bridge_path, strerror(errno));
+            stop_and_reap_workers(bus, pids, spawned_workers);
+            munmap(bus, sizeof(*bus));
+            munmap(gates, sizeof(*gates));
+            munmap(workers, sizeof(*workers));
+            explicit_bzero(master, sizeof(master));
+            return 1;
+        }
+        atomic_store_explicit(&bus->kernel_bridge_enabled, 1,
+                              memory_order_release);
+    }
+
+    int admitted_rt_exempt = actual_rt_exempt_count(workers);
+    fprintf(stderr, "workers=%d eligible=%d rt-exempt-requested=%d rt-exempt-admitted=%d mode=%s tick=%dms tamper-every=%d seed=%llu signal-schema=%u state-schema=%u policy-mode=%s\n",
+            worker_count, worker_count - admitted_rt_exempt, rt_exempt,
+            admitted_rt_exempt,
             mode == MODE_ORCHESTRA ? "orchestra" : "baseline", interval_ms, tamper_every,
             (unsigned long long)effective_seed, SIGNAL_SCHEMA_VERSION, STATE_SCHEMA_VERSION,
             policy_mode_name(policy_mode));
@@ -3597,6 +4127,7 @@ int main(int argc, char **argv) {
         munmap(gates, sizeof(*gates));
         munmap(workers, sizeof(*workers));
         explicit_bzero(master, sizeof(master));
+        kernel_bridge_stop(&kernel_session);
         return 1;
     }
 
@@ -3660,7 +4191,8 @@ int main(int argc, char **argv) {
         last_prediction = cpu_pred;
         thermal = clamp01(0.95 * thermal + 0.05 * cpu_now);
         double mem = read_memory_pressure();
-        double confidence = clamp01(exp(-5.0 * forecast_error));
+        double confidence = calibrated_prediction_confidence(
+            forecast_error, held_out_mse, sigma_obs);
 
         if (tick == UINT64_MAX) {
             fprintf(stderr, "Signal sequence exhausted; stopping without publication wrap.\n");
@@ -3677,7 +4209,14 @@ int main(int argc, char **argv) {
         frame.memory_pressure = mem;
         frame.thermal_proxy = thermal;
         frame.confidence = mode == MODE_BASELINE ? 1.0 : confidence;
-        frame.directive = directive_from_signal(frame.decision_cpu, mem, thermal);
+        {
+            action_t canonical = directive_from_signal(frame.decision_cpu, mem,
+                                                        thermal);
+            uint32_t wire_action = ORCHESTRA_ACTION_RUN;
+            if (!canonical_action_to_wire(canonical, &wire_action))
+                wire_action = ORCHESTRA_ACTION_RUN;
+            frame.directive = wire_action;
+        }
 
         signal_payload_t applied = frame;
 
@@ -3708,6 +4247,16 @@ int main(int argc, char **argv) {
 
         /* Let workers observe the new signal and choose/execute an action. */
         sleep_until_ns(next_publish_ns + interval_ns / 2u);
+
+        if (kernel_session.active
+            && !publish_kernel_decisions(&kernel_session, workers, pids,
+                                         applied.sequence,
+                                         applied.max_age_ns, bus)) {
+            fprintf(stderr, "Kernel bridge stream failed; reverting workers to userspace action semantics\n");
+            atomic_store_explicit(&bus->kernel_bridge_enabled, 0,
+                                  memory_order_release);
+            kernel_bridge_stop(&kernel_session);
+        }
 
         double metric_forecast_error = mode == MODE_BASELINE ? 0.0 : forecast_error;
         coord_metrics_t metrics = compute_metrics(workers, &applied,
@@ -3795,16 +4344,18 @@ int main(int argc, char **argv) {
     }
 
     stop_and_reap_workers(bus, pids, spawned_workers);
+    kernel_bridge_stop(&kernel_session);
     print_signal_publication_diagnostics(bus, workers);
 
     if (policy_out_path) {
         double save_q[QTABLE_SIZE];
-        memcpy(save_q, workers->worker[0].qtable, sizeof(save_q));
-        for (int i = 1; i < worker_count; ++i)
-            for (int q = 0; q < QTABLE_SIZE; q++)
-                save_q[q] += workers->worker[i].qtable[q];
-        for (int q = 0; q < QTABLE_SIZE; q++)
-            save_q[q] /= (double)worker_count;
+        int policy_workers = aggregate_adaptive_policy(workers, save_q);
+        if (policy_workers == 0) {
+            fprintf(stderr, "Policy save failed: no adaptive worker policy exists\n");
+            atomic_store_explicit(&g_policy_save_status,
+                                  POLICY_SAVE_VALIDATION_FAILED,
+                                  memory_order_release);
+        } else {
         uint64_t pgen = atomic_load_explicit(&g_policy_generation, memory_order_relaxed);
         uint64_t ptrain = atomic_load_explicit(&g_policy_train_count, memory_order_relaxed);
         uint64_t padapt = atomic_load_explicit(&g_policy_adapt_count, memory_order_relaxed);
@@ -3815,6 +4366,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Policy save failed: %s\n", policy_save_status_name(sstatus));
         else
             fprintf(stderr, "Policy saved: %s\n", policy_out_path);
+        }
     }
 
     fprintf(stderr, "Policy mode=%s load=%s save=%s suppr=%s\n",

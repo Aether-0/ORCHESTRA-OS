@@ -30,6 +30,16 @@ check:
 	@$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
 		-Wformat=2 -Werror -fsyntax-only \
 		tests/integration/test_signal_publication_integration.c
+	@$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+		-Wformat=2 -Werror -Ikernel/sched_ext/include -fsyntax-only \
+		kernel/sched_ext/bridge/orchestra_bridge.c
+	@if printf '#include <bpf/libbpf.h>\n' | $(CC) -E - >/dev/null 2>&1; then \
+		$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+			-Wformat=2 -Werror -Ikernel/sched_ext/include -fsyntax-only \
+			kernel/sched_ext/bridge/orchestra_loader.c; \
+	fi
+	@$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+		-Wformat=2 -Werror -fsyntax-only kernel/sched_ext/orchestra_scx.c
 	@PYTHONPYCACHEPREFIX=/tmp/orchestra-os-check-pyc \
 		python3 -m py_compile \
 		tools/benchmark/run_paper_cpu_benchmark.py \
@@ -47,6 +57,7 @@ check:
 	@python3 -m json.tool experiments/schemas/paper_cpu_metrics_v2.json >/dev/null
 	@python3 -m json.tool experiments/schemas/paper_cpu_metrics_v3.json >/dev/null
 	@python3 -m json.tool experiments/schemas/paper_cpu_metrics_v4.json >/dev/null
+	@python3 -m json.tool experiments/schemas/paper_cpu_metrics_v7.json >/dev/null
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v3.json >/dev/null
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v4.json >/dev/null
 	@bash -n tests/unit/run.sh tests/integration/run.sh

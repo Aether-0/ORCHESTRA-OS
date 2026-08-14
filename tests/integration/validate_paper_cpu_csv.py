@@ -24,6 +24,7 @@ SCHEMA_V3: Final = "orchestra.paper_cpu.metrics/v3"
 SCHEMA_V4: Final = "orchestra.paper_cpu.metrics/v4"
 SCHEMA_V5: Final = "orchestra.paper_cpu.metrics/v5"
 SCHEMA_V6: Final = "orchestra.paper_cpu.metrics/v6"
+SCHEMA_V7: Final = "orchestra.paper_cpu.metrics/v7"
 
 # This is the immutable historical v2 order.  Do not append v3 fields here.
 V2_HEADER: Final = (
@@ -162,6 +163,8 @@ V6_APPEND: Final = (
     "policy_digest_prefix", "policy_format_version"
 )
 V6_HEADER: Final = V5_HEADER + V6_APPEND
+V7_APPEND: Final = ("coordination_semantics_version",)
+V7_HEADER: Final = V6_HEADER + V7_APPEND
 
 ACTIONS: Final = ("RUN", "SLEEP", "MIGRATE", "THROTTLE", "YIELD")
 ACTION_FIELDS: Final = ("run", "sleep", "migrate", "throttle", "yield")
@@ -284,8 +287,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mode", choices=MODES, required=True)
     parser.add_argument(
         "--schema",
-        choices=(SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5, SCHEMA_V6),
-        help="pin the expected metrics schema; v3/v4/v5/v6 benchmark invocations must pin it",
+        choices=(SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5, SCHEMA_V6, SCHEMA_V7),
+        help="pin the expected metrics schema; append-only schemas must be pinned",
     )
     parser.add_argument("--min-rows", type=int, default=1)
     parser.add_argument("--max-rows", type=int)
@@ -311,8 +314,10 @@ def _schema_from_header(fieldnames: Sequence[str] | None) -> str:
         return SCHEMA_V5
     if header == V6_HEADER:
         return SCHEMA_V6
+    if header == V7_HEADER:
+        return SCHEMA_V7
     raise AssertionError(
-        "unexpected CSV header; expected exact historical v2 or append-only v3/v4/v5/v6 "
+        "unexpected CSV header; expected exact historical v2 or append-only v3-v7 "
         f"contract, got {list(header)!r}"
     )
 
@@ -407,7 +412,9 @@ def _validate_common_row(
         raise AssertionError(f"tick {tick}: invalid fallback count {fallbacks}")
 
     directive_index = ACTIONS.index(directive)
-    expected_s2 = _fraction(action_counts[directive_index], eligible, 1.0)
+    expected_s2 = (_raw_float(row, "S2_selected", tick, 0.0, 1.0)
+                   if schema == SCHEMA_V7
+                   else _fraction(action_counts[directive_index], eligible, 1.0))
     if not close(_raw_float(row, "S2", tick, 0.0, 1.0), expected_s2):
         raise AssertionError(
             f"tick {tick}: S2 does not match selected action/directive agreement"
@@ -422,6 +429,8 @@ def _validate_common_row(
                 probability = count / eligible
                 entropy -= probability * math.log(probability)
         expected_s3 = 1.0 - entropy / math.log(len(ACTION_FIELDS))
+    if schema == SCHEMA_V7:
+        expected_s3 = _raw_float(row, "S3_conditioned", tick, 0.0, 1.0)
     if not close(_raw_float(row, "S3", tick, 0.0, 1.0), expected_s3):
         raise AssertionError(f"tick {tick}: S3 action-entropy coherence mismatch")
 
@@ -431,7 +440,11 @@ def _validate_common_row(
     expected_q = (
         0.0 if any(value == 0.0 for value in factors) else math.prod(factors) ** 0.25
     )
-    if not close(_raw_float(row, "Q", tick, 0.0, 1.0), expected_q):
+    # Each factor is emitted to eight decimal places before this independent
+    # reconstruction.  Near-zero factors can amplify that input rounding
+    # through the fourth root; use a bounded absolute telemetry tolerance.
+    if not math.isclose(_raw_float(row, "Q", tick, 0.0, 1.0), expected_q,
+                        rel_tol=0.0, abs_tol=2e-6):
         raise AssertionError(f"tick {tick}: Q does not equal historical geometric mean")
 
     updated = _raw_uint(row, "controller_updated", tick)
@@ -482,7 +495,7 @@ def _validate_common_row(
             raise AssertionError(f"tick {tick}: reactive baseline was noncompliant")
 
     # v2 has no inline identifier; later versions are explicitly self-identifying.
-    if schema in (SCHEMA_V3, SCHEMA_V4) and row.get("metrics_schema") != schema:
+    if schema != SCHEMA_V2 and row.get("metrics_schema") != schema:
         raise AssertionError(
             f"tick {tick}: metrics_schema {row.get('metrics_schema')!r} != {schema!r}"
         )
@@ -496,8 +509,9 @@ def _validate_v3_row(
 
     for field in V3_NORMALIZED:
         _raw_float(row, field, tick, 0.0, 1.0)
-    if not close(_raw_float(row, "S3_global", tick), _raw_float(row, "S3", tick)):
-        raise AssertionError(f"tick {tick}: historical S3 is not S3_global")
+    canonical_s3_field = "S3_conditioned" if row.get("metrics_schema") == SCHEMA_V7 else "S3_global"
+    if not close(_raw_float(row, canonical_s3_field, tick), _raw_float(row, "S3", tick)):
+        raise AssertionError(f"tick {tick}: canonical S3 alias mismatch")
     if not close(_raw_float(row, "S2_selected", tick), _raw_float(row, "S2", tick)):
         raise AssertionError(f"tick {tick}: historical S2 is not S2_selected")
 
@@ -748,7 +762,11 @@ def _validate_v4_row(
         )
 
     expected_historical_s4 = 1.0 - expected_change_fraction
-    if not close(_raw_float(row, "S4", tick), expected_historical_s4):
+    expected_canonical_s4 = (min(expected_historical_s4,
+                                 _raw_float(row, "S4_burst", tick))
+                             if row.get("metrics_schema") == SCHEMA_V7
+                             else expected_historical_s4)
+    if not close(_raw_float(row, "S4", tick), expected_canonical_s4):
         raise AssertionError(
             f"tick {tick}: historical S4 does not match changed-worker fraction"
         )
@@ -858,9 +876,9 @@ def validate(
         eligible, fallbacks, controller_step = _validate_common_row(
             row, tick, mode, schema, expected_controller_skips, controller_step
         )
-        if schema in (SCHEMA_V3, SCHEMA_V4):
+        if schema in (SCHEMA_V3, SCHEMA_V4, SCHEMA_V5, SCHEMA_V6, SCHEMA_V7):
             _validate_v3_row(row, tick, eligible, fallbacks)
-        if schema == SCHEMA_V4:
+        if schema in (SCHEMA_V4, SCHEMA_V5, SCHEMA_V6, SCHEMA_V7):
             last_valid_directive = _validate_v4_row(
                 row,
                 tick,
@@ -868,6 +886,12 @@ def validate(
                 last_valid_directive,
                 accepted_large_bursts,
                 previous_rejections,
+            )
+        if schema == SCHEMA_V7 and _raw_uint(
+            row, "coordination_semantics_version", tick
+        ) != 7:
+            raise AssertionError(
+                f"tick {tick}: invalid coordination semantics version"
             )
 
         rejections = _raw_uint(row, "rejected_frames", tick)

@@ -1,0 +1,11 @@
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=61200 epoch=71016268235014 generation=5 policy_generation=0 controller=NORMAL lease=30000000000ns
+directive identity=3985364:3985364:71052831142736 generation=2 action=RUN cpu=4294967295
+directive identity=3985366:3985366:71052831696907 generation=4 action=SLEEP cpu=4294967295
+directive identity=3985367:3985367:71052831957547 generation=5 action=THROTTLE cpu=4294967295
+directive identity=3985365:3985365:71052831459914 generation=3 action=YIELD cpu=4294967295
+task identity=3985365:3985365:71052831459914 generation=3 action=YIELD requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=54 dispatched=54 running=54 effective=54 fallback=0 errors=0
+task identity=3985364:3985364:71052831142736 generation=2 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=57 dispatched=57 running=56 effective=56 fallback=0 errors=0
+task identity=3985367:3985367:71052831957547 generation=5 action=THROTTLE requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=2 accepted=6 dispatched=6 running=5 effective=1 fallback=0 errors=0
+task identity=3985366:3985366:71052831696907 generation=4 action=SLEEP requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=0 running=0 effective=0 fallback=0 errors=0
+telemetry accepted=128 dispatched=127 running=3268 fallback=3139 migrate_target=10 migrate_other=0 timer_ticks=44841 deferred_scans=692 deferred_future=691 deferred_release_fail=0 deferred_cpu_fail=0
