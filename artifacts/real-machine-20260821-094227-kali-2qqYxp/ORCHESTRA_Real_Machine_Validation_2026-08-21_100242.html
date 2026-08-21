@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORCHESTRA-OS Real-Machine Validation Report</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5e6a7d;
+      --line: #dbe2ec;
+      --paper: #ffffff;
+      --wash: #f4f7fb;
+      --navy: #14243d;
+      --blue: #1769aa;
+      --green: #18794e;
+      --green-bg: #eaf7ef;
+      --amber: #946200;
+      --amber-bg: #fff6dc;
+      --red: #a23636;
+      --red-bg: #fff0f0;
+      --purple: #6741a5;
+      --purple-bg: #f2edff;
+      --shadow: 0 12px 32px rgba(21, 44, 76, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--wash);
+      font: 15px/1.58 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { background: #eef2f7; border-radius: 4px; padding: .12rem .32rem; font-size: .9em; }
+    .hero {
+      color: #fff;
+      background: linear-gradient(135deg, #12243f 0%, #1d4268 60%, #236c80 100%);
+      padding: 52px max(24px, calc((100% - 1180px) / 2)) 44px;
+    }
+    .eyebrow { color: #a9d9ec; font-size: .76rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 880px; margin: 9px 0 12px; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.08; letter-spacing: -.04em; }
+    .hero p { max-width: 850px; margin: 0; color: #dceaf4; font-size: 1.05rem; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px 20px; margin-top: 24px; color: #c5d9e6; font-size: .9rem; }
+    .hero-meta strong { color: #fff; }
+    .badge { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 6px 11px; font-size: .76rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .badge.partial { color: #ffe7a1; background: rgba(154, 98, 0, .35); border: 1px solid rgba(255, 231, 161, .4); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 24px 70px; }
+    .cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 13px; margin-top: -22px; position: relative; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); padding: 18px; }
+    .metric .number { display: block; font-size: 2rem; font-weight: 850; line-height: 1; }
+    .metric .label { display: block; margin-top: 8px; color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .metric.pass { border-top: 4px solid var(--green); }
+    .metric.inconclusive { border-top: 4px solid var(--amber); }
+    .metric.blocked { border-top: 4px solid var(--red); }
+    .metric.notimpl { border-top: 4px solid var(--purple); }
+    .metric.fail { border-top: 4px solid #303846; }
+    section { margin-top: 34px; }
+    h2 { margin: 0 0 14px; color: var(--navy); font-size: 1.55rem; letter-spacing: -.025em; }
+    h3 { margin: 22px 0 8px; color: var(--navy); font-size: 1.08rem; }
+    p { margin: 8px 0 13px; }
+    .lead { color: #33435a; font-size: 1.03rem; }
+    .callout { border-left: 5px solid var(--blue); background: #edf6fc; border-radius: 9px; padding: 17px 19px; }
+    .callout.warning { border-left-color: var(--amber); background: var(--amber-bg); }
+    .callout.danger { border-left-color: var(--red); background: var(--red-bg); }
+    .callout.success { border-left-color: var(--green); background: var(--green-bg); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+    .panel h3:first-child { margin-top: 0; }
+    .panel ul { margin: 8px 0 0; padding-left: 20px; }
+    .panel li { margin: 7px 0; }
+    .mini-label { color: var(--muted); font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .fact-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--line); }
+    .fact { background: var(--paper); padding: 13px 15px; }
+    .fact strong { display: block; margin-top: 3px; font-size: .96rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { color: #34445c; background: #edf2f7; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    .status { display: inline-block; border-radius: 999px; padding: 3px 8px; font-size: .7rem; font-weight: 850; letter-spacing: .04em; white-space: nowrap; }
+    .status.pass { color: var(--green); background: var(--green-bg); }
+    .status.inconclusive { color: var(--amber); background: var(--amber-bg); }
+    .status.blocked { color: var(--red); background: var(--red-bg); }
+    .status.not-implemented { color: var(--purple); background: var(--purple-bg); }
+    .status.fail { color: var(--red); background: #ffdede; }
+    .status.na { color: #596273; background: #edf0f4; }
+    .finding { border: 1px solid var(--line); border-radius: 11px; padding: 17px 18px; background: var(--paper); }
+    .finding + .finding { margin-top: 12px; }
+    .finding h3 { margin: 0 0 7px; }
+    .finding.p1 { border-left: 5px solid var(--red); }
+    .finding.p2 { border-left: 5px solid var(--amber); }
+    .finding.p3 { border-left: 5px solid #8491a3; }
+    .finding .tag { float: right; }
+    .scroll { overflow-x: auto; }
+    .search { width: 100%; max-width: 420px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 3px 0 12px; font: inherit; }
+    details { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 15px; }
+    details + details { margin-top: 9px; }
+    summary { cursor: pointer; color: var(--navy); font-weight: 750; }
+    .evidence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 24px; margin: 0; padding-left: 20px; }
+    .evidence li { margin: 3px 0; }
+    footer { border-top: 1px solid var(--line); color: var(--muted); margin-top: 42px; padding-top: 18px; font-size: .84rem; }
+    @media (max-width: 900px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .fact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 650px) { .hero { padding-top: 36px; } .cards, .grid-2, .grid-3, .fact-grid { grid-template-columns: 1fr; } .wrap { padding-left: 15px; padding-right: 15px; } th, td { padding: 8px 9px; } .evidence { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">ORCHESTRA-OS · Real Linux Machine Campaign</div>
+    <h1>Real-Machine Validation Report</h1>
+    <p>Evidence-based assessment of what the checked-out Stage-7 sched_ext prototype can do on the physical Kali host, what remains unproven, and why later checklist phases were blocked.</p>
+    <div class="hero-meta">
+      <span><strong>Campaign:</strong> real-machine-20260821-094227-kali-2qqYxp</span>
+      <span><strong>Commit:</strong> <code>07c787c4eeac01a2f9d60916577806d00863b15f</code></span>
+      <span><strong>Kernel:</strong> 7.0.12+kali-amd64</span>
+      <span><strong>Completed:</strong> 2026-08-21 10:02 BST</span>
+      <span class="badge partial">Partially validated · not deployment-ready</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="cards" aria-label="Campaign verdict summary">
+      <div class="card metric pass"><span class="number">94</span><span class="label">Checklist pass</span></div>
+      <div class="card metric inconclusive"><span class="number">39</span><span class="label">Inconclusive</span></div>
+      <div class="card metric blocked"><span class="number">178</span><span class="label">Blocked</span></div>
+      <div class="card metric notimpl"><span class="number">208</span><span class="label">Not implemented</span></div>
+      <div class="card metric fail"><span class="number">0</span><span class="label">Hard FAIL verdicts</span></div>
+    </div>
+
+    <section>
+      <div class="callout warning">
+        <strong>Bottom line.</strong> The kernel supports sched_ext and the fresh ORCHESTRA object built, verified, attached, ran action telemetry, and unloaded safely three times. RUN, YIELD, MIGRATE, and THROTTLE produced scoped positive evidence. The finite positive workload timed out with no captured per-task accepted/dispatched record, so ownership and forward progress were not proven. No performance-superiority or general stability claim is valid.
+      </div>
+    </section>
+
+    <section>
+      <h2>What passed</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Host, build, and verifier</h3>
+          <ul>
+            <li>Running-kernel sched_ext and required BPF/BTF configuration gates passed.</li>
+            <li><code>make clean</code>, <code>make</code>, <code>make check</code>, and <code>make test</code> returned zero; the named userspace/reference suite reported 30/30 passes.</li>
+            <li>Fresh BPF object, bridge, loader, and fixed workload compiled out of tree with no source edits.</li>
+            <li>The loader reached verifier/relocation/registration successfully; no verifier rejection occurred.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Runtime and recovery</h3>
+          <ul>
+            <li>ORCHESTRA became the active sched_ext scheduler on three attach attempts.</li>
+            <li>All three unloads returned normally; final state is <code>disabled</code> and ORCHESTRA pins are absent.</li>
+            <li>No campaign-correlated ORCHESTRA oops, panic, lockup, RCU stall, hung task, verifier error, or scheduler error was observed.</li>
+            <li>CFS smoke completed CPU, memory, I/O, and mixed phases without workload errors.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What failed, was inconclusive, or was blocked</h2>
+      <p class="lead">There were no hard <code>FAIL</code> verdicts in the audited checklist. Non-zero returns from invalid-input tests were expected validation outcomes. The important negative result is the P1 ownership/forward-progress anomaly below.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Area</th><th>Verdict</th><th>Observed result</th><th>Why it stopped or could not be claimed</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Finite positive ownership / forward progress</strong></td><td><span class="status inconclusive">INCONCLUSIVE</span></td><td>10-billion-iteration worker timed out after 20 seconds; status showed the published identity but accepted=0 and dispatched=0 for that task.</td><td>Earliest failing layer is ownership/observability. The exact admission/enqueue/running path was not proven. CFS completed the matched workload in 5,036 ms, so the timeout cannot be dismissed as an obviously short limit. Root cause confidence is low.</td></tr>
+            <tr><td><strong>G10 multi-task progress</strong></td><td><span class="status blocked">BLOCKED</span></td><td>No multi-task ORCHESTRA completion run was attempted.</td><td>Escalation stopped after the single-task ownership anomaly to avoid turning an unproven scheduler state into a stress result.</td></tr>
+            <tr><td><strong>ORCHESTRA performance comparison</strong></td><td><span class="status blocked">BLOCKED</span></td><td>No valid matched ORCHESTRA timing sample exists.</td><td><code>perf</code> and <code>scx_simple</code> are absent; repository comparison scripts assume <code>/home/vagrant</code> and contain unsafe broad cleanup. Ownership was not established for the finite workload.</td></tr>
+            <tr><td><strong>ORCHESTRA stress</strong></td><td><span class="status blocked">BLOCKED</span></td><td>Only the CFS three-second smoke was run.</td><td>The existing ORCHESTRA stress mode checks sched_ext state but does not opt workloads into ORCHESTRA, so it cannot produce an ownership-valid ORCHESTRA stress claim.</td></tr>
+            <tr><td><strong>SLEEP semantics</strong></td><td><span class="status inconclusive">INCONCLUSIVE</span></td><td>Deferred and release counters advanced after future deadlines.</td><td>No independent no-early CPU-execution measurement was captured. Reusing an expired one-shot directive produced bad-parameter fallback behavior.</td></tr>
+            <tr><td><strong>Research-stage kernel features</strong></td><td><span class="status not-implemented">NOT IMPLEMENTED</span></td><td>No executable kernel signal bus, predictor, S1/S2/S3/S4/Q, controller, full RT bypass, NUMA policy, or distributed tier was found.</td><td>Userspace/reference tests do not promote these features to kernel or real-machine validation. Their checklist rows are correctly classified as NOT IMPLEMENTED.</td></tr>
+            <tr><td><strong>Kernel install / boot / fallback boot</strong></td><td><span class="status blocked">BLOCKED</span></td><td>No kernel installation, bootloader change, reboot, or fallback-boot test was performed.</td><td>These actions cross the real-machine safety boundary and require explicit user approval. The running kernel was tested as-is.</td></tr>
+            <tr><td><strong>Initial baseline collection</strong></td><td><span class="status inconclusive">CORRECTED</span></td><td>The first two baseline attempts had malformed CSV/load-average fields.</td><td>They were preserved and excluded. A third corrected attempt produced 12 valid CFS rows; this is a P3 evidence-harness issue, not a scheduler failure.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Priority findings</h2>
+      <div class="finding p1"><span class="status fail tag">P1 · INCONCLUSIVE</span><h3>Finite positive ownership and forward progress not proven</h3><p>The publication command returned an identity/generation, but the immediate exact-task status had zero accepted/dispatched counters and the worker did not finish within 20 seconds. No kernel error accompanied the timeout. The next experiment must wait for positive per-task enable/enqueue/running evidence before starting the timer.</p><p><strong>Evidence:</strong> <a href="workloads/20260821-095946-finite_orchestra_forward_progress.stdout">finite ORCHESTRA run</a> · <a href="baseline/20260821-100054-finite_cfs_diagnostic_baseline.stdout">matched CFS diagnostic</a> · <a href="FINDINGS.md#p1-1--finite-positive-ownership-and-forward-progress-gate-not-met">full diagnosis</a></p></div>
+      <div class="finding p2"><span class="status blocked tag">P2 · BLOCKED</span><h3>Comparison and stress cannot be claimed</h3><p>Missing optional tools, unsafe path/cleanup assumptions, and absent workload opt-in make the existing comparison and ORCHESTRA stress paths invalid on this host. The CFS smoke is useful as a host baseline only.</p><p><strong>Evidence:</strong> <a href="environment/20260821-095810-final_tool_availability.stdout">tool availability</a> · <a href="stress/20260821-100155-stress_suite_cfs_smoke.stdout">CFS stress smoke</a></p></div>
+      <div class="finding p2"><span class="status not-implemented tag">P2 · NOT IMPLEMENTED</span><h3>Architecture exceeds the current kernel prototype</h3><p>Signal authentication, prediction, coordination metrics, feedback control, full hybrid safety, NUMA policy, and distributed scheduling remain specification/userspace scope. They are not real-machine kernel results.</p><p><strong>Evidence:</strong> <a href="environment/20260821-094359-implementation_inventory.stdout">implementation inventory</a> · <a href="CHECKLIST_AUDIT.csv">item-level checklist audit</a></p></div>
+      <div class="finding p3"><span class="status inconclusive tag">P3 · CORRECTED</span><h3>Baseline harness formatting defect</h3><p>Two malformed attempts were retained; the corrected third run is the only baseline used in the report. No project source or test was changed to obtain the correction.</p><p><strong>Evidence:</strong> <a href="baseline/20260821-094845-baseline_fixed_work.stdout">first attempt</a> · <a href="baseline/20260821-094909-baseline_fixed_work_retry.stdout">second attempt</a> · <a href="baseline/20260821-094943-baseline_fixed_work_retry2.stdout">corrected attempt</a></p></div>
+    </section>
+
+    <section>
+      <h2>Action behavior actually observed</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Action / path</th><th>Verdict</th><th>Evidence</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>RUN</td><td><span class="status pass">PASS</span></td><td><code>accepted=344, dispatched=344, running=346, effective=346, fallback=0</code></td><td>Scoped positive exact-TID telemetry for a long-lived worker; does not prove finite-work performance.</td></tr>
+            <tr><td>YIELD</td><td><span class="status pass">PASS</span></td><td><code>accepted=1387, dispatched=1387, running=1391, effective=1391, fallback=0</code></td><td>Scoped positive action telemetry; not a general workload result.</td></tr>
+            <tr><td>MIGRATE</td><td><span class="status pass">PASS</span></td><td>Three repeats moved an affinity-allowed task to CPU 1.</td><td>Effective only for the tested allowed CPU/affinity protocol.</td></tr>
+            <tr><td>SLEEP</td><td><span class="status inconclusive">INCONCLUSIVE</span></td><td>Deferred=2 and deferred_release=2 after future deadlines.</td><td>Release path observed; no-early execution invariant incomplete.</td></tr>
+            <tr><td>THROTTLE</td><td><span class="status pass">PASS</span></td><td>Four runtime increments approximately 222, 175, 220, and 195 ms for a 200-ms budget.</td><td>Scoped duty-cycle evidence, not multi-worker fairness or performance proof.</td></tr>
+            <tr><td>Fallback / invalid input</td><td><span class="status pass">PASS</span></td><td>Non-opted fallback observed; invalid action/PID/CPU rejected.</td><td>CLI/input validation is not cryptographic integrity or unknown-action injection validation.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Baseline and comparison boundary</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Native CFS baseline</h3>
+          <p>Fixed workload, 80,000,000 iterations, 1/2/4/8 workers, three repetitions each. All 12 rows completed.</p>
+          <div class="scroll"><table>
+            <thead><tr><th>Workers</th><th class="num">N</th><th class="num">Mean ms</th><th class="num">Median</th><th class="num">Min</th><th class="num">Max</th><th class="num">SD</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td class="num">3</td><td class="num">86.00</td><td class="num">83</td><td class="num">83</td><td class="num">92</td><td class="num">5.20</td></tr>
+              <tr><td>2</td><td class="num">3</td><td class="num">84.00</td><td class="num">84</td><td class="num">83</td><td class="num">85</td><td class="num">1.00</td></tr>
+              <tr><td>4</td><td class="num">3</td><td class="num">84.67</td><td class="num">84</td><td class="num">84</td><td class="num">86</td><td class="num">1.15</td></tr>
+              <tr><td>8</td><td class="num">3</td><td class="num">86.00</td><td class="num">85</td><td class="num">84</td><td class="num">89</td><td class="num">2.65</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="panel">
+          <h3>Why no speed claim</h3>
+          <ul>
+            <li>The finite ORCHESTRA run did not complete within 20 seconds.</li>
+            <li>Its per-task ownership was not proven at the captured status point.</li>
+            <li><code>perf</code> and <code>scx_simple</code> were unavailable.</li>
+            <li>Existing comparison scripts were unsafe for this machine without source changes.</li>
+          </ul>
+          <div class="callout danger"><strong>Conclusion:</strong> the evidence supports loadability and scoped action behavior, not faster/slower/better scheduling.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Acceptance gates G0–G21</h2>
+      <input class="search" id="gateFilter" type="search" placeholder="Filter gates or notes…" aria-label="Filter acceptance gates">
+      <div class="scroll">
+        <table id="gateTable">
+          <thead><tr><th>Gate</th><th>Verdict</th><th>Evidence</th><th>Reason / scope</th></tr></thead>
+          <tbody>
+            <tr><td>G0 Repository identified</td><td><span class="status pass">PASS</span></td><td><a href="environment/20260821-095919-final_repo_state.stdout">repo state</a></td><td>Commit and root recorded; no tracked diff.</td></tr>
+            <tr><td>G1 Host inventory complete</td><td><span class="status pass">PASS</span></td><td><a href="environment/20260821-094317-host_inventory.stdout">host inventory</a></td><td>Physical host, CPU, memory, storage, kernel, security, and tools captured.</td></tr>
+            <tr><td>G2 Running-kernel sched_ext support</td><td><span class="status pass">PASS</span></td><td><a href="kernel/20260821-094519-sanity_check.stdout">sanity check</a></td><td>Running 7.0.12 exposes sched_ext and required configuration.</td></tr>
+            <tr><td>G3 BTF/eBPF prerequisites</td><td><span class="status pass">PASS</span></td><td><a href="kernel/20260821-094521-kernel_config_check.stdout">kernel config</a></td><td>BTF, BPF JIT/syscall/events, and debug options pass.</td></tr>
+            <tr><td>G4 Toolchain/dependencies</td><td><span class="status pass">PASS</span></td><td><a href="build/20260821-094533-build_prerequisites.stdout">prerequisites</a></td><td>Required tools pass; optional perf/stress-ng/scx_simple unavailable.</td></tr>
+            <tr><td>G5 ORCHESTRA build</td><td><span class="status pass">PASS</span></td><td><a href="build/20260821-094804-loader_compile.stdout">build logs</a></td><td>Fresh BPF object, bridge, loader, and workload compiled.</td></tr>
+            <tr><td>G6 BPF/verifier compatibility</td><td><span class="status pass">PASS</span></td><td><a href="scheduler/20260821-095013-scheduler_load_attempt1.stdout">first load</a></td><td>Verifier/attach path succeeded; no rejection.</td></tr>
+            <tr><td>G7 Scheduler load/register</td><td><span class="status pass">PASS</span></td><td><a href="scheduler/20260821-095704-scheduler_post_load2.stdout">second load</a></td><td>sched_ext enabled with expected ORCHESTRA state.</td></tr>
+            <tr><td>G8 Scheduler basic lifecycle</td><td><span class="status pass">PASS</span></td><td><a href="recovery/20260821-100033-post_unload_snapshot3.stdout">final unload</a></td><td>Three clean load/unload cycles; final disabled.</td></tr>
+            <tr><td>G9 Single-task forward progress</td><td><span class="status inconclusive">INCONCLUSIVE</span></td><td><a href="workloads/20260821-095946-finite_orchestra_forward_progress.stdout">finite run</a></td><td>Finite worker timed out; ownership was not proven.</td></tr>
+            <tr><td>G10 Multi-task forward progress</td><td><span class="status blocked">BLOCKED</span></td><td><a href="recovery/20260821-100033-post_unload_snapshot3.stdout">recovery</a></td><td>Escalation stopped after G9 anomaly.</td></tr>
+            <tr><td>G11 RUN behavior</td><td><span class="status pass">PASS</span></td><td><a href="workloads/20260821-095148-positive_status_run.stdout">RUN telemetry</a></td><td>Exact live TID showed effective counts and zero fallback.</td></tr>
+            <tr><td>G12 YIELD behavior</td><td><span class="status pass">PASS</span></td><td><a href="workloads/20260821-095203-yield_observe.stdout">YIELD telemetry</a></td><td>Exact live TID and global counters increased.</td></tr>
+            <tr><td>G13 Fallback/default behavior</td><td><span class="status pass">PASS</span></td><td><a href="workloads/20260821-095124-negative_ownership_status.stdout">fallback telemetry</a></td><td>Non-opted task did not gain exact ownership; fallback increased.</td></tr>
+            <tr><td>G14 Scheduler detach/recovery</td><td><span class="status pass">PASS</span></td><td><a href="recovery/20260821-095759-post_unload_snapshot2.stdout">detach</a></td><td>Normal scheduling returned; owned objects removed safely.</td></tr>
+            <tr><td>G15 Baseline benchmark</td><td><span class="status pass">PASS</span></td><td><a href="baseline/20260821-094943-baseline_fixed_work_retry2.stdout">CFS baseline</a></td><td>12/12 native CFS rows completed.</td></tr>
+            <tr><td>G16 ORCHESTRA benchmark</td><td><span class="status inconclusive">INCONCLUSIVE</span></td><td><a href="workloads/20260821-095946-finite_orchestra_forward_progress.stdout">finite run</a></td><td>No valid completed comparable ORCHESTRA sample.</td></tr>
+            <tr><td>G17 Comparative measurement</td><td><span class="status blocked">BLOCKED</span></td><td><a href="environment/20260821-095810-final_tool_availability.stdout">tool availability</a></td><td>Missing tools and unsafe/hard-coded scripts.</td></tr>
+            <tr><td>G18 Stress/robustness</td><td><span class="status blocked">BLOCKED</span></td><td><a href="stress/20260821-100155-stress_suite_cfs_smoke.stdout">CFS smoke</a></td><td>CFS passed; ORCHESTRA mode does not prove ownership.</td></tr>
+            <tr><td>G19 Telemetry validation</td><td><span class="status pass">PASS</span></td><td><a href="telemetry/20260821-095344-control_map_inspect.stdout">telemetry</a></td><td>Scoped counter cross-checks pass; research metrics absent.</td></tr>
+            <tr><td>G20 Kernel-log cleanliness</td><td><span class="status pass">PASS</span></td><td><a href="environment/20260821-100249-final_host_health_after_stress.stdout">host health</a></td><td>No correlated ORCHESTRA kernel fault.</td></tr>
+            <tr><td>G21 Tracked-source integrity</td><td><span class="status pass">PASS</span></td><td><a href="environment/20260821-095919-final_repo_state.stdout">final repo state</a></td><td>No tracked source/test change.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>DOCX checklist coverage</h2>
+      <p>Every one of the 519 checklist items was mapped in <a href="CHECKLIST_AUDIT.csv">CHECKLIST_AUDIT.csv</a>. The mapping is intentionally conservative: <strong>BLOCKED</strong> means the target was not safely executable or lacked infrastructure; <strong>NOT IMPLEMENTED</strong> means the current kernel prototype does not contain the feature; <strong>INCONCLUSIVE</strong> means evidence was partial.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Phase</th><th class="num">Total</th><th class="num">Pass</th><th class="num">Blocked</th><th class="num">Inconclusive</th><th class="num">Not implemented</th></tr></thead>
+          <tbody>
+            <tr><td>00 · Test Governance &amp; Baseline</td><td class="num">21</td><td class="num">15</td><td class="num">0</td><td class="num">6</td><td class="num">0</td></tr>
+            <tr><td>01 · Kernel Build &amp; Installation</td><td class="num">20</td><td class="num">12</td><td class="num">6</td><td class="num">1</td><td class="num">1</td></tr>
+            <tr><td>02 · Linux Scheduler Integration</td><td class="num">21</td><td class="num">14</td><td class="num">5</td><td class="num">2</td><td class="num">0</td></tr>
+            <tr><td>03 · Hybrid Safety / Real-Time</td><td class="num">13</td><td class="num">0</td><td class="num">13</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>04 · Signal Bus</td><td class="num">25</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">25</td></tr>
+            <tr><td>05 · Signal Integrity &amp; Fault Injection</td><td class="num">18</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">18</td></tr>
+            <tr><td>06 · Predictive Scheduling Engine</td><td class="num">26</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">26</td></tr>
+            <tr><td>07 · Adaptive Response Function</td><td class="num">21</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">21</td></tr>
+            <tr><td>08 · Coordination Index S1/S2/S3/S4/Q</td><td class="num">21</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">21</td></tr>
+            <tr><td>09 · Feedback Controller</td><td class="num">18</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">18</td></tr>
+            <tr><td>10 · Instrumentation &amp; Observability</td><td class="num">14</td><td class="num">0</td><td class="num">0</td><td class="num">8</td><td class="num">6</td></tr>
+            <tr><td>11 · Performance Overhead</td><td class="num">17</td><td class="num">0</td><td class="num">17</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>12 · Workload Matrix</td><td class="num">29</td><td class="num">12</td><td class="num">16</td><td class="num">1</td><td class="num">0</td></tr>
+            <tr><td>13 · Dynamic Workloads</td><td class="num">12</td><td class="num">0</td><td class="num">12</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>14 · Stress Testing</td><td class="num">33</td><td class="num">4</td><td class="num">29</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>15 · Thundering-Herd / Synchronization</td><td class="num">15</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">15</td></tr>
+            <tr><td>16 · Fairness &amp; Starvation</td><td class="num">12</td><td class="num">0</td><td class="num">12</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>17 · Migration</td><td class="num">13</td><td class="num">3</td><td class="num">10</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>18 · Failure &amp; Recovery</td><td class="num">29</td><td class="num">4</td><td class="num">7</td><td class="num">0</td><td class="num">18</td></tr>
+            <tr><td>19 · Security / Integrity</td><td class="num">14</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">14</td></tr>
+            <tr><td>20 · Multi-Core</td><td class="num">6</td><td class="num">0</td><td class="num">6</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>21 · NUMA</td><td class="num">11</td><td class="num">1</td><td class="num">9</td><td class="num">0</td><td class="num">1</td></tr>
+            <tr><td>22 · Scalability</td><td class="num">15</td><td class="num">0</td><td class="num">15</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>23 · Baseline &amp; Ablation</td><td class="num">10</td><td class="num">1</td><td class="num">7</td><td class="num">2</td><td class="num">0</td></tr>
+            <tr><td>24 · Statistical Validation</td><td class="num">14</td><td class="num">7</td><td class="num">7</td><td class="num">0</td><td class="num">0</td></tr>
+            <tr><td>25 · Reproducibility</td><td class="num">15</td><td class="num">7</td><td class="num">4</td><td class="num">4</td><td class="num">0</td></tr>
+            <tr><td>26 · Final Acceptance</td><td class="num">56</td><td class="num">14</td><td class="num">3</td><td class="num">15</td><td class="num">24</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>What can and cannot be claimed</h2>
+      <div class="grid-2">
+        <div class="callout success"><strong>Supported by this campaign</strong><ul><li>Stage-7 BPF object builds against the running kernel BTF.</li><li>ORCHESTRA can register as sched_ext and unload safely.</li><li>Scoped RUN/YIELD/MIGRATE telemetry and THROTTLE/SLEEP paths are observable.</li><li>The tested positive long-lived task produced effective action counters.</li></ul></div>
+        <div class="callout danger"><strong>Not supported by this campaign</strong><ul><li>Faster, better, or lower-overhead scheduling.</li><li>General single- or multi-worker forward progress.</li><li>Long-duration stability, fairness, scalability, or deployment readiness.</li><li>Kernel predictive coordination, cryptographic signal integrity, S1/S2/S3/S4/Q, controller, full RT safety, NUMA, or distributed claims.</li></ul></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Recommended next experiment</h2>
+      <div class="callout">
+        Run one exact-TID ownership retest using an existing safe protocol that waits for positive per-task enable/enqueue/running telemetry <em>before</em> timing a shorter fixed-work run. Compare with the already captured 5,036-ms CFS diagnostic. If the exact record again remains at zero, stop and investigate the admission/enqueue lifecycle before any performance or stress escalation.
+      </div>
+    </section>
+
+    <section>
+      <h2>Evidence and related reports</h2>
+      <ul class="evidence">
+        <li><a href="ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md">Full Markdown report</a></li>
+        <li><a href="EXECUTIVE_SUMMARY.md">Executive summary</a></li>
+        <li><a href="FINDINGS.md">Detailed findings and diagnoses</a></li>
+        <li><a href="CHECKLIST_AUDIT.csv">519-row checklist audit</a></li>
+        <li><a href="CHECKLIST_COVERAGE.md">Checklist phase coverage</a></li>
+        <li><a href="CHECKLIST_STATUS.csv">G0–G21 machine-readable gate table</a></li>
+        <li><a href="TEST_RESULTS.csv">Test matrix</a></li>
+        <li><a href="RESULTS.json">Structured results</a></li>
+        <li><a href="COMMANDS.log">Command, return-code, and evidence log</a></li>
+        <li><a href="REMOTE_PUBLICATION.md">Publication manifest</a></li>
+      </ul>
+    </section>
+
+    <footer>
+      Generated from the preserved campaign evidence. No scheduler, kernel, test, benchmark, or source implementation was modified. The report distinguishes actual runtime evidence from userspace validation, simulation results, specification-only features, safety-blocked actions, and unproven hypotheses.
+    </footer>
+  </main>
+  <script>
+    const input = document.getElementById('gateFilter');
+    const rows = [...document.querySelectorAll('#gateTable tbody tr')];
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      rows.forEach(row => { row.hidden = q && !row.textContent.toLowerCase().includes(q); });
+    });
+  </script>
+</body>
+</html>
