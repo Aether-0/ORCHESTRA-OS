@@ -1,0 +1,15 @@
+Usage: /tmp/orchestra-integration.Whl1Mu/orchestra_paper_cpu [options]
+  --workers N          total real processes, 4..64 (default 12)
+  --rt-exempt N        hard-RT bypass processes (default 2)
+  --duration SEC       run time, 0 until Ctrl+C (default 30)
+  --interval-ms MS     signal tick, 50..2000 (default 100)
+  --calibration SEC    pre-run calibration trace (default 3)
+  --mode orchestra     paper adaptive mode (default)
+  --mode baseline      instrumented observed-state reactive reference
+  --tamper-every N     corrupt each Nth signal; 0 disables
+  --seed N             worker-policy RNG seed; 0 selects and records one
+  --policy-mode MODE   train|adapt|evaluate (default train)
+  --policy-in PATH     load policy file
+  --policy-out PATH    save policy file at exit
+  --kernel-bridge PATH publish decisions through bridge --stream; disables userspace action emulation
+  --help

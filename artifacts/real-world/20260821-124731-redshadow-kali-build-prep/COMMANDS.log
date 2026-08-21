@@ -1,0 +1,98 @@
+ORCHESTRA-OS command ledger
+Campaign: 20260821-124731-redshadow-kali-build-prep
+Repository: /home/aether/Documents/ORCHESTRA-OS
+All commands below were run from the repository root unless noted.
+
+2026-08-21T12:47:31+05:30 | rc=0 | inventory
+date -Iseconds; hostname; uname -a; uname -r; git status --short --branch; git rev-parse HEAD; git rev-parse --show-toplevel
+Key output: host redshadow; Linux 7.0.12+kali-amd64; HEAD 68295dc134774c7699764b3234e40ac7c764cc5c; dirty worktree preserved.
+
+2026-08-21T12:47:31+05:30 | rc=0 | toolchain and source preflight
+for c in gcc clang llvm-config make bpftool python3 pkg-config mpstat pidstat lstopo-no-graphics numactl sensors perf stress; do ...; done
+pkg-config --modversion libbpf libelf
+Key output: gcc 15.3.0; clang 21.1.8; make 4.4.1; bpftool 7.7.0; python3 3.14.6; required tools present; libbpf/libelf pkg-config metadata absent; optional numactl/sensors/perf/stress and llvm-config absent.
+
+2026-08-21T12:47:31+05:30 | rc=0 | BTF/source preflight
+test -f /sys/kernel/btf/vmlinux; sha256sum /sys/kernel/btf/vmlinux; find /usr/src ... common.bpf.h; find /home/aether ... common.bpf.h
+Key output: BTF present; hash 3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76; exact sched_ext header found only in /home/aether/Documents/linux.
+
+2026-08-21T12:47:31+05:30 | rc=0 | capability
+bash benchmarks/real-machine/sanity_check.sh
+stdout/stderr: terminal output; result OK; sched_ext disabled; BTF 5.2M; 26G free.
+
+2026-08-21T12:47:31+05:30 | rc=0 | capability
+bash kernel/sched_ext/scripts/check_kernel_config.sh
+stdout/stderr: terminal output; all required config checks passed.
+
+campaign preparation:
+mkdir -p artifacts/real-world/20260821-124731-redshadow-kali-build-prep/raw artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build
+rc=0
+
+make clean
+rc=0
+stdout: make -C orchestra_paper_cpu_demo clean; rm -f orchestra_paper_cpu
+
+make
+rc=0
+stdout: existing orchestra_paper_cpu_demo compiled with -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror
+
+make check
+rc=0
+stdout: existing demo syntax and repository checks completed
+
+make test
+rc=0 on first direct run
+stdout: 30/30 named unit tests passed in each reported GCC/Clang unit pass;
+publication stress, bridge ABI, benchmark validators, signal publication runner,
+CSV validators, sched_ext safety invariants, and integration scenarios passed.
+
+python3 tools/testing/capture_test_run.py --repository-root "$PWD" --output-dir artifacts/real-world/20260821-124731-redshadow-kali-build-prep/test-run
+return_code=2 in captured repeat 1
+Evidence: test-run/test-result.json and test-run/make-test.log.
+First relevant failure: tests/integration/run.sh line 92, signal-stop process
+"Killed"; make test returned Error 137 and capture utility returned 2.
+
+bash tests/integration/run.sh
+rc=0, first sequential repeat; signal-stop.csv rows=19.
+
+bash tests/integration/run.sh
+rc=0, second sequential repeat; signal-stop.csv rows=19.
+
+bash tests/integration/run.sh
+rc=0, third sequential repeat; signal-stop.csv rows=19.
+
+python3 tools/testing/capture_test_run.py --repository-root "$PWD" --output-dir artifacts/real-world/20260821-124731-redshadow-kali-build-prep/test-run-2
+return_code=0 in captured repeat 2
+Evidence: test-run-2/test-result.json and test-run-2/make-test.log.
+
+bpftool btf dump file /sys/kernel/btf/vmlinux format c > artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/vmlinux.h
+rc=0
+artifact hash: 96b223c8eaa9763f6caa0998188cf632aa0133c096bf526edc0043db3e675a51
+
+cc -O2 -Wall -Wextra -Werror -Ikernel/sched_ext/include kernel/sched_ext/bridge/orchestra_bridge.c -o artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/orchestra_bridge
+rc=0
+artifact hash: 9ac00bca5b3a8118339662bb128fb25984895b6a6664ed7419b63404914ef538
+
+cc -O2 -Wall -Wextra -Werror -Ikernel/sched_ext/include -I/home/aether/Documents/linux/tools/lib kernel/sched_ext/bridge/orchestra_loader.c -o artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/orchestra_loader /usr/lib/x86_64-linux-gnu/libbpf.so.1.7.0 /usr/lib/x86_64-linux-gnu/libelf.so.1 -lz -pthread
+rc=0
+artifact hash: 9448e2fa0b99e45cf192662e33cd9241cdf93f1f868015de150ad85aa542fda0
+
+cc -O2 -Wall -Wextra -Werror kernel/sched_ext/scripts/fixed_work.c -o artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/fixed_work
+rc=0
+artifact hash: 6534eb8a01fdc707ad4790a65fcfd3817ac03a33e616c0f48b09b681ded9eaa1
+
+artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/orchestra_loader --help
+rc=0 through no-error wrapper; usage printed.
+
+artifacts/real-world/20260821-124731-redshadow-kali-build-prep/build/orchestra_bridge --help
+rc=0 through no-error wrapper; usage printed.
+
+set +e; cat /sys/kernel/sched_ext/state; sudo -n bpftool prog/map/link list; find /sys/fs/bpf; dmesg --ctime | tail -80
+sched_ext=disabled. sudo required a password; bpftool and bpffs inventory were
+not accessible to the unprivileged preparation session. No ORCHESTRA load was attempted.
+
+Not run by design:
+- sudo orchestra_loader --load/--unload
+- benchmark_suite.sh, full_compare.sh, p0_ownership_retest.sh,
+  reproduce_stage7_runtime.sh, stage8_validate.sh
+- stress_suite.sh orchestra mode and all kernel runtime phases

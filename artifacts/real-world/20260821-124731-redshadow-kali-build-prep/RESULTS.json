@@ -1,0 +1,58 @@
+{
+  "schema": "orchestra.real_world_readiness/v1",
+  "campaign": "20260821-124731-redshadow-kali-build-prep",
+  "status": "ready_with_target_side_blockers",
+  "repository": {
+    "root": "/home/aether/Documents/ORCHESTRA-OS",
+    "commit": "68295dc134774c7699764b3234e40ac7c764cc5c",
+    "branch": "main",
+    "dirty_before_campaign": true,
+    "scoped_source_diff": []
+  },
+  "host": {
+    "hostname": "redshadow",
+    "kernel": "7.0.12+kali-amd64",
+    "cpu_count": 8,
+    "memory": "30GiB",
+    "root_free": "26G",
+    "sched_ext_state": "disabled",
+    "btf_sha256": "3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76"
+  },
+  "gates": {
+    "sanity_check": {"status": "passed", "return_code": 0},
+    "kernel_config_check": {"status": "passed", "return_code": 0},
+    "make_clean": {"status": "passed", "return_code": 0},
+    "make": {"status": "passed", "return_code": 0},
+    "make_check": {"status": "passed", "return_code": 0},
+    "make_test_first_direct": {"status": "passed", "return_code": 0},
+    "make_test_captured_repeat_1": {
+      "status": "intermittent_failure",
+      "return_code": 2,
+      "cause_observed": "signal-stop wrapper exit 137 after Killed"
+    },
+    "integration_reruns": {"status": "passed", "trials": 3, "passes": 3},
+    "make_test_captured_repeat_2": {"status": "passed", "return_code": 0}
+  },
+  "kernel_build": {
+    "bpf_object": {
+      "status": "blocked_kernel_source_mismatch",
+      "running_kernel": "7.0.12+kali-amd64",
+      "available_source": "7.2.0-rc6",
+      "object_produced": false
+    },
+    "runtime_tests_run": false
+  },
+  "artifacts": {
+    "build/vmlinux.h": "96b223c8eaa9763f6caa0998188cf632aa0133c096bf526edc0043db3e675a51",
+    "build/orchestra_bridge": "9ac00bca5b3a8118339662bb128fb25984895b6a6664ed7419b63404914ef538",
+    "build/orchestra_loader": "9448e2fa0b99e45cf192662e33cd9241cdf93f1f868015de150ad85aa542fda0",
+    "build/fixed_work": "6534eb8a01fdc707ad4790a65fcfd3817ac03a33e616c0f48b09b681ded9eaa1"
+  },
+  "missing_inputs": [
+    "exact full 7.0.12 kernel source with sched_ext headers",
+    "libbpf development headers/pkg-config metadata",
+    "libelf development headers/pkg-config metadata",
+    "root-capable target session for BPF inventory and runtime"
+  ],
+  "optional_missing_tools": ["llvm-config", "numactl", "sensors", "perf", "stress"]
+}
