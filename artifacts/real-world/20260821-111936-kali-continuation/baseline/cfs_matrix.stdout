@@ -1,0 +1,34 @@
+timestamp=2026-08-21T11:31:58+01:00
+sched_ext=disabled
+matrix_start
+launch scheduler=cfs trial=1 workers=1 cpu=0 pid=371224 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w1_cpu0.stderr
+result scheduler=cfs trial=1 workers=1 elapsed_ms=313 ctx_delta=5086
+launch scheduler=cfs trial=1 workers=2 cpu=0 pid=371246 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w2_cpu0.stderr
+launch scheduler=cfs trial=1 workers=2 cpu=1 pid=371247 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w2_cpu1.stderr
+result scheduler=cfs trial=1 workers=2 elapsed_ms=307 ctx_delta=4874
+launch scheduler=cfs trial=1 workers=4 cpu=0 pid=371253 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu0.stderr
+launch scheduler=cfs trial=1 workers=4 cpu=1 pid=371254 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu1.stderr
+launch scheduler=cfs trial=1 workers=4 cpu=2 pid=371255 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu2.stderr
+launch scheduler=cfs trial=1 workers=4 cpu=3 pid=371256 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t1_w4_cpu3.stderr
+result scheduler=cfs trial=1 workers=4 elapsed_ms=305 ctx_delta=4082
+launch scheduler=cfs trial=2 workers=1 cpu=0 pid=371262 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w1_cpu0.stderr
+result scheduler=cfs trial=2 workers=1 elapsed_ms=305 ctx_delta=4924
+launch scheduler=cfs trial=2 workers=2 cpu=0 pid=371276 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w2_cpu0.stderr
+launch scheduler=cfs trial=2 workers=2 cpu=1 pid=371277 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w2_cpu1.stderr
+result scheduler=cfs trial=2 workers=2 elapsed_ms=305 ctx_delta=4676
+launch scheduler=cfs trial=2 workers=4 cpu=0 pid=371283 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu0.stderr
+launch scheduler=cfs trial=2 workers=4 cpu=1 pid=371284 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu1.stderr
+launch scheduler=cfs trial=2 workers=4 cpu=2 pid=371285 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu2.stderr
+launch scheduler=cfs trial=2 workers=4 cpu=3 pid=371286 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t2_w4_cpu3.stderr
+result scheduler=cfs trial=2 workers=4 elapsed_ms=309 ctx_delta=4306
+launch scheduler=cfs trial=3 workers=1 cpu=0 pid=371292 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w1_cpu0.stderr
+result scheduler=cfs trial=3 workers=1 elapsed_ms=306 ctx_delta=3817
+launch scheduler=cfs trial=3 workers=2 cpu=0 pid=371306 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w2_cpu0.stderr
+launch scheduler=cfs trial=3 workers=2 cpu=1 pid=371307 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w2_cpu1.stderr
+result scheduler=cfs trial=3 workers=2 elapsed_ms=305 ctx_delta=4610
+launch scheduler=cfs trial=3 workers=4 cpu=0 pid=371313 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu0.stderr
+launch scheduler=cfs trial=3 workers=4 cpu=1 pid=371314 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu1.stderr
+launch scheduler=cfs trial=3 workers=4 cpu=2 pid=371315 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu2.stderr
+launch scheduler=cfs trial=3 workers=4 cpu=3 pid=371316 stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_t3_w4_cpu3.stderr
+result scheduler=cfs trial=3 workers=4 elapsed_ms=308 ctx_delta=4301
+complete

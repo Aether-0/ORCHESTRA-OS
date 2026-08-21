@@ -1,0 +1,15 @@
+=== repo ===
+/home/sharda/Downloads/ORCHESTRA-OS-main
+/home/sharda/Downloads/ORCHESTRA-OS-main
+07c787c4eeac01a2f9d60916577806d00863b15f
+## main...origin/main
+?? artifacts/real-world/20260821-084900-kali-kernel-bench/
+?? kernel/sched_ext/bridge/orchestra_bridge
+?? kernel/sched_ext/bridge/orchestra_loader
+?? kernel/sched_ext/scripts/fixed_work
+main
+=== source hashes ===
+75fad1758f76f398290ce62db0756c321ff7e68a31ae529f1b040c1b4c2f8bf2  kernel/sched_ext/orchestra_scx_stage7.bpf.c
+f7bd4e829511cb59f800410dd65214d449beeb67263c1daad09e145af760b616  kernel/sched_ext/bridge/orchestra_bridge.c
+5f73d15dfcc0c607a751d4814dd753529748cb8f1b54725448e58b8f8003ef48  kernel/sched_ext/bridge/orchestra_loader.c
+b3758483483a4fd78223654b4237473405244b101ca82993c46ae9be983527db  kernel/sched_ext/include/orchestra_abi.h

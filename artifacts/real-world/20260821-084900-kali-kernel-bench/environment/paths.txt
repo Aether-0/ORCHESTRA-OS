@@ -1,0 +1,2 @@
+CAMPAIGN=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench
+REPO=/home/sharda/Downloads/ORCHESTRA-OS-main

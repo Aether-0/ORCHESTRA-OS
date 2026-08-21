@@ -1,0 +1,14 @@
+3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76  /sys/kernel/btf/vmlinux
+75fad1758f76f398290ce62db0756c321ff7e68a31ae529f1b040c1b4c2f8bf2  kernel/sched_ext/orchestra_scx_stage7.bpf.c
+f7bd4e829511cb59f800410dd65214d449beeb67263c1daad09e145af760b616  kernel/sched_ext/bridge/orchestra_bridge.c
+5f73d15dfcc0c607a751d4814dd753529748cb8f1b54725448e58b8f8003ef48  kernel/sched_ext/bridge/orchestra_loader.c
+b3758483483a4fd78223654b4237473405244b101ca82993c46ae9be983527db  kernel/sched_ext/include/orchestra_abi.h
+6da004fe522fa25c98e8e9463179f56603c3d0e8c19fbf9436b6c420aa09d231  kernel/sched_ext/include/orchestra_bridge_v1.h
+96b223c8eaa9763f6caa0998188cf632aa0133c096bf526edc0043db3e675a51  artifacts/real-world/20260821-111936-kali-continuation/build/include/vmlinux.h
+5d9caadd45328f5760f6cbbae959b8b0f020ef54513cc669853825525c56f745  artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge
+f420363ea67f4301d69ca37189ee613bbf3d6b340889846d204d96558cec6e5d  artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader
+a521006feb29fff5203e440a47dc8708b0c73c65b326304db59bbc7d31060504  artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work
+artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o: cannot open `artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o' (No such file or directory)
+artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge:           ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=411f07d36a703d2ae7d3ff5c7a175a24598b6b25, for GNU/Linux 3.2.0, not stripped
+artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader:           ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=3f99c7bf15744bb55f81e97742f233b26da8493c, for GNU/Linux 3.2.0, not stripped
+artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work:                 ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=be8cd96c1ee93115efea96365e4c299c542fab56, for GNU/Linux 3.2.0, not stripped

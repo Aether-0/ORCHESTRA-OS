@@ -1,0 +1,101 @@
+{
+  "campaign_id": "20260821-111936-kali-continuation",
+  "date": "2026-08-21",
+  "host": "kali",
+  "repository_commit": "82f69cbac2d9bf4ffa1372550f73d9c2c084b8f9",
+  "kernel": "7.0.12+kali-amd64",
+  "overall_status": "PARTIALLY_VALIDATED",
+  "claim_class": "KERNEL_PROTOTYPED",
+  "final_sched_ext_state": "disabled",
+  "checklist": {
+    "total": 519,
+    "pass": 94,
+    "fail": 0,
+    "blocked": 386,
+    "inconclusive": 39,
+    "na": 0,
+    "blocked_not_implemented": 208
+  },
+  "machine": {
+    "model": "HP Pro Tower 280 G9 E PCI Desktop PC",
+    "cpu": "13th Gen Intel Core i7-13700",
+    "logical_cpus": 24,
+    "physical_cores": 16,
+    "sockets": 1,
+    "numa_nodes": 1,
+    "ram_gib": 15,
+    "swap_gib": 7.5,
+    "root_free_gib": 25,
+    "tmp_free_gib": 7.7,
+    "temperature_c_final_package": 48
+  },
+  "build": {
+    "make_clean": "PASS",
+    "make": "PASS",
+    "make_check": "PASS",
+    "make_test": "PASS",
+    "named_unit_tests": "30/30",
+    "bpf_compile_retry": "PASS",
+    "bridge_loader_workload_compile": "PASS",
+    "bpf_object_sha256": "3b5d8462beff4384a54ce8cb4528eb5e461694fe4a4660942050cf3a55985b79",
+    "bridge_sha256": "5d9caadd45328f5760f6cbbae959b8b0f020ef54513cc669853825525c56f745",
+    "loader_sha256": "f420363ea67f4301d69ca37189ee613bbf3d6b340889846d204d96558cec6e5d",
+    "workload_sha256": "a521006feb29fff5203e440a47dc8708b0c73c65b326304db59bbc7d31060504"
+  },
+  "runtime": {
+    "load_unload_cycles": 3,
+    "lifecycle_status": "PASS",
+    "positive_ownership_status": "PASS",
+    "canonical_actions": {
+      "RUN": "PASS",
+      "YIELD": "PASS",
+      "MIGRATE": "PASS",
+      "THROTTLE": "PASS_WITH_FORCED_VALID_LOW_BUDGET",
+      "SLEEP": "INCONCLUSIVE"
+    },
+    "invalid_pid_cpu_cli_rejection": "PASS",
+    "kernel_error_observed": false
+  },
+  "comparison": {
+    "cfs_rows": 9,
+    "orchestra_rows": 9,
+    "orchestra_rows_passing_all_target_ownership": 2,
+    "orchestra_rows_failing_ownership_gate": 7,
+    "cfs_mean_elapsed_ms": {
+      "workers_1": 308.0,
+      "workers_2": 305.67,
+      "workers_4": 307.33
+    },
+    "orchestra_elapsed_ms_retained_but_not_interpreted_as_performance": {
+      "workers_1_mean": 4715.33,
+      "workers_2_mean": 7869.67,
+      "workers_4_mean": 11839.0
+    },
+    "status": "INCONCLUSIVE_OWNERSHIP_NOT_PROVEN"
+  },
+  "blocked_items": [
+    "stress suite fixed memory phase unsafe on this host",
+    "scx_simple missing",
+    "perf missing",
+    "benchmark scripts hard-code /home/vagrant and contain broad BPF cleanup",
+    "network peer/test infrastructure unavailable",
+    "one NUMA node prevents cross-node validation",
+    "kernel architecture layers not implemented",
+    "kernel install/boot/reboot outside campaign safety authority"
+  ],
+  "findings": {
+    "critical": 0,
+    "high": 2,
+    "medium": 4,
+    "low": 1
+  },
+  "evidence": {
+    "commands": "COMMANDS.log",
+    "checklist": "CHECKLIST_STATUS.csv",
+    "test_results": "TEST_RESULTS.csv",
+    "findings": "FINDINGS.md",
+    "implementation_matrix": "IMPLEMENTATION_MATRIX.md",
+    "final_health": "recovery/final_health.stdout"
+  },
+  "implementation_modified": false
+}

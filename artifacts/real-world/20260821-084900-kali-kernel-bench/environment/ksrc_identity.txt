@@ -1,0 +1,24 @@
+KSRC=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0
+common.bpf.h=OK
+tools/lib/bpf_helpers.h=MISSING
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 7
+PATCHLEVEL = 0
+SUBLEVEL = 12
+EXTRAVERSION =
+NAME = Baby Opossum Posse
+
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+---
+bpf_arena_common.bpf.h
+bpf_arena_common.h
+common.bpf.h
+common.h
+compat.bpf.h
+compat.h
+enum_defs.autogen.h
+enums.autogen.bpf.h
+enums.autogen.h
+enums.bpf.h

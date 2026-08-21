@@ -1,0 +1,100 @@
+timestamp=2026-08-21T11:32:34+01:00
+sched_ext=enabled
+scheduler_status
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=10170213747543 generation=0 policy_generation=0 controller=NORMAL lease=0ns
+telemetry accepted=0 dispatched=0 running=157827 fallback=157585 migrate_target=0 migrate_other=0 timer_ticks=92389 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=23430 run_disp=157585 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+launch scheduler=orchestra trial=1 workers=1 cpu=0 pid=371711 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w1_cpu0.stderr
+admitted exact TID identity=371711:371711:10193532191697; full-switch mode does not change its Linux policy
+published generation=1 identity=371711:371711:10193532191697 action=RUN
+target trial=1 workers=1 pid=371711 line=task identity=371711:371711:10193532191697 generation=1 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=1 dispatched=1 running=1 effective=1 fallback=0 errors=0
+result scheduler=orchestra trial=1 workers=1 elapsed_ms=3625 ctx_delta=51282 owned=yes accepted=1 dispatched=1 effective=1
+launch scheduler=orchestra trial=1 workers=2 cpu=0 pid=371781 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w2_cpu0.stderr
+launch scheduler=orchestra trial=1 workers=2 cpu=1 pid=371782 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w2_cpu1.stderr
+admitted exact TID identity=371781:371781:10197164228006; full-switch mode does not change its Linux policy
+published generation=2 identity=371781:371781:10197164228006 action=RUN
+admitted exact TID identity=371782:371782:10197164466699; full-switch mode does not change its Linux policy
+published generation=3 identity=371782:371782:10197164466699 action=RUN
+target trial=1 workers=2 pid=371781 line=task identity=371781:371781:10197164228006 generation=2 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=1 running=0 effective=0 fallback=0 errors=0
+target trial=1 workers=2 pid=371782 missing_status_line
+result scheduler=orchestra trial=1 workers=2 elapsed_ms=4768 ctx_delta=70006 owned=no accepted=1 dispatched=1 effective=0
+launch scheduler=orchestra trial=1 workers=4 cpu=0 pid=371855 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu0.stderr
+launch scheduler=orchestra trial=1 workers=4 cpu=1 pid=371856 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu1.stderr
+launch scheduler=orchestra trial=1 workers=4 cpu=2 pid=371857 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu2.stderr
+launch scheduler=orchestra trial=1 workers=4 cpu=3 pid=371858 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t1_w4_cpu3.stderr
+admitted exact TID identity=371855:371855:10201938232884; full-switch mode does not change its Linux policy
+published generation=4 identity=371855:371855:10201938232884 action=RUN
+admitted exact TID identity=371856:371856:10201938500781; full-switch mode does not change its Linux policy
+published generation=5 identity=371856:371856:10201938500781 action=RUN
+admitted exact TID identity=371857:371857:10201938709369; full-switch mode does not change its Linux policy
+published generation=6 identity=371857:371857:10201938709369 action=RUN
+admitted exact TID identity=371858:371858:10201938924469; full-switch mode does not change its Linux policy
+published generation=7 identity=371858:371858:10201938924469 action=RUN
+target trial=1 workers=4 pid=371855 line=task identity=371855:371855:10201938232884 generation=4 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=4 dispatched=4 running=3 effective=3 fallback=0 errors=0
+target trial=1 workers=4 pid=371856 missing_status_line
+target trial=1 workers=4 pid=371857 line=task identity=371857:371857:10201938709369 generation=6 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=1 running=0 effective=0 fallback=0 errors=0
+target trial=1 workers=4 pid=371858 missing_status_line
+result scheduler=orchestra trial=1 workers=4 elapsed_ms=6391 ctx_delta=96477 owned=no accepted=2 dispatched=2 effective=1
+launch scheduler=orchestra trial=2 workers=1 cpu=0 pid=371963 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w1_cpu0.stderr
+admitted exact TID identity=371963:371963:10208337803519; full-switch mode does not change its Linux policy
+published generation=8 identity=371963:371963:10208337803519 action=RUN
+target trial=2 workers=1 pid=371963 line=task identity=371963:371963:10208337803519 generation=8 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=1 dispatched=1 running=1 effective=1 fallback=0 errors=0
+result scheduler=orchestra trial=2 workers=1 elapsed_ms=3536 ctx_delta=48883 owned=yes accepted=1 dispatched=1 effective=1
+launch scheduler=orchestra trial=2 workers=2 cpu=0 pid=372036 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w2_cpu0.stderr
+launch scheduler=orchestra trial=2 workers=2 cpu=1 pid=372037 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w2_cpu1.stderr
+admitted exact TID identity=372036:372036:10211876812733; full-switch mode does not change its Linux policy
+published generation=9 identity=372036:372036:10211876812733 action=RUN
+admitted exact TID identity=372037:372037:10211876940534; full-switch mode does not change its Linux policy
+published generation=10 identity=372037:372037:10211876940534 action=RUN
+target trial=2 workers=2 pid=372036 line=task identity=372036:372036:10211876812733 generation=9 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=1 running=0 effective=0 fallback=0 errors=0
+target trial=2 workers=2 pid=372037 missing_status_line
+result scheduler=orchestra trial=2 workers=2 elapsed_ms=2126 ctx_delta=37377 owned=no accepted=1 dispatched=1 effective=0
+launch scheduler=orchestra trial=2 workers=4 cpu=0 pid=372086 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu0.stderr
+launch scheduler=orchestra trial=2 workers=4 cpu=1 pid=372087 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu1.stderr
+launch scheduler=orchestra trial=2 workers=4 cpu=2 pid=372088 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu2.stderr
+launch scheduler=orchestra trial=2 workers=4 cpu=3 pid=372089 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t2_w4_cpu3.stderr
+admitted exact TID identity=372086:372086:10214010246004; full-switch mode does not change its Linux policy
+published generation=11 identity=372086:372086:10214010246004 action=RUN
+admitted exact TID identity=372087:372087:10214010581803; full-switch mode does not change its Linux policy
+published generation=12 identity=372087:372087:10214010581803 action=RUN
+admitted exact TID identity=372088:372088:10214010835732; full-switch mode does not change its Linux policy
+published generation=13 identity=372088:372088:10214010835732 action=RUN
+admitted exact TID identity=372089:372089:10214011106483; full-switch mode does not change its Linux policy
+published generation=14 identity=372089:372089:10214011106483 action=RUN
+target trial=2 workers=4 pid=372086 line=task identity=372086:372086:10214010246004 generation=11 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=3 dispatched=3 running=3 effective=3 fallback=0 errors=0
+target trial=2 workers=4 pid=372087 line=task identity=372087:372087:10214010581803 generation=12 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=1 running=0 effective=0 fallback=0 errors=0
+target trial=2 workers=4 pid=372088 line=task identity=372088:372088:10214010835732 generation=13 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=-1 accepted=1 dispatched=1 running=0 effective=0 fallback=0 errors=0
+target trial=2 workers=4 pid=372089 missing_status_line
+result scheduler=orchestra trial=2 workers=4 elapsed_ms=10360 ctx_delta=63560 owned=no accepted=3 dispatched=3 effective=1
+launch scheduler=orchestra trial=3 workers=1 cpu=0 pid=372253 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w1_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w1_cpu0.stderr
+admitted exact TID identity=372253:372253:10224374362301; full-switch mode does not change its Linux policy
+published generation=15 identity=372253:372253:10224374362301 action=RUN
+target trial=3 workers=1 pid=372253 missing_status_line
+result scheduler=orchestra trial=3 workers=1 elapsed_ms=6985 ctx_delta=15220 owned=no accepted=0 dispatched=0 effective=0
+launch scheduler=orchestra trial=3 workers=2 cpu=0 pid=372367 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w2_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w2_cpu0.stderr
+launch scheduler=orchestra trial=3 workers=2 cpu=1 pid=372368 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w2_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w2_cpu1.stderr
+admitted exact TID identity=372367:372367:10231366865129; full-switch mode does not change its Linux policy
+published generation=16 identity=372367:372367:10231366865129 action=RUN
+admitted exact TID identity=372368:372368:10231367039217; full-switch mode does not change its Linux policy
+published generation=17 identity=372368:372368:10231367039217 action=RUN
+target trial=3 workers=2 pid=372367 line=task identity=372367:372367:10231366865129 generation=16 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=2 dispatched=2 running=2 effective=2 fallback=0 errors=0
+target trial=3 workers=2 pid=372368 missing_status_line
+result scheduler=orchestra trial=3 workers=2 elapsed_ms=16715 ctx_delta=41722 owned=no accepted=1 dispatched=1 effective=1
+launch scheduler=orchestra trial=3 workers=4 cpu=0 pid=372664 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu0.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu0.stderr
+launch scheduler=orchestra trial=3 workers=4 cpu=1 pid=372665 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu1.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu1.stderr
+launch scheduler=orchestra trial=3 workers=4 cpu=2 pid=372666 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu2.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu2.stderr
+launch scheduler=orchestra trial=3 workers=4 cpu=3 pid=372667 stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu3.stdout stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_t3_w4_cpu3.stderr
+admitted exact TID identity=372664:372664:10248084050838; full-switch mode does not change its Linux policy
+published generation=18 identity=372664:372664:10248084050838 action=RUN
+admitted exact TID identity=372665:372665:10248084159111; full-switch mode does not change its Linux policy
+published generation=19 identity=372665:372665:10248084159111 action=RUN
+admitted exact TID identity=372666:372666:10248084269962; full-switch mode does not change its Linux policy
+published generation=20 identity=372666:372666:10248084269962 action=RUN
+admitted exact TID identity=372667:372667:10248084390624; full-switch mode does not change its Linux policy
+published generation=21 identity=372667:372667:10248084390624 action=RUN
+target trial=3 workers=4 pid=372664 line=task identity=372664:372664:10248084050838 generation=18 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=3 dispatched=3 running=3 effective=3 fallback=0 errors=0
+target trial=3 workers=4 pid=372665 missing_status_line
+target trial=3 workers=4 pid=372666 missing_status_line
+target trial=3 workers=4 pid=372667 missing_status_line
+result scheduler=orchestra trial=3 workers=4 elapsed_ms=18766 ctx_delta=36837 owned=no accepted=1 dispatched=1 effective=1
+complete

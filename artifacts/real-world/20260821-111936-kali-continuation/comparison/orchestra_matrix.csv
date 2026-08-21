@@ -1,0 +1,10 @@
+scheduler,trial,workers,iterations,elapsed_ms,ctx_before,ctx_after,ctx_delta,pids,owned,accepted_tasks,dispatched_tasks,effective_tasks,notes
+orchestra,1,1,600000000,3625,89261317,89312599,51282,371711;,yes,1,1,1,all_target_tasks_accepted_and_dispatched
+orchestra,1,2,600000000,4768,89312643,89382649,70006,371781;371782;,no,1,1,0,ownership_gate_failed
+orchestra,1,4,600000000,6391,89382689,89479166,96477,371855;371856;371857;371858;,no,2,2,1,ownership_gate_failed
+orchestra,2,1,600000000,3536,89479181,89528064,48883,371963;,yes,1,1,1,all_target_tasks_accepted_and_dispatched
+orchestra,2,2,600000000,2126,89528082,89565459,37377,372036;372037;,no,1,1,0,ownership_gate_failed
+orchestra,2,4,600000000,10360,89565487,89629047,63560,372086;372087;372088;372089;,no,3,3,1,ownership_gate_failed
+orchestra,3,1,600000000,6985,89629066,89644286,15220,372253;,no,0,0,0,ownership_gate_failed
+orchestra,3,2,600000000,16715,89644300,89686022,41722,372367;372368;,no,1,1,1,ownership_gate_failed
+orchestra,3,4,600000000,18766,89686036,89722873,36837,372664;372665;372666;372667;,no,1,1,1,ownership_gate_failed

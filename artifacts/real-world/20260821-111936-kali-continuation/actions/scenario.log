@@ -1,0 +1,5 @@
+action=RUN affinity=0 iterations=600000000 args=
+action=YIELD affinity=0 iterations=600000000 args=
+action=MIGRATE affinity=0,1 iterations=600000000 args=
+action=THROTTLE affinity=0 iterations=300000000 args=
+action=SLEEP affinity=0 iterations=600000000 args=

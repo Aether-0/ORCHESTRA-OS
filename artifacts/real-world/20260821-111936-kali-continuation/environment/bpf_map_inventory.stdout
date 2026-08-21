@@ -1,0 +1,4 @@
+26: hash_of_maps  name cgroup_hash  flags 0x0
+	key 8B  value 4B  max_entries 2048  memlock 164928B
+27: hash  flags 0x0
+	key 4B  value 1B  max_entries 8  memlock 3264B

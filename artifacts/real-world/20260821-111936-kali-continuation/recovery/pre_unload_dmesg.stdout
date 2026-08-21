@@ -1,0 +1,20 @@
+[Fri Aug 21 08:42:40 2026] rcu: Preemptible hierarchical RCU implementation.
+[Fri Aug 21 08:42:40 2026] rcu: 	RCU restricting CPUs from NR_CPUS=8192 to nr_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] 	Trampoline variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] 	Rude variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] 	Tracing variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[Fri Aug 21 08:42:40 2026] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=24
+[Fri Aug 21 08:42:40 2026] RCU Tasks: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] RCU Tasks Rude: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[Fri Aug 21 08:42:40 2026] rcu: Hierarchical SRCU implementation.
+[Fri Aug 21 08:42:40 2026] rcu: 	Max phase no-delay instances is 1000.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:57:54 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:59:38 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 10:00:29 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 11:22:40 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled

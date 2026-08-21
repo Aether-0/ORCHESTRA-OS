@@ -1,0 +1,345 @@
+2026-08-21T11:35:51+01:00
+kali
+Linux kali 7.0.12+kali-amd64 #1 SMP PREEMPT_DYNAMIC Kali 7.0.12-2kali1 (2026-06-18) x86_64 GNU/Linux
+disabled
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p6   46G   19G   25G  44% /
+tmpfs           7.7G   17M  7.7G   1% /tmp
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       2.9Gi        11Gi       446Mi       1.7Gi        12Gi
+Swap:          7.5Gi       1.2Gi       6.2Gi
+hp-isa-0000
+Adapter: ISA adapter
+pwm1:             N/A
+
+acpitz-acpi-0
+Adapter: ACPI interface
+temp1:        +49.0°C  
+temp2:        +27.8°C  
+
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +48.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 0:        +45.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 4:        +46.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 8:        +47.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 12:       +45.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 16:       +46.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 20:       +44.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 24:       +46.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 28:       +44.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 32:       +48.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 33:       +48.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 34:       +48.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 35:       +48.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 36:       +49.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 37:       +49.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 38:       +49.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 39:       +49.0°C  (high = +80.0°C, crit = +100.0°C)
+
+nvme-pci-e100
+Adapter: PCI adapter
+Composite:    +45.9°C  (low  =  -5.2°C, high = +82.8°C)
+                       (crit = +84.8°C)
+Sensor 1:     +45.9°C  (low  = -273.1°C, high = +65261.8°C)
+
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 5 [mem 0x82102000-0x821027ff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 1 [mem 0x82102800-0x821028ff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e1:00.0: BAR 0 [mem 0x82000000-0x82003fff 64bit]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: PCI bridge to [bus e1]
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4:   bridge window [mem 0x82000000-0x820fffff]
+[Fri Aug 21 08:42:41 2026] pci 10000:e1:00.0: can't override BIOS ASPM; OS doesn't have ASPM control
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: PCI INT A: no GSI
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: PME: Signaling with IRQ 151
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: AER: enabled with IRQ 151
+[Fri Aug 21 08:42:41 2026] vmd 0000:00:0e.0: Bound to PCI domain 10000
+[Fri Aug 21 08:42:41 2026] Key type psk registered
+[Fri Aug 21 08:42:41 2026] SCSI subsystem initialized
+[Fri Aug 21 08:42:41 2026] usb 1-1: new low-speed USB device number 2 using xhci_hcd
+[Fri Aug 21 08:42:41 2026] usb 1-1: New USB device found, idVendor=03f0, idProduct=564a, bcdDevice= 1.08
+[Fri Aug 21 08:42:41 2026] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[Fri Aug 21 08:42:41 2026] usb 1-1: Product: HP 125 Wired Keyboard
+[Fri Aug 21 08:42:41 2026] usb 1-1: Manufacturer: LITEON Technology Corp.
+[Fri Aug 21 08:42:42 2026] hid: raw HID events driver (C) Jiri Kosina
+[Fri Aug 21 08:42:42 2026] nvme nvme0: pci function 10000:e1:00.0
+[Fri Aug 21 08:42:42 2026] pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:42 2026] nvme 10000:e1:00.0: PCI INT A: no GSI
+[Fri Aug 21 08:42:42 2026] libata version 3.00 loaded.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Found alderlake_s/raptorlake_s (device ID a780) integrated display version 12.00 stepping D0
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] VT-d active for gfx access
+[Fri Aug 21 08:42:42 2026] Console: switching to colour dummy device 80x25
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: vgaarb: deactivate vga console
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Using Transparent Hugepages
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=io+mem:owns=io+mem
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Finished loading DMC firmware i915/adls_dmc_ver2_01.bin (v2.1)
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GuC firmware i915/tgl_guc_70.bin version 70.49.4
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: HuC firmware i915/tgl_huc.bin version 7.9.3
+[Fri Aug 21 08:42:42 2026] nvme nvme0: missing or invalid SUBNQN field.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: HuC: authenticated for all workloads
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: submission enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: SLPC enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: RC enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Protected Xe Path (PXP) protected content support initialized
+[Fri Aug 21 08:42:42 2026] usbcore: registered new interface driver usbhid
+[Fri Aug 21 08:42:42 2026] usbhid: USB HID core driver
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+[Fri Aug 21 08:42:42 2026] nvme nvme0: allocated 64 MiB host memory buffer (1 segment).
+[Fri Aug 21 08:42:42 2026] nvme nvme0: 24/0/0 default/read/poll queues
+[Fri Aug 21 08:42:42 2026] usb 1-9: new low-speed USB device number 3 using xhci_hcd
+[Fri Aug 21 08:42:42 2026]  nvme0n1: p1 p2 p3 p4 p5 p6 p7 p8
+[Fri Aug 21 08:42:42 2026] [drm] Initialized i915 1.6.0 for 0000:00:02.0 on minor 0
+[Fri Aug 21 08:42:42 2026] ACPI: video: Video Device [GFX0] (multi-head: yes  rom: no  post: no)
+[Fri Aug 21 08:42:42 2026] input: Video Bus as /devices/pci0000:00/acpi.video_bus.0/input/input3
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/0003:03F0:564A.0001/input/input4
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: PCI INT A: no GSI
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: AHCI vers 0001.0301, 32 command slots, 6 Gbps, SATA mode
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: 4/4 ports implemented (port mask 0xf0)
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: flags: 64bit ncq sntf pm led clo only pio slum part ems deso sadm sds 
+[Fri Aug 21 08:42:42 2026] fbcon: i915drmfb (fb0) is primary device
+[Fri Aug 21 08:42:42 2026] scsi host0: ahci
+[Fri Aug 21 08:42:42 2026] scsi host1: ahci
+[Fri Aug 21 08:42:42 2026] scsi host2: ahci
+[Fri Aug 21 08:42:42 2026] scsi host3: ahci
+[Fri Aug 21 08:42:42 2026] scsi host4: ahci
+[Fri Aug 21 08:42:42 2026] scsi host5: ahci
+[Fri Aug 21 08:42:42 2026] scsi host6: ahci
+[Fri Aug 21 08:42:42 2026] scsi host7: ahci
+[Fri Aug 21 08:42:42 2026] ata1: DUMMY
+[Fri Aug 21 08:42:42 2026] ata2: DUMMY
+[Fri Aug 21 08:42:42 2026] ata3: DUMMY
+[Fri Aug 21 08:42:42 2026] ata4: DUMMY
+[Fri Aug 21 08:42:42 2026] ata5: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102300 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata6: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102380 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata7: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102400 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata8: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102480 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] Console: switching to colour frame buffer device 240x67
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] fb0: i915drmfb frame buffer device
+[Fri Aug 21 08:42:42 2026] usb 1-9: New USB device found, idVendor=03f0, idProduct=584a, bcdDevice= 1.00
+[Fri Aug 21 08:42:42 2026] usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[Fri Aug 21 08:42:42 2026] usb 1-9: Product: HP 125 USB Optical Mouse
+[Fri Aug 21 08:42:42 2026] usb 1-9: Manufacturer: PixArt
+[Fri Aug 21 08:42:42 2026] input: PixArt HP 125 USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9:1.0/0003:03F0:584A.0003/input/input5
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:564A.0001: input,hidraw0: USB HID v1.11 Keyboard [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input0
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input6
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:584A.0003: input,hidraw1: USB HID v1.11 Mouse [PixArt HP 125 USB Optical Mouse] on usb-0000:00:14.0-9/input0
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard System Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input7
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:564A.0002: input,hidraw2: USB HID v1.11 Device [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input1
+[Fri Aug 21 08:42:42 2026] ata6: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata7: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata8: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata5: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] PM: Image not found (code -22)
+[Fri Aug 21 08:42:43 2026] EXT4-fs (nvme0n1p6): orphan cleanup on readonly fs
+[Fri Aug 21 08:42:43 2026] EXT4-fs (nvme0n1p6): mounted filesystem ba748417-bde3-40af-8f54-01947d49ffa8 ro with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:43 2026] Not activating Mandatory Access Control as /sbin/tomoyo-init does not exist.
+[Fri Aug 21 08:42:43 2026] systemd[1]: RTC configured in localtime, applying delta of 60 minutes to system time.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Inserted module 'autofs4'
+[Fri Aug 21 08:42:43 2026] systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 08:42:43 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Hostname set to <kali>.
+[Fri Aug 21 08:42:44 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 08:42:44 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Queued start job for default target graphical.target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice user.slice - User and Session Slice.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-1c29ce44\x2d2c4f\x2d4f4d\x2d832f\x2db4d02a0d5aed.device - /dev/disk/by-uuid/1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-5463983b\x2da228\x2d4805\x2dadae\x2d4dd27af9b33e.device - /dev/disk/by-uuid/5463983b-a228-4805-adae-4dd27af9b33e...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-9012\x2dEB79.device - /dev/disk/by-uuid/9012-EB79...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target imports.target - Image Downloads.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target slices.target - Slice Units.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target stunnel.target - TLS tunnels for network services - per-config-file target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-ask-password.socket - Query the User Interactively for a Password.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-factory-reset.socket - Factory Reset Management.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-mute-console.socket - Console Output Muting Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-varlink.socket - udev Varlink Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-userdbd.socket - User Database Manager Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@configfs.service - Load Kernel Module configfs skipped, unmet condition check ConditionKernelModuleLoaded=!configfs
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@drm.service - Load Kernel Module drm skipped, unmet condition check ConditionKernelModuleLoaded=!drm
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@fuse.service - Load Kernel Module fuse skipped, unmet condition check ConditionKernelModuleLoaded=!fuse
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrosseparator.service - TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrnvdone.service - TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrproduct.service - TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[Fri Aug 21 08:42:44 2026] pstore: Using crash dump compression: deflate
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Collecting audit messages is disabled.
+[Fri Aug 21 08:42:44 2026] lp: driver loaded but no devices found
+[Fri Aug 21 08:42:44 2026] ppdev: user-space parallel port driver
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[Fri Aug 21 08:42:44 2026] pstore: Registered efi_pstore as persistent store backend
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 08:42:44 2026] EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Received client request to flush runtime journal.
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] input: PC Speaker as /devices/platform/pcspkr/input/input8
+[Fri Aug 21 08:42:45 2026] intel_pmc_core INT33A1:00:  initialized
+[Fri Aug 21 08:42:45 2026] mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+[Fri Aug 21 08:42:45 2026] mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+[Fri Aug 21 08:42:45 2026] input: HP WMI hotkeys as /devices/virtual/input/input9
+[Fri Aug 21 08:42:45 2026] RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain package 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+[Fri Aug 21 08:42:45 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+[Fri Aug 21 08:42:45 2026] intel_rapl_msr: PL4 support detected.
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain package
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain core
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain uncore
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 21 08:42:46 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 21 08:42:46 2026] EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:46 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 21 08:42:46 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 21 08:42:46 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 21 08:42:46 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 21 08:42:47 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered udp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 21 08:42:49 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 21 08:43:20 2026] systemd-journald[549]: Time jumped backwards, rotating.
+[Fri Aug 21 09:29:28 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:33 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd[1]: systemd 261.2-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 09:30:34 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 09:30:34 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-journald[549]: Received SIGTERM from PID 1 (systemd).
+[Fri Aug 21 09:30:34 2026] systemd[1]: Stopping systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd[1]: systemd-journald.service: Deactivated successfully.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Stopped systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd-journald[112931]: Collecting audit messages is disabled.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:37 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:38 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:39 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:52 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:53 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] audit: type=1400 audit(1787301055.083:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="/usr/sbin/cups-browsed" pid=115704 comm="apparmor_parser"
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:56 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:59 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:00 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-ge[118577]: segfault at 0 ip 00007f00971e319d sp 00007ffe7aa12ed8 error 6 in libc.so.6[16819d,7f00970a3000+168000] likely on CPU 2 (core 4, socket 0)
+[Fri Aug 21 09:31:04 2026] Code: 00 00 66 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 83 fa 20 72 27 c5 fe 6f 06 48 83 fa 40 0f 87 a9 00 00 00 c5 fe 6f 4c 16 e0 <c5> fe 7f 07 c5 fe 7f 4c 17 e0 c5 f8 77 c3 0f 1f 44 00 00 83 fa 10
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:57:54 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:59:38 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 10:00:29 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 10:14:09 2026] perf: interrupt took too long (2516 > 2500), lowering kernel.perf_event_max_sample_rate to 79250
+[Fri Aug 21 10:28:12 2026] perf: interrupt took too long (3259 > 3145), lowering kernel.perf_event_max_sample_rate to 61250
+[Fri Aug 21 11:08:26 2026] perf: interrupt took too long (4102 > 4073), lowering kernel.perf_event_max_sample_rate to 48750
+[Fri Aug 21 11:22:40 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 11:30:42 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 11:30:42 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 11:30:42 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 11:30:42 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 11:30:43 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 11:32:10 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 11:35:16 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)

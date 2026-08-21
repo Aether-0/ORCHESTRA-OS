@@ -1,0 +1,23 @@
+gcc                    /usr/bin/gcc
+clang                  /usr/bin/clang
+llvm-config            MISSING
+make                   /usr/bin/make
+bpftool                /usr/sbin/bpftool
+python3                /usr/bin/python3
+pkg-config             MISSING
+stress                 /usr/bin/stress
+numactl                /usr/bin/numactl
+sensors                /usr/bin/sensors
+perf                   MISSING
+cpupower               /usr/bin/cpupower
+lstopo-no-graphics     /usr/bin/lstopo-no-graphics
+scx_simple             MISSING
+---
+gcc (Debian 15.3.0-2) 15.3.0
+Debian clang version 21.1.8 (10)
+bpftool v7.7.0
+using libbpf v1.7
+features:
+Python 3.13.14
+GNU Make 4.4.1
+bash: line 1: pkg-config: command not found

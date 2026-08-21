@@ -1,0 +1,2 @@
+sha256sum: artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o: No such file or directory
+readelf: Error: 'artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o': No such file

@@ -1,0 +1,15 @@
+2026-08-21T11:22:40+01:00
+sched_ext_state=enabled
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=9599949570355 generation=0 policy_generation=0 controller=NORMAL lease=0ns
+telemetry accepted=0 dispatched=0 running=480 fallback=455 migrate_target=0 migrate_other=0 timer_ticks=330 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=99 run_disp=455 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+orchestra_pins
+norchestra_schednorch_defer_tmrnorch_telemetrynorch_task_telnorch_task_statenorch_identitynorch_directivesnorch_controln
+orchestra_maps
+68: array  name orch_control  flags 0x0
+69: hash  name orch_directives  flags 0x0
+70: hash  name orch_identity  flags 0x0
+71: hash  name orch_task_state  flags 0x0
+72: hash  name orch_task_tel  flags 0x0
+73: array  name orch_telemetry  flags 0x0
+74: array  name orch_defer_tmr  flags 0x0

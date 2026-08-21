@@ -1,0 +1,9 @@
+-rw-r--r-- 1 root root   289779 Sep 24  2025 /boot/config-6.16.8+kali-amd64
+-rw-r--r-- 1 root root   297482 Jun 18 10:48 /boot/config-7.0.12+kali-amd64
+-rw-r--r-- 1 root root 13165056 Sep 24  2025 /boot/vmlinuz-6.16.8+kali-amd64
+-rw-r--r-- 1 root root 14070272 Jun 18 10:48 /boot/vmlinuz-7.0.12+kali-amd64
+/usr/src/linux-headers-7.0.12+kali-amd64
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p6   46G   19G   25G  44% /
+/dev/nvme0n1p8   43G  2.3G   38G   6% /home
+tmpfs           7.7G   17M  7.7G   1% /tmp

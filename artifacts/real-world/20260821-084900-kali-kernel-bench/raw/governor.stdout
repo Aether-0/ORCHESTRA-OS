@@ -1,0 +1,16 @@
+powersave
+analyzing CPU 8:
+  driver: intel_pstate
+  CPUs which run at the same hardware frequency: 8
+  CPUs which need to have their frequency coordinated by software: 8
+  energy performance preference: balance_performance
+  hardware limits: 800 MHz - 5.20 GHz
+  available cpufreq governors: performance powersave
+  current policy: frequency should be within 800 MHz and 5.20 GHz.
+                  The governor "powersave" may decide which speed to use
+                  within this range.
+  current CPU frequency: Unable to call hardware
+  current CPU frequency: 800 MHz (asserted by call to kernel)
+  boost state support:
+    Supported: yes
+    Active: yes

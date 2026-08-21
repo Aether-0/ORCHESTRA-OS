@@ -1,0 +1,2611 @@
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=git rev-parse --show-toplevel
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_state.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=git rev-parse HEAD
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_identity.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_identity.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=git status --short
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/repo_status.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=gcc --version
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/compiler_version.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/compiler_version.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=clang --version
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/clang_version.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/clang_version.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=bpftool version
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/bpftool_version.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/bpftool_version.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=make clean
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/make_clean.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/make_clean.stderr
+
+timestamp=2026-08-21T11:20:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=make
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/make_all.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/make_all.stderr
+
+timestamp=2026-08-21T11:20:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=make check
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/make_check.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/make_check.stderr
+
+timestamp=2026-08-21T11:20:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=make test
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/raw/make_test.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/raw/make_test.stderr
+
+timestamp=2026-08-21T11:21:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=date -Iseconds; hostnamectl; uname -a; uname -r; cat /etc/os-release; lscpu; nproc; free -h; lsblk; df -h; cat /proc/cmdline; numactl --hardware; lstopo-no-graphics; sensors; cpupower frequency-info; ip addr; ip route
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/host_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/host_inventory.stderr
+
+timestamp=2026-08-21T11:21:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n dmesg --ctime | tail -300; journalctl -k -b --no-pager | tail -300
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/host_health_pre.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/host_health_pre.stderr
+
+timestamp=2026-08-21T11:21:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n -v
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/sudo_capability.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/sudo_capability.stderr
+
+timestamp=2026-08-21T11:21:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cat /sys/kernel/sched_ext/state
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/sched_ext_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/sched_ext_state.stderr
+
+timestamp=2026-08-21T11:21:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=bash kernel/sched_ext/scripts/check_kernel_config.sh
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/kernel_config.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/kernel_config.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=bash benchmarks/real-machine/sanity_check.sh
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/sanity_check.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/sanity_check.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool prog list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_program_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_program_inventory.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_map_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_map_inventory.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool link list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_link_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/bpf_link_inventory.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=find /sys/fs/bpf -maxdepth 2 -print 2>/dev/null
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/bpffs_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/bpffs_inventory.stderr
+
+timestamp=2026-08-21T11:21:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sha256sum /sys/kernel/btf/vmlinux
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/environment/running_btf_hash.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/environment/running_btf_hash.stderr
+
+timestamp=2026-08-21T11:21:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool btf dump file /sys/kernel/btf/vmlinux format c > artifacts/real-world/20260821-111936-kali-continuation/build/include/vmlinux.h; sha256sum artifacts/real-world/20260821-111936-kali-continuation/build/include/vmlinux.h; wc -c artifacts/real-world/20260821-111936-kali-continuation/build/include/vmlinux.h
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/generate_vmlinux.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/generate_vmlinux.stderr
+
+timestamp=2026-08-21T11:21:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=KSRC=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0; clang -O2 -target bpf -g -nostdinc -D__BPF__ -I artifacts/real-world/20260821-111936-kali-continuation/build/include -I kernel/sched_ext/include -I /tools/lib -I /tools/include -I /tools/bpf/bpftool/libbpf -I /include -I /include/uapi -I /arch/x86/include -I /tools/sched_ext/include -I /usr/include -I /usr/include/bpf -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member -c kernel/sched_ext/orchestra_scx_stage7.bpf.c -o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/bpf_compile.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/bpf_compile.stderr
+
+timestamp=2026-08-21T11:21:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cc -O2 -Wall -Wextra -Werror kernel/sched_ext/scripts/fixed_work.c -o artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work_compile.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work_compile.stderr
+
+timestamp=2026-08-21T11:21:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cc -O2 -Wall -Wextra -Werror -I kernel/sched_ext/include kernel/sched_ext/bridge/orchestra_bridge.c -o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge -lbpf -lelf -lz
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/bridge_compile.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/bridge_compile.stderr
+
+timestamp=2026-08-21T11:21:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cc -O2 -Wall -Wextra -Werror -I kernel/sched_ext/include kernel/sched_ext/bridge/orchestra_loader.c -o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader -lbpf -lelf -lz
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/loader_compile.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/loader_compile.stderr
+
+timestamp=2026-08-21T11:21:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sha256sum /sys/kernel/btf/vmlinux kernel/sched_ext/orchestra_scx_stage7.bpf.c kernel/sched_ext/bridge/orchestra_bridge.c kernel/sched_ext/bridge/orchestra_loader.c kernel/sched_ext/include/orchestra_abi.h kernel/sched_ext/include/orchestra_bridge_v1.h artifacts/real-world/20260821-111936-kali-continuation/build/include/vmlinux.h artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work; file artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work; readelf -SW artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o; bpftool btf dump file /sys/kernel/btf/vmlinux format c >/dev/null
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/artifact_static_validation.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/artifact_static_validation.stderr
+
+timestamp=2026-08-21T11:22:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=clang -O2 -target bpf -g -nostdinc -D__BPF__ -I artifacts/real-world/20260821-111936-kali-continuation/build/include -I kernel/sched_ext/include -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/lib -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/include -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/bpf/bpftool/libbpf -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/include -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/include/uapi -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/arch/x86/include -I /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/sched_ext/include -I /usr/include -I /usr/include/bpf -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member -c kernel/sched_ext/orchestra_scx_stage7.bpf.c -o artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/build/bpf_compile_retry.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/build/bpf_compile_retry.stderr
+
+timestamp=2026-08-21T11:22:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ls -l /boot/vmlinuz* /boot/config-* 2>&1; test -e /lib/modules/7.0.12+kali-amd64/build && readlink -f /lib/modules/7.0.12+kali-amd64/build || true; df -h / /home /tmp
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/safety_fallbacks.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/safety_fallbacks.stderr
+
+timestamp=2026-08-21T11:22:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=date -Iseconds; cat /sys/kernel/sched_ext/state; find /sys/fs/bpf -maxdepth 2 -print 2>/dev/null; sudo -n bpftool prog list; sudo -n bpftool map list; sudo -n bpftool link list; sudo -n dmesg --ctime | tail -120
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/pre_load_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/pre_load_state.stderr
+
+timestamp=2026-08-21T11:22:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=timeout --signal=TERM --kill-after=5s 30s sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --load /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/scheduler_load_attempt1.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/scheduler_load_attempt1.stderr
+
+timestamp=2026-08-21T11:22:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=date -Iseconds; echo sched_ext_state=enabled; sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status; echo orchestra_pins; find /sys/fs/bpf/orchestra -maxdepth 2 -printf %Pn 2>/dev/null | sort; echo orchestra_maps; sudo -n bpftool map list | rg orch_
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/scheduler_post_load1.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/sched_ext/scheduler_post_load1.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_state_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_state_before.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 2000000000 &
+return_code=0
+pid=364574
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_fixed_work.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_fixed_work.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 364574
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_ps_before.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 364574
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_opt_in.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action RUN --target-pid 364574
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_publish_run.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_publish_run.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_immediate.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_immediate.stderr
+
+timestamp=2026-08-21T11:23:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_map_immediate.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_map_immediate.stderr
+
+timestamp=2026-08-21T11:23:46+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_after_1s.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_after_1s.stderr
+
+timestamp=2026-08-21T11:23:46+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 364574
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_ps_after_1s.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_ps_after_1s.stderr
+
+timestamp=2026-08-21T11:23:47+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_after_2s.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_after_2s.stderr
+
+timestamp=2026-08-21T11:23:47+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_map_after_2s.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_map_after_2s.stderr
+
+timestamp=2026-08-21T11:23:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_status_post.stderr
+
+timestamp=2026-08-21T11:23:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_global_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/workload/ownership_global_telemetry_post.stderr
+
+timestamp=2026-08-21T11:25:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=365545
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action RUN --target-pid 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stderr
+
+timestamp=2026-08-21T11:25:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365545
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=365618
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action YIELD --target-pid 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stderr
+
+timestamp=2026-08-21T11:25:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stderr
+
+timestamp=2026-08-21T11:25:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stderr
+
+timestamp=2026-08-21T11:25:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stderr
+
+timestamp=2026-08-21T11:25:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365618
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0,1 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=365682
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365682
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 365682
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action MIGRATE --target-pid 365682 --target-cpu 1
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stderr
+
+timestamp=2026-08-21T11:25:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365682
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stderr
+
+timestamp=2026-08-21T11:25:20+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stderr
+
+timestamp=2026-08-21T11:25:20+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stderr
+
+timestamp=2026-08-21T11:25:20+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365682
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365682
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 300000000 &
+return_code=0
+pid=365747
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365747
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 365747
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action THROTTLE --target-pid 365747 --slice-ns 5000000 --throttle-period-ns 1000000000 --throttle-budget-ns 200000000
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365747
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stderr
+
+timestamp=2026-08-21T11:25:21+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365747
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365747
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stderr
+
+timestamp=2026-08-21T11:25:22+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=365812
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_worker.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_before.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_opt_in.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action SLEEP --target-pid 365812 --not-before-ns 9764431541741
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_publish.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t0.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t0.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t0.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t05.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t05.stderr
+
+timestamp=2026-08-21T11:25:23+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t05.stderr
+
+timestamp=2026-08-21T11:25:24+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t15.stderr
+
+timestamp=2026-08-21T11:25:24+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t15.stderr
+
+timestamp=2026-08-21T11:25:24+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t15.stderr
+
+timestamp=2026-08-21T11:25:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_t30.stderr
+
+timestamp=2026-08-21T11:25:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_map_t30.stderr
+
+timestamp=2026-08-21T11:25:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 365812
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_ps_t30.stderr
+
+timestamp=2026-08-21T11:25:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_status_post.stderr
+
+timestamp=2026-08-21T11:25:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/${action}_telemetry_post.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=366545
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_worker.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_before.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_opt_in.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action RUN --target-pid 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_publish.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t0.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t0.stderr
+
+timestamp=2026-08-21T11:26:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t0.stderr
+
+timestamp=2026-08-21T11:26:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t05.stderr
+
+timestamp=2026-08-21T11:26:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t05.stderr
+
+timestamp=2026-08-21T11:26:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t05.stderr
+
+timestamp=2026-08-21T11:26:31+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_t15.stderr
+
+timestamp=2026-08-21T11:26:31+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_map_t15.stderr
+
+timestamp=2026-08-21T11:26:31+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366545
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_ps_t15.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_status_post.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/RUN_telemetry_post.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=366656
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_worker.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_before.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_opt_in.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action YIELD --target-pid 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_publish.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t0.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t0.stderr
+
+timestamp=2026-08-21T11:26:32+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t0.stderr
+
+timestamp=2026-08-21T11:26:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t05.stderr
+
+timestamp=2026-08-21T11:26:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t05.stderr
+
+timestamp=2026-08-21T11:26:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t05.stderr
+
+timestamp=2026-08-21T11:26:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_t15.stderr
+
+timestamp=2026-08-21T11:26:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_map_t15.stderr
+
+timestamp=2026-08-21T11:26:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366656
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_ps_t15.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_status_post.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/YIELD_telemetry_post.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0,1 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=366758
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_worker.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366758
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_before.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 366758
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_opt_in.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action MIGRATE --target-pid 366758 --target-cpu 1
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_publish.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t0.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t0.stderr
+
+timestamp=2026-08-21T11:26:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366758
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t0.stderr
+
+timestamp=2026-08-21T11:26:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t05.stderr
+
+timestamp=2026-08-21T11:26:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t05.stderr
+
+timestamp=2026-08-21T11:26:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366758
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t05.stderr
+
+timestamp=2026-08-21T11:26:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_t15.stderr
+
+timestamp=2026-08-21T11:26:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_map_t15.stderr
+
+timestamp=2026-08-21T11:26:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366758
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_ps_t15.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_status_post.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/MIGRATE_telemetry_post.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 300000000 &
+return_code=0
+pid=366852
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_worker.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366852
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_before.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 366852
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_opt_in.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action THROTTLE --target-pid 366852 --slice-ns 5000000 --throttle-period-ns 1000000000 --throttle-budget-ns 200000000
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_publish.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t0.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t0.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366852
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t0.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t05.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t05.stderr
+
+timestamp=2026-08-21T11:26:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366852
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t05.stderr
+
+timestamp=2026-08-21T11:26:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_t15.stderr
+
+timestamp=2026-08-21T11:26:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_map_t15.stderr
+
+timestamp=2026-08-21T11:26:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366852
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_ps_t15.stderr
+
+timestamp=2026-08-21T11:26:41+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_status_post.stderr
+
+timestamp=2026-08-21T11:26:41+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_telemetry_post.stderr
+
+timestamp=2026-08-21T11:26:41+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=366947
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_worker.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_before.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_opt_in.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action SLEEP --target-pid 366947 --not-before-ns 9843489702114
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_publish.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t0.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t0.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t0.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t0.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t05.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t05.stderr
+
+timestamp=2026-08-21T11:26:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t05.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t05.stderr
+
+timestamp=2026-08-21T11:26:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t15.stderr
+
+timestamp=2026-08-21T11:26:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t15.stderr
+
+timestamp=2026-08-21T11:26:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t15.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t15.stderr
+
+timestamp=2026-08-21T11:26:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_t30.stderr
+
+timestamp=2026-08-21T11:26:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_map_t30.stderr
+
+timestamp=2026-08-21T11:26:45+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 366947
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t30.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_ps_t30.stderr
+
+timestamp=2026-08-21T11:26:46+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_status_post.stderr
+
+timestamp=2026-08-21T11:26:46+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_telemetry_post.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 4000000000 &
+return_code=0
+pid=367584
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_worker.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_ps_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_ps_before.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_opt_in.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action THROTTLE --target-pid 367584 --slice-ns 5000000 --throttle-period-ns 1000000000 --throttle-budget-ns 200000000
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_publish.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_mono.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_status.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_map.stderr
+
+timestamp=2026-08-21T11:27:33+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t0_ps.stderr
+
+timestamp=2026-08-21T11:27:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_mono.stderr
+
+timestamp=2026-08-21T11:27:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_status.stderr
+
+timestamp=2026-08-21T11:27:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_map.stderr
+
+timestamp=2026-08-21T11:27:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t05_ps.stderr
+
+timestamp=2026-08-21T11:27:35+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_mono.stderr
+
+timestamp=2026-08-21T11:27:35+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_status.stderr
+
+timestamp=2026-08-21T11:27:35+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_map.stderr
+
+timestamp=2026-08-21T11:27:35+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t15_ps.stderr
+
+timestamp=2026-08-21T11:27:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_mono.stderr
+
+timestamp=2026-08-21T11:27:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_status.stderr
+
+timestamp=2026-08-21T11:27:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_map.stderr
+
+timestamp=2026-08-21T11:27:36+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t25_ps.stderr
+
+timestamp=2026-08-21T11:27:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_mono.stderr
+
+timestamp=2026-08-21T11:27:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_status.stderr
+
+timestamp=2026-08-21T11:27:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_map.stderr
+
+timestamp=2026-08-21T11:27:37+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t35_ps.stderr
+
+timestamp=2026-08-21T11:27:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_mono.stderr
+
+timestamp=2026-08-21T11:27:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_status.stderr
+
+timestamp=2026-08-21T11:27:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_map.stderr
+
+timestamp=2026-08-21T11:27:38+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t45_ps.stderr
+
+timestamp=2026-08-21T11:27:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_mono.stderr
+
+timestamp=2026-08-21T11:27:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_status.stderr
+
+timestamp=2026-08-21T11:27:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_map.stderr
+
+timestamp=2026-08-21T11:27:39+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t55_ps.stderr
+
+timestamp=2026-08-21T11:27:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_mono.stderr
+
+timestamp=2026-08-21T11:27:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_status.stderr
+
+timestamp=2026-08-21T11:27:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_map.stderr
+
+timestamp=2026-08-21T11:27:40+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 367584
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_t65_ps.stderr
+
+timestamp=2026-08-21T11:27:41+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_status_post.stderr
+
+timestamp=2026-08-21T11:27:41+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_LONG_telemetry_post.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 4000000000 &
+return_code=0
+pid=368152
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_worker.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 368152
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_opt_in.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action THROTTLE --target-pid 368152 --slice-ns 5000000 --throttle-period-ns 1000000000 --throttle-budget-ns 200000000
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_publish.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_mono.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_status.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_tel.stderr
+
+timestamp=2026-08-21T11:28:12+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t0_state.stderr
+
+timestamp=2026-08-21T11:28:13+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_mono.stderr
+
+timestamp=2026-08-21T11:28:13+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_status.stderr
+
+timestamp=2026-08-21T11:28:13+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_tel.stderr
+
+timestamp=2026-08-21T11:28:13+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t05_state.stderr
+
+timestamp=2026-08-21T11:28:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_mono.stderr
+
+timestamp=2026-08-21T11:28:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_status.stderr
+
+timestamp=2026-08-21T11:28:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_tel.stderr
+
+timestamp=2026-08-21T11:28:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t15_state.stderr
+
+timestamp=2026-08-21T11:28:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_mono.stderr
+
+timestamp=2026-08-21T11:28:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_status.stderr
+
+timestamp=2026-08-21T11:28:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_tel.stderr
+
+timestamp=2026-08-21T11:28:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t25_state.stderr
+
+timestamp=2026-08-21T11:28:16+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_mono.stderr
+
+timestamp=2026-08-21T11:28:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_status.stderr
+
+timestamp=2026-08-21T11:28:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_tel.stderr
+
+timestamp=2026-08-21T11:28:17+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t35_state.stderr
+
+timestamp=2026-08-21T11:28:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_mono.stderr
+
+timestamp=2026-08-21T11:28:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_status.stderr
+
+timestamp=2026-08-21T11:28:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_tel.stderr
+
+timestamp=2026-08-21T11:28:18+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t45_state.stderr
+
+timestamp=2026-08-21T11:28:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_mono.stderr
+
+timestamp=2026-08-21T11:28:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_status.stderr
+
+timestamp=2026-08-21T11:28:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_tel.stderr
+
+timestamp=2026-08-21T11:28:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_t55_state.stderr
+
+timestamp=2026-08-21T11:28:20+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_status_post.stderr
+
+timestamp=2026-08-21T11:28:20+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_STATE_telemetry_post.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 4000000000 &
+return_code=0
+pid=368694
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_worker.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 368694
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_opt_in.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action THROTTLE --target-pid 368694 --slice-ns 5000000 --throttle-period-ns 1000000000 --throttle-budget-ns 20000000
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_publish.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_mono.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_status.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_tel.stderr
+
+timestamp=2026-08-21T11:28:51+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t0_state.stderr
+
+timestamp=2026-08-21T11:28:52+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_mono.stderr
+
+timestamp=2026-08-21T11:28:52+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_status.stderr
+
+timestamp=2026-08-21T11:28:52+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_tel.stderr
+
+timestamp=2026-08-21T11:28:52+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t05_state.stderr
+
+timestamp=2026-08-21T11:28:53+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_mono.stderr
+
+timestamp=2026-08-21T11:28:53+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_status.stderr
+
+timestamp=2026-08-21T11:28:53+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_tel.stderr
+
+timestamp=2026-08-21T11:28:53+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t15_state.stderr
+
+timestamp=2026-08-21T11:28:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_mono.stderr
+
+timestamp=2026-08-21T11:28:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_status.stderr
+
+timestamp=2026-08-21T11:28:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_tel.stderr
+
+timestamp=2026-08-21T11:28:54+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t25_state.stderr
+
+timestamp=2026-08-21T11:28:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_mono.stderr
+
+timestamp=2026-08-21T11:28:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_status.stderr
+
+timestamp=2026-08-21T11:28:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_tel.stderr
+
+timestamp=2026-08-21T11:28:55+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t35_state.stderr
+
+timestamp=2026-08-21T11:28:56+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_mono.stderr
+
+timestamp=2026-08-21T11:28:56+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_status.stderr
+
+timestamp=2026-08-21T11:28:56+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_tel.stderr
+
+timestamp=2026-08-21T11:28:56+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_t45_state.stderr
+
+timestamp=2026-08-21T11:28:58+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_status_post.stderr
+
+timestamp=2026-08-21T11:28:58+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/THROTTLE_FORCE_telemetry_post.stderr
+
+timestamp=2026-08-21T11:29:25+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=369197
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_worker.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_pre_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_pre_mono.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 369197
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_opt_in.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action SLEEP --target-pid 369197 --not-before-ns 10008467926740
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_publish.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_mono.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_status.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_tel.stderr
+
+timestamp=2026-08-21T11:29:26+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t0_state.stderr
+
+timestamp=2026-08-21T11:29:27+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_mono.stderr
+
+timestamp=2026-08-21T11:29:27+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_status.stderr
+
+timestamp=2026-08-21T11:29:27+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_tel.stderr
+
+timestamp=2026-08-21T11:29:27+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t05_state.stderr
+
+timestamp=2026-08-21T11:29:28+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_mono.stderr
+
+timestamp=2026-08-21T11:29:28+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_status.stderr
+
+timestamp=2026-08-21T11:29:28+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_tel.stderr
+
+timestamp=2026-08-21T11:29:28+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t15_state.stderr
+
+timestamp=2026-08-21T11:29:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_mono.stderr
+
+timestamp=2026-08-21T11:29:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_status.stderr
+
+timestamp=2026-08-21T11:29:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_tel.stderr
+
+timestamp=2026-08-21T11:29:29+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t25_state.stderr
+
+timestamp=2026-08-21T11:29:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=python3 -c import time; print(time.monotonic_ns())
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_mono.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_mono.stderr
+
+timestamp=2026-08-21T11:29:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_status.stderr
+
+timestamp=2026-08-21T11:29:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_tel.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_tel.stderr
+
+timestamp=2026-08-21T11:29:30+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_state -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_t35_state.stderr
+
+timestamp=2026-08-21T11:29:31+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_status_post.stderr
+
+timestamp=2026-08-21T11:29:31+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_telemetry -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_telemetry_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/actions/SLEEP_TIMELINE_telemetry_post.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_before.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_before.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action BOGUS --target-pid 1
+return_code=1
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_action_cli.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_action_cli.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action RUN --target-pid 999999
+return_code=6
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_pid_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_pid_publish.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_after_cli.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_after_cli.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0,1 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 1000000000 &
+return_code=0
+pid=
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_worker.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --opt-in --target-pid 369860
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_opt_in.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_opt_in.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --publish --action MIGRATE --target-pid 369860 --target-cpu 9999
+return_code=7
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_publish.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_publish.stderr
+
+timestamp=2026-08-21T11:30:11+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/invalid_cpu_status.stderr
+
+timestamp=2026-08-21T11:30:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_after_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/fault_state_after_worker.stderr
+
+timestamp=2026-08-21T11:30:14+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=taskset -c 0 /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/fixed_work 600000000 &
+return_code=0
+pid=369908
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_worker.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_worker.stderr
+
+timestamp=2026-08-21T11:30:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_status.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_status.stderr
+
+timestamp=2026-08-21T11:30:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map dump pinned /sys/fs/bpf/orchestra/orch_task_tel -j
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_map.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_map.stderr
+
+timestamp=2026-08-21T11:30:15+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ps -o pid=,ppid=,stat=,psr=,comm= -p 369908
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_ps.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_ps.stderr
+
+timestamp=2026-08-21T11:30:19+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_status_post.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/failures/no_directive_status_post.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cat /sys/kernel/sched_ext/state
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_state.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=find /sys/fs/bpf/orchestra -maxdepth 2 -printf %P
+
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_pins.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_pins.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c sudo -n bpftool prog list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_orchestra_programs.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_orchestra_programs.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c sudo -n bpftool link list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_orchestra_links.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_orchestra_links.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c sudo -n dmesg --ctime | rg -i 'sched_ext|orchestra|oops|panic|stall|hung|rcu' | tail -160 || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_dmesg.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/pre_unload_dmesg.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --unload
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle1.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle1.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=cat /sys/kernel/sched_ext/state
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_state.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c if [ -d /sys/fs/bpf/orchestra ]; then find /sys/fs/bpf/orchestra -maxdepth 2 -printf '%P
+' | sort; else echo ABSENT; fi
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_pins.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_pins.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c sudo -n bpftool prog list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_orchestra_programs.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_orchestra_programs.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c sudo -n bpftool link list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_orchestra_links.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_orchestra_links.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool prog list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_bpf_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_bpf_inventory.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool map list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_map_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_map_inventory.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n bpftool link list
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_link_inventory.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/post_unload_link_inventory.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=timeout --signal=TERM --kill-after=5s 30s sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --load /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/load_cycle2.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/load_cycle2.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c cat /sys/kernel/sched_ext/state; sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status; find /sys/fs/bpf/orchestra -maxdepth 2 -printf '%P
+' | sort
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_load2.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_load2.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --unload
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle2.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle2.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c cat /sys/kernel/sched_ext/state; if [ -d /sys/fs/bpf/orchestra ]; then find /sys/fs/bpf/orchestra -maxdepth 2 -printf '%P
+' | sort; else echo ABSENT; fi; sudo -n bpftool prog list | rg 'orchestra|struct_ops' || true; sudo -n bpftool link list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_unload2.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_unload2.stderr
+
+timestamp=2026-08-21T11:30:42+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=timeout --signal=TERM --kill-after=5s 30s sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --load /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/load_cycle3.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/load_cycle3.stderr
+
+timestamp=2026-08-21T11:30:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c cat /sys/kernel/sched_ext/state; sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge --status; find /sys/fs/bpf/orchestra -maxdepth 2 -printf '%P
+' | sort
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_load3.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_load3.stderr
+
+timestamp=2026-08-21T11:30:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --unload
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle3.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/unload_cycle3.stderr
+
+timestamp=2026-08-21T11:30:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c cat /sys/kernel/sched_ext/state; if [ -d /sys/fs/bpf/orchestra ]; then find /sys/fs/bpf/orchestra -maxdepth 2 -printf '%P
+' | sort; else echo ABSENT; fi; sudo -n bpftool prog list | rg 'orchestra|struct_ops' || true; sudo -n bpftool link list | rg 'orchestra|struct_ops' || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_unload3.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/state_after_unload3.stderr
+
+timestamp=2026-08-21T11:30:43+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=sh -c date -Iseconds; cat /sys/kernel/sched_ext/state; find /sys/fs/bpf -maxdepth 2 -print 2>/dev/null; sudo -n bpftool prog list | rg 'orchestra|struct_ops' || true; sudo -n dmesg --ctime | rg -i 'sched_ext|orchestra|oops|panic|stall|hung|rcu' | tail -200 || true
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/recovery/final_runtime_state.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/recovery/final_runtime_state.stderr
+
+timestamp=2026-08-21T11:31:58+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=CFS baseline matrix trials=3 workers=1,2,4 iterations=600000000 taskset CPUs=0..workers-1
+return_code=running
+stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_matrix.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_matrix.stderr
+
+timestamp=2026-08-21T11:32:01+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=CFS baseline matrix trials=3 workers=1,2,4 iterations=600000000 taskset CPUs=0..workers-1
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_matrix.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/baseline/cfs_matrix.stderr
+
+timestamp=2026-08-21T11:32:10+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=timeout --signal=TERM --kill-after=5s 30s sudo -n /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --load /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_scx_stage7.bpf.o
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_load.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_load.stderr
+
+timestamp=2026-08-21T11:32:34+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ORCHESTRA owned matrix trials=3 workers=1,2,4 iterations=600000000 taskset CPUs=0..workers-1 loader-scoped object
+return_code=running
+stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_matrix.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_matrix.stderr
+
+timestamp=2026-08-21T11:33:47+01:00
+cwd=/home/sharda/Downloads/ORCHESTRA-OS-main
+command=ORCHESTRA owned matrix trials=3 workers=1,2,4 iterations=600000000 taskset CPUs=0..workers-1 loader-scoped object
+return_code=0
+stdout=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_matrix.stdout
+stderr=artifacts/real-world/20260821-111936-kali-continuation/comparison/orchestra_matrix.stderr
+
+2026-08-21T11:35:16+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	sudo -n artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_loader --unload
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/comparison_unload.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/comparison_unload.stderr
+2026-08-21T11:35:51+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	final post-comparison health capture: sched_ext state, processes, storage, sensors, kernel log
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/final_health.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/final_health.stderr
+2026-08-21T11:36:02+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	sha256sum/file/readelf static validation for fresh BPF, bridge, loader, workload artifacts
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/static_validation_final.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/static_validation_final.stderr
+2026-08-21T11:37:13+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	repository final state and tool availability capture
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/environment/repo_state_final.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/environment/repo_state_final.stderr
+2026-08-21T11:42:21+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	final repository integrity and scheduler-state check
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/final_integrity.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/recovery/final_integrity.stderr
+2026-08-21T11:43:17+01:00	/home/sharda/Downloads/ORCHESTRA-OS-main	make test (continuation verification)
+return_code=0 stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/raw/make_test_continuation.stdout stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/raw/make_test_continuation.stderr

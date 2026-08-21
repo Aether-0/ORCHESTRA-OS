@@ -1,0 +1,31 @@
+26: hash_of_maps  name cgroup_hash  flags 0x0
+	key 8B  value 4B  max_entries 2048  memlock 164928B
+27: hash  flags 0x0
+	key 4B  value 1B  max_entries 8  memlock 3264B
+68: array  name orch_control  flags 0x0
+	key 4B  value 80B  max_entries 1  memlock 384B
+	btf_id 235
+69: hash  name orch_directives  flags 0x0
+	key 16B  value 112B  max_entries 4096  memlock 791744B
+	btf_id 235
+70: hash  name orch_identity  flags 0x0
+	key 8B  value 16B  max_entries 4096  memlock 363264B
+	btf_id 235
+71: hash  name orch_task_state  flags 0x0
+	key 16B  value 72B  max_entries 4096  memlock 626944B
+	btf_id 235
+72: hash  name orch_task_tel  flags 0x0
+	key 16B  value 104B  max_entries 4096  memlock 758784B
+	btf_id 235
+73: array  name orch_telemetry  flags 0x0
+	key 4B  value 304B  max_entries 1  memlock 608B
+	btf_id 235
+74: array  name orch_defer_tmr  flags 0x0
+	key 4B  value 16B  max_entries 1  memlock 320B
+	btf_id 235
+76: array  name orchestr.rodata  flags 0x480
+	key 4B  value 328B  max_entries 1  memlock 8192B
+	btf_id 235  frozen
+77: array  name orchestr.data  flags 0x0
+	key 4B  value 88B  max_entries 1  memlock 392B
+	btf_id 235

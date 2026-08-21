@@ -1,0 +1,52 @@
+=== sudo -n bpftool ===
+sudo: a password is required
+rc=0
+=== bpftool no sudo ===
+Error: can't get next program: Operation not permitted
+rc=0
+=== bpffs ===
+ls: cannot open directory '/sys/fs/bpf': Permission denied
+/sys/fs/bpf
+=== extracted trees ===
+=== linux-source tar contents head ===
+linux-source-7.0/
+linux-source-7.0/.clang-format
+linux-source-7.0/.clippy.toml
+linux-source-7.0/.cocciconfig
+linux-source-7.0/.editorconfig
+linux-source-7.0/.get_maintainer.ignore
+linux-source-7.0/.gitattributes
+linux-source-7.0/.gitignore
+linux-source-7.0/.mailmap
+linux-source-7.0/.pylintrc
+linux-source-7.0/.rustfmt.toml
+linux-source-7.0/COPYING
+linux-source-7.0/CREDITS
+linux-source-7.0/Documentation/
+linux-source-7.0/Documentation/.gitignore
+linux-source-7.0/Documentation/.renames.txt
+linux-source-7.0/Documentation/ABI/
+linux-source-7.0/Documentation/ABI/README
+linux-source-7.0/Documentation/ABI/obsolete/
+linux-source-7.0/Documentation/ABI/obsolete/automount-tracefs-debugfs
+=== pkg-config paths ===
+/usr/lib/x86_64-linux-gnu/libbpf.so
+/usr/lib/x86_64-linux-gnu/libbpf.so.1
+/usr/lib/x86_64-linux-gnu/libbpf.so.1.7.0
+/usr/lib/x86_64-linux-gnu/pkgconfig/libbpf.pc
+
+/usr/include/bpf:
+bpf_core_read.h
+bpf_endian.h
+bpf.h
+bpf_helper_defs.h
+bpf_helpers.h
+bpf_tracing.h
+btf.h
+libbpf_common.h
+libbpf.h
+libbpf_legacy.h
+libbpf_version.h
+skel_internal.h
+usdt.bpf.h
+sudo_v_rc=124

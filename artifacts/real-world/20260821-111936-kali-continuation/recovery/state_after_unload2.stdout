@@ -1,0 +1,11 @@
+disabled
+ABSENT
+687: struct_ops  name orchestra_sched_init  tag f6fa696bda20fdf6  gpl
+689: struct_ops  name orchestra_sched_exit  tag 844425ef9afb3ee0  gpl
+690: struct_ops  name orchestra_sched_enable  tag 92b9fdef2be83969  gpl
+691: struct_ops  name orchestra_sched_disable  tag 1ffc371191eb4a70  gpl
+692: struct_ops  name orchestra_sched_select_cpu  tag 054d04f12b5eefec  gpl
+693: struct_ops  name orchestra_sched_enqueue  tag 275d154720e632a3  gpl
+694: struct_ops  name orchestra_sched_dispatch  tag da3d9fa71b824962  gpl
+695: struct_ops  name orchestra_sched_running  tag b4e26b1c9c50edfd  gpl
+696: struct_ops  name orchestra_sched_stopping  tag 4496eee51742d038  gpl

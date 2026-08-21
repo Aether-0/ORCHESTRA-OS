@@ -1,0 +1,4 @@
+kernel/sched_ext/orchestra_scx_stage7.bpf.c:20:10: fatal error: 'scx/common.bpf.h' file not found
+   20 | #include <scx/common.bpf.h>
+      |          ^~~~~~~~~~~~~~~~~~
+1 error generated.

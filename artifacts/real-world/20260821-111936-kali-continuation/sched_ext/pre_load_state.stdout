@@ -1,0 +1,200 @@
+2026-08-21T11:22:40+01:00
+disabled
+/sys/fs/bpf
+68: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:29:28+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+69: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:29:28+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+106: lsm  name restrict_filesystems  tag 31efb7c56239148b  gpl
+	loaded_at 2026-08-21T09:30:34+0100  uid 0
+	xlated 520B  jited 294B  memlock 4096B  map_ids 26
+	btf_id 186
+425: socket_filter  tag 6535b13de335de4a
+	loaded_at 2026-08-21T09:31:00+0100  uid 0
+	xlated 848B  jited 461B  memlock 4096B  map_ids 27
+589: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+590: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+591: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+592: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+593: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+594: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+595: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+596: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+597: cgroup_device  name sd_devices  tag e85dd840b52c4ab9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 792B  jited 490B  memlock 4096B
+598: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+599: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+601: cgroup_device  name sd_devices  tag 4ea3934a7fabf5c3  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 504B  jited 319B  memlock 4096B
+602: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+603: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+607: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+608: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+609: cgroup_device  name sd_devices  tag b3333f074dcc518c  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 184B  jited 111B  memlock 4096B
+665: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T11:21:10+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+666: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T11:21:10+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+26: hash_of_maps  name cgroup_hash  flags 0x0
+	key 8B  value 4B  max_entries 2048  memlock 164928B
+27: hash  flags 0x0
+	key 4B  value 1B  max_entries 8  memlock 3264B
+4: tracing  prog 106  
+	prog_type lsm  attach_type lsm_mac  
+	target_obj_id 1  target_btf_id 68139  
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Collecting audit messages is disabled.
+[Fri Aug 21 08:42:44 2026] lp: driver loaded but no devices found
+[Fri Aug 21 08:42:44 2026] ppdev: user-space parallel port driver
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[Fri Aug 21 08:42:44 2026] pstore: Registered efi_pstore as persistent store backend
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 08:42:44 2026] EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Received client request to flush runtime journal.
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] input: PC Speaker as /devices/platform/pcspkr/input/input8
+[Fri Aug 21 08:42:45 2026] intel_pmc_core INT33A1:00:  initialized
+[Fri Aug 21 08:42:45 2026] mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+[Fri Aug 21 08:42:45 2026] mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+[Fri Aug 21 08:42:45 2026] input: HP WMI hotkeys as /devices/virtual/input/input9
+[Fri Aug 21 08:42:45 2026] RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain package 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+[Fri Aug 21 08:42:45 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+[Fri Aug 21 08:42:45 2026] intel_rapl_msr: PL4 support detected.
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain package
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain core
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain uncore
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 21 08:42:46 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 21 08:42:46 2026] EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:46 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 21 08:42:46 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 21 08:42:46 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 21 08:42:46 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 21 08:42:47 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered udp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 21 08:42:49 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 21 08:43:20 2026] systemd-journald[549]: Time jumped backwards, rotating.
+[Fri Aug 21 09:29:28 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:33 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd[1]: systemd 261.2-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 09:30:34 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 09:30:34 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-journald[549]: Received SIGTERM from PID 1 (systemd).
+[Fri Aug 21 09:30:34 2026] systemd[1]: Stopping systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd[1]: systemd-journald.service: Deactivated successfully.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Stopped systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd-journald[112931]: Collecting audit messages is disabled.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:37 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:38 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:39 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:52 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:53 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] audit: type=1400 audit(1787301055.083:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="/usr/sbin/cups-browsed" pid=115704 comm="apparmor_parser"
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:56 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:59 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:00 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-ge[118577]: segfault at 0 ip 00007f00971e319d sp 00007ffe7aa12ed8 error 6 in libc.so.6[16819d,7f00970a3000+168000] likely on CPU 2 (core 4, socket 0)
+[Fri Aug 21 09:31:04 2026] Code: 00 00 66 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 83 fa 20 72 27 c5 fe 6f 06 48 83 fa 40 0f 87 a9 00 00 00 c5 fe 6f 4c 16 e0 <c5> fe 7f 07 c5 fe 7f 4c 17 e0 c5 f8 77 c3 0f 1f 44 00 00 83 fa 10
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:57:54 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:59:38 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 10:00:29 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 10:14:09 2026] perf: interrupt took too long (2516 > 2500), lowering kernel.perf_event_max_sample_rate to 79250
+[Fri Aug 21 10:28:12 2026] perf: interrupt took too long (3259 > 3145), lowering kernel.perf_event_max_sample_rate to 61250
+[Fri Aug 21 11:08:26 2026] perf: interrupt took too long (4102 > 4073), lowering kernel.perf_event_max_sample_rate to 48750

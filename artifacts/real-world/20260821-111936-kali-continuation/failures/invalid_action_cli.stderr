@@ -1,0 +1,14 @@
+Usage: /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-111936-kali-continuation/build/orchestra_bridge COMMAND [OPTIONS]
+  --status
+  --stream   (binary canonical-engine request/response stream)
+  --publish --action RUN|SLEEP|MIGRATE|THROTTLE|YIELD --target-pid TID
+      [--target-cpu CPU] [--slice-ns NS] [--not-before-ns MONO_NS]
+      [--throttle-period-ns NS] [--throttle-budget-ns NS]
+      [--expiry-ns DURATION_NS] [--lease-ns NS] [--dry-run]
+      [--controller-state STATE] [--policy-mode ID] [--policy-generation N]
+  --clear [--target-pid TID]
+  --opt-in --target-pid TID   (identity admission only; exact TID)
+  --pin-maps --control-map-id ID --directive-map-id ID
+      --identity-map-id ID --task-map-id ID --task-telemetry-map-id ID
+      --telemetry-map-id ID --defer-timer-map-id ID
+      (timer map must already be pinned before attach; use orchestra_loader)

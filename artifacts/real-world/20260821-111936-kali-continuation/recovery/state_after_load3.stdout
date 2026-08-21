@@ -1,0 +1,13 @@
+enabled
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=10082390293133 generation=0 policy_generation=0 controller=NORMAL lease=0ns
+telemetry accepted=0 dispatched=0 running=354 fallback=346 migrate_target=0 migrate_other=0 timer_ticks=222 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=37 run_disp=346 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+
+orch_control
+orch_defer_tmr
+orch_directives
+orch_identity
+orch_task_state
+orch_task_tel
+orch_telemetry
+orchestra_sched

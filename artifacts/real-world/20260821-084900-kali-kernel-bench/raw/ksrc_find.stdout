@@ -1,0 +1,15 @@
+lrwxrwxrwx 1 root root        44 Jun 18 10:48 /lib/modules/7.0.12+kali-amd64/build -> ../../../src/linux-headers-7.0.12+kali-amd64
+drwxr-xr-x 2 root root      4096 Aug 14 09:59 /usr/src/linux-config-7.0
+drwxr-xr-x 4 root root      4096 Aug 14 09:54 /usr/src/linux-headers-7.0.12+kali-amd64
+drwxr-xr-x 4 root root      4096 Aug 14 09:54 /usr/src/linux-headers-7.0.12+kali-amd64
+drwxr-xr-x 4 root root      4096 Aug 14 09:53 /usr/src/linux-headers-7.0.12+kali-common
+lrwxrwxrwx 1 root root        31 Jun 18 10:48 /usr/src/linux-kbuild-7.0.12+kali -> ../lib/linux-kbuild-7.0.12+kali
+-rw-r--r-- 1 root root 160422896 Jun 18 10:48 /usr/src/linux-source-7.0.tar.xz
+---
+---
+linux-config-7.0
+linux-headers-7.0.12+kali-amd64
+linux-headers-7.0.12+kali-common
+linux-kbuild-7.0.12+kali
+linux-source-7.0.tar.xz
+python3.13

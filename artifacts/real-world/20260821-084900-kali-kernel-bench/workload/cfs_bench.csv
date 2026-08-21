@@ -1,0 +1,4 @@
+rep,scheduler,workers,duration_s,elapsed_ms,ctx_delta,pkg_temp_mC_before,pkg_temp_mC_after
+1,cfs,1,8,7079,132015,44000,49000
+2,cfs,1,8,7991,148984,48000,46000
+3,cfs,1,8,7992,150188,48000,50000
