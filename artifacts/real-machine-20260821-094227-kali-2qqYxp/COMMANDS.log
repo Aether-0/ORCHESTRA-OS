@@ -1,0 +1,672 @@
+timestamp=2026-08-21T09:42:58+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=repo_state
+command=bash -c pwd\;\ git\ rev-parse\ --show-toplevel\;\ git\ rev-parse\ HEAD\;\ git\ status\ --short\;\ git\ branch\ --show-current\;\ git\ log\ -1\ --format=fuller\;\ printf\ \"\\nTop-level\ files:\\n\"\;\ find\ .\ -maxdepth\ 2\ -type\ f\ -not\ -path\ \"./.git/\*\"\ -printf\ \"%p\\n\"\ \|\ sort\ \|\ sed\ -n\ \"1\,240p\"\;\ printf\ \"\\nInstruction\ files:\\n\"\;\ rg\ --files\ -g\ \"AGENTS.md\"\ -g\ \"agent.md\"\ -g\ \"README\*\"\ -g\ \"\*TEST\*\"\ -g\ \"\*test\*\"\ -g\ \"\*ADR\*\"\ -g\ \"\*.md\"\ \|\ sort\ \|\ sed\ -n\ \"1\,320p\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094258-repo_state.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094258-repo_state.stderr
+return_code=0
+
+timestamp=2026-08-21T09:43:17+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=host_inventory
+command=bash -c set\ +e\;\ printf\ \"===\ date\ ===\\n\"\;\ date\ -Iseconds\;\ printf\ \"===\ hostnamectl\ ===\\n\"\;\ hostnamectl\;\ printf\ \"===\ uname\ ===\\n\"\;\ uname\ -a\;\ uname\ -r\;\ printf\ \"===\ os-release\ ===\\n\"\;\ cat\ /etc/os-release\;\ printf\ \"===\ lscpu\ ===\\n\"\;\ lscpu\;\ printf\ \"===\ nproc\ ===\\n\"\;\ nproc\;\ printf\ \"===\ memory\ ===\\n\"\;\ free\ -h\;\ printf\ \"===\ lsblk\ ===\\n\"\;\ lsblk\;\ printf\ \"===\ df\ ===\\n\"\;\ df\ -h\;\ printf\ \"===\ cmdline\ ===\\n\"\;\ cat\ /proc/cmdline\;\ printf\ \"===\ numa\ ===\\n\"\;\ numactl\ --hardware\;\ printf\ \"===\ topology\ ===\\n\"\;\ lstopo-no-graphics\;\ printf\ \"===\ sensors\ ===\\n\"\;\ sensors\;\ printf\ \"===\ cpupower\ ===\\n\"\;\ cpupower\ frequency-info\;\ printf\ \"===\ ip\ addr\ ===\\n\"\;\ ip\ addr\;\ printf\ \"===\ ip\ route\ ===\\n\"\;\ ip\ route\;\ printf\ \"===\ security\ ===\\n\"\;\ command\ -v\ aa-status\ \&\&\ aa-status\;\ command\ -v\ getenforce\ \&\&\ getenforce\;\ printf\ \"===\ cgroups\ ===\\n\"\;\ stat\ -fc\ %T\ /sys/fs/cgroup\;\ mount\ \|\ rg\ \"cgroup\|bpf\|debugfs\|tracefs\"\;\ printf\ \"===\ versions\ ===\\n\"\;\ for\ t\ in\ git\ make\ gcc\ clang\ llvm-config\ bpftool\ pahole\ perf\ python3\ stress-ng\ taskset\ timeout\;\ do\ printf\ \"--\ %s\ --\\n\"\ \"\$t\"\;\ command\ -v\ \"\$t\"\;\ \"\$t\"\ --version\ 2\>\&1\ \|\ head\ -4\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094317-host_inventory.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094317-host_inventory.stderr
+return_code=0
+
+timestamp=2026-08-21T09:43:27+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=repository_docs
+command=bash -c printf\ \"%s\\n\"\ \"===\ root\ AGENTS.md\ ===\"\;\ sed\ -n\ \"1\,520p\"\ AGENTS.md\;\ printf\ \"%s\\n\"\ \"===\ root\ README.md\ ===\"\;\ sed\ -n\ \"1\,520p\"\ README.md\;\ printf\ \"%s\\n\"\ \"===\ kernel/sched_ext/README.md\ ===\"\;\ sed\ -n\ \"1\,620p\"\ kernel/sched_ext/README.md\;\ printf\ \"%s\\n\"\ \"===\ benchmarks/real-machine/README.md\ ===\"\;\ sed\ -n\ \"1\,620p\"\ benchmarks/real-machine/README.md 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094327-repository_docs.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094327-repository_docs.stderr
+return_code=0
+
+timestamp=2026-08-21T09:43:59+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=implementation_inventory
+command=bash -c printf\ \"%s\\n\"\ \"===\ kernel/sched_ext\ files\ ===\"\;\ find\ kernel/sched_ext\ -maxdepth\ 3\ -type\ f\ -printf\ \"%p\\n\"\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ real-machine\ files\ ===\"\;\ find\ benchmarks/real-machine\ -maxdepth\ 3\ -type\ f\ -printf\ \"%p\\n\"\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ stage\ scripts\ ===\"\;\ find\ kernel/sched_ext/scripts\ -maxdepth\ 1\ -type\ f\ -printf\ \"%p\\n\"\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ tracked\ implementation\ files\ ===\"\;\ git\ ls-files\ kernel/sched_ext\ benchmarks/real-machine\ tests\ Makefile\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ source\ symbols\ ===\"\;\ rg\ -n\ \"SCX_OPS\|struct_ops\|select_cpu\|enqueue\|dispatch\|running\|stopping\|enable\|disable\|yield\|migrate\|throttle\|sleep\|signal\|predict\|kalman\|S1\|S2\|S3\|S4\|coord\|controller\|NUMA\|RT\|action\|fallback\|telemetry\|generation\|magic\|version\"\ kernel/sched_ext\ benchmarks/real-machine\ tests\ docs/adr\ docs/status\ docs/kernel\ --glob\ \"\*.\[ch\]\"\ --glob\ \"\*.sh\"\ --glob\ \"\*.py\"\ --glob\ \"\*.md\"\ \|\ sed\ -n\ \"1\,900p\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094359-implementation_inventory.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094359-implementation_inventory.stderr
+return_code=0
+
+timestamp=2026-08-21T09:44:11+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=source_audit
+command=bash -c printf\ \"%s\\n\"\ \"===\ stage7\ functions/types\ ===\"\;\ rg\ -n\ \"\^\(static\ \)\?\(__always_inline\ \)\?\(int\|void\|bool\|s32\|u32\|u64\|struct\|SEC\|char\)\ \|SCX_OPS\|struct\ sched_ext_ops\|BPF_MAP\|enum\|#define\|action\|telemetry\|dispatch\|enqueue\|select_cpu\|running\|stopping\|enable\|disable\|update\|timer\|migrate\|throttle\|sleep\|yield\"\ kernel/sched_ext/orchestra_scx_stage7.bpf.c\ \|\ sed\ -n\ \"1\,620p\"\;\ printf\ \"%s\\n\"\ \"===\ bridge/loader\ symbols\ ===\"\;\ rg\ -n\ \"\^\(static\ \)\?\(int\|void\|bool\|long\|char\|struct\)\|usage\|load\|unload\|status\|publish\|action\|pid\|cpu\|magic\|version\|generation\|map\|pin\|struct_ops\|system\|exec\|remove\|unlink\"\ kernel/sched_ext/bridge/orchestra_loader.c\ kernel/sched_ext/bridge/orchestra_bridge.c\ \|\ sed\ -n\ \"1\,900p\"\;\ printf\ \"%s\\n\"\ \"===\ ABI\ headers\ ===\"\;\ sed\ -n\ \"1\,380p\"\ kernel/sched_ext/include/orchestra_abi.h\ kernel/sched_ext/include/orchestra_bridge_v1.h\ kernel/sched_ext/include/orchestra_scx.h 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094411-source_audit.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094411-source_audit.stderr
+return_code=0
+
+timestamp=2026-08-21T09:44:37+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=kernel_health_before
+command=bash -c set\ +e\;\ printf\ \"%s\\n\"\ \"===\ identity/privilege\ ===\"\;\ id\;\ sudo\ -n\ id\;\ printf\ \"%s\\n\"\ \"===\ sched_ext\ state\ ===\"\;\ cat\ /sys/kernel/sched_ext/state\;\ printf\ \"%s\\n\"\ \"===\ sched_ext\ tree\ ===\"\;\ find\ /sys/kernel/sched_ext\ -maxdepth\ 2\ -type\ f\ -o\ -type\ l\ -printf\ \"%p\ -\>\ %l\\n\"\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ bpf\ mounts/pins\ ===\"\;\ mount\ \|\ rg\ \"bpf\|debugfs\|tracefs\"\;\ find\ /sys/fs/bpf\ -maxdepth\ 3\ -print\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ programs\ ===\"\;\ sudo\ -n\ bpftool\ prog\ list\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ maps\ ===\"\;\ sudo\ -n\ bpftool\ map\ list\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ links\ ===\"\;\ sudo\ -n\ bpftool\ link\ list\;\ printf\ \"%s\\n\"\ \"===\ bpf\ sysctls\ ===\"\;\ sysctl\ kernel.unprivileged_bpf_disabled\ kernel.bpf_stats_enabled\ vm.max_map_count\;\ printf\ \"%s\\n\"\ \"===\ boot\ kernels/configs\ ===\"\;\ ls\ -l\ /boot/vmlinuz\*\ /boot/config-\*\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ dmesg\ tail\ ===\"\;\ sudo\ -n\ dmesg\ --ctime\ \|\ tail\ -300\;\ printf\ \"%s\\n\"\ \"===\ journal\ kernel\ tail\ ===\"\;\ sudo\ -n\ journalctl\ -k\ -b\ --no-pager\ \|\ tail\ -300 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094437-kernel_health_before.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094437-kernel_health_before.stderr
+return_code=0
+
+timestamp=2026-08-21T09:44:45+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=prior_handoff
+command=bash -c for\ f\ in\ artifacts/real-world/20260821-021012-redshadow-kali-handoff/KALI_HANDOFF.md\ artifacts/real-world/20260821-021012-redshadow-kali-handoff/IMPLEMENTATION_MATRIX.md\ artifacts/real-world/20260821-124731-redshadow-kali-build-prep/REAL_WORLD_TEST_REPORT.md\ artifacts/real-world/20260821-084900-kali-kernel-bench/README.md\;\ do\ if\ \[\ -f\ \"\$f\"\ \]\;\ then\ printf\ \"===\ %s\ ===\\n\"\ \"\$f\"\;\ sed\ -n\ \"1\,420p\"\ \"\$f\"\;\ fi\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094445-prior_handoff.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094445-prior_handoff.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:03+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=script_audit
+command=bash -c for\ f\ in\ benchmarks/real-machine/sanity_check.sh\ benchmarks/real-machine/stress_suite.sh\ benchmarks/real-machine/benchmark_suite.sh\ benchmarks/real-machine/full_compare.sh\ kernel/sched_ext/scripts/check_kernel_config.sh\ kernel/sched_ext/scripts/reproduce_stage7_runtime.sh\ kernel/sched_ext/scripts/p0_ownership_retest.sh\ kernel/sched_ext/scripts/stage8_validate.sh\;\ do\ printf\ \"===\ %s\ ===\\n\"\ \"\$f\"\;\ sed\ -n\ \"1\,420p\"\ \"\$f\"\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094503-script_audit.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-094503-script_audit.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:19+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=sanity_check
+command=bash benchmarks/real-machine/sanity_check.sh 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/kernel/20260821-094519-sanity_check.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/kernel/20260821-094519-sanity_check.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=kernel_config_check
+command=bash kernel/sched_ext/scripts/check_kernel_config.sh 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/kernel/20260821-094521-kernel_config_check.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/kernel/20260821-094521-kernel_config_check.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:33+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=build_prerequisites
+command=bash -c set\ +e\;\ printf\ \"%s\\n\"\ \"===\ kernel\ module/build\ paths\ ===\"\;\ printf\ \"running=%s\\n\"\ \"\$\(uname\ -r\)\"\;\ readlink\ -f\ \"/lib/modules/\$\(uname\ -r\)/build\"\ 2\>/dev/null\;\ ls\ -ld\ /lib/modules/\"\$\(uname\ -r\)\"\ /lib/modules/\"\$\(uname\ -r\)\"/build\ /usr/src/\*\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ sched_ext\ headers\ ===\"\;\ find\ /usr/src\ /lib/modules\ /home\ -path\ \"\*/tools/sched_ext/include/scx/common.bpf.h\"\ -o\ -path\ \"\*/tools/sched_ext/include/scx/\*.h\"\ 2\>/dev/null\ \|\ sed\ -n\ \"1\,240p\"\;\ printf\ \"%s\\n\"\ \"===\ libbpf\ inputs\ ===\"\;\ command\ -v\ pkg-config\;\ pkg-config\ --modversion\ libbpf\;\ pkg-config\ --modversion\ libelf\;\ pkg-config\ --cflags\ --libs\ libbpf\;\ find\ /usr/include\ /usr/local/include\ -maxdepth\ 3\ -type\ f\ \\\(\ -name\ \"libbpf.h\"\ -o\ -name\ \"bpf_helpers.h\"\ -o\ -name\ \"libelf.h\"\ \\\)\ -print\ 2\>/dev/null\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ package\ metadata\ ===\"\;\ dpkg-query\ -W\ linux-image-\"\$\(uname\ -r\)\"\ linux-headers-\"\$\(uname\ -r\)\"\ linux-source-7.0\ libbpf-dev\ libelf-dev\ zlib1g-dev\ dwarves\ 2\>\&1\;\ printf\ \"%s\\n\"\ \"===\ required\ commands\ ===\"\;\ for\ t\ in\ gcc\ clang\ llvm-config\ make\ bpftool\ python3\ pkg-config\ readelf\ file\ sha256sum\;\ do\ command\ -v\ \"\$t\"\ \|\|\ true\;\ done\;\ printf\ \"%s\\n\"\ \"===\ resources\ ===\"\;\ ulimit\ -a\;\ sysctl\ kernel.perf_event_paranoid\ kernel.kptr_restrict\ vm.mmap_min_addr\ fs.file-max 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094533-build_prerequisites.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094533-build_prerequisites.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:44+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=kernel_source_identity
+command=bash -c set\ +e\;\ for\ p\ in\ /home/sharda/src/linux-source-7.0\ /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0\ /home/sharda/src/linux-v6.12.96\ /usr/src/linux-headers-7.0.12+kali-amd64\;\ do\ printf\ \"===\ %s\ ===\\n\"\ \"\$p\"\;\ if\ \[\ -d\ \"\$p\"\ \]\;\ then\ test\ -f\ \"\$p/Makefile\"\ \&\&\ sed\ -n\ \"1\,28p\"\ \"\$p/Makefile\"\;\ test\ -f\ \"\$p/.config\"\ \&\&\ sha256sum\ \"\$p/.config\"\;\ test\ -f\ \"\$p/tools/sched_ext/include/scx/common.bpf.h\"\ \&\&\ sha256sum\ \"\$p/tools/sched_ext/include/scx/common.bpf.h\"\;\ test\ -f\ \"\$p/tools/lib/bpf_helpers.h\"\ \&\&\ printf\ \"tools/lib/bpf_helpers.h=yes\\n\"\ \|\|\ true\;\ git\ -C\ \"\$p\"\ rev-parse\ HEAD\ 2\>/dev/null\ \|\|\ true\;\ else\ echo\ missing\;\ fi\;\ done\;\ printf\ \"%s\\n\"\ \"===\ running\ config\ identity\ ===\"\;\ grep\ -E\ \"\^\(CONFIG_\(BPF\|BPF_SYSCALL\|BPF_JIT\|DEBUG_INFO_BTF\|SCHED_CLASS_EXT\|BPF_EVENTS\)\)=\"\ /boot/config-\"\$\(uname\ -r\)\"\;\ printf\ \"%s\\n\"\ \"===\ BTF\ identity\ ===\"\;\ sha256sum\ /sys/kernel/btf/vmlinux 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094544-kernel_source_identity.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094544-kernel_source_identity.stderr
+return_code=0
+
+timestamp=2026-08-21T09:45:54+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=kernel_source_details
+command=bash -c for\ p\ in\ /home/sharda/src/linux-source-7.0\ /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0\;\ do\ printf\ \"===\ %s\ ===\\n\"\ \"\$p\"\;\ stat\ -c\ \"%F\ %U:%G\ %n\"\ \"\$p\"\ 2\>/dev/null\;\ find\ \"\$p\"\ -maxdepth\ 2\ -type\ f\ -printf\ \"%p\\n\"\ 2\>/dev/null\ \|\ sort\ \|\ sed\ -n\ \"1\,100p\"\;\ done\;\ printf\ \"%s\\n\"\ \"===\ source\ package\ archive\ listing\ ===\"\;\ tar\ -tf\ /usr/src/linux-source-7.0.tar.xz\ \|\ rg\ \"\(\^\|/\)Makefile\$\|tools/sched_ext/include/scx/common.bpf.h\|tools/lib/bpf_helpers.h\"\ \|\ sed\ -n\ \"1\,100p\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094554-kernel_source_details.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094554-kernel_source_details.stderr
+return_code=0
+
+timestamp=2026-08-21T09:46:17+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=exact_kernel_source_check
+command=bash -c KSRC=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0\;\ printf\ \"KSRC=%s\\n\"\ \"\$KSRC\"\;\ git\ -C\ \"\$KSRC\"\ rev-parse\ --show-toplevel\ 2\>/dev/null\ \|\|\ true\;\ git\ -C\ \"\$KSRC\"\ rev-parse\ HEAD\ 2\>/dev/null\ \|\|\ true\;\ sed\ -n\ \"1\,8p\"\ \"\$KSRC/Makefile\"\;\ printf\ \"source_version=\"\;\ awk\ \"\\\$1==\\\"VERSION\\\"\{v=\\\$3\}\ \\\$1==\\\"PATCHLEVEL\\\"\{p=\\\$3\}\ \\\$1==\\\"SUBLEVEL\\\"\{s=\\\$3\}\ END\{print\ v\\\".\\\"p\\\".\\\"s\}\"\ \"\$KSRC/Makefile\"\;\ for\ f\ in\ tools/sched_ext/include/scx/common.bpf.h\ tools/lib/bpf_helpers.h\ tools/bpf/bpftool/libbpf/libbpf.h\ include/generated/utsrelease.h\ arch/x86/include/generated/uapi/asm/unistd_64.h\;\ do\ if\ \[\ -f\ \"\$KSRC/\$f\"\ \]\;\ then\ printf\ \"present\ %s\ \"\ \"\$f\"\;\ sha256sum\ \"\$KSRC/\$f\"\;\ else\ printf\ \"missing\ %s\\n\"\ \"\$f\"\;\ fi\;\ done\;\ find\ \"\$KSRC/tools/sched_ext/include/scx\"\ -maxdepth\ 1\ -type\ f\ -printf\ \"%f\\n\"\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ source\ config/kernel\ release\ ===\"\;\ test\ -f\ \"\$KSRC/.config\"\ \&\&\ grep\ -E\ \"\^\(CONFIG_\(BPF\|BPF_SYSCALL\|BPF_JIT\|DEBUG_INFO_BTF\|SCHED_CLASS_EXT\|BPF_EVENTS\)\)=\"\ \"\$KSRC/.config\"\ \|\|\ true\;\ test\ -f\ \"\$KSRC/include/generated/utsrelease.h\"\ \&\&\ cat\ \"\$KSRC/include/generated/utsrelease.h\"\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094617-exact_kernel_source_check.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094617-exact_kernel_source_check.stderr
+return_code=0
+
+timestamp=2026-08-21T09:46:34+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=make_clean
+command=make clean 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094634-make_clean.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094634-make_clean.stderr
+return_code=0
+
+timestamp=2026-08-21T09:46:37+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=make
+command=make 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094637-make.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094637-make.stderr
+return_code=0
+
+timestamp=2026-08-21T09:46:41+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=make_check
+command=make check 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094641-make_check.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094641-make_check.stderr
+return_code=0
+
+timestamp=2026-08-21T09:46:46+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=make_test
+command=make test 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094646-make_test.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094646-make_test.stderr
+return_code=0
+
+timestamp=2026-08-21T09:47:45+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=generate_vmlinux_h
+command=bash -c sudo\ bpftool\ btf\ dump\ file\ /sys/kernel/btf/vmlinux\ format\ c\ \>\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include/vmlinux.h\;\ sha256sum\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include/vmlinux.h\;\ wc\ -c\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include/vmlinux.h 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094745-generate_vmlinux_h.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094745-generate_vmlinux_h.stderr
+return_code=0
+
+timestamp=2026-08-21T09:47:55+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=bpf_compile
+command=bash -c KSRC=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0\;\ clang\ -O2\ -target\ bpf\ -g\ -nostdinc\ -D__BPF__\ -I\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include\ -I\ kernel/sched_ext/include\ -I\ \"\$KSRC/tools/lib\"\ -I\ \"\$KSRC/tools/include\"\ -I\ \"\$KSRC/tools/bpf/bpftool/libbpf\"\ -I\ \"\$KSRC/include\"\ -I\ \"\$KSRC/include/uapi\"\ -I\ \"\$KSRC/arch/x86/include\"\ -I\ \"\$KSRC/tools/sched_ext/include\"\ -I\ /usr/include\ -I\ /usr/include/bpf\ -Wno-missing-declarations\ -Wno-visibility\ -Wno-address-of-packed-member\ -c\ kernel/sched_ext/orchestra_scx_stage7.bpf.c\ -o\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094755-bpf_compile.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094755-bpf_compile.stderr
+return_code=0
+
+timestamp=2026-08-21T09:48:01+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=fixed_work_compile
+command=cc -O2 -Wall -Wextra -Werror kernel/sched_ext/scripts/fixed_work.c -o artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094801-fixed_work_compile.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094801-fixed_work_compile.stderr
+timestamp=2026-08-21T09:48:01+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=bridge_compile
+command=cc -O2 -Wall -Wextra -Werror -I kernel/sched_ext/include kernel/sched_ext/bridge/orchestra_bridge.c -o artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge -lbpf -lelf -lz 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094801-bridge_compile.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094801-bridge_compile.stderr
+return_code=0
+
+return_code=0
+
+timestamp=2026-08-21T09:48:04+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=loader_compile
+command=cc -O2 -Wall -Wextra -Werror -I kernel/sched_ext/include kernel/sched_ext/bridge/orchestra_loader.c -o artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader -lbpf -lelf -lz 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094804-loader_compile.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/build/20260821-094804-loader_compile.stderr
+return_code=0
+
+timestamp=2026-08-21T09:48:17+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=artifact_static_validation
+command=bash -c set\ -e\;\ printf\ \"%s\\n\"\ \"===\ hashes\ ===\"\;\ sha256sum\ /sys/kernel/btf/vmlinux\ kernel/sched_ext/orchestra_scx_stage7.bpf.c\ kernel/sched_ext/bridge/orchestra_bridge.c\ kernel/sched_ext/bridge/orchestra_loader.c\ kernel/sched_ext/include/orchestra_abi.h\ kernel/sched_ext/include/orchestra_bridge_v1.h\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include/vmlinux.h\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\;\ printf\ \"%s\\n\"\ \"===\ file\ ===\"\;\ file\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\;\ printf\ \"%s\\n\"\ \"===\ ELF\ sections\ ===\"\;\ readelf\ -SW\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o\;\ printf\ \"%s\\n\"\ \"===\ BPF\ symbols\ ===\"\;\ readelf\ -sW\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o\ \|\ rg\ \"orchestra\|orch_\|\\.maps\|license\|struct_ops\"\;\ printf\ \"%s\\n\"\ \"===\ object\ BTF\ head\ ===\"\;\ bpftool\ btf\ dump\ file\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o\ format\ raw\ \|\ sed\ -n\ \"1\,220p\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/verifier/20260821-094817-artifact_static_validation.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/verifier/20260821-094817-artifact_static_validation.stderr
+return_code=0
+
+timestamp=2026-08-21T09:48:45+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=baseline_fixed_work
+command=bash -c set\ +e\;\ FIXED=artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\;\ N=160000000\;\ printf\ \"timestamp\,\ scheduler\,\ workers\,\ repetition\,\ elapsed_ms\,\ completed\,\ wait_rcs\,\ ctxt_before\,\ ctxt_after\,\ ctxt_delta\,\ procs_running_before\,\ procs_running_after\,\ load_before\,\ load_after\\n\"\;\ for\ workers\ in\ 1\ 2\ 4\ 8\;\ do\ for\ rep\ in\ 1\ 2\ 3\;\ do\ ctxt_before=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_before=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_before=\$\(cut\ -d\"\ \"\ -f1-3\ /proc/loadavg\)\;\ start_ns=\$\(date\ +%s%N\)\;\ pids=\(\)\;\ for\ i\ in\ \$\(seq\ 1\ \"\$workers\"\)\;\ do\ cpu=\$\(\(i-1\)\)\;\ taskset\ -c\ \"\$cpu\"\ \"\$FIXED\"\ \"\$N\"\ \>/dev/null\ 2\>\&1\ \&\ pids+=\(\"\$\!\"\)\;\ done\;\ wait_rcs=\"\"\;\ completed=1\;\ for\ pid\ in\ \"\$\{pids\[@\]\}\"\;\ do\ wait\ \"\$pid\"\;\ rc=\$\?\;\ wait_rcs=\"\$\{wait_rcs\}\$\{rc\}\;\"\;\ done\;\ end_ns=\$\(date\ +%s%N\)\;\ ctxt_after=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_after=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_after=\$\(cut\ -d\"\ \"\ -f1-3\ /proc/loadavg\)\;\ elapsed_ms=\$\(\(\ \(end_ns-start_ns\)/1000000\ \)\)\;\ printf\ \"%s\,linux-cfs\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"\$workers\"\ \"\$rep\"\ \"\$elapsed_ms\"\ \"\$completed\"\ \"\$wait_rcs\"\ \"\$ctxt_before\"\ \"\$ctxt_after\"\ \"\$\(\(ctxt_after-ctxt_before\)\)\"\ \"\$running_before\"\ \"\$running_after\"\ \"\$load_before\"\ \"\$load_after\"\;\ done\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094845-baseline_fixed_work.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094845-baseline_fixed_work.stderr
+return_code=0
+
+timestamp=2026-08-21T09:49:09+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=baseline_fixed_work_retry
+command=bash -c set\ +e\;\ FIXED=artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\;\ N=160000000\;\ printf\ \"%s\\n\"\ \"timestamp\,scheduler\,workers\,repetition\,elapsed_ms\,completed\,wait_rcs\,ctxt_before\,ctxt_after\,ctxt_delta\,procs_running_before\,procs_running_after\,load1_before\,load1_after\"\;\ for\ workers\ in\ 1\ 2\ 4\ 8\;\ do\ for\ rep\ in\ 1\ 2\ 3\;\ do\ ctxt_before=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_before=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_before=\$\(awk\ \"\{print\ \\\$1\}\"\ /proc/loadavg\)\;\ start_ns=\$\(date\ +%s%N\)\;\ pids=\(\)\;\ for\ i\ in\ \$\(seq\ 1\ \"\$workers\"\)\;\ do\ cpu=\$\(\(i-1\)\)\;\ taskset\ -c\ \"\$cpu\"\ \"\$FIXED\"\ \"\$N\"\ \>/dev/null\ 2\>\&1\ \&\ pids+=\(\"\$\!\"\)\;\ done\;\ wait_rcs=\"\"\;\ completed=1\;\ for\ pid\ in\ \"\$\{pids\[@\]\}\"\;\ do\ wait\ \"\$pid\"\;\ rc=\$\?\;\ wait_rcs=\"\$\{wait_rcs\}\$\{rc\}\;\"\;\ done\;\ end_ns=\$\(date\ +%s%N\)\;\ ctxt_after=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_after=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_after=\$\(awk\ \"\{print\ \\\$1\}\"\ /proc/loadavg\)\;\ elapsed_ms=\$\(\(\ \(end_ns-start_ns\)/1000000\ \)\)\;\ printf\ \"%s\,linux-cfs\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\,%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"\$workers\"\ \"\$rep\"\ \"\$elapsed_ms\"\ \"\$completed\"\ \"\$wait_rcs\"\ \"\$ctxt_before\"\ \"\$ctxt_after\"\ \"\$\(\(ctxt_after-ctxt_before\)\)\"\ \"\$running_before\"\ \"\$running_after\"\ \"\$load_before\"\ \"\$load_after\"\;\ done\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094909-baseline_fixed_work_retry.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094909-baseline_fixed_work_retry.stderr
+return_code=0
+
+timestamp=2026-08-21T09:49:43+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=baseline_fixed_work_retry2
+command=bash -c set\ +e\;\ FIXED=artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\;\ N=160000000\;\ printf\ \"%s\\n\"\ \"timestamp\,scheduler\,workers\,repetition\,elapsed_ms\,completed\,wait_rcs\,ctxt_before\,ctxt_after\,ctxt_delta\,procs_running_before\,procs_running_after\,load1_before\,load1_after\"\;\ for\ workers\ in\ 1\ 2\ 4\ 8\;\ do\ for\ rep\ in\ 1\ 2\ 3\;\ do\ ctxt_before=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_before=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_before=\$\(awk\ \"\{print\ \\\$1\}\"\ /proc/loadavg\)\;\ start_ns=\$\(date\ +%s%N\)\;\ pids=\(\)\;\ for\ i\ in\ \$\(seq\ 1\ \"\$workers\"\)\;\ do\ cpu=\$\(\(i-1\)\)\;\ taskset\ -c\ \"\$cpu\"\ \"\$FIXED\"\ \"\$N\"\ \>/dev/null\ 2\>\&1\ \&\ pids+=\(\"\$\!\"\)\;\ done\;\ wait_rcs=\"\"\;\ completed=1\;\ for\ pid\ in\ \"\$\{pids\[@\]\}\"\;\ do\ wait\ \"\$pid\"\;\ rc=\$\?\;\ wait_rcs=\"\$\{wait_rcs\}\$\{rc\}\;\"\;\ done\;\ end_ns=\$\(date\ +%s%N\)\;\ ctxt_after=\$\(awk\ \"/\^ctxt/\{print\ \\\$2\}\"\ /proc/stat\)\;\ running_after=\$\(awk\ \"/\^procs_running/\{print\ \\\$2\}\"\ /proc/stat\)\;\ load_after=\$\(awk\ \"\{print\ \\\$1\}\"\ /proc/loadavg\)\;\ elapsed_ms=\$\(\(\ \(end_ns-start_ns\)/1000000\ \)\)\;\ printf\ \"%s\\n\"\ \"\$\(date\ -Iseconds\)\,linux-cfs\,\$workers\,\$rep\,\$elapsed_ms\,\$completed\,\$wait_rcs\,\$ctxt_before\,\$ctxt_after\,\$\(\(ctxt_after-ctxt_before\)\)\,\$running_before\,\$running_after\,\$load_before\,\$load_after\"\;\ done\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094943-baseline_fixed_work_retry2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094943-baseline_fixed_work_retry2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:50:04+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=pre_load_snapshot
+command=bash -c set\ +e\;\ printf\ \"%s\\n\"\ \"timestamp=\$\(date\ -Iseconds\)\"\;\ printf\ \"%s\\n\"\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\ 2\>\&1\)\"\;\ printf\ \"%s\\n\"\ \"orchestra_pin=\$\(if\ \[\ -e\ /sys/fs/bpf/orchestra\ \]\;\ then\ echo\ present\;\ else\ echo\ absent\;\ fi\)\"\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ prog\ list\ ===\"\;\ sudo\ bpftool\ prog\ list\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ map\ list\ ===\"\;\ sudo\ bpftool\ map\ list\;\ printf\ \"%s\\n\"\ \"===\ bpftool\ link\ list\ ===\"\;\ sudo\ bpftool\ link\ list\;\ printf\ \"%s\\n\"\ \"===\ bpffs\ pins\ ===\"\;\ find\ /sys/fs/bpf\ -maxdepth\ 3\ -print\ 2\>/dev/null\ \|\ sort\;\ printf\ \"%s\\n\"\ \"===\ dmesg\ marker\ tail\ ===\"\;\ sudo\ dmesg\ --ctime\ \|\ tail\ -120 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095004-pre_load_snapshot.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095004-pre_load_snapshot.stderr
+return_code=0
+
+timestamp=2026-08-21T09:50:13+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_load_attempt1
+command=timeout --signal=TERM --kill-after=5s 30s sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --load artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095013-scheduler_load_attempt1.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095013-scheduler_load_attempt1.stderr
+return_code=0
+
+timestamp=2026-08-21T09:50:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=post_load_snapshot
+command=bash -c set\ +e\;\ printf\ \"%s\\n\"\ \"timestamp=\$\(date\ -Iseconds\)\"\;\ printf\ \"%s\\n\"\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\ 2\>\&1\)\"\;\ printf\ \"%s\\n\"\ \"===\ loader\ stdout/stderr\ ===\"\;\ cat\ artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095013-scheduler_load_attempt1.stdout\;\ cat\ artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095013-scheduler_load_attempt1.stderr\;\ printf\ \"%s\\n\"\ \"===\ bridge\ status\ ===\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ printf\ \"%s\\n\"\ \"===\ orchestra\ pins\ ===\"\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 2\ -ls\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ named\ maps\ ===\"\;\ sudo\ bpftool\ map\ list\ \|\ rg\ \"orch_\|bridge_\|name\"\;\ printf\ \"%s\\n\"\ \"===\ struct_ops/programs\ ===\"\;\ sudo\ bpftool\ prog\ list\ \|\ rg\ -A4\ -B1\ \"orchestra\|struct_ops\|stage7\"\;\ printf\ \"%s\\n\"\ \"===\ links\ ===\"\;\ sudo\ bpftool\ link\ list\ \|\ rg\ -A5\ -B1\ \"struct_ops\|orchestra\"\;\ printf\ \"%s\\n\"\ \"===\ dmesg\ recent\ ===\"\;\ sudo\ dmesg\ --ctime\ \|\ tail\ -180 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095021-post_load_snapshot.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095021-post_load_snapshot.stderr
+return_code=0
+
+timestamp=2026-08-21T09:50:48+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=negative_worker_start
+command=bash -c set\ -e\;\ exec\ taskset\ -c\ 0\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 100000000000\ \>/dev/null\ 2\>\&1\ \&\ echo\ \$\! 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095048-negative_worker_start.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095048-negative_worker_start.stderr
+return_code=0
+
+timestamp=2026-08-21T09:50:57+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=negative_worker_check
+command=bash -c set\ +e\;\ ps\ -p\ 159207\ -o\ pid\,ppid\,stat\,psr\,etimes\,cmd\;\ test\ -d\ /proc/159207\ \&\&\ \{\ cat\ /proc/159207/stat\;\ taskset\ -pc\ 159207\;\ \}\;\ date\ -Iseconds 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095057-negative_worker_check.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095057-negative_worker_check.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:14+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=negative_worker_start_retry
+command=bash -c set\ +e\;\ nohup\ setsid\ taskset\ -c\ 0\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 100000000000\ \</dev/null\ \>/dev/null\ 2\>\&1\ \&\ pid=\$\!\;\ printf\ \"%s\\n\"\ \"\$pid\"\;\ sleep\ 0.2\;\ ps\ -p\ \"\$pid\"\ -o\ pid\,ppid\,stat\,psr\,etimes\,cmd 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095114-negative_worker_start_retry.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095114-negative_worker_start_retry.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:24+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=negative_ownership_status
+command=bash -c set\ +e\;\ PID=159597\;\ printf\ \"timestamp=%s\ pid=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"\$PID\"\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,ppid\,stat\,psr\,etimes\,cmd\;\ if\ \[\ -r\ /proc/\$PID/stat\ \]\;\ then\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\;\ fi\;\ taskset\ -pc\ \"\$PID\"\;\ printf\ \"%s\\n\"\ \"===\ bridge\ status\ ===\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ printf\ \"%s\\n\"\ \"===\ exact\ target\ telemetry\ lines\ ===\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ \"task\ identity=.\*:159597:\"\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095124-negative_ownership_status.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095124-negative_ownership_status.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:32+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=positive_worker_start
+command=bash -c set\ -e\;\ nohup\ setsid\ taskset\ -c\ 0\,1\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 100000000000\ \</dev/null\ \>/dev/null\ 2\>\&1\ \&\ pid=\$\!\;\ printf\ \"%s\\n\"\ \"\$pid\"\;\ sleep\ 0.2\;\ ps\ -p\ \"\$pid\"\ -o\ pid\,ppid\,stat\,psr\,etimes\,cmd\;\ taskset\ -pc\ \"\$pid\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095132-positive_worker_start.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095132-positive_worker_start.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:39+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=positive_opt_in
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --opt-in --target-pid 159930 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095139-positive_opt_in.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095139-positive_opt_in.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:43+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=positive_publish_run
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --action RUN --target-pid 159930 --slice-ns 5000000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095143-positive_publish_run.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095143-positive_publish_run.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:48+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=positive_status_run
+command=bash -c set\ +e\;\ PID=159930\;\ sleep\ 0.2\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,ppid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ taskset\ -pc\ \"\$PID\"\ 2\>\&1\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ \"task\ identity=.\*:159930:\"\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095148-positive_status_run.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095148-positive_status_run.stderr
+return_code=0
+
+timestamp=2026-08-21T09:51:58+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=yield_publish
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --action YIELD --target-pid 159930 --slice-ns 100000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095158-yield_publish.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095158-yield_publish.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:03+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=yield_observe
+command=bash -c set\ +e\;\ sleep\ 0.5\;\ PID=159930\;\ printf\ \"timestamp=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ \"task\ identity=.\*:159930:\"\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095203-yield_observe.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095203-yield_observe.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_publish_1
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --action MIGRATE --target-pid 159930 --target-cpu 1 --slice-ns 5000000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095221-migrate_publish_1.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095221-migrate_publish_1.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_observe_1
+command=bash -c set\ +e\;\ sleep\ 0.2\;\ printf\ \"timestamp=%s\ trial=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"1\"\;\ PID=159930\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095221-migrate_observe_1.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095221-migrate_observe_1.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:22+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_publish_2
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --action MIGRATE --target-pid 159930 --target-cpu 1 --slice-ns 5000000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_publish_2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_publish_2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:22+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_observe_2
+command=bash -c set\ +e\;\ sleep\ 0.2\;\ printf\ \"timestamp=%s\ trial=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"2\"\;\ PID=159930\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_observe_2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_observe_2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:22+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_publish_3
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --action MIGRATE --target-pid 159930 --target-cpu 1 --slice-ns 5000000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_publish_3.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_publish_3.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:22+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_observe_3
+command=bash -c set\ +e\;\ sleep\ 0.2\;\ printf\ \"timestamp=%s\ trial=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\ \"3\"\;\ PID=159930\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_observe_3.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095222-migrate_observe_3.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:35+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=migrate_observe_3_retry
+command=bash -c set\ +e\;\ sleep\ 1\;\ PID=159930\;\ printf\ \"timestamp=%s\\n\"\ \"\$\(date\ -Iseconds\)\"\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ awk\ \"\{print\ \\\"stat_processor=\\\"\ \\\$39\,\\\"start_ticks=\\\"\ \\\$22\,\\\"state=\\\"\ \\\$3\}\"\ /proc/\$PID/stat\ 2\>/dev/null\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095235-migrate_observe_3_retry.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095235-migrate_observe_3_retry.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:50+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=sleep_pre
+command=bash -c set\ +e\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095250-sleep_pre.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095250-sleep_pre.stderr
+return_code=0
+
+timestamp=2026-08-21T09:52:55+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=sleep_publish
+command=bash -c now_ns=\$\(awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\)\;\ not_before=\$\(\(now_ns+1500000000\)\)\;\ printf\ \"not_before_ns=%s\ monotonic_now_ns=%s\\n\"\ \"\$not_before\"\ \"\$now_ns\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --publish\ --action\ SLEEP\ --target-pid\ 159930\ --not-before-ns\ \"\$not_before\"\ --slice-ns\ 5000000 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095255-sleep_publish.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095255-sleep_publish.stderr
+return_code=0
+
+timestamp=2026-08-21T09:53:04+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=sleep_observe_timeline
+command=bash -c set\ +e\;\ PID=159930\;\ for\ phase\ in\ early\ late\;\ do\ if\ \[\ \"\$phase\"\ =\ early\ \]\;\ then\ sleep\ 0.1\;\ else\ sleep\ 2\;\ fi\;\ printf\ \"phase=%s\ monotonic_now_ns=\"\ \"\$phase\"\;\ awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\"\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095304-sleep_observe_timeline.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095304-sleep_observe_timeline.stderr
+return_code=0
+
+timestamp=2026-08-21T09:53:27+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=sleep_valid_timeline
+command=bash -c set\ +e\;\ PID=159930\;\ now_ns=\$\(awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\)\;\ deadline=\$\(\(now_ns+2000000000\)\)\;\ printf\ \"deadline_ns=%s\ publish_now_ns=%s\\n\"\ \"\$deadline\"\ \"\$now_ns\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --publish\ --action\ SLEEP\ --target-pid\ \"\$PID\"\ --not-before-ns\ \"\$deadline\"\ --slice-ns\ 5000000\;\ for\ phase\ in\ early\ late\;\ do\ if\ \[\ \"\$phase\"\ =\ early\ \]\;\ then\ sleep\ 0.1\;\ else\ sleep\ 2.5\;\ fi\;\ printf\ \"phase=%s\ monotonic_now_ns=\"\ \"\$phase\"\;\ awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\;\ ps\ -p\ \"\$PID\"\ -o\ pid\,stat\,psr\,etimes\,cmd\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\"\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095327-sleep_valid_timeline.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095327-sleep_valid_timeline.stderr
+return_code=0
+
+timestamp=2026-08-21T09:53:44+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=control_map_inspect
+command=bash -c set\ +e\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_control\ -j\;\ printf\ \"\\n===\ telemetry\ map\ json\ ===\\n\"\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_telemetry\ -j\;\ printf\ \"\\n===\ task\ telemetry\ map\ json\ ===\\n\"\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_task_tel\ -j\ \|\ sed\ -n\ \"1\,200p\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/telemetry/20260821-095344-control_map_inspect.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/telemetry/20260821-095344-control_map_inspect.stderr
+return_code=0
+
+timestamp=2026-08-21T09:54:11+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=task_runtime_before_throttle
+command=bash -c set\ +e\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_task_tel\ -j\ \|\ rg\ -o\ \'\"runtime_ns\":\ \[0-9\]+\'\ \|\|\ true\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ \"task\ identity=.\*:159930:\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/telemetry/20260821-095411-task_runtime_before_throttle.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/telemetry/20260821-095411-task_runtime_before_throttle.stderr
+return_code=0
+
+timestamp=2026-08-21T09:54:29+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=throttle_timeline
+command=bash -c set\ +e\;\ PID=159930\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --publish\ --action\ THROTTLE\ --target-pid\ \"\$PID\"\ --slice-ns\ 5000000\ --throttle-period-ns\ 1000000000\ --throttle-budget-ns\ 200000000\;\ printf\ \"phase=after_publish\ monotonic_ns=\"\;\ awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_task_tel\ -j\ \|\ rg\ -o\ \"runtime_ns\[\^\,\}\]\*\|effective_count\[\^\,\}\]\*\|generation\[\^\,\}\]\*\"\ \|\ tail\ -3\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\"\;\ for\ phase\ in\ 1\ 2\ 3\ 4\;\ do\ sleep\ 1\;\ printf\ \"phase=%s\ monotonic_ns=\"\ \"\$phase\"\;\ awk\ \"\{printf\ \\\"%.0f\\\\n\\\"\,\\\$1\*1000000000\}\"\ /proc/uptime\;\ sudo\ bpftool\ map\ dump\ pinned\ /sys/fs/bpf/orchestra/orch_task_tel\ -j\ \|\ rg\ -o\ \"runtime_ns\[\^\,\}\]\*\|effective_count\[\^\,\}\]\*\|generation\[\^\,\}\]\*\"\ \|\ tail\ -3\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\ \|\ grep\ -E\ \"\^\(directive\|task\ identity\|telemetry\)\"\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095429-throttle_timeline.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095429-throttle_timeline.stderr
+return_code=0
+
+timestamp=2026-08-21T09:54:45+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=stop_runtime_workers
+command=bash -c set\ +e\;\ for\ pid\ in\ 159597\ 159930\;\ do\ kill\ -TERM\ \"\$pid\"\ 2\>\&1\ \|\|\ true\;\ done\;\ sleep\ 0.2\;\ for\ pid\ in\ 159597\ 159930\;\ do\ if\ kill\ -0\ \"\$pid\"\ 2\>/dev/null\;\ then\ echo\ \"pid=\$pid\ still_alive\"\;\ else\ echo\ \"pid=\$pid\ stopped\"\;\ fi\;\ done 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095445-stop_runtime_workers.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095445-stop_runtime_workers.stderr
+return_code=0
+
+timestamp=2026-08-21T09:54:50+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_unload_phase1
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --unload 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095450-scheduler_unload_phase1.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095450-scheduler_unload_phase1.stderr
+return_code=0
+
+timestamp=2026-08-21T09:54:59+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=post_unload_snapshot
+command=bash -c set\ +e\;\ printf\ \"%s\\n\"\ \"timestamp=\$\(date\ -Iseconds\)\"\;\ printf\ \"%s\\n\"\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\ 2\>\&1\)\"\;\ printf\ \"%s\\n\"\ \"orchestra_pin=\$\(if\ \[\ -e\ /sys/fs/bpf/orchestra\ \]\;\ then\ echo\ present\;\ else\ echo\ absent\;\ fi\)\"\;\ printf\ \"%s\\n\"\ \"===\ unload\ output\ ===\"\;\ cat\ artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095450-scheduler_unload_phase1.stdout\ artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095450-scheduler_unload_phase1.stderr\;\ printf\ \"%s\\n\"\ \"===\ orchestra\ pins\ ===\"\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 2\ -print\ 2\>/dev/null\;\ printf\ \"%s\\n\"\ \"===\ remaining\ named\ programs/links\ ===\"\;\ sudo\ bpftool\ prog\ list\ \|\ rg\ \"orchestra\|stage7\|struct_ops\"\ \|\|\ true\;\ sudo\ bpftool\ link\ list\ \|\ rg\ \"struct_ops\|orchestra\"\ \|\|\ true\;\ printf\ \"%s\\n\"\ \"===\ sched_ext-related\ dmesg\ ===\"\;\ sudo\ dmesg\ --ctime\ \|\ rg\ -i\ \"sched_ext\|orchestra\|BPF\ scheduler\|oops\|BUG\|stall\|hung\|RCU\|panic\"\ \|\ tail\ -160\;\ printf\ \"%s\\n\"\ \"===\ kernel\ log\ since\ load\ ===\"\;\ sudo\ journalctl\ -k\ -b\ --since\ \"2026-08-21\ 09:50:00\"\ --no-pager\ \|\ rg\ -i\ \"sched_ext\|orchestra\|BPF\ scheduler\|oops\|BUG\|stall\|hung\|RCU\|panic\|segfault\"\ \|\ tail\ -240 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095459-post_unload_snapshot.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095459-post_unload_snapshot.stderr
+return_code=0
+
+timestamp=2026-08-21T09:55:09+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_load_attempt2
+command=timeout --signal=TERM --kill-after=5s 30s sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --load artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095509-scheduler_load_attempt2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095509-scheduler_load_attempt2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:04+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_post_load2
+command=sh -c echo\ \"sched_ext_state=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ echo\ \"--bridge--\"\;\ sudo\ build/orchestra_bridge\ --status\;\ echo\ \"--pins--\"\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 1\ -mindepth\ 1\ -printf\ \"%f\\n\"\ 2\>/dev/null\ \|\ sort\;\ echo\ \"--struct_ops--\"\;\ sudo\ bpftool\ prog\ list\ \|\ rg\ \"orchestra\|struct_ops\"\ \|\|\ true\;\ echo\ \"--links--\"\;\ sudo\ bpftool\ link\ list\ \|\ rg\ \"orchestra\|struct_ops\"\ \|\|\ true\;\ echo\ \"--dmesg--\"\;\ dmesg\ --ctime\ \|\ rg\ \"sched_ext\|orchestra\|BPF\ scheduler\"\ \|\ tail\ -40\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095704-scheduler_post_load2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095704-scheduler_post_load2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:18+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=bridge_status2
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --status 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095718-bridge_status2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095718-bridge_status2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_action_cli
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --target-pid 1 --action BOGUS 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095721-invalid_action_cli.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095721-invalid_action_cli.stderr
+return_code=1
+
+timestamp=2026-08-21T09:57:26+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_cpu_worker_start
+command=sh -c nohup\ setsid\ taskset\ -c\ 0\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 100000000000\ \>/dev/null\ 2\>\&1\ \&\ echo\ \$\! 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095726-invalid_cpu_worker_start.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095726-invalid_cpu_worker_start.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:33+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_cpu_worker_optin
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --opt-in --target-pid 164720 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095733-invalid_cpu_worker_optin.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095733-invalid_cpu_worker_optin.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:36+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_cpu_publish
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --target-pid 164720 --action MIGRATE --target-cpu 9999 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095736-invalid_cpu_publish.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095736-invalid_cpu_publish.stderr
+return_code=7
+
+timestamp=2026-08-21T09:57:39+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_pid_publish
+command=sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge --publish --target-pid 999999 --action RUN 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095739-invalid_pid_publish.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/failures/20260821-095739-invalid_pid_publish.stderr
+return_code=6
+
+timestamp=2026-08-21T09:57:43+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=invalid_input_postcheck
+command=sh -c echo\ \"sched_ext_state=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ ps\ -o\ pid=\,stat=\,psr=\,comm=\ -p\ 164720\ \|\|\ true\;\ sudo\ bpftool\ map\ dump\ name\ orch_telemetry\ format\ c\ 2\>/dev/null\ \|\ head\ -80\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095743-invalid_input_postcheck.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095743-invalid_input_postcheck.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:51+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=stop_invalid_cpu_worker
+command=sh -c kill\ -TERM\ 164720\ 2\>/dev/null\ \|\|\ true\;\ for\ i\ in\ 1\ 2\ 3\ 4\ 5\;\ do\ if\ kill\ -0\ 164720\ 2\>/dev/null\;\ then\ sleep\ 0.2\;\ else\ echo\ stopped\;\ exit\ 0\;\ fi\;\ done\;\ echo\ still_present\;\ ps\ -o\ pid=\,stat=\,comm=\ -p\ 164720\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095751-stop_invalid_cpu_worker.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095751-stop_invalid_cpu_worker.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:54+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_unload_phase2
+command=timeout --signal=TERM --kill-after=5s 10s sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --unload 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095754-scheduler_unload_phase2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095754-scheduler_unload_phase2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:57:59+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=post_unload_snapshot2
+command=sh -c echo\ \"sched_ext_state=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ if\ \[\ -d\ /sys/fs/bpf/orchestra\ \]\;\ then\ echo\ orchestra_pin=present\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 1\ -mindepth\ 1\ -printf\ \"%f\\n\"\ \|\ sort\;\ else\ echo\ orchestra_pin=absent\;\ fi\;\ echo\ \"--orchestra-programs--\"\;\ sudo\ bpftool\ prog\ list\ \|\ rg\ \"orchestra\"\ \|\|\ true\;\ echo\ \"--orchestra-links--\"\;\ sudo\ bpftool\ link\ list\ \|\ rg\ \"orchestra\"\ \|\|\ true\;\ echo\ \"--recent-sched-ext-log--\"\;\ dmesg\ --ctime\ \|\ rg\ \"sched_ext\|orchestra\|BPF\ scheduler\"\ \|\ tail\ -60\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095759-post_unload_snapshot2.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-095759-post_unload_snapshot2.stderr
+return_code=0
+
+timestamp=2026-08-21T09:58:10+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=final_tool_availability
+command=sh -c for\ t\ in\ stress\ stress-ng\ perf\ mpstat\ pidstat\ numactl\ lstopo-no-graphics\ sensors\ cpupower\ bpftool\ clang\ gcc\ make\ pahole\ python3\;\ do\ if\ command\ -v\ \"\$t\"\ \>/dev/null\ 2\>\&1\;\ then\ printf\ \"%s=%s\\n\"\ \"\$t\"\ \"\$\(command\ -v\ \"\$t\"\)\"\;\ else\ printf\ \"%s=MISSING\\n\"\ \"\$t\"\;\ fi\;\ done\;\ echo\ \"--versions--\"\;\ bpftool\ version\ 2\>\&1\ \|\ head\ -3\;\ clang\ --version\ \|\ head\ -1\;\ gcc\ --version\ \|\ head\ -1\;\ pahole\ --version\ 2\>\&1\ \|\ head\ -1\;\ perf\ --version\ 2\>\&1\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095810-final_tool_availability.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095810-final_tool_availability.stderr
+return_code=0
+
+timestamp=2026-08-21T09:58:14+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=final_host_health
+command=sh -c date\ -Iseconds\;\ echo\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ echo\ \"--df--\"\;\ df\ -h\ /\ /home\ /tmp\;\ echo\ \"--load--\"\;\ cat\ /proc/loadavg\;\ echo\ \"--memory--\"\;\ free\ -h\;\ echo\ \"--thermal--\"\;\ sensors\ 2\>\&1\ \|\ head\ -100\ \|\|\ true\;\ echo\ \"--kernel-log-tail--\"\;\ dmesg\ --ctime\ \|\ tail\ -120\;\ echo\ \"--kernel-error-patterns--\"\;\ dmesg\ --ctime\ \|\ rg\ -i\ \"orchestra\|sched_ext\|bpf\|verifier\|oops\|panic\|soft\ lockup\|hard\ lockup\|rcu.\*stall\|hung\ task\|watchdog\"\ \|\ tail\ -120\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095814-final_host_health.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095814-final_host_health.stderr
+return_code=0
+
+timestamp=2026-08-21T09:58:34+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=baseline_summary
+command=awk -F\, NR==1\ \{next\}\ \{w=\$3\;\ n\[w\]++\;\ sum\[w\]+=\$5\;\ sumsq\[w\]+=\$5\*\$5\;\ if\ \(\!\(w\ in\ min\)\ \|\|\ \$5\<min\[w\]\)\ min\[w\]=\$5\;\ if\ \(\!\(w\ in\ max\)\ \|\|\ \$5\>max\[w\]\)\ max\[w\]=\$5\}\ END\ \{print\ \"workers\,n\,mean_ms\,min_ms\,max_ms\,sample_sd_ms\"\;\ for\ \(w\ in\ \"1\ 2\ 4\ 8\"\)\ \{sd=\(n\[w\]\>1\ \?\ sqrt\(\(sumsq\[w\]-sum\[w\]\*sum\[w\]/n\[w\]\)/\(n\[w\]-1\)\)\ :\ 0\)\;\ printf\ \"%s\,%d\,%.2f\,%d\,%d\,%.2f\\n\"\,w\,n\[w\]\,sum\[w\]/n\[w\]\,min\[w\]\,max\[w\]\,sd\}\} artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094943-baseline_fixed_work_retry2.stdout 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-095834-baseline_summary.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-095834-baseline_summary.stderr
+return_code=1
+
+timestamp=2026-08-21T09:58:44+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=baseline_summary_retry
+command=awk -F\, NR==1\ \{next\}\ \{w=\$3\;\ n\[w\]++\;\ sum\[w\]+=\$5\;\ sumsq\[w\]+=\$5\*\$5\;\ if\ \(\!\(w\ in\ min\)\ \|\|\ \$5\<min\[w\]\)\ min\[w\]=\$5\;\ if\ \(\!\(w\ in\ max\)\ \|\|\ \$5\>max\[w\]\)\ max\[w\]=\$5\}\ END\ \{print\ \"workers\,n\,mean_ms\,min_ms\,max_ms\,sample_sd_ms\"\;\ for\ \(w\ in\ n\)\ \{sd=\(n\[w\]\>1\ \?\ sqrt\(\(sumsq\[w\]-sum\[w\]\*sum\[w\]/n\[w\]\)/\(n\[w\]-1\)\)\ :\ 0\)\;\ printf\ \"%s\,%d\,%.2f\,%d\,%d\,%.2f\\n\"\,w\,n\[w\]\,sum\[w\]/n\[w\]\,min\[w\]\,max\[w\]\,sd\}\} artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-094943-baseline_fixed_work_retry2.stdout 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-095844-baseline_summary_retry.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-095844-baseline_summary_retry.stderr
+return_code=0
+
+timestamp=2026-08-21T09:59:19+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=final_repo_state
+command=sh -c pwd\;\ git\ rev-parse\ --show-toplevel\;\ git\ rev-parse\ HEAD\;\ git\ branch\ --show-current\;\ echo\ \"--status--\"\;\ git\ status\ --short\;\ echo\ \"--tracked-diff-name-status--\"\;\ git\ diff\ --name-status\;\ echo\ \"--tracked-source-diff--\"\;\ git\ diff\ --name-only\ --\ kernel/sched_ext\ benchmarks\ tests\ src\ include\ 2\>/dev/null\ \|\|\ true\;\ echo\ \"--diff-stat--\"\;\ git\ diff\ --stat 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095919-final_repo_state.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-095919-final_repo_state.stderr
+return_code=0
+
+timestamp=2026-08-21T09:59:37+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_load_attempt3
+command=timeout --signal=TERM --kill-after=5s 10s sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --load artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095937-scheduler_load_attempt3.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/scheduler/20260821-095937-scheduler_load_attempt3.stderr
+return_code=0
+
+timestamp=2026-08-21T09:59:46+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=finite_orchestra_forward_progress
+command=timeout --signal=TERM --kill-after=5s 20s sh -c echo\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ taskset\ -c\ 0\,1\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 10000000000\ \>/dev/null\ 2\>\&1\ \&\ pid=\$\!\;\ echo\ \"pid=\$pid\"\;\ ps\ -o\ pid=\,stat=\,psr=\,comm=\ -p\ \"\$pid\"\ \|\|\ true\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --opt-in\ --target-pid\ \"\$pid\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --publish\ --action\ RUN\ --target-pid\ \"\$pid\"\;\ echo\ \"--owned_status--\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ wait\ \"\$pid\"\;\ rc=\$\?\;\ echo\ \"wait_rc=\$rc\"\;\ if\ kill\ -0\ \"\$pid\"\ 2\>/dev/null\;\ then\ echo\ \"worker_alive_after_wait=yes\"\;\ else\ echo\ \"worker_alive_after_wait=no\"\;\ fi\;\ echo\ \"--post_status--\"\;\ sudo\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge\ --status\;\ exit\ 0 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095946-finite_orchestra_forward_progress.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/workloads/20260821-095946-finite_orchestra_forward_progress.stderr
+return_code=124
+
+timestamp=2026-08-21T10:00:26+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=finite_forward_progress_cleanup
+command=sh -c if\ kill\ -0\ 167121\ 2\>/dev/null\;\ then\ kill\ -TERM\ 167121\ 2\>/dev/null\ \|\|\ true\;\ fi\;\ sleep\ 0.2\;\ echo\ \"worker_state_after_cleanup=\"\;\ ps\ -o\ pid=\,stat=\,psr=\,comm=\ -p\ 167121\ \|\|\ true\;\ echo\ \"sched_ext_before_unload=\$\(cat\ /sys/kernel/sched_ext/state\)\" 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100026-finite_forward_progress_cleanup.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100026-finite_forward_progress_cleanup.stderr
+return_code=0
+
+timestamp=2026-08-21T10:00:29+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=scheduler_unload_phase3
+command=timeout --signal=TERM --kill-after=5s 10s sudo artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader --unload 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100029-scheduler_unload_phase3.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100029-scheduler_unload_phase3.stderr
+return_code=0
+
+timestamp=2026-08-21T10:00:33+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=post_unload_snapshot3
+command=sh -c echo\ \"sched_ext_state=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ if\ \[\ -d\ /sys/fs/bpf/orchestra\ \]\;\ then\ echo\ orchestra_pin=present\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 1\ -mindepth\ 1\ -printf\ \"%f\\n\"\ \|\ sort\;\ else\ echo\ orchestra_pin=absent\;\ fi\;\ sudo\ bpftool\ prog\ list\ \|\ rg\ \"orchestra\"\ \|\|\ true\;\ sudo\ bpftool\ link\ list\ \|\ rg\ \"orchestra\"\ \|\|\ true\;\ dmesg\ --ctime\ \|\ rg\ \"sched_ext\|orchestra\|BPF\ scheduler\|oops\|panic\|lockup\|stall\|hung\ task\"\ \|\ tail\ -80\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100033-post_unload_snapshot3.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/recovery/20260821-100033-post_unload_snapshot3.stderr
+return_code=0
+
+timestamp=2026-08-21T10:00:54+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=finite_cfs_diagnostic_baseline
+command=sh -c start=\$\(date\ +%s%N\)\;\ timeout\ --signal=TERM\ --kill-after=5s\ 20s\ taskset\ -c\ 0\,1\ artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work\ 10000000000\ \>/dev/null\ 2\>\&1\;\ rc=\$\?\;\ end=\$\(date\ +%s%N\)\;\ elapsed=\$\(\(\ \(end-start\)/1000000\ \)\)\;\ echo\ \"scheduler=linux-cfs\ workers=1\ iterations=10000000000\ elapsed_ms=\$elapsed\ wait_rc=\$rc\ completed=\$\(\[\ \"\$rc\"\ -eq\ 1\ \]\ \&\&\ echo\ yes\ \|\|\ echo\ no\)\"\;\ exit\ 0 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-100054-finite_cfs_diagnostic_baseline.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/baseline/20260821-100054-finite_cfs_diagnostic_baseline.stderr
+return_code=0
+
+timestamp=2026-08-21T10:01:55+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=stress_suite_cfs_smoke
+command=bash benchmarks/real-machine/stress_suite.sh 3 cfs 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/stress/20260821-100155-stress_suite_cfs_smoke.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/stress/20260821-100155-stress_suite_cfs_smoke.stderr
+return_code=0
+
+timestamp=2026-08-21T10:02:21+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=stress_health_warning_analysis
+command=sh -c dmesg\ --ctime\ \|\ tail\ -200\ \|\ rg\ -i\ \"panic\|BUG\|stall\|hung_task\|RCU\"\ \|\|\ true\;\ echo\ \"--orchestra-delta--\"\;\ dmesg\ --ctime\ \|\ rg\ \"sched_ext\|orchestra\|BPF\ scheduler\"\ \|\ tail\ -20\ \|\|\ true 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/stress/20260821-100221-stress_health_warning_analysis.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/stress/20260821-100221-stress_health_warning_analysis.stderr
+return_code=0
+
+timestamp=2026-08-21T10:02:49+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=final_host_health_after_stress
+command=sh -c date\ -Iseconds\;\ echo\ \"sched_ext=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ echo\ \"load=\$\(cat\ /proc/loadavg\)\"\;\ free\ -h\;\ sensors\ 2\>\&1\ \|\ rg\ \"Package\ id\ 0\|Core\ 0\|Composite\"\ \|\|\ true\;\ echo\ \"--orchestra-critical-log--\"\;\ dmesg\ --ctime\ \|\ rg\ -i\ \"orchestra\|sched_ext\|oops\|panic\|soft\ lockup\|hard\ lockup\|rcu.\*stall\|hung\ task\|watchdog\"\ \|\ tail\ -80\ \|\|\ true\;\ echo\ \"--orchestra-pins--\"\;\ if\ \[\ -d\ /sys/fs/bpf/orchestra\ \]\;\ then\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 1\ -mindepth\ 1\ -printf\ \"%f\\n\"\ \|\ sort\;\ else\ echo\ absent\;\ fi 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-100249-final_host_health_after_stress.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-100249-final_host_health_after_stress.stderr
+return_code=0
+
+timestamp=2026-08-21T10:05:44+01:00
+working_directory=/home/sharda/Downloads/ORCHESTRA-OS-main
+label=final_integrity_state
+command=sh -c echo\ \"commit=\$\(git\ rev-parse\ HEAD\)\"\;\ echo\ \"branch=\$\(git\ branch\ --show-current\)\"\;\ echo\ \"tracked_diff_count=\$\(git\ diff\ --name-only\ \|\ wc\ -l\)\"\;\ echo\ \"tracked_source_diff_count=\$\(git\ diff\ --name-only\ --\ kernel/sched_ext\ benchmarks\ tests\ src\ include\ 2\>/dev/null\ \|\ wc\ -l\)\"\;\ echo\ \"sched_ext_state=\$\(cat\ /sys/kernel/sched_ext/state\)\"\;\ if\ \[\ -d\ /sys/fs/bpf/orchestra\ \]\;\ then\ echo\ \"orchestra_pin_dir=present\"\;\ find\ /sys/fs/bpf/orchestra\ -maxdepth\ 1\ -mindepth\ 1\ -printf\ \"%f\\n\"\ \|\ sort\;\ else\ echo\ \"orchestra_pin_dir=absent\"\;\ fi\;\ echo\ \"--status--\"\;\ git\ status\ --short 
+stdout=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-100544-final_integrity_state.stdout
+stderr=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-machine-20260821-094227-kali-2qqYxp/environment/20260821-100544-final_integrity_state.stderr
+return_code=0
+
