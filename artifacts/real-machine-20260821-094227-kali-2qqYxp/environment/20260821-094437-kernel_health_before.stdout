@@ -1,0 +1,702 @@
+=== identity/privilege ===
+uid=0(root) gid=0(root) groups=0(root)
+uid=0(root) gid=0(root) groups=0(root)
+=== sched_ext state ===
+disabled
+=== sched_ext tree ===
+=== bpf mounts/pins ===
+bpf on /sys/fs/bpf type bpf (rw,nosuid,nodev,noexec,relatime,mode=700)
+debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
+tracefs on /sys/kernel/tracing type tracefs (rw,nosuid,nodev,noexec,relatime)
+/sys/fs/bpf
+=== bpftool programs ===
+68: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:29:28+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+69: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:29:28+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+106: lsm  name restrict_filesystems  tag 31efb7c56239148b  gpl
+	loaded_at 2026-08-21T09:30:34+0100  uid 0
+	xlated 520B  jited 294B  memlock 4096B  map_ids 26
+	btf_id 186
+425: socket_filter  tag 6535b13de335de4a
+	loaded_at 2026-08-21T09:31:00+0100  uid 0
+	xlated 848B  jited 461B  memlock 4096B  map_ids 27
+589: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+590: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+591: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+592: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+593: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+594: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+595: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+596: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+597: cgroup_device  name sd_devices  tag e85dd840b52c4ab9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 792B  jited 490B  memlock 4096B
+598: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+599: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+601: cgroup_device  name sd_devices  tag 4ea3934a7fabf5c3  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 504B  jited 319B  memlock 4096B
+602: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+603: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+607: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+608: cgroup_device  name sd_devices  tag a97c143260cd9940  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 416B  jited 268B  memlock 4096B
+609: cgroup_device  name sd_devices  tag b3333f074dcc518c  gpl
+	loaded_at 2026-08-21T09:31:06+0100  uid 0
+	xlated 184B  jited 111B  memlock 4096B
+611: cgroup_skb  name sd_fw_egress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:43:17+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+612: cgroup_skb  name sd_fw_ingress  tag 772db7720b2728e9  gpl
+	loaded_at 2026-08-21T09:43:17+0100  uid 0
+	xlated 64B  jited 64B  memlock 4096B
+=== bpftool maps ===
+26: hash_of_maps  name cgroup_hash  flags 0x0
+	key 8B  value 4B  max_entries 2048  memlock 164928B
+27: hash  flags 0x0
+	key 4B  value 1B  max_entries 8  memlock 3264B
+=== bpftool links ===
+4: tracing  prog 106  
+	prog_type lsm  attach_type lsm_mac  
+	target_obj_id 1  target_btf_id 68139  
+=== bpf sysctls ===
+kernel.unprivileged_bpf_disabled = 2
+kernel.bpf_stats_enabled = 0
+vm.max_map_count = 1048576
+=== boot kernels/configs ===
+-rw-r--r-- 1 root root   289779 Sep 24  2025 /boot/config-6.16.8+kali-amd64
+-rw-r--r-- 1 root root   297482 Jun 18 10:48 /boot/config-7.0.12+kali-amd64
+-rw-r--r-- 1 root root 13165056 Sep 24  2025 /boot/vmlinuz-6.16.8+kali-amd64
+-rw-r--r-- 1 root root 14070272 Jun 18 10:48 /boot/vmlinuz-7.0.12+kali-amd64
+=== dmesg tail ===
+[Fri Aug 21 08:42:41 2026] usb usb1: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+[Fri Aug 21 08:42:41 2026] usb usb1: SerialNumber: 0000:00:14.0
+[Fri Aug 21 08:42:41 2026] hub 1-0:1.0: USB hub found
+[Fri Aug 21 08:42:41 2026] hub 1-0:1.0: 16 ports detected
+[Fri Aug 21 08:42:41 2026] usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 7.00
+[Fri Aug 21 08:42:41 2026] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[Fri Aug 21 08:42:41 2026] usb usb2: Product: xHCI Host Controller
+[Fri Aug 21 08:42:41 2026] usb usb2: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+[Fri Aug 21 08:42:41 2026] usb usb2: SerialNumber: 0000:00:14.0
+[Fri Aug 21 08:42:41 2026] hub 2-0:1.0: USB hub found
+[Fri Aug 21 08:42:41 2026] hub 2-0:1.0: 10 ports detected
+[Fri Aug 21 08:42:41 2026] usb: port power management may be unreliable
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: disabling bridge window [mem size 0x00000000 64bit pref disabled] to [bus e1] (unused)
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [mem 0x82000000-0x820fffff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 0 [mem 0x82100000-0x82101fff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 5 [mem 0x82102000-0x821027ff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 1 [mem 0x82102800-0x821028ff]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+[Fri Aug 21 08:42:41 2026] pci 10000:e1:00.0: BAR 0 [mem 0x82000000-0x82003fff 64bit]: assigned
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4: PCI bridge to [bus e1]
+[Fri Aug 21 08:42:41 2026] pci 10000:e0:1d.4:   bridge window [mem 0x82000000-0x820fffff]
+[Fri Aug 21 08:42:41 2026] pci 10000:e1:00.0: can't override BIOS ASPM; OS doesn't have ASPM control
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: PCI INT A: no GSI
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: PME: Signaling with IRQ 151
+[Fri Aug 21 08:42:41 2026] pcieport 10000:e0:1d.4: AER: enabled with IRQ 151
+[Fri Aug 21 08:42:41 2026] vmd 0000:00:0e.0: Bound to PCI domain 10000
+[Fri Aug 21 08:42:41 2026] Key type psk registered
+[Fri Aug 21 08:42:41 2026] SCSI subsystem initialized
+[Fri Aug 21 08:42:41 2026] usb 1-1: new low-speed USB device number 2 using xhci_hcd
+[Fri Aug 21 08:42:41 2026] usb 1-1: New USB device found, idVendor=03f0, idProduct=564a, bcdDevice= 1.08
+[Fri Aug 21 08:42:41 2026] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[Fri Aug 21 08:42:41 2026] usb 1-1: Product: HP 125 Wired Keyboard
+[Fri Aug 21 08:42:41 2026] usb 1-1: Manufacturer: LITEON Technology Corp.
+[Fri Aug 21 08:42:42 2026] hid: raw HID events driver (C) Jiri Kosina
+[Fri Aug 21 08:42:42 2026] nvme nvme0: pci function 10000:e1:00.0
+[Fri Aug 21 08:42:42 2026] pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:42 2026] nvme 10000:e1:00.0: PCI INT A: no GSI
+[Fri Aug 21 08:42:42 2026] libata version 3.00 loaded.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Found alderlake_s/raptorlake_s (device ID a780) integrated display version 12.00 stepping D0
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] VT-d active for gfx access
+[Fri Aug 21 08:42:42 2026] Console: switching to colour dummy device 80x25
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: vgaarb: deactivate vga console
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Using Transparent Hugepages
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=io+mem:owns=io+mem
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Finished loading DMC firmware i915/adls_dmc_ver2_01.bin (v2.1)
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GuC firmware i915/tgl_guc_70.bin version 70.49.4
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: HuC firmware i915/tgl_huc.bin version 7.9.3
+[Fri Aug 21 08:42:42 2026] nvme nvme0: missing or invalid SUBNQN field.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: HuC: authenticated for all workloads
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: submission enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: SLPC enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] GT0: GUC: RC enabled
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Protected Xe Path (PXP) protected content support initialized
+[Fri Aug 21 08:42:42 2026] usbcore: registered new interface driver usbhid
+[Fri Aug 21 08:42:42 2026] usbhid: USB HID core driver
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+[Fri Aug 21 08:42:42 2026] nvme nvme0: allocated 64 MiB host memory buffer (1 segment).
+[Fri Aug 21 08:42:42 2026] nvme nvme0: 24/0/0 default/read/poll queues
+[Fri Aug 21 08:42:42 2026] usb 1-9: new low-speed USB device number 3 using xhci_hcd
+[Fri Aug 21 08:42:42 2026]  nvme0n1: p1 p2 p3 p4 p5 p6 p7 p8
+[Fri Aug 21 08:42:42 2026] [drm] Initialized i915 1.6.0 for 0000:00:02.0 on minor 0
+[Fri Aug 21 08:42:42 2026] ACPI: video: Video Device [GFX0] (multi-head: yes  rom: no  post: no)
+[Fri Aug 21 08:42:42 2026] input: Video Bus as /devices/pci0000:00/acpi.video_bus.0/input/input3
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/0003:03F0:564A.0001/input/input4
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: can't derive routing for PCI INT A
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: PCI INT A: no GSI
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: AHCI vers 0001.0301, 32 command slots, 6 Gbps, SATA mode
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: 4/4 ports implemented (port mask 0xf0)
+[Fri Aug 21 08:42:42 2026] ahci 10000:e0:17.0: flags: 64bit ncq sntf pm led clo only pio slum part ems deso sadm sds 
+[Fri Aug 21 08:42:42 2026] fbcon: i915drmfb (fb0) is primary device
+[Fri Aug 21 08:42:42 2026] scsi host0: ahci
+[Fri Aug 21 08:42:42 2026] scsi host1: ahci
+[Fri Aug 21 08:42:42 2026] scsi host2: ahci
+[Fri Aug 21 08:42:42 2026] scsi host3: ahci
+[Fri Aug 21 08:42:42 2026] scsi host4: ahci
+[Fri Aug 21 08:42:42 2026] scsi host5: ahci
+[Fri Aug 21 08:42:42 2026] scsi host6: ahci
+[Fri Aug 21 08:42:42 2026] scsi host7: ahci
+[Fri Aug 21 08:42:42 2026] ata1: DUMMY
+[Fri Aug 21 08:42:42 2026] ata2: DUMMY
+[Fri Aug 21 08:42:42 2026] ata3: DUMMY
+[Fri Aug 21 08:42:42 2026] ata4: DUMMY
+[Fri Aug 21 08:42:42 2026] ata5: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102300 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata6: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102380 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata7: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102400 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] ata8: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102480 irq 178 lpm-pol 3
+[Fri Aug 21 08:42:42 2026] Console: switching to colour frame buffer device 240x67
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] fb0: i915drmfb frame buffer device
+[Fri Aug 21 08:42:42 2026] usb 1-9: New USB device found, idVendor=03f0, idProduct=584a, bcdDevice= 1.00
+[Fri Aug 21 08:42:42 2026] usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[Fri Aug 21 08:42:42 2026] usb 1-9: Product: HP 125 USB Optical Mouse
+[Fri Aug 21 08:42:42 2026] usb 1-9: Manufacturer: PixArt
+[Fri Aug 21 08:42:42 2026] input: PixArt HP 125 USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9:1.0/0003:03F0:584A.0003/input/input5
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:564A.0001: input,hidraw0: USB HID v1.11 Keyboard [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input0
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input6
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:584A.0003: input,hidraw1: USB HID v1.11 Mouse [PixArt HP 125 USB Optical Mouse] on usb-0000:00:14.0-9/input0
+[Fri Aug 21 08:42:42 2026] input: LITEON Technology Corp. HP 125 Wired Keyboard System Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input7
+[Fri Aug 21 08:42:42 2026] hid-generic 0003:03F0:564A.0002: input,hidraw2: USB HID v1.11 Device [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input1
+[Fri Aug 21 08:42:42 2026] ata6: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata7: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata8: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] ata5: SATA link down (SStatus 4 SControl 300)
+[Fri Aug 21 08:42:42 2026] PM: Image not found (code -22)
+[Fri Aug 21 08:42:43 2026] EXT4-fs (nvme0n1p6): orphan cleanup on readonly fs
+[Fri Aug 21 08:42:43 2026] EXT4-fs (nvme0n1p6): mounted filesystem ba748417-bde3-40af-8f54-01947d49ffa8 ro with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:43 2026] Not activating Mandatory Access Control as /sbin/tomoyo-init does not exist.
+[Fri Aug 21 08:42:43 2026] systemd[1]: RTC configured in localtime, applying delta of 60 minutes to system time.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Inserted module 'autofs4'
+[Fri Aug 21 08:42:43 2026] systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 08:42:43 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Hostname set to <kali>.
+[Fri Aug 21 08:42:44 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 08:42:44 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Queued start job for default target graphical.target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice user.slice - User and Session Slice.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-1c29ce44\x2d2c4f\x2d4f4d\x2d832f\x2db4d02a0d5aed.device - /dev/disk/by-uuid/1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-5463983b\x2da228\x2d4805\x2dadae\x2d4dd27af9b33e.device - /dev/disk/by-uuid/5463983b-a228-4805-adae-4dd27af9b33e...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-9012\x2dEB79.device - /dev/disk/by-uuid/9012-EB79...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target imports.target - Image Downloads.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target slices.target - Slice Units.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target stunnel.target - TLS tunnels for network services - per-config-file target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-ask-password.socket - Query the User Interactively for a Password.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-factory-reset.socket - Factory Reset Management.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-mute-console.socket - Console Output Muting Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-varlink.socket - udev Varlink Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-userdbd.socket - User Database Manager Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@configfs.service - Load Kernel Module configfs skipped, unmet condition check ConditionKernelModuleLoaded=!configfs
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@drm.service - Load Kernel Module drm skipped, unmet condition check ConditionKernelModuleLoaded=!drm
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@fuse.service - Load Kernel Module fuse skipped, unmet condition check ConditionKernelModuleLoaded=!fuse
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrosseparator.service - TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrnvdone.service - TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrproduct.service - TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[Fri Aug 21 08:42:44 2026] pstore: Using crash dump compression: deflate
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Collecting audit messages is disabled.
+[Fri Aug 21 08:42:44 2026] lp: driver loaded but no devices found
+[Fri Aug 21 08:42:44 2026] ppdev: user-space parallel port driver
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[Fri Aug 21 08:42:44 2026] pstore: Registered efi_pstore as persistent store backend
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 08:42:44 2026] EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Received client request to flush runtime journal.
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] input: PC Speaker as /devices/platform/pcspkr/input/input8
+[Fri Aug 21 08:42:45 2026] intel_pmc_core INT33A1:00:  initialized
+[Fri Aug 21 08:42:45 2026] mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+[Fri Aug 21 08:42:45 2026] mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+[Fri Aug 21 08:42:45 2026] input: HP WMI hotkeys as /devices/virtual/input/input9
+[Fri Aug 21 08:42:45 2026] RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain package 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+[Fri Aug 21 08:42:45 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+[Fri Aug 21 08:42:45 2026] intel_rapl_msr: PL4 support detected.
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain package
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain core
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain uncore
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 21 08:42:46 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 21 08:42:46 2026] EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:46 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 21 08:42:46 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 21 08:42:46 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 21 08:42:46 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 21 08:42:47 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered udp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 21 08:42:49 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 21 08:43:20 2026] systemd-journald[549]: Time jumped backwards, rotating.
+[Fri Aug 21 09:29:28 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:33 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd[1]: systemd 261.2-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 09:30:34 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 09:30:34 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-journald[549]: Received SIGTERM from PID 1 (systemd).
+[Fri Aug 21 09:30:34 2026] systemd[1]: Stopping systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd[1]: systemd-journald.service: Deactivated successfully.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Stopped systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd-journald[112931]: Collecting audit messages is disabled.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:37 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:38 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:39 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:52 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:53 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] audit: type=1400 audit(1787301055.083:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="/usr/sbin/cups-browsed" pid=115704 comm="apparmor_parser"
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:56 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:59 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:00 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-ge[118577]: segfault at 0 ip 00007f00971e319d sp 00007ffe7aa12ed8 error 6 in libc.so.6[16819d,7f00970a3000+168000] likely on CPU 2 (core 4, socket 0)
+[Fri Aug 21 09:31:04 2026] Code: 00 00 66 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 83 fa 20 72 27 c5 fe 6f 06 48 83 fa 40 0f 87 a9 00 00 00 c5 fe 6f 4c 16 e0 <c5> fe 7f 07 c5 fe 7f 4c 17 e0 c5 f8 77 c3 0f 1f 44 00 00 83 fa 10
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+=== journal kernel tail ===
+Aug 21 13:12:43 kali kernel: usb usb1: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+Aug 21 13:12:43 kali kernel: usb usb1: SerialNumber: 0000:00:14.0
+Aug 21 13:12:43 kali kernel: hub 1-0:1.0: USB hub found
+Aug 21 13:12:43 kali kernel: hub 1-0:1.0: 16 ports detected
+Aug 21 13:12:43 kali kernel: usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 7.00
+Aug 21 13:12:43 kali kernel: usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Aug 21 13:12:43 kali kernel: usb usb2: Product: xHCI Host Controller
+Aug 21 13:12:43 kali kernel: usb usb2: Manufacturer: Linux 7.0.12+kali-amd64 xhci-hcd
+Aug 21 13:12:43 kali kernel: usb usb2: SerialNumber: 0000:00:14.0
+Aug 21 13:12:43 kali kernel: hub 2-0:1.0: USB hub found
+Aug 21 13:12:43 kali kernel: hub 2-0:1.0: 10 ports detected
+Aug 21 13:12:43 kali kernel: usb: port power management may be unreliable
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: disabling bridge window [mem size 0x00000000 64bit pref disabled] to [bus e1] (unused)
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: bridge window [mem 0x82000000-0x820fffff]: assigned
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 0 [mem 0x82100000-0x82101fff]: assigned
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 5 [mem 0x82102000-0x821027ff]: assigned
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 1 [mem 0x82102800-0x821028ff]: assigned
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: bridge window [io  size 0x1000]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 4 [io  size 0x0020]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 2 [io  size 0x0008]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: can't assign; no space
+Aug 21 13:12:43 kali kernel: pci 10000:e0:17.0: BAR 3 [io  size 0x0004]: failed to assign
+Aug 21 13:12:43 kali kernel: pci 10000:e1:00.0: BAR 0 [mem 0x82000000-0x82003fff 64bit]: assigned
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4: PCI bridge to [bus e1]
+Aug 21 13:12:43 kali kernel: pci 10000:e0:1d.4:   bridge window [mem 0x82000000-0x820fffff]
+Aug 21 13:12:43 kali kernel: pci 10000:e1:00.0: can't override BIOS ASPM; OS doesn't have ASPM control
+Aug 21 13:12:43 kali kernel: pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+Aug 21 13:12:43 kali kernel: pcieport 10000:e0:1d.4: PCI INT A: no GSI
+Aug 21 13:12:43 kali kernel: pcieport 10000:e0:1d.4: PME: Signaling with IRQ 151
+Aug 21 13:12:43 kali kernel: pcieport 10000:e0:1d.4: AER: enabled with IRQ 151
+Aug 21 13:12:43 kali kernel: vmd 0000:00:0e.0: Bound to PCI domain 10000
+Aug 21 13:12:43 kali kernel: Key type psk registered
+Aug 21 13:12:43 kali kernel: SCSI subsystem initialized
+Aug 21 13:12:43 kali kernel: usb 1-1: new low-speed USB device number 2 using xhci_hcd
+Aug 21 13:12:43 kali kernel: usb 1-1: New USB device found, idVendor=03f0, idProduct=564a, bcdDevice= 1.08
+Aug 21 13:12:43 kali kernel: usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Aug 21 13:12:43 kali kernel: usb 1-1: Product: HP 125 Wired Keyboard
+Aug 21 13:12:43 kali kernel: usb 1-1: Manufacturer: LITEON Technology Corp.
+Aug 21 13:12:43 kali kernel: hid: raw HID events driver (C) Jiri Kosina
+Aug 21 13:12:43 kali kernel: nvme nvme0: pci function 10000:e1:00.0
+Aug 21 13:12:43 kali kernel: pcieport 10000:e0:1d.4: can't derive routing for PCI INT A
+Aug 21 13:12:43 kali kernel: nvme 10000:e1:00.0: PCI INT A: no GSI
+Aug 21 13:12:43 kali kernel: libata version 3.00 loaded.
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Found alderlake_s/raptorlake_s (device ID a780) integrated display version 12.00 stepping D0
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] VT-d active for gfx access
+Aug 21 13:12:43 kali kernel: Console: switching to colour dummy device 80x25
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: vgaarb: deactivate vga console
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Using Transparent Hugepages
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=io+mem:owns=io+mem
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Finished loading DMC firmware i915/adls_dmc_ver2_01.bin (v2.1)
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: GuC firmware i915/tgl_guc_70.bin version 70.49.4
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: HuC firmware i915/tgl_huc.bin version 7.9.3
+Aug 21 13:12:43 kali kernel: nvme nvme0: missing or invalid SUBNQN field.
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: HuC: authenticated for all workloads
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: submission enabled
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: SLPC enabled
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] GT0: GUC: RC enabled
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Protected Xe Path (PXP) protected content support initialized
+Aug 21 13:12:43 kali kernel: usbcore: registered new interface driver usbhid
+Aug 21 13:12:43 kali kernel: usbhid: USB HID core driver
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+Aug 21 13:12:43 kali kernel: nvme nvme0: allocated 64 MiB host memory buffer (1 segment).
+Aug 21 13:12:43 kali kernel: nvme nvme0: 24/0/0 default/read/poll queues
+Aug 21 13:12:43 kali kernel: usb 1-9: new low-speed USB device number 3 using xhci_hcd
+Aug 21 13:12:43 kali kernel:  nvme0n1: p1 p2 p3 p4 p5 p6 p7 p8
+Aug 21 13:12:43 kali kernel: [drm] Initialized i915 1.6.0 for 0000:00:02.0 on minor 0
+Aug 21 13:12:43 kali kernel: ACPI: video: Video Device [GFX0] (multi-head: yes  rom: no  post: no)
+Aug 21 13:12:43 kali kernel: input: Video Bus as /devices/pci0000:00/acpi.video_bus.0/input/input3
+Aug 21 13:12:43 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/0003:03F0:564A.0001/input/input4
+Aug 21 13:12:43 kali kernel: ahci 10000:e0:17.0: can't derive routing for PCI INT A
+Aug 21 13:12:43 kali kernel: ahci 10000:e0:17.0: PCI INT A: no GSI
+Aug 21 13:12:43 kali kernel: ahci 10000:e0:17.0: AHCI vers 0001.0301, 32 command slots, 6 Gbps, SATA mode
+Aug 21 13:12:43 kali kernel: ahci 10000:e0:17.0: 4/4 ports implemented (port mask 0xf0)
+Aug 21 13:12:43 kali kernel: ahci 10000:e0:17.0: flags: 64bit ncq sntf pm led clo only pio slum part ems deso sadm sds 
+Aug 21 13:12:43 kali kernel: fbcon: i915drmfb (fb0) is primary device
+Aug 21 13:12:43 kali kernel: scsi host0: ahci
+Aug 21 13:12:43 kali kernel: scsi host1: ahci
+Aug 21 13:12:43 kali kernel: scsi host2: ahci
+Aug 21 13:12:43 kali kernel: scsi host3: ahci
+Aug 21 13:12:43 kali kernel: scsi host4: ahci
+Aug 21 13:12:43 kali kernel: scsi host5: ahci
+Aug 21 13:12:43 kali kernel: scsi host6: ahci
+Aug 21 13:12:43 kali kernel: scsi host7: ahci
+Aug 21 13:12:43 kali kernel: ata1: DUMMY
+Aug 21 13:12:43 kali kernel: ata2: DUMMY
+Aug 21 13:12:43 kali kernel: ata3: DUMMY
+Aug 21 13:12:43 kali kernel: ata4: DUMMY
+Aug 21 13:12:43 kali kernel: ata5: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102300 irq 178 lpm-pol 3
+Aug 21 13:12:43 kali kernel: ata6: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102380 irq 178 lpm-pol 3
+Aug 21 13:12:43 kali kernel: ata7: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102400 irq 178 lpm-pol 3
+Aug 21 13:12:43 kali kernel: ata8: SATA max UDMA/133 abar m2048@0x82102000 port 0x82102480 irq 178 lpm-pol 3
+Aug 21 13:12:43 kali kernel: Console: switching to colour frame buffer device 240x67
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] fb0: i915drmfb frame buffer device
+Aug 21 13:12:43 kali kernel: usb 1-9: New USB device found, idVendor=03f0, idProduct=584a, bcdDevice= 1.00
+Aug 21 13:12:43 kali kernel: usb 1-9: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Aug 21 13:12:43 kali kernel: usb 1-9: Product: HP 125 USB Optical Mouse
+Aug 21 13:12:43 kali kernel: usb 1-9: Manufacturer: PixArt
+Aug 21 13:12:43 kali kernel: input: PixArt HP 125 USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9:1.0/0003:03F0:584A.0003/input/input5
+Aug 21 13:12:43 kali kernel: hid-generic 0003:03F0:564A.0001: input,hidraw0: USB HID v1.11 Keyboard [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input0
+Aug 21 13:12:43 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input6
+Aug 21 13:12:43 kali kernel: hid-generic 0003:03F0:584A.0003: input,hidraw1: USB HID v1.11 Mouse [PixArt HP 125 USB Optical Mouse] on usb-0000:00:14.0-9/input0
+Aug 21 13:12:43 kali kernel: input: LITEON Technology Corp. HP 125 Wired Keyboard System Control as /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1/0003:03F0:564A.0002/input/input7
+Aug 21 13:12:43 kali kernel: hid-generic 0003:03F0:564A.0002: input,hidraw2: USB HID v1.11 Device [LITEON Technology Corp. HP 125 Wired Keyboard] on usb-0000:00:14.0-1/input1
+Aug 21 13:12:43 kali kernel: ata6: SATA link down (SStatus 4 SControl 300)
+Aug 21 13:12:43 kali kernel: ata7: SATA link down (SStatus 4 SControl 300)
+Aug 21 13:12:43 kali kernel: ata8: SATA link down (SStatus 4 SControl 300)
+Aug 21 13:12:43 kali kernel: ata5: SATA link down (SStatus 4 SControl 300)
+Aug 21 13:12:43 kali kernel: PM: Image not found (code -22)
+Aug 21 13:12:43 kali kernel: EXT4-fs (nvme0n1p6): orphan cleanup on readonly fs
+Aug 21 13:12:43 kali kernel: EXT4-fs (nvme0n1p6): mounted filesystem ba748417-bde3-40af-8f54-01947d49ffa8 ro with ordered data mode. Quota mode: none.
+Aug 21 13:12:43 kali kernel: Not activating Mandatory Access Control as /sbin/tomoyo-init does not exist.
+Aug 21 13:12:43 kali systemd[1]: RTC configured in localtime, applying delta of 60 minutes to system time.
+Aug 21 13:12:43 kali systemd[1]: Inserted module 'autofs4'
+Aug 21 13:12:43 kali systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+Aug 21 13:12:43 kali systemd[1]: Detected architecture x86-64.
+Aug 21 13:12:43 kali systemd[1]: Hostname set to <kali>.
+Aug 21 13:12:43 kali systemd[1]: bpf-restrict-fs: LSM BPF program attached
+Aug 21 13:12:43 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 13:12:43 kali systemd[1]: Queued start job for default target graphical.target.
+Aug 21 13:12:43 kali systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+Aug 21 13:12:43 kali systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+Aug 21 13:12:43 kali systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+Aug 21 13:12:43 kali systemd[1]: Created slice user.slice - User and Session Slice.
+Aug 21 13:12:43 kali systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+Aug 21 13:12:43 kali systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+Aug 21 13:12:43 kali systemd[1]: Expecting device dev-disk-by\x2duuid-1c29ce44\x2d2c4f\x2d4f4d\x2d832f\x2db4d02a0d5aed.device - /dev/disk/by-uuid/1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed...
+Aug 21 13:12:43 kali systemd[1]: Expecting device dev-disk-by\x2duuid-5463983b\x2da228\x2d4805\x2dadae\x2d4dd27af9b33e.device - /dev/disk/by-uuid/5463983b-a228-4805-adae-4dd27af9b33e...
+Aug 21 13:12:43 kali systemd[1]: Expecting device dev-disk-by\x2duuid-9012\x2dEB79.device - /dev/disk/by-uuid/9012-EB79...
+Aug 21 13:12:43 kali systemd[1]: Reached target imports.target - Image Downloads.
+Aug 21 13:12:43 kali systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+Aug 21 13:12:43 kali systemd[1]: Reached target slices.target - Slice Units.
+Aug 21 13:12:43 kali systemd[1]: Reached target stunnel.target - TLS tunnels for network services - per-config-file target.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-ask-password.socket - Query the User Interactively for a Password.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-factory-reset.socket - Factory Reset Management.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-mute-console.socket - Console Output Muting Service Socket.
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-udevd-varlink.socket - udev Varlink Socket.
+Aug 21 13:12:43 kali systemd[1]: Listening on systemd-userdbd.socket - User Database Manager Socket.
+Aug 21 13:12:43 kali systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+Aug 21 13:12:43 kali systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+Aug 21 13:12:43 kali systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+Aug 21 13:12:43 kali systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+Aug 21 13:12:43 kali systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+Aug 21 13:12:43 kali systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+Aug 21 13:12:43 kali systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+Aug 21 13:12:43 kali systemd[1]: modprobe@configfs.service - Load Kernel Module configfs skipped, unmet condition check ConditionKernelModuleLoaded=!configfs
+Aug 21 13:12:43 kali systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+Aug 21 13:12:43 kali systemd[1]: modprobe@drm.service - Load Kernel Module drm skipped, unmet condition check ConditionKernelModuleLoaded=!drm
+Aug 21 13:12:43 kali systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+Aug 21 13:12:43 kali systemd[1]: modprobe@fuse.service - Load Kernel Module fuse skipped, unmet condition check ConditionKernelModuleLoaded=!fuse
+Aug 21 13:12:43 kali systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+Aug 21 13:12:43 kali systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+Aug 21 13:12:43 kali systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-journald.service - Journal Service...
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrosseparator.service - TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+Aug 21 13:12:43 kali systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrnvdone.service - TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+Aug 21 13:12:43 kali systemd[1]: systemd-pcrproduct.service - TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+Aug 21 13:12:43 kali systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+Aug 21 13:12:43 kali systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+Aug 21 13:12:43 kali systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+Aug 21 13:12:43 kali systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+Aug 21 13:12:43 kali systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+Aug 21 13:12:43 kali kernel: pstore: Using crash dump compression: deflate
+Aug 21 13:12:43 kali systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+Aug 21 13:12:43 kali systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+Aug 21 13:12:43 kali systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+Aug 21 13:12:43 kali systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+Aug 21 13:12:43 kali systemd-journald[549]: Collecting audit messages is disabled.
+Aug 21 13:12:43 kali kernel: lp: driver loaded but no devices found
+Aug 21 13:12:43 kali kernel: ppdev: user-space parallel port driver
+Aug 21 13:12:43 kali systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+Aug 21 13:12:43 kali kernel: pstore: Registered efi_pstore as persistent store backend
+Aug 21 13:12:43 kali systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+Aug 21 13:12:43 kali systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+Aug 21 13:12:43 kali systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+Aug 21 13:12:43 kali systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+Aug 21 13:12:43 kali systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+Aug 21 13:12:43 kali systemd[1]: Started systemd-journald.service - Journal Service.
+Aug 21 13:12:43 kali kernel: EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+Aug 21 13:12:43 kali systemd-journald[549]: Received client request to flush runtime journal.
+Aug 21 13:12:44 kali kernel: EDAC ie31200: No ECC support
+Aug 21 13:12:44 kali kernel: EDAC ie31200: No ECC support
+Aug 21 13:12:44 kali kernel: mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+Aug 21 13:12:44 kali kernel: input: PC Speaker as /devices/platform/pcspkr/input/input8
+Aug 21 13:12:44 kali kernel: intel_pmc_core INT33A1:00:  initialized
+Aug 21 13:12:44 kali kernel: mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+Aug 21 13:12:44 kali kernel: mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+Aug 21 13:12:44 kali kernel: input: HP WMI hotkeys as /devices/virtual/input/input9
+Aug 21 13:12:44 kali kernel: RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+Aug 21 13:12:44 kali kernel: RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+Aug 21 13:12:44 kali kernel: RAPL PMU: hw unit of domain package 2^-14 Joules
+Aug 21 13:12:44 kali kernel: RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+Aug 21 13:12:44 kali kernel: Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+Aug 21 13:12:45 kali kernel: ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+Aug 21 13:12:45 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+Aug 21 13:12:45 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+Aug 21 13:12:45 kali kernel: snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+Aug 21 13:12:45 kali kernel: snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+Aug 21 13:12:45 kali kernel: intel_rapl_msr: PL4 support detected.
+Aug 21 13:12:45 kali kernel: intel_rapl_common: Found RAPL domain package
+Aug 21 13:12:45 kali kernel: intel_rapl_common: Found RAPL domain core
+Aug 21 13:12:45 kali kernel: intel_rapl_common: Found RAPL domain uncore
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+Aug 21 13:12:45 kali kernel: snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+Aug 21 13:12:45 kali kernel: input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+Aug 21 13:12:45 kali kernel: ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+Aug 21 13:12:45 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+Aug 21 13:12:45 kali kernel: ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+Aug 21 13:12:45 kali kernel: hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+Aug 21 13:12:45 kali kernel: EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+Aug 21 13:12:45 kali kernel: nvme nvme0: using unchecked data buffer
+Aug 21 13:12:45 kali kernel: NET: Registered PF_QIPCRTR protocol family
+Aug 21 13:12:45 kali kernel: Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+Aug 21 13:12:46 kali kernel: r8169 0000:01:00.0 eth0: Link is Down
+Aug 21 13:12:46 kali kernel: RPC: Registered named UNIX socket transport module.
+Aug 21 13:12:46 kali kernel: RPC: Registered udp transport module.
+Aug 21 13:12:46 kali kernel: RPC: Registered tcp transport module.
+Aug 21 13:12:46 kali kernel: RPC: Registered tcp-with-tls transport module.
+Aug 21 13:12:46 kali kernel: RPC: Registered tcp NFSv4.1 backchannel transport module.
+Aug 21 13:12:49 kali kernel: r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+Aug 21 08:43:20 kali systemd-journald[549]: Time jumped backwards, rotating.
+Aug 21 09:29:28 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:33 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:34 kali systemd[1]: systemd 261.2-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+Aug 21 09:30:34 kali systemd[1]: Detected architecture x86-64.
+Aug 21 09:30:34 kali systemd[1]: bpf-restrict-fs: LSM BPF program attached
+Aug 21 09:30:34 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:34 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:35 kali systemd-journald[549]: Received SIGTERM from PID 1 (systemd).
+Aug 21 09:30:35 kali systemd[1]: Stopping systemd-journald.service - Journal Service...
+Aug 21 09:30:35 kali systemd[1]: systemd-journald.service: Deactivated successfully.
+Aug 21 09:30:35 kali systemd[1]: Stopped systemd-journald.service - Journal Service.
+Aug 21 09:30:35 kali systemd[1]: Starting systemd-journald.service - Journal Service...
+Aug 21 09:30:35 kali systemd-journald[112931]: Collecting audit messages is disabled.
+Aug 21 09:30:35 kali systemd[1]: Started systemd-journald.service - Journal Service.
+Aug 21 09:30:35 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:36 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:36 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:37 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:38 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:39 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:40 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:40 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:41 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:41 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:52 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:53 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:55 kali kernel: audit: type=1400 audit(1787301055.083:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="/usr/sbin/cups-browsed" pid=115704 comm="apparmor_parser"
+Aug 21 09:30:55 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:55 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:56 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:30:59 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:00 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:01 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:01 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:04 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:04 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:04 kali kernel: systemd-sslh-ge[118577]: segfault at 0 ip 00007f00971e319d sp 00007ffe7aa12ed8 error 6 in libc.so.6[16819d,7f00970a3000+168000] likely on CPU 2 (core 4, socket 0)
+Aug 21 09:31:04 kali kernel: Code: 00 00 66 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 83 fa 20 72 27 c5 fe 6f 06 48 83 fa 40 0f 87 a9 00 00 00 c5 fe 6f 4c 16 e0 <c5> fe 7f 07 c5 fe 7f 4c 17 e0 c5 f8 77 c3 0f 1f 44 00 00 83 fa 10
+Aug 21 09:31:04 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:05 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:05 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+Aug 21 09:31:05 kali systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.

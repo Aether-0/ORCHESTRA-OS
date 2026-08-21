@@ -1,0 +1,20 @@
+2026-08-21T10:02:49+01:00
+sched_ext=disabled
+load=2.91 3.27 2.72 4/1107 298195
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       2.0Gi        13Gi       416Mi       1.0Gi        13Gi
+Swap:          7.5Gi       1.4Gi       6.0Gi
+Package id 0:  +57.0°C  (high = +80.0°C, crit = +100.0°C)
+Core 0:        +50.0°C  (high = +80.0°C, crit = +100.0°C)
+Composite:    +45.9°C  (low  =  -5.2°C, high = +82.8°C)
+--orchestra-critical-log--
+[Fri Aug 21 08:42:40 2026] NMI watchdog: Enabled. Permanently consumes one hw-PMU counter.
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:57:54 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:59:38 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 10:00:29 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+--orchestra-pins--
+absent

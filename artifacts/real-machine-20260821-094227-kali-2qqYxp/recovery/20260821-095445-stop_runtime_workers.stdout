@@ -1,0 +1,4 @@
+bash: line 1: kill: (159597) - No such process
+bash: line 1: kill: (159930) - No such process
+pid=159597 stopped
+pid=159930 stopped

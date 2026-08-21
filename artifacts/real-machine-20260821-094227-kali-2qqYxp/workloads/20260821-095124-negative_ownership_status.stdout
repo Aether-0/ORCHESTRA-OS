@@ -1,0 +1,10 @@
+timestamp=2026-08-21T09:51:24+01:00 pid=159597
+    PID    PPID STAT PSR ELAPSED CMD
+ 159597       1 Rs     0      10 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+stat_processor=0 start_ticks=411338 state=R
+pid 159597's current affinity list: 0
+=== bridge status ===
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=4053200698251 generation=0 policy_generation=0 controller=NORMAL lease=0ns
+telemetry accepted=0 dispatched=0 running=527462 fallback=526340 migrate_target=0 migrate_other=0 timer_ticks=278572 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=74454 run_disp=526340 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+=== exact target telemetry lines ===

@@ -1,0 +1,32 @@
+KSRC=/home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0
+/home/sharda/Downloads/ORCHESTRA-OS-main
+07c787c4eeac01a2f9d60916577806d00863b15f
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 7
+PATCHLEVEL = 0
+SUBLEVEL = 12
+EXTRAVERSION =
+NAME = Baby Opossum Posse
+
+# *DOCUMENTATION*
+source_version=7.0.12
+present tools/sched_ext/include/scx/common.bpf.h aad6f6cda8d52711125d9e73fb22c199043b4fd4cc709703fef25ca3d4ad7dba  /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/sched_ext/include/scx/common.bpf.h
+missing tools/lib/bpf_helpers.h
+missing tools/bpf/bpftool/libbpf/libbpf.h
+missing include/generated/utsrelease.h
+missing arch/x86/include/generated/uapi/asm/unistd_64.h
+bpf_arena_common.bpf.h
+bpf_arena_common.h
+common.bpf.h
+common.h
+compat.bpf.h
+compat.h
+enum_defs.autogen.h
+enums.autogen.bpf.h
+enums.autogen.h
+enums.bpf.h
+enums.h
+user_exit_info.bpf.h
+user_exit_info.h
+user_exit_info_common.h
+=== source config/kernel release ===

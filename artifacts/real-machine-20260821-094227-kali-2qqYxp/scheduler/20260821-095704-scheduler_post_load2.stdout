@@ -1,0 +1,27 @@
+sched_ext_state=enabled
+--bridge--
+--pins--
+orch_control
+orch_defer_tmr
+orch_directives
+orch_identity
+orch_task_state
+orch_task_tel
+orch_telemetry
+orchestra_sched
+--struct_ops--
+633: struct_ops  name orchestra_sched_init  tag f6fa696bda20fdf6  gpl
+635: struct_ops  name orchestra_sched_exit  tag 844425ef9afb3ee0  gpl
+636: struct_ops  name orchestra_sched_enable  tag 92b9fdef2be83969  gpl
+637: struct_ops  name orchestra_sched_disable  tag 1ffc371191eb4a70  gpl
+638: struct_ops  name orchestra_sched_select_cpu  tag 054d04f12b5eefec  gpl
+639: struct_ops  name orchestra_sched_enqueue  tag 275d154720e632a3  gpl
+640: struct_ops  name orchestra_sched_dispatch  tag da3d9fa71b824962  gpl
+641: struct_ops  name orchestra_sched_running  tag b4e26b1c9c50edfd  gpl
+642: struct_ops  name orchestra_sched_stopping  tag 4496eee51742d038  gpl
+--links--
+6: struct_ops  map 52  
+--dmesg--
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled

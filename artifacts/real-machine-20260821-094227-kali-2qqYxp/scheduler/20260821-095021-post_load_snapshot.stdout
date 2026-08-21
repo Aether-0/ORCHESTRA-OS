@@ -1,0 +1,252 @@
+timestamp=2026-08-21T09:50:21+01:00
+sched_ext=enabled
+=== loader stdout/stderr ===
+loaded artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o; maps pinned before attach; link=/sys/fs/bpf/orchestra/orchestra_sched
+=== bridge status ===
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=4053200698251 generation=0 policy_generation=0 controller=NORMAL lease=0ns
+telemetry accepted=0 dispatched=0 running=57460 fallback=57350 migrate_target=0 migrate_other=0 timer_ticks=30892 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=8039 run_disp=57350 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+=== orchestra pins ===
+   243015      0 drwx------   2 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra
+    22416      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orchestra_sched
+   241254      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_defer_tmr
+   241253      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_telemetry
+   241252      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_task_tel
+   241251      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_task_state
+   241250      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_identity
+   241249      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_directives
+   241248      0 -rw-------   1 root     root            0 Aug 21 09:50 /sys/fs/bpf/orchestra/orch_control
+=== named maps ===
+26: hash_of_maps  name cgroup_hash  flags 0x0
+29: array  name orch_control  flags 0x0
+30: hash  name orch_directives  flags 0x0
+31: hash  name orch_identity  flags 0x0
+32: hash  name orch_task_state  flags 0x0
+33: hash  name orch_task_tel  flags 0x0
+34: array  name orch_telemetry  flags 0x0
+35: array  name orch_defer_tmr  flags 0x0
+37: array  name orchestr.rodata  flags 0x480
+38: array  name orchestr.data  flags 0x0
+39: struct_ops  name orchestra_sched  flags 0x2000
+=== struct_ops/programs ===
+	xlated 64B  jited 64B  memlock 4096B
+618: struct_ops  name orchestra_sched_init  tag f6fa696bda20fdf6  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 2536B  jited 1456B  memlock 4096B  map_ids 34,29,35,38,32,33,37
+	btf_id 199
+620: struct_ops  name orchestra_sched_exit  tag 844425ef9afb3ee0  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 200B  jited 142B  memlock 4096B  map_ids 34,37
+	btf_id 199
+621: struct_ops  name orchestra_sched_enable  tag 92b9fdef2be83969  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 448B  jited 268B  memlock 4096B  map_ids 34,29,31,37
+	btf_id 199
+622: struct_ops  name orchestra_sched_disable  tag 1ffc371191eb4a70  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 464B  jited 286B  memlock 4096B  map_ids 34,31,30,32,33,37
+	btf_id 199
+623: struct_ops  name orchestra_sched_select_cpu  tag 054d04f12b5eefec  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 20400B  jited 11944B  memlock 24576B  map_ids 34,30,29,33,32,37
+	btf_id 199
+624: struct_ops  name orchestra_sched_enqueue  tag 275d154720e632a3  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 15160B  jited 9017B  memlock 16384B  map_ids 34,30,29,33,32,37
+	btf_id 199
+625: struct_ops  name orchestra_sched_dispatch  tag da3d9fa71b824962  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 136B  jited 98B  memlock 4096B  map_ids 34,37
+	btf_id 199
+626: struct_ops  name orchestra_sched_running  tag b4e26b1c9c50edfd  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 1048B  jited 598B  memlock 4096B  map_ids 32,33,34,37
+	btf_id 199
+627: struct_ops  name orchestra_sched_stopping  tag 4496eee51742d038  gpl
+	loaded_at 2026-08-21T09:50:13+0100  uid 0
+	xlated 736B  jited 421B  memlock 4096B  map_ids 32,33,34,37
+	btf_id 199
+=== links ===
+	target_obj_id 1  target_btf_id 68139  
+5: struct_ops  map 39  
+=== dmesg recent ===
+[Fri Aug 21 08:42:43 2026] Not activating Mandatory Access Control as /sbin/tomoyo-init does not exist.
+[Fri Aug 21 08:42:43 2026] systemd[1]: RTC configured in localtime, applying delta of 60 minutes to system time.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Inserted module 'autofs4'
+[Fri Aug 21 08:42:43 2026] systemd[1]: systemd 261.1-2 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 08:42:43 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 08:42:43 2026] systemd[1]: Hostname set to <kali>.
+[Fri Aug 21 08:42:44 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 08:42:44 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Queued start job for default target graphical.target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-getty.slice - Slice /system/getty.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Created slice user.slice - User and Session Slice.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-1c29ce44\x2d2c4f\x2d4f4d\x2d832f\x2db4d02a0d5aed.device - /dev/disk/by-uuid/1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-5463983b\x2da228\x2d4805\x2dadae\x2d4dd27af9b33e.device - /dev/disk/by-uuid/5463983b-a228-4805-adae-4dd27af9b33e...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Expecting device dev-disk-by\x2duuid-9012\x2dEB79.device - /dev/disk/by-uuid/9012-EB79...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target imports.target - Image Downloads.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target slices.target - Slice Units.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Reached target stunnel.target - TLS tunnels for network services - per-config-file target.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-ask-password.socket - Query the User Interactively for a Password.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-creds.socket - Credential Encryption/Decryption.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-factory-reset.socket - Factory Reset Management.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-hostnamed.socket - Hostname Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-journald.socket - Journal Sockets.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-mute-console.socket - Console Output Muting Service Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrextend.socket - TPM PCR Measurements skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrlock.socket - Make TPM PCR Policy skipped, unmet condition check ConditionSecurity=measured-uki
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-udevd-varlink.socket - udev Varlink Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Listening on systemd-userdbd.socket - User Database Manager Socket.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: auth-rpcgss-module.service - Kernel Module supporting RPCSEC_GSS skipped, unmet condition check ConditionPathExists=/etc/krb5.keytab
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@configfs.service - Load Kernel Module configfs skipped, unmet condition check ConditionKernelModuleLoaded=!configfs
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@drm.service - Load Kernel Module drm skipped, unmet condition check ConditionKernelModuleLoaded=!drm
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@fuse.service - Load Kernel Module fuse skipped, unmet condition check ConditionKernelModuleLoaded=!fuse
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-fsck-root.service - File System Check on Root Device skipped, unmet condition check ConditionPathExists=!/run/initramfs/fsck-root
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-hibernate-clear.service - Clear Stale Hibernate Storage Info skipped, unmet condition check ConditionPathExists=/sys/firmware/efi/efivars/HibernateLocation-8cf2644b-4b0b-428f-9387-6d876050dc67
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrmachine.service - TPM PCR Machine ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrosseparator.service - TPM PCR OS Separator skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-tpm2-setup-early.service - Early TPM SRK Setup skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrnvdone.service - TPM PCR NvPCR Initialization Separator skipped, unmet condition check ConditionPathExists=/etc/initrd-release
+[Fri Aug 21 08:42:44 2026] systemd[1]: systemd-pcrproduct.service - TPM NvPCR Product ID Measurement skipped, unmet condition check ConditionSecurity=measured-os
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-load-credentials.service - Load udev Rules from Credentials...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[Fri Aug 21 08:42:44 2026] pstore: Using crash dump compression: deflate
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-udev-load-credentials.service - Load udev Rules from Credentials.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Collecting audit messages is disabled.
+[Fri Aug 21 08:42:44 2026] lp: driver loaded but no devices found
+[Fri Aug 21 08:42:44 2026] ppdev: user-space parallel port driver
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-modules-load.service - Load Kernel Modules.
+[Fri Aug 21 08:42:44 2026] pstore: Registered efi_pstore as persistent store backend
+[Fri Aug 21 08:42:44 2026] systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+[Fri Aug 21 08:42:44 2026] systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[Fri Aug 21 08:42:44 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 08:42:44 2026] EXT4-fs (nvme0n1p6): re-mounted ba748417-bde3-40af-8f54-01947d49ffa8 r/w.
+[Fri Aug 21 08:42:44 2026] systemd-journald[549]: Received client request to flush runtime journal.
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] EDAC ie31200: No ECC support
+[Fri Aug 21 08:42:45 2026] mei_me 0000:00:16.0: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] input: PC Speaker as /devices/platform/pcspkr/input/input8
+[Fri Aug 21 08:42:45 2026] intel_pmc_core INT33A1:00:  initialized
+[Fri Aug 21 08:42:45 2026] mei_pxp 0000:00:16.0-fbf6fcf1-96cf-4e2e-a6a6-1bab8cbe36b1: bound 0000:00:02.0 (ops i915_pxp_tee_component_ops [i915])
+[Fri Aug 21 08:42:45 2026] mei_hdcp 0000:00:16.0-b638ab7e-94e2-4ea2-a552-d1c54b627f04: bound 0000:00:02.0 (ops i915_hdcp_ops [i915])
+[Fri Aug 21 08:42:45 2026] input: HP WMI hotkeys as /devices/virtual/input/input9
+[Fri Aug 21 08:42:45 2026] RAPL PMU: API unit is 2^-32 Joules, 3 fixed counters, 655360 ms ovfl timer
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp0-core 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain package 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] RAPL PMU: hw unit of domain pp1-gpu 2^-14 Joules
+[Fri Aug 21 08:42:45 2026] Adding 7812092k swap on /dev/nvme0n1p7.  Priority:-1 extents:1 across:7812092k SS
+[Fri Aug 21 08:42:45 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBY due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] ACPI Error: Aborting method \_SB.WMID.WQBD due to previous error (AE_AML_OPERAND_VALUE) (20251212/psparse-529)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: enabling device (0000 -> 0002)
+[Fri Aug 21 08:42:45 2026] snd_hda_intel 0000:00:1f.3: bound 0000:00:02.0 (ops intel_audio_component_bind_ops [i915])
+[Fri Aug 21 08:42:45 2026] intel_rapl_msr: PL4 support detected.
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain package
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain core
+[Fri Aug 21 08:42:45 2026] intel_rapl_common: Found RAPL domain uncore
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0: autoconfig for ALC897: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    speaker_outs=1 (0x17/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    mono: mono_out=0x0
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:    inputs:
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Mic=0x19
+[Fri Aug 21 08:42:45 2026] snd_hda_codec_alc662 hdaudioC0D0:      Line=0x1a
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Mic as /devices/pci0000:00/0000:00:1f.3/sound/card0/input10
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line as /devices/pci0000:00/0000:00:1f.3/sound/card0/input11
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Line Out as /devices/pci0000:00/0000:00:1f.3/sound/card0/input12
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH Front Headphone as /devices/pci0000:00/0000:00:1f.3/sound/card0/input13
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input14
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input15
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input16
+[Fri Aug 21 08:42:45 2026] input: HDA Intel PCH HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:1f.3/sound/card0/input17
+[Fri Aug 21 08:42:46 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBZ due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[Fri Aug 21 08:42:46 2026] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+[Fri Aug 21 08:42:46 2026] EXT4-fs (nvme0n1p8): mounted filesystem 1c29ce44-2c4f-4f4d-832f-b4d02a0d5aed r/w with ordered data mode. Quota mode: none.
+[Fri Aug 21 08:42:46 2026] nvme nvme0: using unchecked data buffer
+[Fri Aug 21 08:42:46 2026] NET: Registered PF_QIPCRTR protocol family
+[Fri Aug 21 08:42:46 2026] Generic FE-GE Realtek PHY r8169-0-100:00: attached PHY driver (mii_bus:phy_addr=r8169-0-100:00, irq=MAC)
+[Fri Aug 21 08:42:46 2026] r8169 0000:01:00.0 eth0: Link is Down
+[Fri Aug 21 08:42:47 2026] RPC: Registered named UNIX socket transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered udp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp-with-tls transport module.
+[Fri Aug 21 08:42:47 2026] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[Fri Aug 21 08:42:49 2026] r8169 0000:01:00.0 eth0: Link is Up - 1Gbps/Full - flow control off
+[Fri Aug 21 08:43:20 2026] systemd-journald[549]: Time jumped backwards, rotating.
+[Fri Aug 21 09:29:28 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:33 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd[1]: systemd 261.2-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF -XKBCOMMON -UTMP +LIBARCHIVE)
+[Fri Aug 21 09:30:34 2026] systemd[1]: Detected architecture x86-64.
+[Fri Aug 21 09:30:34 2026] systemd[1]: bpf-restrict-fs: LSM BPF program attached
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:34 2026] systemd-journald[549]: Received SIGTERM from PID 1 (systemd).
+[Fri Aug 21 09:30:34 2026] systemd[1]: Stopping systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd[1]: systemd-journald.service: Deactivated successfully.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Stopped systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Starting systemd-journald.service - Journal Service...
+[Fri Aug 21 09:30:35 2026] systemd-journald[112931]: Collecting audit messages is disabled.
+[Fri Aug 21 09:30:35 2026] systemd[1]: Started systemd-journald.service - Journal Service.
+[Fri Aug 21 09:30:35 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:36 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:37 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:38 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:39 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:40 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:41 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:52 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:53 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] audit: type=1400 audit(1787301055.083:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="/usr/sbin/cups-browsed" pid=115704 comm="apparmor_parser"
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:55 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:56 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:30:59 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:00 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:01 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:04 2026] systemd-sslh-ge[118577]: segfault at 0 ip 00007f00971e319d sp 00007ffe7aa12ed8 error 6 in libc.so.6[16819d,7f00970a3000+168000] likely on CPU 2 (core 4, socket 0)
+[Fri Aug 21 09:31:04 2026] Code: 00 00 66 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 83 fa 20 72 27 c5 fe 6f 06 48 83 fa 40 0f 87 a9 00 00 00 c5 fe 6f 4c 16 e0 <c5> fe 7f 07 c5 fe 7f 4c 17 e0 c5 f8 77 c3 0f 1f 44 00 00 83 fa 10
+[Fri Aug 21 09:31:04 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:31:05 2026] systemd-sslh-generator: Configuration directory '/etc/sslh/' does not exist! No units generated.
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled

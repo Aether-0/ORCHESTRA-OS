@@ -1,0 +1,59 @@
+{
+  "campaign": "real-machine-20260821-094227-kali-2qqYxp",
+  "completed_at": "2026-08-21T10:02:49+01:00",
+  "repository": {
+    "root": "/home/sharda/Downloads/ORCHESTRA-OS-main",
+    "branch": "main",
+    "commit": "07c787c4eeac01a2f9d60916577806d00863b15f",
+    "tracked_diff": false,
+    "preexisting_untracked": true
+  },
+  "host": {
+    "hostname": "kali",
+    "distribution": "Kali GNU/Linux Rolling 2026.3",
+    "kernel": "7.0.12+kali-amd64",
+    "cpu": "Intel Core i7-13700",
+    "logical_cpus": 24,
+    "reported_cores": 16,
+    "numa_nodes": 1,
+    "memory_gib": 15,
+    "sched_ext_final_state": "disabled"
+  },
+  "gates": {
+    "sched_ext_host": "PASS",
+    "build": "PASS",
+    "bpf_static_and_attach": "PASS",
+    "lifecycle": "PASS",
+    "single_task_forward_progress": "INCONCLUSIVE",
+    "baseline": "PASS",
+    "orchestra_comparison": "INCONCLUSIVE",
+    "stress": "BLOCKED",
+    "telemetry_subset": "PASS",
+    "tracked_source_integrity": "PASS"
+  },
+  "actions": {
+    "RUN": "PASS",
+    "YIELD": "PASS",
+    "MIGRATE": "PASS",
+    "SLEEP": "INCONCLUSIVE",
+    "THROTTLE": "PASS",
+    "fallback": "PASS"
+  },
+  "findings": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 4,
+    "P3": 1
+  },
+  "docx_checklist": {
+    "source": "ORCHESTRA_OS_Real_World_Machine_Test_Checklist.docx",
+    "items": 519,
+    "PASS": 94,
+    "INCONCLUSIVE": 39,
+    "BLOCKED": 178,
+    "NOT_IMPLEMENTED": 208,
+    "audit": "CHECKLIST_AUDIT.csv",
+    "summary": "CHECKLIST_COVERAGE.md"
+  },
+  "runtime_claim": "The existing stage7 sched_ext prototype loaded and ran on the exact running-kernel ABI for controlled action telemetry, but a finite positive ownership/forward-progress gate was not reproduced and no performance superiority claim is supported."
+}

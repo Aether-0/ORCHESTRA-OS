@@ -1,0 +1,975 @@
+=== stage7 functions/types ===
+6: * reviewed against v6.13+ kfunc rename: insert replaces dispatch, move
+7: * replaces dispatch_from_dsq. A compile-only token rename is still not a port.
+11: *   - every absent, unstable, stale or invalid directive dispatches as RUN;
+15: *     is drained by a bounded timer callback;
+18: *   - task/outcome records carry identity, generation, action and CPUs.
+24: * tools/sched_ext/include/scx/enums.autogen.bpf.h replaces DSQ/kick/enq
+25: * constants with zeroed volatile ksyms filled only by SCX_OPS_LOAD(). This
+26: * loader uses generic libbpf, so restore the running kernel's vmlinux enum
+27: * values or enqueue hits DSQ 0x0 and the scheduler aborts.
+36:char _license[] SEC("license") = "GPL";
+42:#define ORCHESTRA_U64_MAX (~(uint64_t)0)
+43:#define orchestra_dsq_insert(p, dsq, slice, flags) \
+45:#define orchestra_dsq_insert_vtime(p, dsq, slice, vtime, flags) \
+47:#define orchestra_dsq_move_from_dsq(it, p, dsq, flags) \
+50:struct {
+51:    __uint(type, BPF_MAP_TYPE_ARRAY);
+57:struct {
+58:    __uint(type, BPF_MAP_TYPE_HASH);
+64:struct {
+65:    __uint(type, BPF_MAP_TYPE_HASH);
+71:struct {
+72:    __uint(type, BPF_MAP_TYPE_HASH);
+78:struct {
+79:    __uint(type, BPF_MAP_TYPE_HASH);
+82:    __type(value, struct bridge_task_telemetry);
+85:struct {
+86:    __uint(type, BPF_MAP_TYPE_ARRAY);
+89:    __type(value, struct bridge_telemetry);
+90:} orch_telemetry SEC(".maps");
+92:struct {
+93:    __uint(type, BPF_MAP_TYPE_ARRAY);
+96:    __type(value, struct bridge_defer_timer);
+99:struct directive_snapshot {
+104:    uint64_t throttle_period_ns;
+105:    uint64_t throttle_budget_ns;
+107:    uint32_t action;
+114:struct control_snapshot {
+125:static __always_inline struct bridge_telemetry *global_tel(void)
+129:    return bpf_map_lookup_elem(&orch_telemetry, &key);
+132:static __always_inline void tel_inc(uint64_t *counter)
+138:static __always_inline struct orchestra_task_identity task_identity(
+150:static __always_inline int identity_equal(
+158:static __always_inline int snapshot_control(struct control_snapshot *out)
+187:static __always_inline int control_snapshot_equal(
+200:static __always_inline int action_allowed(uint32_t action, uint32_t state)
+206:        return action == ORCHESTRA_ACTION_RUN ||
+207:               action == ORCHESTRA_ACTION_YIELD ||
+208:               action == ORCHESTRA_ACTION_THROTTLE;
+210:        return action == ORCHESTRA_ACTION_RUN ||
+211:               action == ORCHESTRA_ACTION_YIELD;
+213:        return action == ORCHESTRA_ACTION_RUN;
+217:static __always_inline int load_directive(
+221:    struct bridge_telemetry *tel = global_tel();
+238:     * writer may update them between locks, so validate a control/directive/
+254:        out->action = dir->action;
+258:        out->throttle_period_ns = dir->throttle_period_ns;
+259:        out->throttle_budget_ns = dir->throttle_budget_ns;
+306:    if (out->action >= ORCHESTRA_ACTION_COUNT) {
+309:            tel_inc(&tel->invalid_action_count);
+312:    if (!action_allowed(out->action, ctl.controller_state) ||
+336:static __always_inline int cpu_allowed_online(struct task_struct *p,
+355:static __always_inline struct bridge_task_state *get_task_state(
+363:        if (bpf_map_update_elem(&orch_task_state, id, &zero,
+365:            struct bridge_telemetry *tel = global_tel();
+375:static __always_inline struct bridge_task_telemetry *get_task_tel(
+378:    struct bridge_task_telemetry zero = {
+379:        .dispatched_cpu = -1,
+382:    struct bridge_task_telemetry *task_tel;
+386:        if (bpf_map_update_elem(&orch_task_tel, id, &zero,
+394:static __always_inline void record_fallback(
+398:    struct bridge_telemetry *tel = global_tel();
+399:    struct bridge_task_telemetry *task_tel;
+403:    /* Avoid filling telemetry with every untargeted full-switch task. */
+415:static __always_inline void record_accepted(
+419:    struct bridge_task_telemetry *task_tel = get_task_tel(id, 1);
+426:    task_tel->action = dir->action;
+434:static __always_inline void record_dispatched(
+436:    uint32_t action, int32_t cpu)
+438:    struct bridge_telemetry *tel = global_tel();
+439:    struct bridge_task_telemetry *task_tel = get_task_tel(id, 1);
+443:        tel_inc(&tel->dispatched_action_count);
+448:    task_tel->action = action;
+449:    task_tel->dispatched_cpu = cpu;
+450:    task_tel->dispatched_ns = now;
+451:    task_tel->dispatched_count++;
+455:static __always_inline void dispatch_run(struct task_struct *p,
+459:    struct bridge_telemetry *tel = global_tel();
+464:        tel_inc(&tel->run_dispatched_count);
+468:static __always_inline int defer_task(
+471:    uint64_t generation, uint32_t action, uint64_t enq_flags)
+473:    struct bridge_telemetry *tel = global_tel();
+479:    state->action = action;
+487:    /* Insertion into the deferred DSQ is queued/deferred, not CPU dispatch. */
+491:static __always_inline void place_with_snapshot(
+498:    struct bridge_telemetry *tel = global_tel();
+506:        tel_inc(&tel->select_cpu_direct_insert_count);
+510:        dispatch_run(p, enq_flags, direct_local, selected_cpu);
+518:        dispatch_run(p, enq_flags, direct_local, selected_cpu);
+522:    if (state->generation != dir->generation || state->action != dir->action) {
+526:        state->running_since_ns = 0;
+528:        state->action = dir->action;
+530:        state->dispatched_cpu = ORCHESTRA_CPU_ANY;
+533:    state->last_enqueue_ns = now;
+537:    switch (dir->action) {
+542:            tel_inc(&tel->run_dispatched_count);
+544:        state->dispatched_cpu = direct_local ? (uint32_t)selected_cpu : ORCHESTRA_CPU_ANY;
+546:        record_dispatched(&id, dir->generation, dir->action,
+556:            tel_inc(&tel->yield_dispatched_count);
+558:        state->dispatched_cpu = ORCHESTRA_CPU_ANY;
+560:        record_dispatched(&id, dir->generation, dir->action, -1);
+567:            dispatch_run(p, enq_flags, direct_local, selected_cpu);
+571:            tel_inc(&tel->sleep_accepted_count);
+572:            tel_inc(&tel->sleep_deferred_count);
+575:                        dir->generation, dir->action, enq_flags)) {
+577:            dispatch_run(p, enq_flags, direct_local, selected_cpu);
+582:        uint64_t period = dir->throttle_period_ns;
+583:        uint64_t budget = dir->throttle_budget_ns;
+590:            dispatch_run(p, enq_flags, direct_local, selected_cpu);
+594:            tel_inc(&tel->throttle_accepted_count);
+608:                tel_inc(&tel->throttle_deferred_count);
+614:                            dir->generation, dir->action, enq_flags)) {
+616:                dispatch_run(p, enq_flags, direct_local, selected_cpu);
+626:        state->dispatched_cpu = direct_local ? (uint32_t)selected_cpu : ORCHESTRA_CPU_ANY;
+628:        record_dispatched(&id, dir->generation, dir->action,
+639:             * must not receive a LOCAL direct dispatch. */
+640:            dispatch_run(p, enq_flags, 0, -1);
+644:            tel_inc(&tel->migrate_accepted_count);
+645:        /* select_cpu pairs SCX_DSQ_LOCAL with its returned target.  Normal
+646:         * re-enqueues have no returned CPU, so use the explicit LOCAL_ON DSQ
+652:            state->dispatched_cpu = dir->target_cpu;
+655:                tel_inc(&tel->migrate_dispatched_count);
+656:            record_dispatched(&id, dir->generation, dir->action,
+662:        state->dispatched_cpu = dir->target_cpu;
+665:            tel_inc(&tel->migrate_dispatched_count);
+666:        record_dispatched(&id, dir->generation, dir->action, selected_cpu);
+671:            tel_inc(&tel->invalid_action_count);
+673:        dispatch_run(p, enq_flags, direct_local, selected_cpu);
+678:static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
+681:    struct bridge_telemetry *global = global_tel();
+686:        tel_inc(&global->deferred_timer_tick_count);
+691:        struct bridge_task_telemetry *task_tel;
+694:        uint32_t action;
+695:        uint32_t old_action = ORCHESTRA_ACTION_RUN;
+703:            tel_inc(&global->deferred_timer_scanned_count);
+707:                tel_inc(&global->deferred_timer_future_count);
+721:        action = ORCHESTRA_ACTION_RUN;
+724:         * it immediately after dispatch_from_dsq succeeds. */
+728:            action = state->action;
+730:            old_cpu = state->dispatched_cpu;
+731:            old_action = state->action;
+735:            state->dispatched_cpu = (uint32_t)cpu;
+737:                state->action = ORCHESTRA_ACTION_RUN;
+739:                action = ORCHESTRA_ACTION_RUN;
+747:                tel_inc(&global->dispatched_action_count);
+752:                task_tel->action = action;
+753:                task_tel->dispatched_cpu = cpu;
+754:                task_tel->dispatched_ns = now;
+755:                task_tel->dispatched_count++;
+758:                if (action == ORCHESTRA_ACTION_SLEEP ||
+759:                    action == ORCHESTRA_ACTION_THROTTLE)
+770:            state->dispatched_cpu = old_cpu;
+771:            state->action = old_action;
+777:    if (bpf_timer_start(timer, BRIDGE_DEFER_TICK_NS, 0) != 0)
+778:        scx_bpf_error("ORCHESTRA deferred timer re-arm failed");
+782:s32 BPF_STRUCT_OPS_SLEEPABLE(orchestra_sched_init)
+785:    struct bridge_defer_timer *defer;
+786:    struct bridge_telemetry *tel = global_tel();
+821:    ret = bpf_timer_init(&defer->timer, &orch_defer_tmr, CLOCK_MONOTONIC);
+824:    ret = bpf_timer_set_callback(&defer->timer, deferred_timerfn);
+827:    return bpf_timer_start(&defer->timer, BRIDGE_DEFER_TICK_NS, 0);
+830:void BPF_STRUCT_OPS(orchestra_sched_exit, struct scx_exit_info *ei)
+832:    struct bridge_telemetry *tel = global_tel();
+841:s32 BPF_STRUCT_OPS(orchestra_sched_enable, struct task_struct *p)
+848:    struct bridge_telemetry *tel = global_tel();
+854:    if (bpf_map_update_elem(&orch_identity, &key, &identity, BPF_ANY) != 0 && tel)
+857:        tel_inc(&tel->task_enable_count);
+861:void BPF_STRUCT_OPS(orchestra_sched_disable, struct task_struct *p)
+866:    struct bridge_telemetry *tel = global_tel();
+875:        tel_inc(&tel->task_disable_count);
+878:s32 BPF_STRUCT_OPS(orchestra_sched_select_cpu, struct task_struct *p,
+884:    struct bridge_telemetry *tel = global_tel();
+889:        tel_inc(&tel->select_cpu_count);
+890:    if (have_directive && dir.action == ORCHESTRA_ACTION_MIGRATE &&
+894:        /* LOCAL direct dispatch is paired with the CPU returned below. */
+899:    cpu = scx_bpf_select_cpu_dfl(p, prev_cpu, wake_flags, &is_idle);
+905:void BPF_STRUCT_OPS(orchestra_sched_enqueue, struct task_struct *p,
+911:    struct bridge_telemetry *tel = global_tel();
+914:        tel_inc(&tel->enqueue_callback_count);
+919:void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
+922:    struct bridge_telemetry *tel = global_tel();
+925:        tel_inc(&tel->dispatch_callback_count);
+927:     * The core consumes SCX_DSQ_GLOBAL before invoking dispatch().
+930:     * the scheduler.  Deferred work is promoted by deferred_timerfn(), so
+937:void BPF_STRUCT_OPS(orchestra_sched_running, struct task_struct *p)
+941:    struct bridge_task_telemetry *task_tel = get_task_tel(&id, 0);
+942:    struct bridge_telemetry *tel = global_tel();
+944:    uint64_t telemetry_generation = 0;
+947:    uint32_t action = ORCHESTRA_ACTION_RUN;
+950:    int migrate_target = 0;
+951:    int migrate_other = 0;
+954:        tel_inc(&tel->running_count);
+959:    action = state->action;
+964:    telemetry_generation = task_tel->generation;
+966:    if (state_generation != telemetry_generation)
+969:    state->running_since_ns = now;
+974:    task_tel->running_ns = now;
+975:    task_tel->running_count++;
+977:    switch (action) {
+981:            migrate_target = 1;
+984:            migrate_other = 1;
+1002:    if (tel && migrate_target)
+1003:        tel_inc(&tel->migrate_running_target_count);
+1004:    if (tel && migrate_other)
+1005:        tel_inc(&tel->migrate_running_other_count);
+1008:void BPF_STRUCT_OPS(orchestra_sched_stopping, struct task_struct *p,
+1013:    struct bridge_task_telemetry *task_tel = get_task_tel(&id, 0);
+1014:    struct bridge_telemetry *tel = global_tel();
+1017:    uint64_t running_since = 0;
+1020:        tel_inc(&tel->stopping_count);
+1028:    running_since = state->running_since_ns;
+1029:    if (now >= running_since)
+1030:        delta = now - running_since;
+1035:    state->running_since_ns = 0;
+1050:SCX_OPS_DEFINE(orchestra_sched_ops,
+1051:    .select_cpu = (void *)orchestra_sched_select_cpu,
+1052:    .enqueue = (void *)orchestra_sched_enqueue,
+1053:    .dispatch = (void *)orchestra_sched_dispatch,
+1054:    .running = (void *)orchestra_sched_running,
+1055:    .stopping = (void *)orchestra_sched_stopping,
+1056:    .enable = (void *)orchestra_sched_enable,
+1057:    .disable = (void *)orchestra_sched_disable,
+1060:    .flags = SCX_OPS_KEEP_BUILTIN_IDLE | SCX_OPS_ENQ_LAST,
+=== bridge/loader symbols ===
+kernel/sched_ext/bridge/orchestra_bridge.c:6: * a particular libbpf helper version.  Writers serialize with flock(2), map
+kernel/sched_ext/bridge/orchestra_bridge.c:7: * values are published/read with BPF_F_LOCK, and map IDs are pinned only when
+kernel/sched_ext/bridge/orchestra_bridge.c:59:enum map_role {
+kernel/sched_ext/bridge/orchestra_bridge.c:70:struct map_spec {
+kernel/sched_ext/bridge/orchestra_bridge.c:73:    enum bpf_map_type type;
+kernel/sched_ext/bridge/orchestra_bridge.c:79:static const struct map_spec map_specs[MAP_ROLE_COUNT] = {
+kernel/sched_ext/bridge/orchestra_bridge.c:86:        BPF_MAP_TYPE_HASH, sizeof(struct orchestra_pid_key),
+kernel/sched_ext/bridge/orchestra_bridge.c:102:struct map_set {
+kernel/sched_ext/bridge/orchestra_bridge.c:106:struct task_proc_info {
+kernel/sched_ext/bridge/orchestra_bridge.c:111:struct options {
+kernel/sched_ext/bridge/orchestra_bridge.c:112:    bool status;
+kernel/sched_ext/bridge/orchestra_bridge.c:113:    bool publish;
+kernel/sched_ext/bridge/orchestra_bridge.c:116:    bool pin_maps;
+kernel/sched_ext/bridge/orchestra_bridge.c:121:    enum orchestra_action_id action;
+kernel/sched_ext/bridge/orchestra_bridge.c:122:    bool action_set;
+kernel/sched_ext/bridge/orchestra_bridge.c:124:    uint32_t target_cpu;
+kernel/sched_ext/bridge/orchestra_bridge.c:133:    uint64_t policy_generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:134:    uint32_t map_ids[MAP_ROLE_COUNT];
+kernel/sched_ext/bridge/orchestra_bridge.c:137:static const char *const action_names[ORCHESTRA_ACTION_COUNT] = {
+kernel/sched_ext/bridge/orchestra_bridge.c:149:static int bpf_call(enum bpf_cmd cmd, union bpf_attr *attr)
+kernel/sched_ext/bridge/orchestra_bridge.c:154:static int bpf_obj_get_raw(const char *path)
+kernel/sched_ext/bridge/orchestra_bridge.c:163:static int bpf_map_fd_by_id(uint32_t id)
+kernel/sched_ext/bridge/orchestra_bridge.c:168:    attr.map_id = id;
+kernel/sched_ext/bridge/orchestra_bridge.c:172:static int bpf_obj_pin_raw(int fd, const char *path)
+kernel/sched_ext/bridge/orchestra_bridge.c:182:static int bpf_info_raw(int fd, struct bpf_map_info *info)
+kernel/sched_ext/bridge/orchestra_bridge.c:195:static int bpf_lookup_raw(int fd, const void *key, void *value, uint64_t flags)
+kernel/sched_ext/bridge/orchestra_bridge.c:200:    attr.map_fd = (uint32_t)fd;
+kernel/sched_ext/bridge/orchestra_bridge.c:207:static int bpf_update_raw(int fd, const void *key, const void *value,
+kernel/sched_ext/bridge/orchestra_bridge.c:213:    attr.map_fd = (uint32_t)fd;
+kernel/sched_ext/bridge/orchestra_bridge.c:220:static int bpf_delete_raw(int fd, const void *key)
+kernel/sched_ext/bridge/orchestra_bridge.c:225:    attr.map_fd = (uint32_t)fd;
+kernel/sched_ext/bridge/orchestra_bridge.c:230:static int bpf_next_key_raw(int fd, const void *key, void *next_key)
+kernel/sched_ext/bridge/orchestra_bridge.c:235:    attr.map_fd = (uint32_t)fd;
+kernel/sched_ext/bridge/orchestra_bridge.c:241:static bool checked_add_u64(uint64_t a, uint64_t b, uint64_t *out)
+kernel/sched_ext/bridge/orchestra_bridge.c:249:static bool monotonic_ns(uint64_t *out)
+kernel/sched_ext/bridge/orchestra_bridge.c:261:static bool parse_u64(const char *text, uint64_t min, uint64_t max,
+kernel/sched_ext/bridge/orchestra_bridge.c:277:static bool parse_u32(const char *text, uint32_t min, uint32_t max,
+kernel/sched_ext/bridge/orchestra_bridge.c:288:static bool canonical_to_wire(enum orchestra_action_id action, uint32_t *wire)
+kernel/sched_ext/bridge/orchestra_bridge.c:290:    switch (action) {
+kernel/sched_ext/bridge/orchestra_bridge.c:300:static bool parse_action(const char *text, enum orchestra_action_id *action)
+kernel/sched_ext/bridge/orchestra_bridge.c:305:        if (action_names[i] && strcasecmp(text, action_names[i]) == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:306:            *action = (enum orchestra_action_id)i;
+kernel/sched_ext/bridge/orchestra_bridge.c:313:static bool parse_controller(const char *text, uint32_t *state)
+kernel/sched_ext/bridge/orchestra_bridge.c:326:static void map_set_init(struct map_set *maps)
+kernel/sched_ext/bridge/orchestra_bridge.c:331:        maps->fd[i] = -1;
+kernel/sched_ext/bridge/orchestra_bridge.c:334:static void map_set_close(struct map_set *maps)
+kernel/sched_ext/bridge/orchestra_bridge.c:339:        if (maps->fd[i] >= 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:340:            close(maps->fd[i]);
+kernel/sched_ext/bridge/orchestra_bridge.c:341:            maps->fd[i] = -1;
+kernel/sched_ext/bridge/orchestra_bridge.c:346:static bool map_matches(int fd, const struct map_spec *spec,
+kernel/sched_ext/bridge/orchestra_bridge.c:347:                        struct bpf_map_info *out)
+kernel/sched_ext/bridge/orchestra_bridge.c:349:    struct bpf_map_info info;
+kernel/sched_ext/bridge/orchestra_bridge.c:363:static int open_checked(enum map_role role)
+kernel/sched_ext/bridge/orchestra_bridge.c:365:    int fd = bpf_obj_get_raw(map_specs[role].path);
+kernel/sched_ext/bridge/orchestra_bridge.c:369:    if (!map_matches(fd, &map_specs[role], NULL)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:377:static bool open_runtime_maps(struct map_set *maps, bool all)
+kernel/sched_ext/bridge/orchestra_bridge.c:379:    enum map_role last = all ? MAP_ROLE_COUNT : MAP_IDENTITY + 1;
+kernel/sched_ext/bridge/orchestra_bridge.c:380:    enum map_role role;
+kernel/sched_ext/bridge/orchestra_bridge.c:382:    map_set_init(maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:384:        maps->fd[role] = open_checked(role);
+kernel/sched_ext/bridge/orchestra_bridge.c:385:        if (maps->fd[role] < 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:386:            map_set_close(maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:393:static bool read_control(int fd, struct bridge_control *control)
+kernel/sched_ext/bridge/orchestra_bridge.c:401:static bool write_control(int fd, const struct bridge_control *control)
+kernel/sched_ext/bridge/orchestra_bridge.c:408:static bool valid_control(const struct bridge_control *control)
+kernel/sched_ext/bridge/orchestra_bridge.c:410:    return control->magic == ORCHESTRA_ABI_MAGIC &&
+kernel/sched_ext/bridge/orchestra_bridge.c:411:           control->abi_version == ORCHESTRA_ABI_VERSION &&
+kernel/sched_ext/bridge/orchestra_bridge.c:413:           control->scx_api_version == ORCHESTRA_SCX_API_VERSION &&
+kernel/sched_ext/bridge/orchestra_bridge.c:419:static bool read_text_file(const char *path, char *buf, size_t size)
+kernel/sched_ext/bridge/orchestra_bridge.c:438:static bool scheduler_loaded(void)
+kernel/sched_ext/bridge/orchestra_bridge.c:450:static bool parse_proc_stat_start(const char *line, uint64_t *start_ticks)
+kernel/sched_ext/bridge/orchestra_bridge.c:469:static bool get_task_proc_info(uint32_t tid, struct task_proc_info *info)
+kernel/sched_ext/bridge/orchestra_bridge.c:488:    if (snprintf(path, sizeof(path), "/proc/%" PRIu32 "/status", tid) < 0)
+kernel/sched_ext/bridge/orchestra_bridge.c:514:static bool proc_info_equal(const struct task_proc_info *a,
+kernel/sched_ext/bridge/orchestra_bridge.c:520:static bool start_ns_matches_proc_ticks(uint64_t start_ns,
+kernel/sched_ext/bridge/orchestra_bridge.c:541:static bool resolve_identity(const struct map_set *maps, uint32_t tid,
+kernel/sched_ext/bridge/orchestra_bridge.c:546:    struct orchestra_pid_key key;
+kernel/sched_ext/bridge/orchestra_bridge.c:554:    if (bpf_lookup_raw(maps->fd[MAP_IDENTITY], &key, &record, 0) != 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:567:static int acquire_writer_lock(void)
+kernel/sched_ext/bridge/orchestra_bridge.c:588:static bool cpu_allowed_for_task(uint32_t tid, uint32_t cpu)
+kernel/sched_ext/bridge/orchestra_bridge.c:590:    cpu_set_t allowed;
+kernel/sched_ext/bridge/orchestra_bridge.c:592:    if (cpu >= CPU_SETSIZE)
+kernel/sched_ext/bridge/orchestra_bridge.c:595:    return sched_getaffinity((pid_t)tid, sizeof(allowed), &allowed) == 0 &&
+kernel/sched_ext/bridge/orchestra_bridge.c:596:           CPU_ISSET_S(cpu, sizeof(allowed), &allowed);
+kernel/sched_ext/bridge/orchestra_bridge.c:599:static bool directive_equal(const struct bridge_directive *a,
+kernel/sched_ext/bridge/orchestra_bridge.c:602:    return a->abi_version == b->abi_version &&
+kernel/sched_ext/bridge/orchestra_bridge.c:605:           a->generation == b->generation &&
+kernel/sched_ext/bridge/orchestra_bridge.c:607:           a->action == b->action && a->target_cpu == b->target_cpu &&
+kernel/sched_ext/bridge/orchestra_bridge.c:615:           a->policy_generation == b->policy_generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:623:    uint32_t removed = 0;
+kernel/sched_ext/bridge/orchestra_bridge.c:637:        if (directive.abi_version == ORCHESTRA_ABI_VERSION &&
+kernel/sched_ext/bridge/orchestra_bridge.c:643:            removed++;
+kernel/sched_ext/bridge/orchestra_bridge.c:650:    return removed;
+kernel/sched_ext/bridge/orchestra_bridge.c:653:static int publish_directive(const struct options *opts,
+kernel/sched_ext/bridge/orchestra_bridge.c:654:                             uint64_t *published_generation)
+kernel/sched_ext/bridge/orchestra_bridge.c:656:    struct map_set maps;
+kernel/sched_ext/bridge/orchestra_bridge.c:661:    uint32_t wire_action;
+kernel/sched_ext/bridge/orchestra_bridge.c:666:    if (!scheduler_loaded()) {
+kernel/sched_ext/bridge/orchestra_bridge.c:670:    if (!canonical_to_wire(opts->action, &wire_action))
+kernel/sched_ext/bridge/orchestra_bridge.c:672:    if (!open_runtime_maps(&maps, false)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:673:        fprintf(stderr, "missing or ABI-incompatible bridge maps: %s\n", strerror(errno));
+kernel/sched_ext/bridge/orchestra_bridge.c:678:        fprintf(stderr, "cannot serialize publisher: %s\n", strerror(errno));
+kernel/sched_ext/bridge/orchestra_bridge.c:682:    if (!read_control(maps.fd[MAP_CONTROL], &control) || !valid_control(&control)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:687:    if (!resolve_identity(&maps, opts->target_tid, control.scheduler_epoch,
+kernel/sched_ext/bridge/orchestra_bridge.c:699:    if (opts->action == ORCHESTRA_ACTION_MIGRATE &&
+kernel/sched_ext/bridge/orchestra_bridge.c:700:        (opts->target_cpu == ORCHESTRA_CPU_ANY ||
+kernel/sched_ext/bridge/orchestra_bridge.c:701:         !cpu_allowed_for_task(opts->target_tid, opts->target_cpu))) {
+kernel/sched_ext/bridge/orchestra_bridge.c:703:                opts->target_cpu, opts->target_tid);
+kernel/sched_ext/bridge/orchestra_bridge.c:707:    if (opts->action == ORCHESTRA_ACTION_SLEEP &&
+kernel/sched_ext/bridge/orchestra_bridge.c:713:    if (opts->action == ORCHESTRA_ACTION_THROTTLE &&
+kernel/sched_ext/bridge/orchestra_bridge.c:722:    if (control.last_generation == UINT64_MAX) {
+kernel/sched_ext/bridge/orchestra_bridge.c:723:        fprintf(stderr, "generation exhausted for this scheduler epoch\n");
+kernel/sched_ext/bridge/orchestra_bridge.c:729:    directive.abi_version = ORCHESTRA_ABI_VERSION;
+kernel/sched_ext/bridge/orchestra_bridge.c:732:    directive.generation = control.last_generation + 1;
+kernel/sched_ext/bridge/orchestra_bridge.c:734:    directive.action = wire_action;
+kernel/sched_ext/bridge/orchestra_bridge.c:735:    directive.target_cpu = opts->target_cpu;
+kernel/sched_ext/bridge/orchestra_bridge.c:743:    directive.policy_generation = opts->policy_generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:748:                   " action=%s generation=%" PRIu64 "\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:750:                   action_names[opts->action], directive.generation);
+kernel/sched_ext/bridge/orchestra_bridge.c:751:        if (published_generation)
+kernel/sched_ext/bridge/orchestra_bridge.c:752:            *published_generation = directive.generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:757:    /* Reserve a never-reused generation before making the directive visible. */
+kernel/sched_ext/bridge/orchestra_bridge.c:758:    control.last_generation = directive.generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:759:    control.publisher_heartbeat_ns = now;
+kernel/sched_ext/bridge/orchestra_bridge.c:760:    control.publisher_lease_ns = opts->lease_ns;
+kernel/sched_ext/bridge/orchestra_bridge.c:763:    control.policy_generation = opts->policy_generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:764:    control.publication_status = BRIDGE_PUB_OK;
+kernel/sched_ext/bridge/orchestra_bridge.c:765:    if (!write_control(maps.fd[MAP_CONTROL], &control)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:769:    if (bpf_update_raw(maps.fd[MAP_DIRECTIVE], &identity, &directive,
+kernel/sched_ext/bridge/orchestra_bridge.c:773:            prune_expired_directives(maps.fd[MAP_DIRECTIVE],
+kernel/sched_ext/bridge/orchestra_bridge.c:775:            if (bpf_update_raw(maps.fd[MAP_DIRECTIVE], &identity, &directive,
+kernel/sched_ext/bridge/orchestra_bridge.c:783:        control.publication_status = update_error == ENOSPC ?
+kernel/sched_ext/bridge/orchestra_bridge.c:785:        (void)write_control(maps.fd[MAP_CONTROL], &control);
+kernel/sched_ext/bridge/orchestra_bridge.c:791:    if (bpf_lookup_raw(maps.fd[MAP_DIRECTIVE], &identity, &verify,
+kernel/sched_ext/bridge/orchestra_bridge.c:793:        !read_control(maps.fd[MAP_CONTROL], &verify_control) ||
+kernel/sched_ext/bridge/orchestra_bridge.c:796:        verify_control.last_generation != directive.generation ||
+kernel/sched_ext/bridge/orchestra_bridge.c:797:        verify_control.publisher_heartbeat_ns != now ||
+kernel/sched_ext/bridge/orchestra_bridge.c:798:        !resolve_identity(&maps, opts->target_tid, control.scheduler_epoch,
+kernel/sched_ext/bridge/orchestra_bridge.c:802:        (void)bpf_delete_raw(maps.fd[MAP_DIRECTIVE], &identity);
+kernel/sched_ext/bridge/orchestra_bridge.c:803:        control.publication_status = BRIDGE_PUB_READBACK_FAIL;
+kernel/sched_ext/bridge/orchestra_bridge.c:804:        (void)write_control(maps.fd[MAP_CONTROL], &control);
+kernel/sched_ext/bridge/orchestra_bridge.c:810:        printf("published generation=%" PRIu64 " identity=%" PRIu32 ":%" PRIu32
+kernel/sched_ext/bridge/orchestra_bridge.c:811:               ":%" PRIu64 " action=%s\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:812:               directive.generation, identity.tgid, identity.tid,
+kernel/sched_ext/bridge/orchestra_bridge.c:813:               identity.start_boottime_ns, action_names[opts->action]);
+kernel/sched_ext/bridge/orchestra_bridge.c:814:    if (published_generation)
+kernel/sched_ext/bridge/orchestra_bridge.c:815:        *published_generation = directive.generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:821:    map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:825:static int clear_directives(const struct options *opts)
+kernel/sched_ext/bridge/orchestra_bridge.c:827:    struct map_set maps;
+kernel/sched_ext/bridge/orchestra_bridge.c:833:    if (!open_runtime_maps(&maps, false))
+kernel/sched_ext/bridge/orchestra_bridge.c:837:        map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:840:    if (!read_control(maps.fd[MAP_CONTROL], &control) || !valid_control(&control)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:845:        if (!resolve_identity(&maps, opts->target_tid, control.scheduler_epoch,
+kernel/sched_ext/bridge/orchestra_bridge.c:847:            (bpf_delete_raw(maps.fd[MAP_DIRECTIVE], &identity) != 0 &&
+kernel/sched_ext/bridge/orchestra_bridge.c:853:        while (bpf_next_key_raw(maps.fd[MAP_DIRECTIVE],
+kernel/sched_ext/bridge/orchestra_bridge.c:855:            if (bpf_delete_raw(maps.fd[MAP_DIRECTIVE], &next) != 0 && errno != ENOENT) {
+kernel/sched_ext/bridge/orchestra_bridge.c:863:    /* Never reset last_generation: clear cannot create an ABA identity. */
+kernel/sched_ext/bridge/orchestra_bridge.c:865:        puts("cleared; scheduler epoch and generation were preserved");
+kernel/sched_ext/bridge/orchestra_bridge.c:868:    map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:872:static int status_command(void)
+kernel/sched_ext/bridge/orchestra_bridge.c:874:    struct map_set maps;
+kernel/sched_ext/bridge/orchestra_bridge.c:881:    printf("scheduler: %s\n", scheduler_loaded() ? BRIDGE_OPS_NAME : "not active");
+kernel/sched_ext/bridge/orchestra_bridge.c:882:    if (!open_runtime_maps(&maps, true)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:883:        fprintf(stderr, "bridge maps missing or schema-invalid: %s\n", strerror(errno));
+kernel/sched_ext/bridge/orchestra_bridge.c:886:    if (!read_control(maps.fd[MAP_CONTROL], &control) || !valid_control(&control)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:887:        map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:890:    printf("abi=%u scx_api=%u epoch=%" PRIu64 " generation=%" PRIu64
+kernel/sched_ext/bridge/orchestra_bridge.c:891:           " policy_generation=%" PRIu64 " controller=%s lease=%" PRIu64
+kernel/sched_ext/bridge/orchestra_bridge.c:893:           control.abi_version, control.scx_api_version,
+kernel/sched_ext/bridge/orchestra_bridge.c:894:           control.scheduler_epoch, control.last_generation,
+kernel/sched_ext/bridge/orchestra_bridge.c:895:           control.policy_generation,
+kernel/sched_ext/bridge/orchestra_bridge.c:898:           control.publisher_lease_ns);
+kernel/sched_ext/bridge/orchestra_bridge.c:899:    while (bpf_next_key_raw(maps.fd[MAP_DIRECTIVE],
+kernel/sched_ext/bridge/orchestra_bridge.c:904:        if (bpf_lookup_raw(maps.fd[MAP_DIRECTIVE], &next, &directive,
+kernel/sched_ext/bridge/orchestra_bridge.c:907:                   " generation=%" PRIu64 " action=%s cpu=%" PRIu32 "\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:909:                   directive.generation,
+kernel/sched_ext/bridge/orchestra_bridge.c:910:                   directive.action < ORCHESTRA_ACTION_COUNT ?
+kernel/sched_ext/bridge/orchestra_bridge.c:911:                       action_names[directive.action] : "INVALID",
+kernel/sched_ext/bridge/orchestra_bridge.c:912:                   directive.target_cpu);
+kernel/sched_ext/bridge/orchestra_bridge.c:918:    while (bpf_next_key_raw(maps.fd[MAP_TASK_TELEMETRY],
+kernel/sched_ext/bridge/orchestra_bridge.c:923:        if (bpf_lookup_raw(maps.fd[MAP_TASK_TELEMETRY], &next, &task,
+kernel/sched_ext/bridge/orchestra_bridge.c:926:                   " generation=%" PRIu64 " action=%s requested_cpu=%" PRIu32
+kernel/sched_ext/bridge/orchestra_bridge.c:927:                   " dispatched_cpu=%" PRId32 " actual_cpu=%" PRId32
+kernel/sched_ext/bridge/orchestra_bridge.c:932:                   task.generation,
+kernel/sched_ext/bridge/orchestra_bridge.c:933:                   task.action < ORCHESTRA_ACTION_COUNT ?
+kernel/sched_ext/bridge/orchestra_bridge.c:934:                       action_names[task.action] : "INVALID",
+kernel/sched_ext/bridge/orchestra_bridge.c:935:                   task.requested_cpu, task.dispatched_cpu, task.actual_cpu,
+kernel/sched_ext/bridge/orchestra_bridge.c:944:    if (bpf_lookup_raw(maps.fd[MAP_TELEMETRY], &zero, &telemetry, 0) == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:950:               " deferred_cpu_fail=%" PRIu64
+kernel/sched_ext/bridge/orchestra_bridge.c:957:               " bad_cpu=%" PRIu64 " map_err=%" PRIu64 "\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:959:               telemetry.dispatched_action_count, telemetry.running_count,
+kernel/sched_ext/bridge/orchestra_bridge.c:966:               telemetry.deferred_cpu_failure_count,
+kernel/sched_ext/bridge/orchestra_bridge.c:981:               telemetry.invalid_cpu_count,
+kernel/sched_ext/bridge/orchestra_bridge.c:982:               telemetry.map_error_count);
+kernel/sched_ext/bridge/orchestra_bridge.c:984:    map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:988:static int opt_in_command(uint32_t tid)
+kernel/sched_ext/bridge/orchestra_bridge.c:990:    struct map_set maps;
+kernel/sched_ext/bridge/orchestra_bridge.c:995:    if (!open_runtime_maps(&maps, false))
+kernel/sched_ext/bridge/orchestra_bridge.c:997:    if (read_control(maps.fd[MAP_CONTROL], &control) && valid_control(&control) &&
+kernel/sched_ext/bridge/orchestra_bridge.c:998:        resolve_identity(&maps, tid, control.scheduler_epoch, &identity)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1004:    map_set_close(&maps);
+kernel/sched_ext/bridge/orchestra_bridge.c:1008:static int pin_one(enum map_role role, uint32_t id, bool *created)
+kernel/sched_ext/bridge/orchestra_bridge.c:1010:    struct bpf_map_info wanted, existing;
+kernel/sched_ext/bridge/orchestra_bridge.c:1011:    int fd = bpf_map_fd_by_id(id);
+kernel/sched_ext/bridge/orchestra_bridge.c:1017:    if (!map_matches(fd, &map_specs[role], &wanted)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1022:    old_fd = bpf_obj_get_raw(map_specs[role].path);
+kernel/sched_ext/bridge/orchestra_bridge.c:1031:    if (bpf_obj_pin_raw(fd, map_specs[role].path) != 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1040:static int pin_maps_command(const struct options *opts)
+kernel/sched_ext/bridge/orchestra_bridge.c:1042:    enum map_role role;
+kernel/sched_ext/bridge/orchestra_bridge.c:1045:    struct bpf_map_info timer_info;
+kernel/sched_ext/bridge/orchestra_bridge.c:1049:    if (!scheduler_loaded())
+kernel/sched_ext/bridge/orchestra_bridge.c:1051:    /* A BPF timer is cancelled when its map loses all userspace references.
+kernel/sched_ext/bridge/orchestra_bridge.c:1052:     * Pinning it after a generic loader exits cannot resurrect that timer.
+kernel/sched_ext/bridge/orchestra_bridge.c:1053:     * Require a loader (or equivalent) to have pinned this exact map before
+kernel/sched_ext/bridge/orchestra_bridge.c:1054:     * struct_ops attach; orchestra_loader implements the required order. */
+kernel/sched_ext/bridge/orchestra_bridge.c:1057:        !map_matches(timer_fd, &map_specs[MAP_DEFER_TIMER], &timer_info) ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1058:        timer_info.id != opts->map_ids[MAP_DEFER_TIMER]) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1061:        fprintf(stderr, "deferred timer map was not pinned before attach; use orchestra_loader\n");
+kernel/sched_ext/bridge/orchestra_bridge.c:1070:        fprintf(stderr, "unsafe bridge pin directory ownership or mode\n");
+kernel/sched_ext/bridge/orchestra_bridge.c:1074:        struct bpf_map_info info;
+kernel/sched_ext/bridge/orchestra_bridge.c:1077:        if (opts->map_ids[role] == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1078:            fprintf(stderr, "every exact map ID is required; no global discovery is performed\n");
+kernel/sched_ext/bridge/orchestra_bridge.c:1081:        fd = bpf_map_fd_by_id(opts->map_ids[role]);
+kernel/sched_ext/bridge/orchestra_bridge.c:1082:        if (fd < 0 || !map_matches(fd, &map_specs[role], &info)) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1088:            fprintf(stderr, "map IDs do not share one BTF object identity\n");
+kernel/sched_ext/bridge/orchestra_bridge.c:1094:        if (pin_one(role, opts->map_ids[role], &created[role]) != 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1096:            fprintf(stderr, "cannot pin role %s ID %" PRIu32 ": %s\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:1097:                    map_specs[role].name, opts->map_ids[role],
+kernel/sched_ext/bridge/orchestra_bridge.c:1099:            for (enum map_role cleanup = MAP_CONTROL; cleanup < role; cleanup++) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1100:                if (created[cleanup] && unlink(map_specs[cleanup].path) != 0)
+kernel/sched_ext/bridge/orchestra_bridge.c:1101:                    fprintf(stderr, "warning: cannot remove partial pin %s: %s\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:1102:                            map_specs[cleanup].path, strerror(errno));
+kernel/sched_ext/bridge/orchestra_bridge.c:1111:static int read_full_record(int fd, void *buffer, size_t size)
+kernel/sched_ext/bridge/orchestra_bridge.c:1129:static bool write_full(int fd, const void *buffer, size_t size)
+kernel/sched_ext/bridge/orchestra_bridge.c:1145:static int stream_command(void)
+kernel/sched_ext/bridge/orchestra_bridge.c:1148:    int read_status;
+kernel/sched_ext/bridge/orchestra_bridge.c:1151:    while ((read_status = read_full_record(STDIN_FILENO, &request,
+kernel/sched_ext/bridge/orchestra_bridge.c:1154:            .magic = BRIDGE_STREAM_MAGIC,
+kernel/sched_ext/bridge/orchestra_bridge.c:1155:            .abi_version = ORCHESTRA_ABI_VERSION,
+kernel/sched_ext/bridge/orchestra_bridge.c:1160:        uint64_t generation = 0;
+kernel/sched_ext/bridge/orchestra_bridge.c:1164:        opts.publish = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1165:        opts.action_set = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1167:        opts.target_cpu = ORCHESTRA_CPU_ANY;
+kernel/sched_ext/bridge/orchestra_bridge.c:1172:        if (request.magic != BRIDGE_STREAM_MAGIC ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1173:            request.abi_version != ORCHESTRA_ABI_VERSION ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1176:            request.action >= ORCHESTRA_ACTION_COUNT ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1182:            response.status = EXIT_ARGS;
+kernel/sched_ext/bridge/orchestra_bridge.c:1185:            opts.action = (enum orchestra_action_id)request.action;
+kernel/sched_ext/bridge/orchestra_bridge.c:1187:            opts.target_cpu = request.target_cpu;
+kernel/sched_ext/bridge/orchestra_bridge.c:1195:            opts.policy_generation = request.policy_generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:1196:            response.status = publish_directive(&opts, &generation);
+kernel/sched_ext/bridge/orchestra_bridge.c:1197:            response.generation = generation;
+kernel/sched_ext/bridge/orchestra_bridge.c:1202:    return read_status == 0 ? EXIT_OK : EXIT_PUB_FAIL;
+kernel/sched_ext/bridge/orchestra_bridge.c:1205:static void usage(const char *program)
+kernel/sched_ext/bridge/orchestra_bridge.c:1209:        "  --status\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1211:        "  --publish --action RUN|SLEEP|MIGRATE|THROTTLE|YIELD --target-pid TID\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1212:        "      [--target-cpu CPU] [--slice-ns NS] [--not-before-ns MONO_NS]\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1215:        "      [--controller-state STATE] [--policy-mode ID] [--policy-generation N]\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1216:        "  --clear [--target-pid TID]\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1217:        "  --opt-in --target-pid TID   (identity admission only; exact TID)\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1218:        "  --pin-maps --control-map-id ID --directive-map-id ID\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1219:        "      --identity-map-id ID --task-map-id ID --task-telemetry-map-id ID\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1220:        "      --telemetry-map-id ID --defer-timer-map-id ID\n"
+kernel/sched_ext/bridge/orchestra_bridge.c:1221:        "      (timer map must already be pinned before attach; use orchestra_loader)\n",
+kernel/sched_ext/bridge/orchestra_bridge.c:1225:static bool need_value(int argc, char **argv, int *index, const char **value)
+kernel/sched_ext/bridge/orchestra_bridge.c:1233:static bool parse_options(int argc, char **argv, struct options *opts)
+kernel/sched_ext/bridge/orchestra_bridge.c:1239:    opts->action = ORCHESTRA_ACTION_RUN;
+kernel/sched_ext/bridge/orchestra_bridge.c:1240:    opts->target_cpu = ORCHESTRA_CPU_ANY;
+kernel/sched_ext/bridge/orchestra_bridge.c:1250:        if (strcmp(argv[i], "--status") == 0) opts->status = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1251:        else if (strcmp(argv[i], "--publish") == 0) opts->publish = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1254:        else if (strcmp(argv[i], "--pin-maps") == 0) opts->pin_maps = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1258:        else if (strcmp(argv[i], "--action") == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1259:            if (!need_value(argc, argv, &i, &value) || !parse_action(value, &opts->action))
+kernel/sched_ext/bridge/orchestra_bridge.c:1261:            opts->action_set = true;
+kernel/sched_ext/bridge/orchestra_bridge.c:1262:        } else if (strcmp(argv[i], "--target-pid") == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1267:        } else if (strcmp(argv[i], "--target-cpu") == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1269:                !parse_u32(value, 0, UINT32_MAX - 1, &opts->target_cpu))
+kernel/sched_ext/bridge/orchestra_bridge.c:1307:        } else if (strcmp(argv[i], "--policy-generation") == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1309:                !parse_u64(value, 0, UINT64_MAX, &opts->policy_generation))
+kernel/sched_ext/bridge/orchestra_bridge.c:1311:        } else if (strcmp(argv[i], "--control-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1312:                   strcmp(argv[i], "--directive-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1313:                   strcmp(argv[i], "--identity-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1314:                   strcmp(argv[i], "--task-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1315:                   strcmp(argv[i], "--task-telemetry-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1316:                   strcmp(argv[i], "--telemetry-map-id") == 0 ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1317:                   strcmp(argv[i], "--defer-timer-map-id") == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1318:            enum map_role role = strcmp(argv[i], "--control-map-id") == 0 ? MAP_CONTROL :
+kernel/sched_ext/bridge/orchestra_bridge.c:1319:                strcmp(argv[i], "--directive-map-id") == 0 ? MAP_DIRECTIVE :
+kernel/sched_ext/bridge/orchestra_bridge.c:1320:                strcmp(argv[i], "--identity-map-id") == 0 ? MAP_IDENTITY :
+kernel/sched_ext/bridge/orchestra_bridge.c:1321:                strcmp(argv[i], "--task-map-id") == 0 ? MAP_TASK_STATE :
+kernel/sched_ext/bridge/orchestra_bridge.c:1322:                strcmp(argv[i], "--task-telemetry-map-id") == 0 ? MAP_TASK_TELEMETRY :
+kernel/sched_ext/bridge/orchestra_bridge.c:1323:                strcmp(argv[i], "--telemetry-map-id") == 0 ? MAP_TELEMETRY :
+kernel/sched_ext/bridge/orchestra_bridge.c:1328:            opts->map_ids[role] = parsed32;
+kernel/sched_ext/bridge/orchestra_bridge.c:1334:    commands = (unsigned int)opts->status + (unsigned int)opts->publish
+kernel/sched_ext/bridge/orchestra_bridge.c:1336:             + (unsigned int)opts->pin_maps + (unsigned int)opts->stream;
+kernel/sched_ext/bridge/orchestra_bridge.c:1339:    if ((opts->publish && (!opts->action_set || !opts->target_set)) ||
+kernel/sched_ext/bridge/orchestra_bridge.c:1342:    if (opts->action == ORCHESTRA_ACTION_SLEEP && opts->not_before_ns == 0) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1348:    if (opts->action == ORCHESTRA_ACTION_THROTTLE) {
+kernel/sched_ext/bridge/orchestra_bridge.c:1358:int main(int argc, char **argv)
+kernel/sched_ext/bridge/orchestra_bridge.c:1363:        usage(argv[0]);
+kernel/sched_ext/bridge/orchestra_bridge.c:1366:    if (opts.status)
+kernel/sched_ext/bridge/orchestra_bridge.c:1367:        return status_command();
+kernel/sched_ext/bridge/orchestra_bridge.c:1370:    if (opts.publish)
+kernel/sched_ext/bridge/orchestra_bridge.c:1371:        return publish_directive(&opts, NULL);
+kernel/sched_ext/bridge/orchestra_bridge.c:1376:    if (opts.pin_maps)
+kernel/sched_ext/bridge/orchestra_bridge.c:1377:        return pin_maps_command(&opts);
+kernel/sched_ext/bridge/orchestra_loader.c:2:/* Load ORCHESTRA with every runtime map pinned before struct_ops attach. */
+kernel/sched_ext/bridge/orchestra_loader.c:19:struct loader_map_spec {
+kernel/sched_ext/bridge/orchestra_loader.c:22:    enum bpf_map_type type;
+kernel/sched_ext/bridge/orchestra_loader.c:30:static const struct loader_map_spec map_specs[] = {
+kernel/sched_ext/bridge/orchestra_loader.c:37:      sizeof(struct orchestra_pid_key), sizeof(struct bridge_identity_record),
+kernel/sched_ext/bridge/orchestra_loader.c:51:static int ensure_pin_dir(void)
+kernel/sched_ext/bridge/orchestra_loader.c:65:static bool map_schema_matches(const struct bpf_map *map,
+kernel/sched_ext/bridge/orchestra_loader.c:66:                               const struct loader_map_spec *spec)
+kernel/sched_ext/bridge/orchestra_loader.c:68:    return strcmp(bpf_map__name(map), spec->name) == 0 &&
+kernel/sched_ext/bridge/orchestra_loader.c:69:           bpf_map__type(map) == spec->type &&
+kernel/sched_ext/bridge/orchestra_loader.c:70:           bpf_map__key_size(map) == spec->key_size &&
+kernel/sched_ext/bridge/orchestra_loader.c:71:           bpf_map__value_size(map) == spec->value_size &&
+kernel/sched_ext/bridge/orchestra_loader.c:72:           bpf_map__max_entries(map) == spec->max_entries;
+kernel/sched_ext/bridge/orchestra_loader.c:75:static void unlink_created(size_t count)
+kernel/sched_ext/bridge/orchestra_loader.c:79:        if (unlink(map_specs[count].path) != 0 && errno != ENOENT)
+kernel/sched_ext/bridge/orchestra_loader.c:80:            fprintf(stderr, "warning: cannot remove %s: %s\n",
+kernel/sched_ext/bridge/orchestra_loader.c:81:                    map_specs[count].path, strerror(errno));
+kernel/sched_ext/bridge/orchestra_loader.c:85:static int load_scheduler(const char *object_path)
+kernel/sched_ext/bridge/orchestra_loader.c:89:    struct bpf_map *ops_map = NULL;
+kernel/sched_ext/bridge/orchestra_loader.c:90:    struct bpf_map *map;
+kernel/sched_ext/bridge/orchestra_loader.c:91:    size_t pinned = 0;
+kernel/sched_ext/bridge/orchestra_loader.c:96:    err = ensure_pin_dir();
+kernel/sched_ext/bridge/orchestra_loader.c:108:    for (size_t i = 0; i < sizeof(map_specs) / sizeof(map_specs[0]); i++) {
+kernel/sched_ext/bridge/orchestra_loader.c:109:        map = bpf_object__find_map_by_name(object, map_specs[i].name);
+kernel/sched_ext/bridge/orchestra_loader.c:110:        if (!map || !map_schema_matches(map, &map_specs[i])) {
+kernel/sched_ext/bridge/orchestra_loader.c:111:            fprintf(stderr, "missing or incompatible map %s\n", map_specs[i].name);
+kernel/sched_ext/bridge/orchestra_loader.c:115:        if (access(map_specs[i].path, F_OK) == 0) {
+kernel/sched_ext/bridge/orchestra_loader.c:120:    bpf_object__for_each_map(map, object) {
+kernel/sched_ext/bridge/orchestra_loader.c:121:        if (bpf_map__type(map) == BPF_MAP_TYPE_STRUCT_OPS) {
+kernel/sched_ext/bridge/orchestra_loader.c:122:            if (ops_map) {
+kernel/sched_ext/bridge/orchestra_loader.c:126:            ops_map = map;
+kernel/sched_ext/bridge/orchestra_loader.c:129:    if (!ops_map) {
+kernel/sched_ext/bridge/orchestra_loader.c:133:    err = bpf_object__load(object);
+kernel/sched_ext/bridge/orchestra_loader.c:137:    /* The timer map must have a userspace pin before attach invokes init(). */
+kernel/sched_ext/bridge/orchestra_loader.c:138:    for (size_t i = 0; i < sizeof(map_specs) / sizeof(map_specs[0]); i++) {
+kernel/sched_ext/bridge/orchestra_loader.c:139:        map = bpf_object__find_map_by_name(object, map_specs[i].name);
+kernel/sched_ext/bridge/orchestra_loader.c:140:        err = bpf_map__pin(map, map_specs[i].path);
+kernel/sched_ext/bridge/orchestra_loader.c:143:        pinned++;
+kernel/sched_ext/bridge/orchestra_loader.c:146:    link = bpf_map__attach_struct_ops(ops_map);
+kernel/sched_ext/bridge/orchestra_loader.c:152:    err = bpf_link__pin(link, LINK_PATH);
+kernel/sched_ext/bridge/orchestra_loader.c:155:    printf("loaded %s; maps pinned before attach; link=%s\n",
+kernel/sched_ext/bridge/orchestra_loader.c:161:        unlink_created(pinned);
+kernel/sched_ext/bridge/orchestra_loader.c:163:            fprintf(stderr, "warning: cannot remove %s: %s\n",
+kernel/sched_ext/bridge/orchestra_loader.c:172:static int unload_scheduler(void)
+kernel/sched_ext/bridge/orchestra_loader.c:179:    if (unlink(LINK_PATH) != 0 && errno != ENOENT)
+kernel/sched_ext/bridge/orchestra_loader.c:197:    for (size_t i = 0; i < sizeof(map_specs) / sizeof(map_specs[0]); i++) {
+kernel/sched_ext/bridge/orchestra_loader.c:198:        if (unlink(map_specs[i].path) != 0 && errno != ENOENT && err == 0)
+kernel/sched_ext/bridge/orchestra_loader.c:206:int main(int argc, char **argv)
+kernel/sched_ext/bridge/orchestra_loader.c:210:    if (argc == 3 && strcmp(argv[1], "--load") == 0)
+kernel/sched_ext/bridge/orchestra_loader.c:211:        err = load_scheduler(argv[2]);
+kernel/sched_ext/bridge/orchestra_loader.c:212:    else if (argc == 2 && strcmp(argv[1], "--unload") == 0)
+kernel/sched_ext/bridge/orchestra_loader.c:213:        err = unload_scheduler();
+kernel/sched_ext/bridge/orchestra_loader.c:215:        fprintf(stderr, "usage: %s --load BPF_OBJECT | --unload\n", argv[0]);
+=== ABI headers ===
+/* SPDX-License-Identifier: GPL-2.0 */
+#ifndef ORCHESTRA_ABI_H
+#define ORCHESTRA_ABI_H
+
+/*
+ * Canonical ORCHESTRA C <-> BPF ABI.
+ *
+ * This header deliberately contains only fixed-width integer constants and
+ * enums.  The numeric action IDs are the research action IDs and the wire
+ * action IDs; producers must still translate through an explicit switch so
+ * that an invalid enum can never be passed through as an action.
+ */
+#define ORCHESTRA_ABI_MAGIC          0x4f524342u /* "ORCB" */
+#define ORCHESTRA_ABI_VERSION        2u
+#define ORCHESTRA_ABI_SCHEMA_VERSION 2u
+#define ORCHESTRA_SCX_API_VERSION     70012u /* Linux 7.0 dsq_insert/dsq_move semantics */
+
+enum orchestra_action_id {
+    ORCHESTRA_ACTION_RUN = 0,
+    ORCHESTRA_ACTION_SLEEP = 1,
+    ORCHESTRA_ACTION_MIGRATE = 2,
+    ORCHESTRA_ACTION_THROTTLE = 3,
+    ORCHESTRA_ACTION_YIELD = 4,
+    ORCHESTRA_ACTION_COUNT = 5
+};
+
+enum orchestra_controller_state {
+    ORCHESTRA_CTRL_NORMAL = 0,
+    ORCHESTRA_CTRL_DEGRADED = 1,
+    ORCHESTRA_CTRL_SATURATED = 2,
+    ORCHESTRA_CTRL_DISABLED = 3,
+    ORCHESTRA_CTRL_ROLLBACK = 4,
+    ORCHESTRA_CTRL_RECOVERY = 5,
+    ORCHESTRA_CTRL_COUNT = 6
+};
+
+enum orchestra_policy_mode {
+    ORCHESTRA_POLICY_TRAIN = 0,
+    ORCHESTRA_POLICY_ADAPT = 1,
+    ORCHESTRA_POLICY_EVALUATE = 2,
+    ORCHESTRA_POLICY_COUNT = 3
+};
+
+#define ORCHESTRA_CPU_ANY 0xffffffffu
+
+#endif /* ORCHESTRA_ABI_H */
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * ORCHESTRA-OS coherent userspace <-> sched_ext bridge ABI v2.
+ *
+ * Despite the historical filename, this is ABI v2.  Values containing an
+ * orchestra_map_lock must be accessed with BPF_F_LOCK from userspace and with
+ * bpf_spin_lock() from BPF.  The lock is intentionally the first field and all
+ * records use natural alignment; native packed structs are not a protocol.
+ */
+#ifndef ORCHESTRA_BRIDGE_V1_H
+#define ORCHESTRA_BRIDGE_V1_H
+
+#include "orchestra_abi.h"
+
+#ifdef __BPF__
+#include <vmlinux.h>
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s32 int32_t;
+#define UINT64_C(v) (v ## ULL)
+#define ORCHESTRA_MAP_LOCK struct bpf_spin_lock
+#else
+#include <stddef.h>
+#include <stdint.h>
+struct orchestra_userspace_map_lock { uint32_t opaque; };
+#define ORCHESTRA_MAP_LOCK struct orchestra_userspace_map_lock
+#endif
+
+/* Exact BPF object names. Linux BPF names are limited to 15 characters. */
+#define BRIDGE_CTL_MAP_NAME       "orch_control"
+#define BRIDGE_DIR_MAP_NAME       "orch_directives"
+#define BRIDGE_ID_MAP_NAME        "orch_identity"
+#define BRIDGE_TASK_MAP_NAME      "orch_task_state"
+#define BRIDGE_TASK_TEL_MAP_NAME  "orch_task_tel"
+#define BRIDGE_TEL_MAP_NAME       "orch_telemetry"
+#define BRIDGE_DEFER_MAP_NAME     "orch_defer_tmr"
+
+#define BRIDGE_MAX_TASKS          4096u
+#define BRIDGE_DEFERRED_DSQ        UINT64_C(0x4f52434800000001)
+#define BRIDGE_DEFER_SCAN_MAX      64u
+#define BRIDGE_DEFER_TICK_NS       UINT64_C(250000)
+
+#define BRIDGE_SLICE_MIN_NS        UINT64_C(100000)
+#define BRIDGE_SLICE_RUN_NS        UINT64_C(5000000)
+#define BRIDGE_SLICE_MAX_NS        UINT64_C(100000000)
+#define BRIDGE_THROTTLE_MAX_NS     UINT64_C(1000000000)
+#define BRIDGE_SLEEP_MAX_NS        UINT64_C(5000000000)
+#define BRIDGE_EXPIRY_MAX_NS       UINT64_C(60000000000)
+#define BRIDGE_LEASE_MAX_NS        UINT64_C(60000000000)
+#define BRIDGE_STREAM_MAGIC         0x4f525153u /* "ORQS" */
+
+#define BRIDGE_CAP_RUN              (1u << ORCHESTRA_ACTION_RUN)
+#define BRIDGE_CAP_SLEEP            (1u << ORCHESTRA_ACTION_SLEEP)
+#define BRIDGE_CAP_MIGRATE          (1u << ORCHESTRA_ACTION_MIGRATE)
+#define BRIDGE_CAP_THROTTLE         (1u << ORCHESTRA_ACTION_THROTTLE)
+#define BRIDGE_CAP_YIELD            (1u << ORCHESTRA_ACTION_YIELD)
+#define BRIDGE_CAP_PER_TASK         (1u << 8)
+#define BRIDGE_CAP_STRONG_IDENTITY  (1u << 9)
+#define BRIDGE_CAP_DEFERRED_DSQ     (1u << 10)
+#define BRIDGE_CAP_RUNTIME_BUDGET   (1u << 11)
+#define BRIDGE_REQUIRED_CAPS \
+    (BRIDGE_CAP_RUN | BRIDGE_CAP_SLEEP | BRIDGE_CAP_MIGRATE | \
+     BRIDGE_CAP_THROTTLE | BRIDGE_CAP_YIELD | BRIDGE_CAP_PER_TASK | \
+     BRIDGE_CAP_STRONG_IDENTITY | BRIDGE_CAP_DEFERRED_DSQ | \
+     BRIDGE_CAP_RUNTIME_BUDGET)
+
+enum bridge_publication_status {
+    BRIDGE_PUB_OK = 0,
+    BRIDGE_PUB_MAP_ERROR = 1,
+    BRIDGE_PUB_READBACK_FAIL = 2,
+    BRIDGE_PUB_GENERATION_OVERFLOW = 3,
+    BRIDGE_PUB_IDENTITY_UNKNOWN = 4,
+    BRIDGE_PUB_MAP_FULL = 5
+};
+
+enum bridge_fallback_reason {
+    BRIDGE_FALLBACK_NONE = 0,
+    BRIDGE_FALLBACK_NO_DIRECTIVE = 1,
+    BRIDGE_FALLBACK_BAD_ABI = 2,
+    BRIDGE_FALLBACK_BAD_IDENTITY = 3,
+    BRIDGE_FALLBACK_EXPIRED = 4,
+    BRIDGE_FALLBACK_STALE_LEASE = 5,
+    BRIDGE_FALLBACK_BAD_ACTION = 6,
+    BRIDGE_FALLBACK_CONTROLLER = 7,
+    BRIDGE_FALLBACK_BAD_CPU = 8,
+    BRIDGE_FALLBACK_BAD_PARAMETERS = 9,
+    BRIDGE_FALLBACK_MAP_ERROR = 10,
+    BRIDGE_FALLBACK_UNSTABLE_PUBLICATION = 11
+};
+
+struct orchestra_task_identity {
+    uint32_t tgid;
+    uint32_t tid;
+    uint64_t start_boottime_ns;
+};
+
+/* A pinned userspace reference to this map value keeps its BPF timer alive. */
+struct bridge_defer_timer {
+#ifdef __BPF__
+    struct bpf_timer timer;
+#else
+    uint64_t opaque[2];
+#endif
+};
+
+struct orchestra_pid_key {
+    uint32_t tgid;
+    uint32_t tid;
+};
+
+struct bridge_identity_record {
+    uint64_t start_boottime_ns;
+    uint64_t scheduler_epoch;
+};
+
+/* ARRAY[1]. scheduler_epoch never changes for one attached BPF instance. */
+struct bridge_control {
+    ORCHESTRA_MAP_LOCK lock;
+    uint32_t magic;
+    uint32_t abi_version;
+    uint32_t value_size;
+    uint32_t capability_flags;
+    uint64_t scheduler_epoch;
+    uint64_t last_generation;
+    uint64_t publisher_heartbeat_ns;
+    uint64_t publisher_lease_ns;
+    uint64_t policy_generation;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint32_t publication_status;
+    uint32_t scx_api_version;
+};
+
+/* HASH keyed by orchestra_task_identity. One coherent value per task. */
+struct bridge_directive {
+    ORCHESTRA_MAP_LOCK lock;
+    uint32_t abi_version;
+    uint32_t value_size;
+    uint32_t flags;
+    uint64_t scheduler_epoch;
+    uint64_t generation;
+    struct orchestra_task_identity identity;
+    uint32_t action;
+    uint32_t target_cpu;
+    uint64_t slice_ns;
+    uint64_t not_before_ns;
+    uint64_t throttle_period_ns;
+    uint64_t throttle_budget_ns;
+    uint64_t expiry_ns;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
+};
+
+/* HASH keyed by orchestra_task_identity; deleted in ops.disable(). */
+struct bridge_task_state {
+    ORCHESTRA_MAP_LOCK lock;
+    uint32_t reserved_lock_pad;
+    uint64_t generation;
+    uint64_t period_start_ns;
+    uint64_t runtime_used_ns;
+    uint64_t running_since_ns;
+    uint64_t eligible_ns;
+    uint64_t last_enqueue_ns;
+    uint32_t action;
+    uint32_t requested_cpu;
+    uint32_t dispatched_cpu;
+    uint32_t flags;
+};
+
+#define BRIDGE_TASK_F_DEFERRED       (1u << 0)
+#define BRIDGE_TASK_F_RUNNING        (1u << 1)
+#define BRIDGE_TASK_F_THROTTLED      (1u << 2)
+
+/* Correlated last outcome, keyed by the same lifetime-stable identity. */
+struct bridge_task_telemetry {
+    ORCHESTRA_MAP_LOCK lock;
+    uint32_t reserved_lock_pad;
+    uint64_t generation;
+    uint64_t accepted_ns;
+    uint64_t dispatched_ns;
+    uint64_t running_ns;
+    uint64_t stopped_ns;
+    uint64_t runtime_ns;
+    uint32_t action;
+    uint32_t requested_cpu;
+    int32_t dispatched_cpu;
+    int32_t actual_cpu;
+    uint32_t accepted_count;
+    uint32_t dispatched_count;
+    uint32_t running_count;
+    uint32_t effective_count;
+    uint32_t fallback_count;
+    uint32_t error_count;
+    uint32_t fallback_reason;
+    uint32_t reserved;
+};
+
+/* Global aggregate telemetry. Names describe the event actually observed. */
+struct bridge_telemetry {
+    uint64_t load_count;
+    uint64_t unload_count;
+    uint64_t task_enable_count;
+    uint64_t task_disable_count;
+    uint64_t select_cpu_count;
+    uint64_t enqueue_callback_count;
+    uint64_t placement_count;
+    uint64_t select_cpu_direct_insert_count;
+    uint64_t dispatch_callback_count;
+    uint64_t accepted_directive_count;
+    uint64_t dispatched_action_count;
+    uint64_t running_count;
+    uint64_t stopping_count;
+    uint64_t fallback_count;
+    uint64_t invalid_action_count;
+    uint64_t invalid_identity_count;
+    uint64_t invalid_cpu_count;
+    uint64_t expired_directive_count;
+    uint64_t stale_lease_count;
+    uint64_t map_error_count;
+    uint64_t deferred_count;
+    uint64_t deferred_release_count;
+    uint64_t run_dispatched_count;
+    uint64_t yield_dispatched_count;
+    uint64_t migrate_accepted_count;
+    uint64_t migrate_dispatched_count;
+    uint64_t migrate_running_target_count;
+    uint64_t migrate_running_other_count;
+    uint64_t throttle_accepted_count;
+    uint64_t throttle_deferred_count;
+    uint64_t sleep_accepted_count;
+    uint64_t sleep_deferred_count;
+    uint64_t scheduler_error_count;
+    uint64_t deferred_timer_tick_count;
+    uint64_t deferred_timer_scanned_count;
+    uint64_t deferred_timer_future_count;
+    uint64_t deferred_release_failure_count;
+    uint64_t deferred_cpu_failure_count;
+};
+
+/* Fixed records for the canonical engine -> privileged bridge stream. */
+struct bridge_stream_request {
+    uint32_t magic;
+    uint32_t abi_version;
+    uint32_t value_size;
+    uint32_t action;
+    uint64_t sequence;
+    uint32_t target_tid;
+    uint32_t target_cpu;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
+    uint64_t slice_ns;
+    uint64_t not_before_ns;
+    uint64_t throttle_period_ns;
+    uint64_t throttle_budget_ns;
+    uint64_t expiry_duration_ns;
+};
+
+struct bridge_stream_response {
+    uint32_t magic;
+    uint32_t abi_version;
+    uint32_t value_size;
+    int32_t status;
+    uint64_t sequence;
+    uint64_t generation;
+};
+
+#ifndef __BPF__
+_Static_assert(sizeof(struct orchestra_task_identity) == 16,
+               "task identity ABI drift");
+_Static_assert(sizeof(struct orchestra_pid_key) == 8,
+               "PID key ABI drift");
+_Static_assert(sizeof(struct bridge_identity_record) == 16,
+               "identity record ABI drift");
+_Static_assert(sizeof(struct bridge_control) == 80,
+               "control ABI drift");
+_Static_assert(sizeof(struct bridge_directive) == 112,
+               "directive ABI drift");
+_Static_assert(sizeof(struct bridge_task_state) == 72,
+               "task state ABI drift");
+_Static_assert(sizeof(struct bridge_task_telemetry) == 104,
+               "task telemetry ABI drift");
+_Static_assert(sizeof(struct bridge_telemetry) == 304,
+               "global telemetry ABI drift");
+_Static_assert(sizeof(struct bridge_defer_timer) == 16,
+               "deferred timer map ABI drift");
+_Static_assert(sizeof(struct bridge_stream_request) == 88,
+               "stream request ABI drift");
+_Static_assert(sizeof(struct bridge_stream_response) == 32,
+               "stream response ABI drift");
+_Static_assert(offsetof(struct bridge_control, scheduler_epoch) % 8 == 0,
+               "control u64 alignment drift");
+_Static_assert(offsetof(struct bridge_directive, scheduler_epoch) % 8 == 0,
+               "directive u64 alignment drift");
+_Static_assert(sizeof(((struct bridge_directive *)0)->action) == 4,
+               "action wire width drift");
+_Static_assert(ORCHESTRA_ACTION_RUN == 0 && ORCHESTRA_ACTION_SLEEP == 1 &&
+               ORCHESTRA_ACTION_MIGRATE == 2 && ORCHESTRA_ACTION_THROTTLE == 3 &&
+               ORCHESTRA_ACTION_YIELD == 4,
+               "canonical action ABI drift");
+#endif
+
+#endif /* ORCHESTRA_BRIDGE_V1_H */
+/*
+ * ORCHESTRA-OS Stage 6 sched_ext MVP — shared definitions.
+ *
+ * This header defines the BPF map layouts, action enums, telemetry
+ * structures, and constants shared between the BPF program and the
+ * userspace loader.  No floating point, no dynamic allocation, no
+ * filesystem access is permitted inside BPF.
+ */
+#ifndef ORCHESTRA_SCX_H
+#define ORCHESTRA_SCX_H
+
+#include "orchestra_abi.h"
+
+/*
+ * When compiled for BPF target (-target bpf): vmlinux.h must be included
+ * before this header (common.bpf.h does this).  Kernel types __u32/__u64
+ * are available.
+ *
+ * When compiled for userspace: stdint.h provides standard types.
+ */
+#ifdef __BPF__
+/* vmlinux.h already included by common.bpf.h — use kernel types */
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s32 int32_t;
+#else
+#include <stdint.h>
+#endif
+
+/* --- Canonical actions (subset for Stage 6) --- */

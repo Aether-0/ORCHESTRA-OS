@@ -1,0 +1,4 @@
+159930
+    PID    PPID STAT PSR ELAPSED CMD
+ 159930  159929 Rs     0       0 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+pid 159930's current affinity list: 0,1

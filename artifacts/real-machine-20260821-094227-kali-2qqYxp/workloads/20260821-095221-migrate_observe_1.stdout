@@ -1,0 +1,7 @@
+timestamp=2026-08-21T09:52:22+01:00 trial=1
+    PID STAT PSR ELAPSED CMD
+ 159930 Rs     1      49 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+stat_processor=1 start_ticks=413196 state=R
+directive identity=159930:159930:4131965338418 generation=3 action=MIGRATE cpu=1
+task identity=159930:159930:4131965338418 generation=3 action=MIGRATE requested_cpu=1 dispatched_cpu=1 actual_cpu=1 accepted=2859 dispatched=2859 running=2864 effective=2864 fallback=0 errors=0
+telemetry accepted=2859 dispatched=2859 running=968606 fallback=963563 migrate_target=3 migrate_other=0 timer_ticks=509110 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=140815 run_disp=964502 yield_disp=1916 mig_acc=4 mig_disp=4 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0

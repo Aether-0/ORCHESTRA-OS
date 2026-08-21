@@ -1,0 +1,23 @@
+stress=/usr/bin/stress
+stress-ng=MISSING
+perf=MISSING
+mpstat=/usr/bin/mpstat
+pidstat=/usr/bin/pidstat
+numactl=/usr/bin/numactl
+lstopo-no-graphics=/usr/bin/lstopo-no-graphics
+sensors=/usr/bin/sensors
+cpupower=/usr/bin/cpupower
+bpftool=/usr/sbin/bpftool
+clang=/usr/bin/clang
+gcc=/usr/bin/gcc
+make=/usr/bin/make
+pahole=/usr/bin/pahole
+python3=/usr/bin/python3
+--versions--
+bpftool v7.7.0
+using libbpf v1.7
+features:
+Debian clang version 21.1.8 (10)
+gcc (Debian 15.3.0-2) 15.3.0
+v1.31
+sh: 1: perf: not found

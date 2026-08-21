@@ -1,0 +1,48 @@
+timestamp=2026-08-21T09:54:59+01:00
+sched_ext=disabled
+orchestra_pin=absent
+=== unload output ===
+=== orchestra pins ===
+=== remaining named programs/links ===
+=== sched_ext-related dmesg ===
+[Fri Aug 21 08:42:40 2026] rcu: Preemptible hierarchical RCU implementation.
+[Fri Aug 21 08:42:40 2026] rcu: 	RCU restricting CPUs from NR_CPUS=8192 to nr_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] 	Trampoline variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] 	Rude variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] 	Tracing variant of Tasks RCU enabled.
+[Fri Aug 21 08:42:40 2026] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[Fri Aug 21 08:42:40 2026] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=24
+[Fri Aug 21 08:42:40 2026] RCU Tasks: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] RCU Tasks Rude: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+[Fri Aug 21 08:42:40 2026] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[Fri Aug 21 08:42:40 2026] rcu: Hierarchical SRCU implementation.
+[Fri Aug 21 08:42:40 2026] rcu: 	Max phase no-delay instances is 1000.
+[Fri Aug 21 08:42:40 2026] PCI: Using host bridge windows from ACPI; if necessary, use "pci=nocrs" and report a bug
+[Fri Aug 21 08:42:42 2026] i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[Fri Aug 21 08:42:44 2026] systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+[Fri Aug 21 08:42:45 2026] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+[Fri Aug 21 08:42:46 2026] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+=== kernel log since load ===
+Aug 21 13:12:43 kali kernel: rcu: Preemptible hierarchical RCU implementation.
+Aug 21 13:12:43 kali kernel: rcu:         RCU restricting CPUs from NR_CPUS=8192 to nr_cpu_ids=24.
+Aug 21 13:12:43 kali kernel:         Trampoline variant of Tasks RCU enabled.
+Aug 21 13:12:43 kali kernel:         Rude variant of Tasks RCU enabled.
+Aug 21 13:12:43 kali kernel:         Tracing variant of Tasks RCU enabled.
+Aug 21 13:12:43 kali kernel: rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+Aug 21 13:12:43 kali kernel: rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=24
+Aug 21 13:12:43 kali kernel: RCU Tasks: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+Aug 21 13:12:43 kali kernel: RCU Tasks Rude: Setting shift to 5 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=24.
+Aug 21 13:12:43 kali kernel: rcu: srcu_init: Setting srcu_struct sizes based on contention.
+Aug 21 13:12:43 kali kernel: rcu: Hierarchical SRCU implementation.
+Aug 21 13:12:43 kali kernel: rcu:         Max phase no-delay instances is 1000.
+Aug 21 13:12:43 kali kernel: PCI: Using host bridge windows from ACPI; if necessary, use "pci=nocrs" and report a bug
+Aug 21 13:12:43 kali kernel: i915 0000:00:02.0: [drm] Registered 4 planes with drm panic
+Aug 21 13:12:43 kali systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+Aug 21 13:12:43 kali systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+Aug 21 13:12:45 kali kernel: ACPI BIOS Error (bug): Attempt to CreateField of length zero (20251212/dsopcode-133)
+Aug 21 13:12:45 kali kernel: ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000050) is beyond end of object (length 0x50) (20251212/exoparg2-393)
+Aug 21 09:50:13 kali kernel: sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+Aug 21 09:54:50 kali kernel: sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)

@@ -1,0 +1,26 @@
+test_id,verdict,scope,evidence,notes
+T01,PASS,kernel sanity,kernel/20260821-094519-sanity_check.stdout,Required tools config BTF disk and sched_ext state passed.
+T02,PASS,kernel config,kernel/20260821-094521-kernel_config_check.stdout,CONFIG_BPF CONFIG_BPF_SYSCALL CONFIG_BPF_JIT CONFIG_DEBUG_INFO_BTF CONFIG_SCHED_CLASS_EXT and CONFIG_BPF_EVENTS passed.
+T03,PASS,userspace clean build,build/20260821-094634-make_clean.stdout,make clean returned zero without deleting campaign evidence.
+T04,PASS,userspace build,build/20260821-094637-make.stdout,Documented make completed with no stderr.
+T05,PASS,static check,build/20260821-094641-make_check.stdout,Documented make check completed.
+T06,PASS,automated tests,build/20260821-094646-make_test.stdout,30/30 named tests passed in compiler/reference passes; integration signal publication and CSV scenarios passed.
+T07,PASS,BPF static artifact,verifier/20260821-094817-artifact_static_validation.stdout,Expected struct_ops callbacks maps BTF and relocations exist.
+T08,PASS,loader attach,scheduler/20260821-095013-scheduler_load_attempt1.stdout,Map-pinning loader attached the fresh object and returned zero.
+T09,PASS,negative ownership,workloads/20260821-095124-negative_ownership_status.stdout,Non-opted task had no exact per-task identity telemetry; not attributed as ORCHESTRA-owned.
+T10,PASS,RUN action,workloads/20260821-095148-positive_status_run.stdout,Per-task RUN accepted=344 dispatched=344 running=346 effective=346 fallback=0 at observation.
+T11,PASS,YIELD action,workloads/20260821-095203-positive_status_yield.stdout,Per-task YIELD accepted=1387 dispatched=1387 running=1391 effective=1391 fallback=0 at observation.
+T12,PASS,MIGRATE action,workloads/20260821-095235-migrate_observe_3_retry.stdout,Three target-CPU repeats reached CPU 1 with effective counts and no target fallback.
+T13,INCONCLUSIVE,SLEEP action,workloads/20260821-095327-sleep_valid_timeline.stdout,Deferred and release counters advanced after the deadline; no-early execution was not independently proven and later enqueues fell back bad_parameters.
+T14,PASS,THROTTLE action,workloads/20260821-095429-throttle_timeline.stdout,Four one-second phases yielded roughly 17 to 22 percent runtime per second for a 20 percent budget; deferred/release counters advanced.
+T15,PASS,CLI input validation,failures/20260821-095721-invalid_action_cli.stdout,Unknown action rejected with return code 1 before kernel publication; not a cryptographic test.
+T16,PASS,invalid PID handling,failures/20260821-095739-invalid_pid_publish.stdout,Missing PID rejected with return code 6 and scheduler remained enabled.
+T17,PASS,invalid CPU handling,failures/20260821-095736-invalid_cpu_publish.stdout,Illegal target rejected with return code 7 and scheduler remained enabled.
+T18,PASS,repeated lifecycle,recovery/20260821-100033-post_unload_snapshot3.stdout,Three attach/detach cycles completed cleanly.
+T19,INCONCLUSIVE,finite ORCHESTRA forward progress,workloads/20260821-095946-finite_orchestra_forward_progress.stdout,10-billion-iteration worker exceeded 20 seconds and was terminated; exact per-task ownership was absent in the snapshot.
+T20,PASS,CFS stress smoke,stress/20260821-100155-cfs-smoke-output/results.csv,Existing 3-second CFS CPU memory I/O and mixed phases completed with zero workload errors; health warning was a pre-existing ACPI grep false positive.
+T21,BLOCKED,ORCHESTRA stress,stress/20260821-100155-stress_suite_cfs_smoke.stdout,Existing orchestra mode only checks state and does not opt tasks in; not safe as an ownership-validating ORCHESTRA test.
+T22,BLOCKED,comparative performance,environment/20260821-095810-final_tool_availability.stdout,perf and scx_simple unavailable; benchmark scripts also use hard-coded paths and broad cleanup.
+T23,NOT IMPLEMENTED,research signal/predictor/Q/controller,environment/20260821-094411-source_audit.stdout,No executable kernel signal bus predictor S1-S4/Q or feedback controller was found.
+T24,NOT IMPLEMENTED,full hybrid RT safety,environment/20260821-094359-implementation_inventory.stdout,Full runtime RT bypass/interoperability is not present in the checked-out kernel prototype.
+T25,BLOCKED,NUMA and distributed,environment/20260821-094317-host_inventory.stdout,Host has one NUMA node and no distributed test infrastructure; no claim made.

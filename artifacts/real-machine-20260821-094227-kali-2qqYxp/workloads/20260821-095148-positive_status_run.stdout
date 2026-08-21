@@ -1,0 +1,10 @@
+    PID    PPID STAT PSR ELAPSED CMD
+ 159930       1 Rs     0      16 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+stat_processor=0 start_ticks=413196 state=R
+pid 159930's current affinity list: 0,1
+scheduler: orchestra_scx_stage7
+abi=2 scx_api=70012 epoch=4053200698251 generation=1 policy_generation=0 controller=NORMAL lease=30000000000ns
+directive identity=159930:159930:4131965338418 generation=1 action=RUN cpu=4294967295
+task identity=159930:159930:4131965338418 generation=1 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=344 dispatched=344 running=345 effective=345 fallback=0 errors=0
+telemetry accepted=344 dispatched=344 running=720339 fallback=718353 migrate_target=0 migrate_other=0 timer_ticks=377757 deferred_scans=0 deferred_future=0 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=102409 run_disp=718697 yield_disp=0 mig_acc=0 mig_disp=0 throttle_acc=0 throttle_def=0 sleep_acc=0 sleep_def=0 deferred=0 deferred_rel=0 stale_lease=0 bad_id=0 expired=0 bad_cpu=0 map_err=0
+task identity=159930:159930:4131965338418 generation=1 action=RUN requested_cpu=4294967295 dispatched_cpu=-1 actual_cpu=0 accepted=344 dispatched=344 running=346 effective=346 fallback=0 errors=0

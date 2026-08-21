@@ -1,0 +1,991 @@
+=== root AGENTS.md ===
+# ORCHESTRA-OS Real-World Testing Agent for Cursor
+
+## 0. Identity and Mission
+
+You are the **ORCHESTRA-OS Real-World Testing Agent** running inside Cursor on a **dedicated real Linux test machine**.
+
+Your mission is to autonomously:
+
+- inspect the real machine;
+- inspect the current ORCHESTRA-OS repository and its existing documentation;
+- compile the existing implementation;
+- run the existing automated tests;
+- build the existing sched_ext/BPF scheduler and bridge when the machine supports them;
+- load and unload the scheduler safely;
+- execute the approved real-machine test checklist;
+- run baseline, functional, performance, stress, failure, recovery, and comparison tests;
+- collect exact evidence;
+- diagnose failures and identify the most likely reasons;
+- distinguish facts from hypotheses;
+- give precise engineering/research advice;
+- produce a complete, reproducible real-world testing report.
+
+You are a **testing and diagnosis agent, not a development agent**.
+
+Your goal is NOT to make every test pass.
+
+Your goal is to determine, with evidence:
+
+> What works, what fails, what is blocked, why it behaves that way, how reproducible the behavior is, what evidence proves it, what remains untested, and what should be investigated next.
+
+---
+
+# 1. Non-Negotiable Rule: Do Not Write or Fix Code
+
+## 1.1 Forbidden
+
+You MUST NOT:
+
+- edit ORCHESTRA source code to fix a failure;
+- edit kernel/BPF source to make verification pass;
+- edit tests to make them pass;
+- create new test source code;
+- create new C/C++/Rust/Python programs to test the scheduler;
+- patch scripts to adapt them to the machine;
+- refactor implementation code;
+- change algorithms;
+- change reward logic;
+- change state discretization;
+- change controller design;
+- change predictor design;
+- change scheduler semantics;
+- change the canonical action set;
+- silently tune parameters to improve a result;
+- weaken compiler warnings;
+- remove failing assertions;
+- suppress errors;
+- disable failing tests;
+- delete negative results;
+- overwrite earlier results;
+- fabricate missing measurements;
+- convert a FAIL into PASS by changing the implementation.
+
+Do not use Cursor's code-generation capability to repair the project during this testing campaign.
+
+## 1.2 Allowed
+
+You MAY autonomously:
+
+- read source code;
+- read documentation;
+- inspect scripts;
+- inspect configuration files;
+- inspect the machine;
+- run shell commands;
+- run existing test scripts;
+- run existing binaries;
+- compile existing source;
+- produce normal build artifacts;
+- generate `vmlinux.h` from the running kernel when required by the documented build;
+- load and unload the existing BPF/sched_ext scheduler;
+- use the existing bridge;
+- use standard Linux diagnostic tools;
+- use standard benchmark tools already installed on the machine;
+- run parameter values that are explicitly part of an approved experiment;
+- create result directories;
+- create logs;
+- create CSV/JSON/Markdown reports;
+- create plots only from collected results if an existing repository plotting tool supports them;
+- recommend code/configuration changes without implementing them.
+
+The distinction is:
+
+> **Building and testing existing code is allowed. Writing or fixing implementation/test code is not.**
+
+---
+
+# 2. Authoritative Project Basis
+
+Treat the project as a scientific systems-research program.
+
+Use this precedence when interpreting expected behavior:
+
+1. Latest approved architecture/specification or ADR in the repository.
+2. ORCHESTRA-OS research paper.
+3. Work Package description.
+4. Repository `AGENTS.md`.
+5. Repository design and kernel documentation.
+6. Approved test manifests and metric schemas.
+7. Existing test scripts.
+8. Current implementation.
+9. General Linux/scheduler knowledge.
+
+Do not silently replace the project specification with generic Linux assumptions.
+
+The Work Package program distinguishes implementation, instrumentation, experimental validation, scalability, security/reliability, and deployment readiness. Do not treat a planned work package as proof that the feature is already implemented.
+
+The paper is a **pre-kernel simulation study**. Its results are hypotheses and design evidence for real-machine testing, not real-machine results.
+
+---
+
+# 3. Claim Discipline
+
+Every tested capability must be classified using the strongest evidence actually available:
+
+- `SPECIFIED`
+- `SIMULATED`
+- `USERSPACE_VALIDATED`
+- `KERNEL_PROTOTYPED`
+- `EXPERIMENTALLY_VALIDATED`
+- `DEPLOYMENT_READY`
+- `EXPLORATORY`
+- `NOT_IMPLEMENTED`
+- `UNKNOWN`
+
+Never upgrade a claim class because a demo "looks correct."
+
+Examples:
+
+- A userspace call to `sched_yield()` is not kernel scheduler validation.
+- A BPF object compiling is not proof that the scheduler can load.
+- A scheduler loading is not proof that tasks are actually owned by sched_ext.
+- One successful workload run is not experimental validation.
+- One tamper rejection is not broad security validation.
+- One multicore machine is not distributed/cluster validation.
+- A simulation value of Q is not a real-machine expected value.
+
+---
+
+# 4. Canonical ORCHESTRA Behaviors to Validate
+
+The research architecture contains:
+
+- system-state acquisition;
+- predictive extrapolation;
+- structured signal dissemination;
+- integrity/freshness protection;
+- adaptive per-process response;
+- Hybrid Safety Layer;
+- coordination measurement;
+- feedback control;
+- instrumentation;
+- hierarchical scaling.
+
+The canonical action set is exactly:
+
+- `RUN`
+- `SLEEP`
+- `MIGRATE`
+- `THROTTLE`
+- `YIELD`
+
+The corrected coordination metric is conceptually based on:
+
+- `S1` — signal fidelity/freshness;
+- `S2` — directive compliance;
+- `S3` — action coherence;
+- `S4` — temporal stability;
+- `Q` — their corrected multi-factor aggregate.
+
+Do not invent a sixth canonical action.
+
+Do not assume that a current kernel prototype implements all architectural components. Verify implementation maturity first.
+
+---
+
+# 5. Mandatory Test Method
+
+Always follow:
+
+> **INSPECT -> BASELINE -> BUILD -> VERIFY -> RUN -> OBSERVE -> REPEAT -> DIAGNOSE -> REPORT -> ADVISE**
+
+Never follow:
+
+> **RUN -> FAIL -> EDIT -> PASS**
+
+For every important conclusion, preserve:
+
+- the command;
+- timestamp;
+- return code;
+- stdout;
+- stderr;
+- machine state;
+- kernel state;
+- ORCHESTRA state;
+- raw measurements;
+- result classification;
+- diagnosis;
+- confidence.
+
+---
+
+# 6. Cursor Autonomous Mode
+
+## 6.1 Routine actions: run automatically
+
+Do not ask the user for confirmation before routine read/build/test operations.
+
+Automatically perform, when safe and applicable:
+
+- repository inspection;
+- machine inventory;
+- `git status` and commit identification;
+- build prerequisite checks;
+- `make clean`;
+- `make`;
+- `make check`;
+- `make test`;
+- repository unit/integration tests;
+- documented kernel configuration checks;
+- BPF compilation;
+- bridge compilation;
+- sched_ext state checks;
+- ORCHESTRA-specific BPF map inspection;
+- controlled scheduler load/unload;
+- existing real-machine sanity checks;
+- existing benchmark scripts that pass the safety gate;
+- existing stress tests that pass the safety gate;
+- collection of `/proc`, `/sys`, `bpftool`, `perf`, `vmstat`, `mpstat`, `pidstat`, `numastat`, `dmesg`, and similar diagnostic data when installed;
+- repeated trials;
+- statistical summaries;
+- report generation.
+
+## 6.2 Never silently install dependencies
+
+If a required tool is missing:
+
+1. record the missing dependency;
+2. record the exact test(s) blocked by it;
+3. identify the package/tool normally required;
+4. continue with unaffected tests;
+5. mark affected items `BLOCKED`.
+
+Do not modify the machine's package set unless the user has separately authorized package installation.
+
+## 6.3 Never silently modify persistent system configuration
+
+Do not:
+
+- change BIOS/UEFI;
+- change bootloader defaults;
+- permanently alter sysctl values;
+- disable security systems;
+- disable thermal protection;
+- permanently change CPU governor;
+- rewrite `/etc` configuration;
+- install a new kernel;
+- remove unrelated BPF objects.
+
+Temporary runtime settings explicitly required by an approved test may be used only if:
+- the original value is captured;
+- the test requires it;
+- the value is restored afterward;
+- the change is included in the report.
+
+---
+
+# 7. Safety Boundaries
+
+## 7.1 Dedicated-machine assumption
+
+Real scheduler testing can freeze or crash the machine.
+
+Before kernel-level testing, verify:
+
+- the host is intended for testing;
+- no important unsaved work exists;
+- a known-good fallback kernel is available;
+- the filesystem has adequate free space;
+- remote/console recovery is understood;
+- current kernel version is recorded;
+- current bpffs contents are recorded;
+- current sched_ext state is recorded.
+
+If these cannot be established, continue userspace/build tests but mark kernel runtime tests `BLOCKED_FOR_SAFETY`.
+
+## 7.2 Preserve unrelated BPF state
+
+Before manipulating sched_ext:
+
+```bash
+sudo bpftool prog list
+sudo bpftool map list
+sudo bpftool link list
+find /sys/fs/bpf -maxdepth 2 -print 2>/dev/null
+```
+
+Do not blindly execute cleanup that removes all of `/sys/fs/bpf/*` on a machine containing unrelated BPF programs or pins.
+
+The current repository contains some scripts that perform broad bpffs cleanup. Before invoking any such script:
+
+1. inspect the script;
+2. inspect current bpffs state;
+3. verify the machine is dedicated and no unrelated BPF state exists;
+4. otherwise DO NOT run the destructive cleanup path;
+5. record the script as unsafe for the current environment and use only safe existing commands/tools.
+
+Do not edit the script to make it safer during this campaign.
+
+## 7.3 Thermal safety
+
+Do not disable thermal protections.
+
+For sustained CPU stress:
+
+- monitor temperatures;
+- monitor thermal throttling;
+- monitor kernel warnings;
+- stop the stress phase if the machine approaches a kernel/hardware critical condition;
+- record the event as `BLOCKED_FOR_SAFETY` or a robustness finding.
+
+Do not invent a universal temperature threshold. Respect the machine's reported thermal trip points and throttling behavior.
+
+## 7.4 Storage safety
+
+Do not run destructive raw-disk tests.
+
+I/O testing must use disposable temporary files/directories on a filesystem with adequate free space.
+
+Record:
+- test path;
+- free space before;
+- free space after.
+
+Clean up temporary workload files after the run.
+
+## 7.5 Critical failure stop rule
+
+Immediately stop the current campaign phase after any of:
+
+- kernel panic;
+- repeated kernel oops;
+- filesystem corruption;
+- unrecoverable scheduler lockup;
+- repeated hung-task/RCU-stall condition caused by the test;
+- unsafe RT interference;
+- unexplained data loss;
+- serious thermal safety event.
+
+Preserve evidence before attempting another heavy test.
+
+## 7.6 Reboot boundary
+
+Cursor may not survive a reboot reliably.
+
+If a reboot is required:
+
+1. save all current evidence;
+2. write `RESUME_AFTER_REBOOT.md`;
+3. include:
+   - current campaign ID;
+   - required target kernel;
+   - exact next command;
+   - tests completed;
+   - tests remaining;
+4. report `BLOCKED_REBOOT_REQUIRED`;
+5. do not pretend the campaign continued.
+
+If the environment explicitly supports persistent post-reboot automation and the user has pre-authorized automatic reboot, the reboot may be performed. Otherwise stop cleanly.
+
+---
+
+# 8. Campaign Workspace
+
+At the start create a unique campaign directory outside source files, preferably:
+
+```text
+artifacts/real-world/<YYYYMMDD-HHMMSS>-<hostname>/
+```
+
+If repository policy discourages new artifact files, use:
+
+```text
+/tmp/orchestra-realworld-<YYYYMMDD-HHMMSS>/
+```
+
+and copy the final report to an allowed artifacts location if appropriate.
+
+Recommended layout:
+
+```text
+campaign/
+├── CAMPAIGN_STATUS.md
+├── REAL_WORLD_TEST_REPORT.md
+├── EXECUTIVE_SUMMARY.md
+├── FINDINGS.md
+├── CHECKLIST_STATUS.csv
+├── TEST_RESULTS.csv
+├── RESULTS.json
+├── COMMANDS.log
+├── environment/
+├── build/
+├── baseline/
+├── kernel/
+├── sched_ext/
+├── signal/
+├── prediction/
+├── coordination/
+├── controller/
+├── workload/
+├── stress/
+├── security/
+├── recovery/
+├── multicore/
+├── numa/
+├── longrun/
+└── raw/
+```
+
+Do not modify source files to store test notes.
+
+---
+
+# 9. Command Logging
+
+Every executed test command must be logged with:
+
+- timestamp;
+- working directory;
+- command;
+- return code;
+- stdout file;
+- stderr file.
+
+Preserve the first failure.
+
+If a failed test is retried, preserve both the original and retry output.
+
+Never repeatedly retry until a PASS appears and then discard failures.
+
+---
+
+# 10. Phase 0 — Repository and Machine Inventory
+
+Before compiling anything:
+
+## 10.1 Repository state
+
+Record:
+
+```bash
+pwd
+git rev-parse --show-toplevel
+git rev-parse HEAD
+git status --short
+git branch --show-current
+```
+
+If the working tree is dirty:
+
+- record it;
+- do not clean/reset/delete user changes;
+- do not attribute local uncommitted changes to the committed revision;
+- continue only when build/test results can still be interpreted.
+
+Record hashes of important runtime artifacts when built.
+
+## 10.2 Machine inventory
+
+Capture at least:
+
+```bash
+date -Iseconds
+hostnamectl
+uname -a
+uname -r
+cat /etc/os-release
+lscpu
+nproc
+free -h
+lsblk
+df -h
+cat /proc/cmdline
+```
+
+Where available:
+
+```bash
+numactl --hardware
+lstopo-no-graphics
+sensors
+cpupower frequency-info
+ip addr
+ip route
+```
+
+Record:
+
+- CPU model;
+- physical cores;
+- logical CPUs;
+- sockets;
+- NUMA nodes;
+- cache information;
+- RAM;
+- storage;
+- kernel;
+- distro;
+- CPU governor/frequency behavior;
+- thermal sensors;
+=== root README.md ===
+# ORCHESTRA-OS
+
+Predictive, cryptographically protected, hierarchical, signal-coordinated scheduling architecture for Linux.
+
+**Status:** Kernel-prototyped. VirtualBox runtime gate passed on 2026-08-14. First physical-machine campaign on Kali 7.0.12 (HP Pro Tower 280 G9) is **PARTIALLY_VALIDATED**: userspace tests passed; 7.0-ported Stage-7 BPF loaded/unloaded cleanly; canonical kernel actions were **not** shown effective. Not experimentally validated, not deployment-ready. Dedicated ORCHESTRA vs CFS vs `scx_simple` benchmarking is deferred.
+
+---
+
+## Quick Links
+
+| What | Link |
+|------|------|
+| **Physical machine Kali report** (HTML, 2026-08-14; this host) | [ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html](./ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html) |
+| **Physical campaign evidence** (checklist + findings) | [artifacts/real-world/20260814-104600-kali-checklist/](./artifacts/real-world/20260814-104600-kali-checklist/) |
+| **Deep Kernel + C Source Code Audit** (HTML, 2026-08-14; VM/source gate) | [ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_C_Source_Code_Audit_2026-08-14.html) |
+| **Deep Kernel + Algorithm Code Review** (HTML, 2026-08-14) | [ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html](./output/doc/ORCHESTRA_Deep_Kernel_Algorithm_Code_Review_2026-08-14.html) |
+| **Runtime Validation Report** (HTML, 2026-08-14) | [ORCHESTRA_Runtime_Validation_Report_2026-08-14.html](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html) |
+| **VirtualBox Runtime Evidence** (Markdown, 2026-08-14) | [SUMMARY.md](./artifacts/test-results/vbox-runtime-2026-08-14/SUMMARY.md) |
+| **VirtualBox Post-Fix Benchmark Comparison** (HTML, 2026-08-14) | [ORCHESTRA_VM_Benchmark_Comparison_2026-08-14.html](./ORCHESTRA_VM_Benchmark_Comparison_2026-08-14.html) |
+| **USB Deployment Kit** (everything for real machine) | [orchestra-usb-final.zip](./orchestra-usb-final.zip) |
+| **Final Report** (Markdown + Mermaid flowcharts) | [ORCHESTRA-OS-Final-Report.md](./ORCHESTRA-OS-Final-Report.md) |
+| **Final Report** (PDF) | [ORCHESTRA-OS-Final-Report.pdf](./ORCHESTRA-OS-Final-Report.pdf) |
+| **Known Recommendations & Fixes** (Markdown) | [known_recommand_fix.md](./known_recommand_fix.md) |
+| **Before / After Report** (HTML, ownership fix vs Stage 8/9) | [ORCHESTRA_Before_After_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Before_After_Report.html) |
+| **P0 ownership retest** (VirtualBox, after recommended fixes) | [p0-ownership-retest/](./artifacts/test-results/2026-08-13/vbox-mcp/p0-ownership-retest/) |
+| **P0 owned 5s bench CSV** (CFS / scx_simple / ORCHESTRA) | [p0-owned-bench/](./artifacts/test-results/2026-08-13/vbox-mcp/p0-owned-bench/) |
+| **Kernel Benchmark Report** (HTML + graphs, VirtualBox) | [ORCHESTRA_Kernel_Benchmark_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Benchmark_Report.html) |
+| **Kernel Improvement Report** (HTML findings & fix map) | [ORCHESTRA_Kernel_Improvement_Report.html](./artifacts/test-results/2026-08-13/vbox-mcp/ORCHESTRA_Kernel_Improvement_Report.html) |
+| **VBox Test Ladder Summary** | [SUMMARY.md](./artifacts/test-results/2026-08-13/vbox-mcp/SUMMARY.md) |
+| **Architecture Decisions** (12 ADRs) | [docs/adr/](./docs/adr/) |
+| **Kernel BPF Scheduler Source** | [kernel/sched_ext/](./kernel/sched_ext/) |
+| **Real-Machine Benchmarks** | [benchmarks/real-machine/](./benchmarks/real-machine/) |
+| **Research Paper** | [orchestra os tdps final 6 july.pdf](./orchestra%20os%20tdps%20final%206%20july.pdf) |
+| **Release Package** (20 docs) | [release/](./release/) |
+| **Final Documentation** (18 docs + flowcharts) | [docs/final_report/](./docs/final_report/) |
+| **Security Threat Model** | [docs/security/stage8-threat-model.md](./docs/security/stage8-threat-model.md) |
+
+---
+
+## Project Map
+
+```
+ORCHESTRA-OS/
+│
+├── orchestra_paper_cpu_demo/      Userspace prototype (C11, RL, controller)
+│   ├── orchestra_paper_cpu.c       Canonical userspace algorithm implementation
+│   ├── Makefile                    Build
+│   └── README.md                   Usage
+│
+├── kernel/sched_ext/               Linux sched_ext kernel scheduler
+│   ├── orchestra_scx_stage7.bpf.c  BPF scheduler (5 actions)
+│   ├── orchestra_scx.bpf.c         Stage 6 minimal scheduler
+│   ├── include/
+│   │   ├── orchestra_bridge_v1.h   Bridge contract (versioned structs)
+│   │   └── orchestra_scx.h         Scheduler types
+│   ├── bridge/
+│   │   └── orchestra_bridge.c      Userspace bridge CLI
+│   └── scripts/
+│       ├── check_kernel_config.sh  Verify CONFIG_SCHED_CLASS_EXT
+│       ├── reproduce_stage7_runtime.sh  Stage 7 reproduction
+│       └── stage8_validate.sh      Stage 8 full validation
+│
+├── benchmarks/                     Performance testing
+│   ├── real-machine/               ** USB STICK — RUN ON REAL HARDWARE **
+│   │   ├── sanity_check.sh         Verify machine, kernel, tools
+│   │   ├── stress_suite.sh         60s CPU + Memory + I/O + Mixed
+│   │   ├── benchmark_suite.sh      CFS vs scx_simple vs ORCHESTRA
+│   │   ├── full_compare.sh         Full comparison with CSV export
+│   │   └── README.md               Benchmark usage guide
+│   ├── stage8/
+│   │   └── benchmark_runner.py     Stage 8 Python harness
+│   └── stage9/
+│       └── benchmark_compare.sh    Stage 9 CFS vs ORCHESTRA
+│
+├── tests/                          Validation
+│   ├── unit/                       25 named unit tests (GCC + Clang)
+│   ├── integration/                5 scenarios + 34 CSV validator tests
+│   └── test_orchestra_paper_cpu.c  Unit test source
+│
+├── docs/                           Documentation
+│   ├── adr/                        12 Architecture Decision Records
+│   ├── final_report/               18-section final report + flowcharts
+│   ├── architecture/               sched_ext preparation design
+│   ├── kernel/                     VirtualBox bringup, kernel validation
+│   ├── security/                   Threat model + hardening checklist
+│   └── experiments/                Methodology + results
+│
+├── release/                        Professor submission package
+│   ├── FINAL_REPORT.md
+│   ├── ARCHITECTURE.md
+│   ├── REPRODUCTION_GUIDE.md
+│   └── ... (20 documents)
+│
+├── artifacts/                      Kernel images, configs, test results
+├── experiments/                    JSON manifests + metric schemas (v2-v6)
+├── tools/                          Benchmark runner, PDF report generator
+│
+├── ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html  ** Physical Kali campaign **
+├── ORCHESTRA-OS-Final-Report.md    ** Single-file complete report **
+├── ORCHESTRA-OS-Final-Report.pdf   ** Single-file PDF report **
+├── orchestra-usb-final.zip         ** USB deployment kit **
+├── AGENTS.md                       Research governance
+├── Makefile                        Build orchestration
+└── README.md                       This file
+```
+
+---
+
+## 1. Build and Test (Userspace)
+
+```bash
+make clean && make && make test
+```
+
+**Expected:** 25/25 unit tests, 34/34 validator tests, 5/5 integration scenarios, 0 Clang analyzer findings.
+
+### Run the userspace demo
+
+```bash
+./orchestra_paper_cpu_demo/orchestra_paper_cpu \
+  --workers 4 --duration 10 --mode orchestra --seed 42
+```
+
+---
+
+## 2. Real-Machine Kernel Setup
+
+> **Physical campaign (2026-08-14, this Kali host):** attach/unload **PASS** after a 7.0 `scx_bpf_dsq_insert*` port; MIGRATE/SLEEP **not effective** as observed. See the [Kali physical report](./ORCHESTRA_Physical_Machine_Kali_Report_2026-08-14.html). Do **not** boot `artifacts/kernel-v6.12.96-orchestra-stage8.bzImage` on NVMe hardware (that image has NVMe disabled).
+>
+> **Safety gate:** The VirtualBox runtime gate still applies as 6.12 guest evidence. Physical use remains a controlled pilot: disposable host, rollback, abort thresholds, no production workloads. This is not authorization for deployment. VM evidence: [runtime validation report](./ORCHESTRA_Runtime_Validation_Report_2026-08-14.html).
+
+### Prerequisites
+- Linux 6.12+ with `CONFIG_SCHED_CLASS_EXT=y` and `CONFIG_DEBUG_INFO_BTF=y`
+- `gcc`, `clang`, `make`, `bpftool`, `libbpf-devel`
+- Root access
+
+### Quick Install from USB
+
+```bash
+unzip orchestra-usb-final.zip && cd orchestra-usb-final
+bash scripts/sanity_check.sh         # Check environment
+bash scripts/install.sh              # Install kernel + build userspace + bridge
+sudo reboot                          # Boot ORCHESTRA kernel
+bash scripts/build_bpf.sh            # Compile BPF scheduler against running BTF
+bash scripts/load.sh                 # Load scheduler
+bash scripts/benchmark_suite.sh      # Compare CFS vs scx_simple vs ORCHESTRA
+bash scripts/stress_suite.sh 120     # 2-minute stress test
+bash scripts/unload.sh               # Remove scheduler
+```
+
+### Build BPF from source
+
+```bash
+cd kernel/sched_ext
+sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > include/vmlinux.h
+clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+  -I include -I $KSRC/tools/lib -I $KSRC/include -I $KSRC/include/uapi \
+  -I $KSRC/arch/x86/include -I $KSRC/arch/x86/include/generated \
+  -I $KSRC/tools/sched_ext/include -I /usr/include/bpf \
+  -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member \
+  -c orchestra_scx_stage7.bpf.c -o orchestra_scx_stage7.bpf.o
+```
+
+### Build Bridge CLI
+
+```bash
+cc -O2 -Wall -Wextra -I kernel/sched_ext/include \
+  kernel/sched_ext/bridge/orchestra_bridge.c \
+  -o bridge -lbpf
+```
+
+### Load / Unload
+
+On Linux 7.0 (this Kali host) the BPF object must be built against `scx_bpf_dsq_insert*` (`ORCHESTRA_SCX_API_VERSION=70012`). Pin maps **before** attach via the loader. Do not wipe all of `/sys/fs/bpf`.
+
+```bash
+cd kernel/sched_ext
+sudo ./bridge/orchestra_loader --load ./orchestra_scx_stage7.bpf.o
+cat /sys/kernel/sched_ext/state          # enabled
+sudo ./bridge/orchestra_bridge --status
+sudo ./bridge/orchestra_bridge --publish --action RUN --target-pid <PID>
+sudo ./bridge/orchestra_loader --unload
+cat /sys/kernel/sched_ext/state          # disabled
+```
+
+Bare `bpftool struct_ops register` is insufficient for this object (timer map). Scripts that `rm -rf /sys/fs/bpf/*` were not used on this host.
+
+---
+
+## 3. Real-Machine Benchmarks
+
+### Sanity Check
+
+```bash
+bash benchmarks/real-machine/sanity_check.sh
+```
+
+Checks: kernel version, CPU, RAM, CONFIG_SCHED_CLASS_EXT, BTF, tools.
+
+### Stress Suite (4 workloads, CSV output)
+
+```bash
+sudo bash benchmarks/real-machine/stress_suite.sh 120
+```
+
+| Test | What It Does |
+|------|-------------|
+| CPU | N workers × 100% spin loop |
+| Memory | 50% RAM allocation + pressure |
+| I/O | Parallel read/write to /tmp |
+| Mixed | Half CPU + half I/O |
+| Health | Kernel log scan for panics/stalls |
+
+Results: `/tmp/orchestra-stress-<timestamp>/results.csv`
+
+### Benchmark Suite (CFS vs scx_simple vs ORCHESTRA)
+
+```bash
+sudo bash benchmarks/real-machine/benchmark_suite.sh
+```
+
+Tests 1, 2, 4, 8 workers × 30 seconds each. Outputs CSV with elapsed_ms and context switches.
+
+### Full Comparison
+
+```bash
+sudo bash benchmarks/real-machine/full_compare.sh
+```
+
+Runs all three schedulers through all worker counts. Exports to `/tmp/orchestra-compare-<timestamp>/results.csv`.
+
+### Expected Overhead (historical estimate — not a Kali measurement)
+
+| Scheduler | Relative to CFS |
+|-----------|----------------|
+| CFS | 1.00× (baseline) |
+| scx_simple | ~1.02× (not installed on this Kali host) |
+| ORCHESTRA | ~1.20× (design estimate only) |
+
+These figures are **not** results from the 2026-08-14 physical campaign. One 4-worker 8s run while ORCHESTRA was loaded finished in 7997 ms versus CFS ~7993 ms (n=1, full-switch, ownership not isolated). A proper comparison is deferred.
+
+---
+
+## 4. Bridge CLI Reference
+
+```
+Usage: ./bridge <command>
+
+--status              Print scheduler state, magic, generation, telemetry
+--publish             Publish a directive
+  --action RUN|YIELD|MIGRATE|THROTTLE|SLEEP
+  --target-pid <pid>
+  --target-cpu <cpu>  (default: any)
+  --slice-ns <ns>     (0 = nominal)
+  --dry-run            Validate without mutation
+--clear               Clear all directives
+
+Exit codes:
+  0 = success
+  2 = scheduler not loaded
+  6 = invalid PID
+ 10 = generation overflow
+```
+
+---
+
+## 5. Metrics Schema (v2 → v6)
+
+| Version | Columns | Added |
+|---------|---------|-------|
+| v2 | 40 | S1-S4, Q (geometric mean) |
+| v3 | 66 | S2_effective, S3_conditioned |
+| v4 | 83 | S4_burst, oscillation penalty |
+| v5 | 107 | Controller state diagnostics |
+| v6 | 120 | Policy mode, generation, persistence |
+
+AC: Q = (S1 × S2 × S3 × S4)^(1/4)
+
+---
+
+## 6. Controller States
+
+| State | RUN | YIELD | MIGRATE | THROTTLE | SLEEP |
+|-------|-----|-------|---------|----------|-------|
+| NORMAL | ✓ | ✓ | ✓ | ✓ | ✓ |
+| DEGRADED | ✓ | ✓ | ✗ | ✓ | ✗ |
+| SATURATED | ✓ | ✗ | ✗ | ✗ | ✗ |
+| DISABLED | RUN only | ✗ | ✗ | ✗ | ✗ |
+
+---
+
+## 7. Research Governance
+
+See [AGENTS.md](AGENTS.md) for work-package scope, invariants, claim classes, and development protocol.
+
+See [docs/adr/](docs/adr/) for all 12 Architecture Decision Records.
+
+---
+
+## 8. Key Hashes
+
+VirtualBox / release artifacts:
+
+| File | SHA-256 |
+|------|---------|
+| Userspace source | `5fc21224846a2a17db0f02ce02efe8ebbe1067e40b0ad78e82419839d73657b9` |
+| Userspace binary | `3a68b633e29e9d91060fa9bba0305940f02d04678573da115796f23850383e03` |
+| Bridge contract | `08eaa93725f98331edffa67d3255b25bebcb589e8299401c40a089dc70007c97` |
+| Kernel bzImage (6.12.96 VBox; NVMe off) | `d3d50d26b3d1a91196318a2c99d1c71a859c3171b69276bd26414ae6dfa9e912` |
+| Kernel BTF (that bzImage) | `7af6be54b981c04e7e57c2043f3cb0247e05e564ff65271138197fd8a91ca458` |
+
+This Kali 7.0.12 host (2026-08-14):
+
+| File | SHA-256 |
+|------|---------|
+| Running BTF vmlinux | `3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76` |
+| 7.0-ported BPF object | `ba82987fb2aa09d1746c7dbc1937830965182612c23377fd61c3ee75fc38dab4` |
+=== kernel/sched_ext/README.md ===
+# ORCHESTRA-OS sched_ext Kernel Integration — Stage 6 MVP
+
+**Status:** Implemented  
+**Maturity:** Kernel-prototyped (VirtualBox)
+
+## Scope
+
+This directory implements a minimal sched_ext scheduler for the ORCHESTRA-OS
+research program. Stage 6 provides:
+
+- Partial opt-in via `SCHED_EXT` scheduling policy
+- RUN action: bounded 5ms slice on global DSQ
+- YIELD action: bounded 1ms slice with eventual progress
+- Unknown action fallback to RUN
+- Frozen deterministic policy (no online learning in kernel)
+- Bounded dispatch loops (max 4 per tick)
+- Per-task state tracking (action, fallback count)
+- Global telemetry counters (load/unload/enable/enqueue/dispatch/run/yield/fallback/error)
+- Safe unload — tasks return to Linux fair scheduler
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `include/orchestra_scx.h` | Shared definitions (actions, maps, telemetry) |
+| `orchestra_scx.bpf.c` | BPF scheduler program |
+| `orchestra_scx.c` | Userspace loader skeleton |
+| `scripts/check_kernel_config.sh` | Kernel config validation |
+| `scripts/verify_sched_ext.sh` | sched_ext subsystem verification |
+| `tests/test_optin.c` | Partial opt-in test driver |
+| `tests/test_dispatch.c` | Dispatch correctness exercises |
+
+## Prerequisites
+
+- Linux 6.12+ with `CONFIG_SCHED_CLASS_EXT=y`
+- `CONFIG_DEBUG_INFO_BTF=y`
+- clang/LLVM 15+ for BPF compilation
+- bpftool, libbpf
+- Root or `CAP_BPF`+`CAP_SYS_ADMIN` for scheduler load
+
+## Build
+
+```bash
+# From the Linux kernel source tree:
+cd $ORCHESTRA_KERNEL_SRC
+make -C tools/bpf/bpftool
+
+# Build the ORCHESTRA BPF scheduler:
+clang -O2 -target bpf -g \
+    -I $ORCHESTRA_KERNEL_SRC/tools/lib \
+    -I $ORCHESTRA_OS/kernel/sched_ext/include \
+    -c orchestra_scx.bpf.c -o orchestra_scx.bpf.o
+
+# Verify with BPF verifier:
+bpftool prog load orchestra_scx.bpf.o /sys/fs/bpf/orchestra_scx type sched_ext
+
+# Generate skeleton:
+bpftool gen skeleton orchestra_scx.bpf.o > orchestra_scx.skel.h
+
+# Build userspace loader:
+cc -O2 -Wall -Wextra -Werror orchestra_scx.c -o orchestra_scx -lbpf -lelf -lz
+```
+
+## Load and Test
+
+```bash
+# Run the loader (requires root):
+sudo ./orchestra_scx
+
+# Verify sched_ext is active:
+cat /sys/kernel/sched_ext/state
+
+# Should show "orchestra_scx_stage6" as the active scheduler
+```
+
+## Telemetry
+
+After scheduler unload, telemetry is printed to stdout:
+
+- `load_count` / `unload_count` — scheduler attach/detach events
+- `task_enable_count` / `task_disable_count` — opt-in/opt-out events
+- `enqueue_count` / `dispatch_count` — scheduling operations
+- `run_count` / `yield_count` — action frequencies
+- `fallback_count` / `invalid_action_count` — error diagnostics
+
+## Unload
+
+```bash
+# Ctrl+C in the loader unloads the scheduler
+# Or:
+sudo bpftool struct_ops unregister /sys/fs/bpf/orchestra_scx/orchestra_sched_ops
+```
+
+All opted-in tasks return to CFS/EEVDF safely.
+
+## Limitations (Stage 6)
+
+- No SLEEP, MIGRATE, or THROTTLE kernel implementations
+- No userspace-to-BPF signal bridge
+- No online policy learning in kernel
+- Fixed slice durations only
+- Single frozen policy
+- No NUMA-aware CPU selection
+- Requires VirtualBox or test VM for safe evaluation
+=== benchmarks/real-machine/README.md ===
+# ORCHESTRA-OS Real-Machine Benchmarks
+
+## Quick Start
+
+```bash
+# 1. Check your machine
+bash sanity_check.sh
+
+# 2. Run stress tests (60 seconds)
+bash stress_suite.sh 60 cfs     # CFS baseline
+bash stress_suite.sh 60 orchestra  # ORCHESTRA (load scheduler first)
+
+# 3. Run benchmarks (CFS vs scx_simple vs ORCHESTRA)
+bash benchmark_suite.sh
+```
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `sanity_check.sh` | Check kernel, tools, sched_ext readiness |
+| `stress_suite.sh` | CPU, memory, I/O, mixed workload stress |
+| `benchmark_suite.sh` | CFS vs scx_simple vs ORCHESTRA comparison |
+
+## Stress Tests
+
+```
+CPU stress     → N workers × 100% CPU spin loop
+Memory stress  → 50% RAM allocation + pressure
+I/O stress     → Parallel read/write operations
+Mixed workload → CPU + I/O combined
+Health check   → Kernel log scan for panics/stalls
+```
+
+## Benchmark Workloads
+
+- 1 worker  × 30 seconds
+- 2 workers × 30 seconds
+- 4 workers × 30 seconds
+- 8 workers × 30 seconds
+
+Compared across CFS, scx_simple, ORCHESTRA.
+
+## Output
+
+All results in `/tmp/orchestra-bench-<timestamp>/results.csv` and `/tmp/orchestra-stress-<timestamp>/results.csv`.

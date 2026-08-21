@@ -1,0 +1,9 @@
+sched_ext_state=disabled
+orchestra_pin=absent
+--orchestra-programs--
+--orchestra-links--
+--recent-sched-ext-log--
+[Fri Aug 21 09:50:13 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:54:50 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)
+[Fri Aug 21 09:55:09 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" enabled
+[Fri Aug 21 09:57:54 2026] sched_ext: BPF scheduler "orchestra_scx_stage7" disabled (unregistered from user space)

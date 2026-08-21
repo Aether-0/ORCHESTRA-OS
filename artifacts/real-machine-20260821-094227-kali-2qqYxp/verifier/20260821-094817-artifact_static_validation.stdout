@@ -1,0 +1,326 @@
+=== hashes ===
+3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76  /sys/kernel/btf/vmlinux
+75fad1758f76f398290ce62db0756c321ff7e68a31ae529f1b040c1b4c2f8bf2  kernel/sched_ext/orchestra_scx_stage7.bpf.c
+f7bd4e829511cb59f800410dd65214d449beeb67263c1daad09e145af760b616  kernel/sched_ext/bridge/orchestra_bridge.c
+5f73d15dfcc0c607a751d4814dd753529748cb8f1b54725448e58b8f8003ef48  kernel/sched_ext/bridge/orchestra_loader.c
+b3758483483a4fd78223654b4237473405244b101ca82993c46ae9be983527db  kernel/sched_ext/include/orchestra_abi.h
+6da004fe522fa25c98e8e9463179f56603c3d0e8c19fbf9436b6c420aa09d231  kernel/sched_ext/include/orchestra_bridge_v1.h
+96b223c8eaa9763f6caa0998188cf632aa0133c096bf526edc0043db3e675a51  artifacts/real-machine-20260821-094227-kali-2qqYxp/build/include/vmlinux.h
+4b77ee093b157870cc075a851e25b41a8a370547bd9c5e1d12c611b506b363bd  artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o
+5d9caadd45328f5760f6cbbae959b8b0f020ef54513cc669853825525c56f745  artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge
+f420363ea67f4301d69ca37189ee613bbf3d6b340889846d204d96558cec6e5d  artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader
+a521006feb29fff5203e440a47dc8708b0c73c65b326304db59bbc7d31060504  artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work
+=== file ===
+artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_scx_stage7.bpf.o: ELF 64-bit LSB relocatable, eBPF, version 1 (SYSV), with debug_info, not stripped
+artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_bridge:           ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=411f07d36a703d2ae7d3ff5c7a175a24598b6b25, for GNU/Linux 3.2.0, not stripped
+artifacts/real-machine-20260821-094227-kali-2qqYxp/build/orchestra_loader:           ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=3f99c7bf15744bb55f81e97742f233b26da8493c, for GNU/Linux 3.2.0, not stripped
+artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work:                 ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=be8cd96c1ee93115efea96365e4c299c542fab56, for GNU/Linux 3.2.0, not stripped
+=== ELF sections ===
+There are 49 section headers, starting at offset 0x10ce70:
+
+Section Headers:
+  [Nr] Name              Type            Address          Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            0000000000000000 000000 000000 00      0   0  0
+  [ 1] .strtab           STRTAB          0000000000000000 10c5e9 000884 00      0   0  1
+  [ 2] .text             PROGBITS        0000000000000000 000040 000868 00  AX  0   0  8
+  [ 3] .rel.text         REL             0000000000000000 0c2730 0001f0 10   I 48   2  8
+  [ 4] struct_ops.s/orchestra_sched_init PROGBITS        0000000000000000 0008a8 000260 00  AX  0   0  8
+  [ 5] .relstruct_ops.s/orchestra_sched_init REL             0000000000000000 0c2920 000060 10   I 48   4  8
+  [ 6] struct_ops/orchestra_sched_exit PROGBITS        0000000000000000 000b08 000098 00  AX  0   0  8
+  [ 7] .relstruct_ops/orchestra_sched_exit REL             0000000000000000 0c2980 000010 10   I 48   6  8
+  [ 8] struct_ops/orchestra_sched_enable PROGBITS        0000000000000000 000ba0 000160 00  AX  0   0  8
+  [ 9] .relstruct_ops/orchestra_sched_enable REL             0000000000000000 0c2990 000030 10   I 48   8  8
+  [10] struct_ops/orchestra_sched_disable PROGBITS        0000000000000000 000d00 000190 00  AX  0   0  8
+  [11] .relstruct_ops/orchestra_sched_disable REL             0000000000000000 0c29c0 000060 10   I 48  10  8
+  [12] struct_ops/orchestra_sched_select_cpu PROGBITS        0000000000000000 000e90 004e08 00  AX  0   0  8
+  [13] .relstruct_ops/orchestra_sched_select_cpu REL             0000000000000000 0c2a20 000a70 10   I 48  12  8
+  [14] struct_ops/orchestra_sched_enqueue PROGBITS        0000000000000000 005c98 003bc8 00  AX  0   0  8
+  [15] .relstruct_ops/orchestra_sched_enqueue REL             0000000000000000 0c3490 000800 10   I 48  14  8
+  [16] struct_ops/orchestra_sched_dispatch PROGBITS        0000000000000000 009860 000058 00  AX  0   0  8
+  [17] .relstruct_ops/orchestra_sched_dispatch REL             0000000000000000 0c3c90 000010 10   I 48  16  8
+  [18] struct_ops/orchestra_sched_running PROGBITS        0000000000000000 0098b8 0003b8 00  AX  0   0  8
+  [19] .relstruct_ops/orchestra_sched_running REL             0000000000000000 0c3ca0 000030 10   I 48  18  8
+  [20] struct_ops/orchestra_sched_stopping PROGBITS        0000000000000000 009c70 000290 00  AX  0   0  8
+  [21] .relstruct_ops/orchestra_sched_stopping REL             0000000000000000 0c3cd0 000030 10   I 48  20  8
+  [22] license           PROGBITS        0000000000000000 009f00 000004 00  WA  0   0  1
+  [23] .struct_ops.link  PROGBITS        0000000000000000 009f08 0001c0 00  WA  0   0  8
+  [24] .rel.struct_ops.link REL             0000000000000000 0c3d00 000090 10   I 48  23  8
+  [25] .rodata           PROGBITS        0000000000000000 00a0c8 000148 00   A  0   0  8
+  [26] .maps             PROGBITS        0000000000000000 00a210 0000e0 00  WA  0   0  8
+  [27] .data             PROGBITS        0000000000000000 00a2f0 000058 00  WA  0   0  1
+  [28] .debug_loclists   PROGBITS        0000000000000000 00a348 007256 00      0   0  1
+  [29] .debug_abbrev     PROGBITS        0000000000000000 01159e 000749 00      0   0  1
+  [30] .debug_info       PROGBITS        0000000000000000 011ce7 050ad4 00      0   0  1
+  [31] .rel.debug_info   REL             0000000000000000 0c3d90 000060 10   I 48  30  8
+  [32] .debug_rnglists   PROGBITS        0000000000000000 0627bb 000888 00      0   0  1
+  [33] .debug_str_offsets PROGBITS        0000000000000000 063043 00fda4 00      0   0  1
+  [34] .rel.debug_str_offsets REL             0000000000000000 0c3df0 03f670 10   I 48  33  8
+  [35] .debug_str        PROGBITS        0000000000000000 072de7 035b63 01  MS  0   0  1
+  [36] .debug_addr       PROGBITS        0000000000000000 0a894a 000bf8 00      0   0  1
+  [37] .rel.debug_addr   REL             0000000000000000 103460 0017e0 10   I 48  36  8
+  [38] .BTF              PROGBITS        0000000000000000 0a9544 00e57f 00      0   0  4
+  [39] .rel.BTF          REL             0000000000000000 104c40 0004a0 10   I 48  38  8
+  [40] .BTF.ext          PROGBITS        0000000000000000 0b7ac4 00728c 00      0   0  4
+  [41] .rel.BTF.ext      REL             0000000000000000 1050e0 0071e0 10   I 48  40  8
+  [42] .debug_frame      PROGBITS        0000000000000000 0bed50 000130 00      0   0  8
+  [43] .rel.debug_frame  REL             0000000000000000 10c2c0 000180 10   I 48  42  8
+  [44] .debug_line       PROGBITS        0000000000000000 0bee80 002c86 00      0   0  1
+  [45] .rel.debug_line   REL             0000000000000000 10c440 000190 10   I 48  44  8
+  [46] .debug_line_str   PROGBITS        0000000000000000 0c1b06 000208 01  MS  0   0  1
+  [47] .llvm_addrsig     LLVM_ADDRSIG    0000000000000000 10c5d0 000019 00   E 48   0  1
+  [48] .symtab           SYMTAB          0000000000000000 0c1d10 000a20 18      1  26  8
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), p (processor specific)
+=== BPF symbols ===
+     1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS orchestra_scx_stage7.bpf.c
+     3: 0000000000000000     0 SECTION LOCAL  DEFAULT    4 struct_ops.s/orchestra_sched_init
+     5: 0000000000000000     0 SECTION LOCAL  DEFAULT    6 struct_ops/orchestra_sched_exit
+     6: 0000000000000000     0 SECTION LOCAL  DEFAULT    8 struct_ops/orchestra_sched_enable
+     7: 0000000000000000     0 SECTION LOCAL  DEFAULT   10 struct_ops/orchestra_sched_disable
+     8: 0000000000000000     0 SECTION LOCAL  DEFAULT   12 struct_ops/orchestra_sched_select_cpu
+    11: 0000000000000000     0 SECTION LOCAL  DEFAULT   14 struct_ops/orchestra_sched_enqueue
+    12: 0000000000000000     0 SECTION LOCAL  DEFAULT   16 struct_ops/orchestra_sched_dispatch
+    13: 0000000000000000     0 SECTION LOCAL  DEFAULT   18 struct_ops/orchestra_sched_running
+    14: 0000000000000000     0 SECTION LOCAL  DEFAULT   20 struct_ops/orchestra_sched_stopping
+    26: 0000000000000000   608 FUNC    GLOBAL DEFAULT    4 orchestra_sched_init
+    27: 00000000000000a0    32 OBJECT  GLOBAL DEFAULT   26 orch_telemetry
+    28: 0000000000000000    32 OBJECT  GLOBAL DEFAULT   26 orch_control
+    30: 00000000000000c0    32 OBJECT  GLOBAL DEFAULT   26 orch_defer_tmr
+    31: 0000000000000000   152 FUNC    GLOBAL DEFAULT    6 orchestra_sched_exit
+    32: 0000000000000000   352 FUNC    GLOBAL DEFAULT    8 orchestra_sched_enable
+    33: 0000000000000040    32 OBJECT  GLOBAL DEFAULT   26 orch_identity
+    34: 0000000000000000   400 FUNC    GLOBAL DEFAULT   10 orchestra_sched_disable
+    35: 0000000000000020    32 OBJECT  GLOBAL DEFAULT   26 orch_directives
+    36: 0000000000000060    32 OBJECT  GLOBAL DEFAULT   26 orch_task_state
+    37: 0000000000000080    32 OBJECT  GLOBAL DEFAULT   26 orch_task_tel
+    38: 0000000000000000 19976 FUNC    GLOBAL DEFAULT   12 orchestra_sched_select_cpu
+    48: 0000000000000000 15304 FUNC    GLOBAL DEFAULT   14 orchestra_sched_enqueue
+    49: 0000000000000000    88 FUNC    GLOBAL DEFAULT   16 orchestra_sched_dispatch
+    50: 0000000000000000   952 FUNC    GLOBAL DEFAULT   18 orchestra_sched_running
+    51: 0000000000000000   656 FUNC    GLOBAL DEFAULT   20 orchestra_sched_stopping
+    65: 0000000000000000     4 OBJECT  GLOBAL DEFAULT   22 _license
+    66: 0000000000000000   448 OBJECT  GLOBAL DEFAULT   23 orchestra_sched_ops
+=== object BTF head ===
+[1] PTR '(anon)' type_id=3
+[2] INT 'int' size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
+[3] ARRAY '(anon)' type_id=2 index_type_id=4 nr_elems=2
+[4] INT '__ARRAY_SIZE_TYPE__' size=4 bits_offset=0 nr_bits=32 encoding=(none)
+[5] PTR '(anon)' type_id=6
+[6] ARRAY '(anon)' type_id=2 index_type_id=4 nr_elems=1
+[7] PTR '(anon)' type_id=8
+[8] TYPEDEF 'uint32_t' type_id=9
+[9] TYPEDEF '__u32' type_id=10
+[10] INT 'unsigned int' size=4 bits_offset=0 nr_bits=32 encoding=(none)
+[11] PTR '(anon)' type_id=12
+[12] STRUCT 'bridge_control' size=80 vlen=14
+	'lock' type_id=13 bits_offset=0
+	'magic' type_id=8 bits_offset=32
+	'abi_version' type_id=8 bits_offset=64
+	'value_size' type_id=8 bits_offset=96
+	'capability_flags' type_id=8 bits_offset=128
+	'scheduler_epoch' type_id=14 bits_offset=192
+	'last_generation' type_id=14 bits_offset=256
+	'publisher_heartbeat_ns' type_id=14 bits_offset=320
+	'publisher_lease_ns' type_id=14 bits_offset=384
+	'policy_generation' type_id=14 bits_offset=448
+	'controller_state' type_id=8 bits_offset=512
+	'policy_mode' type_id=8 bits_offset=544
+	'publication_status' type_id=8 bits_offset=576
+	'scx_api_version' type_id=8 bits_offset=608
+[13] STRUCT 'bpf_spin_lock' size=4 vlen=1
+	'val' type_id=9 bits_offset=0
+[14] TYPEDEF 'uint64_t' type_id=15
+[15] TYPEDEF '__u64' type_id=16
+[16] INT 'unsigned long long' size=8 bits_offset=0 nr_bits=64 encoding=(none)
+[17] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=1 bits_offset=0
+	'max_entries' type_id=5 bits_offset=64
+	'key' type_id=7 bits_offset=128
+	'value' type_id=11 bits_offset=192
+[18] VAR 'orch_control' type_id=17, linkage=global
+[19] PTR '(anon)' type_id=20
+[20] ARRAY '(anon)' type_id=2 index_type_id=4 nr_elems=4096
+[21] PTR '(anon)' type_id=22
+[22] STRUCT 'orchestra_task_identity' size=16 vlen=3
+	'tgid' type_id=8 bits_offset=0
+	'tid' type_id=8 bits_offset=32
+	'start_boottime_ns' type_id=14 bits_offset=64
+[23] PTR '(anon)' type_id=24
+[24] STRUCT 'bridge_directive' size=112 vlen=17
+	'lock' type_id=13 bits_offset=0
+	'abi_version' type_id=8 bits_offset=32
+	'value_size' type_id=8 bits_offset=64
+	'flags' type_id=8 bits_offset=96
+	'scheduler_epoch' type_id=14 bits_offset=128
+	'generation' type_id=14 bits_offset=192
+	'identity' type_id=22 bits_offset=256
+	'action' type_id=8 bits_offset=384
+	'target_cpu' type_id=8 bits_offset=416
+	'slice_ns' type_id=14 bits_offset=448
+	'not_before_ns' type_id=14 bits_offset=512
+	'throttle_period_ns' type_id=14 bits_offset=576
+	'throttle_budget_ns' type_id=14 bits_offset=640
+	'expiry_ns' type_id=14 bits_offset=704
+	'controller_state' type_id=8 bits_offset=768
+	'policy_mode' type_id=8 bits_offset=800
+	'policy_generation' type_id=14 bits_offset=832
+[25] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=5 bits_offset=0
+	'max_entries' type_id=19 bits_offset=64
+	'key' type_id=21 bits_offset=128
+	'value' type_id=23 bits_offset=192
+[26] VAR 'orch_directives' type_id=25, linkage=global
+[27] PTR '(anon)' type_id=28
+[28] STRUCT 'orchestra_pid_key' size=8 vlen=2
+	'tgid' type_id=8 bits_offset=0
+	'tid' type_id=8 bits_offset=32
+[29] PTR '(anon)' type_id=30
+[30] STRUCT 'bridge_identity_record' size=16 vlen=2
+	'start_boottime_ns' type_id=14 bits_offset=0
+	'scheduler_epoch' type_id=14 bits_offset=64
+[31] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=5 bits_offset=0
+	'max_entries' type_id=19 bits_offset=64
+	'key' type_id=27 bits_offset=128
+	'value' type_id=29 bits_offset=192
+[32] VAR 'orch_identity' type_id=31, linkage=global
+[33] PTR '(anon)' type_id=34
+[34] STRUCT 'bridge_task_state' size=72 vlen=12
+	'lock' type_id=13 bits_offset=0
+	'reserved_lock_pad' type_id=8 bits_offset=32
+	'generation' type_id=14 bits_offset=64
+	'period_start_ns' type_id=14 bits_offset=128
+	'runtime_used_ns' type_id=14 bits_offset=192
+	'running_since_ns' type_id=14 bits_offset=256
+	'eligible_ns' type_id=14 bits_offset=320
+	'last_enqueue_ns' type_id=14 bits_offset=384
+	'action' type_id=8 bits_offset=448
+	'requested_cpu' type_id=8 bits_offset=480
+	'dispatched_cpu' type_id=8 bits_offset=512
+	'flags' type_id=8 bits_offset=544
+[35] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=5 bits_offset=0
+	'max_entries' type_id=19 bits_offset=64
+	'key' type_id=21 bits_offset=128
+	'value' type_id=33 bits_offset=192
+[36] VAR 'orch_task_state' type_id=35, linkage=global
+[37] PTR '(anon)' type_id=38
+[38] STRUCT 'bridge_task_telemetry' size=104 vlen=20
+	'lock' type_id=13 bits_offset=0
+	'reserved_lock_pad' type_id=8 bits_offset=32
+	'generation' type_id=14 bits_offset=64
+	'accepted_ns' type_id=14 bits_offset=128
+	'dispatched_ns' type_id=14 bits_offset=192
+	'running_ns' type_id=14 bits_offset=256
+	'stopped_ns' type_id=14 bits_offset=320
+	'runtime_ns' type_id=14 bits_offset=384
+	'action' type_id=8 bits_offset=448
+	'requested_cpu' type_id=8 bits_offset=480
+	'dispatched_cpu' type_id=39 bits_offset=512
+	'actual_cpu' type_id=39 bits_offset=544
+	'accepted_count' type_id=8 bits_offset=576
+	'dispatched_count' type_id=8 bits_offset=608
+	'running_count' type_id=8 bits_offset=640
+	'effective_count' type_id=8 bits_offset=672
+	'fallback_count' type_id=8 bits_offset=704
+	'error_count' type_id=8 bits_offset=736
+	'fallback_reason' type_id=8 bits_offset=768
+	'reserved' type_id=8 bits_offset=800
+[39] TYPEDEF 'int32_t' type_id=40
+[40] TYPEDEF '__s32' type_id=2
+[41] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=5 bits_offset=0
+	'max_entries' type_id=19 bits_offset=64
+	'key' type_id=21 bits_offset=128
+	'value' type_id=37 bits_offset=192
+[42] VAR 'orch_task_tel' type_id=41, linkage=global
+[43] PTR '(anon)' type_id=44
+[44] STRUCT 'bridge_telemetry' size=304 vlen=38
+	'load_count' type_id=14 bits_offset=0
+	'unload_count' type_id=14 bits_offset=64
+	'task_enable_count' type_id=14 bits_offset=128
+	'task_disable_count' type_id=14 bits_offset=192
+	'select_cpu_count' type_id=14 bits_offset=256
+	'enqueue_callback_count' type_id=14 bits_offset=320
+	'placement_count' type_id=14 bits_offset=384
+	'select_cpu_direct_insert_count' type_id=14 bits_offset=448
+	'dispatch_callback_count' type_id=14 bits_offset=512
+	'accepted_directive_count' type_id=14 bits_offset=576
+	'dispatched_action_count' type_id=14 bits_offset=640
+	'running_count' type_id=14 bits_offset=704
+	'stopping_count' type_id=14 bits_offset=768
+	'fallback_count' type_id=14 bits_offset=832
+	'invalid_action_count' type_id=14 bits_offset=896
+	'invalid_identity_count' type_id=14 bits_offset=960
+	'invalid_cpu_count' type_id=14 bits_offset=1024
+	'expired_directive_count' type_id=14 bits_offset=1088
+	'stale_lease_count' type_id=14 bits_offset=1152
+	'map_error_count' type_id=14 bits_offset=1216
+	'deferred_count' type_id=14 bits_offset=1280
+	'deferred_release_count' type_id=14 bits_offset=1344
+	'run_dispatched_count' type_id=14 bits_offset=1408
+	'yield_dispatched_count' type_id=14 bits_offset=1472
+	'migrate_accepted_count' type_id=14 bits_offset=1536
+	'migrate_dispatched_count' type_id=14 bits_offset=1600
+	'migrate_running_target_count' type_id=14 bits_offset=1664
+	'migrate_running_other_count' type_id=14 bits_offset=1728
+	'throttle_accepted_count' type_id=14 bits_offset=1792
+	'throttle_deferred_count' type_id=14 bits_offset=1856
+	'sleep_accepted_count' type_id=14 bits_offset=1920
+	'sleep_deferred_count' type_id=14 bits_offset=1984
+	'scheduler_error_count' type_id=14 bits_offset=2048
+	'deferred_timer_tick_count' type_id=14 bits_offset=2112
+	'deferred_timer_scanned_count' type_id=14 bits_offset=2176
+	'deferred_timer_future_count' type_id=14 bits_offset=2240
+	'deferred_release_failure_count' type_id=14 bits_offset=2304
+	'deferred_cpu_failure_count' type_id=14 bits_offset=2368
+[45] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=1 bits_offset=0
+	'max_entries' type_id=5 bits_offset=64
+	'key' type_id=7 bits_offset=128
+	'value' type_id=43 bits_offset=192
+[46] VAR 'orch_telemetry' type_id=45, linkage=global
+[47] PTR '(anon)' type_id=48
+[48] STRUCT 'bridge_defer_timer' size=16 vlen=1
+	'timer' type_id=49 bits_offset=0
+[49] STRUCT 'bpf_timer' size=16 vlen=1
+	'__opaque' type_id=50 bits_offset=0
+[50] ARRAY '(anon)' type_id=15 index_type_id=4 nr_elems=2
+[51] STRUCT '(anon)' size=32 vlen=4
+	'type' type_id=1 bits_offset=0
+	'max_entries' type_id=5 bits_offset=64
+	'key' type_id=7 bits_offset=128
+	'value' type_id=47 bits_offset=192
+[52] VAR 'orch_defer_tmr' type_id=51, linkage=global
+[53] PTR '(anon)' type_id=16
+[54] FUNC_PROTO '(anon)' ret_type_id=55 vlen=1
+	'ctx' type_id=53
+[55] TYPEDEF 's32' type_id=40
+[56] FUNC 'orchestra_sched_init' type_id=54 linkage=global
+[57] FUNC_PROTO '(anon)' ret_type_id=55 vlen=2
+	'(anon)' type_id=58
+	'(anon)' type_id=55
+[58] TYPEDEF 'u64' type_id=15
+[59] FUNC 'scx_bpf_create_dsq' type_id=57 linkage=extern
+[60] FUNC_PROTO '(anon)' ret_type_id=0 vlen=1
+	'ctx' type_id=53
+[61] FUNC 'orchestra_sched_exit' type_id=60 linkage=global
+[62] STRUCT 'scx_exit_info' size=64 vlen=8
+	'kind' type_id=63 bits_offset=0
+	'exit_code' type_id=64 bits_offset=64
+	'flags' type_id=58 bits_offset=128
+	'reason' type_id=67 bits_offset=192
+	'bt' type_id=70 bits_offset=256
+	'bt_len' type_id=72 bits_offset=320
+	'msg' type_id=73 bits_offset=384
+	'dump' type_id=73 bits_offset=448
+[63] ENUM 'scx_exit_kind' encoding=UNSIGNED size=4 vlen=9
+	'SCX_EXIT_NONE' val=0
+	'SCX_EXIT_DONE' val=1
+	'SCX_EXIT_UNREG' val=64
+	'SCX_EXIT_UNREG_BPF' val=65
+	'SCX_EXIT_UNREG_KERN' val=66
+	'SCX_EXIT_SYSRQ' val=67

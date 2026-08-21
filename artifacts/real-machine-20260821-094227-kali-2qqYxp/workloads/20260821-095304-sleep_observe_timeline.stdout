@@ -1,0 +1,12 @@
+phase=early monotonic_now_ns=4224000000000
+    PID STAT PSR ELAPSED CMD
+ 159930 Rs     0      92 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+directive identity=159930:159930:4131965338418 generation=6 action=SLEEP cpu=4294967295
+task identity=159930:159930:4131965338418 generation=6 action=SLEEP requested_cpu=4294967295 dispatched_cpu=0 actual_cpu=0 accepted=3847 dispatched=3369 running=4035 effective=3378 fallback=659 errors=180
+telemetry accepted=3847 dispatched=3369 running=1289058 fallback=1282723 migrate_target=516 migrate_other=180 timer_ticks=677981 deferred_scans=5852 deferred_future=5851 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=186127 run_disp=1283662 yield_disp=1916 mig_acc=513 mig_disp=513 throttle_acc=0 throttle_def=0 sleep_acc=1 sleep_def=1 deferred=1 deferred_rel=1 stale_lease=181 bad_id=0 expired=0 bad_cpu=0 map_err=0
+phase=late monotonic_now_ns=4226010000000
+    PID STAT PSR ELAPSED CMD
+ 159930 Rs     0      94 artifacts/real-machine-20260821-094227-kali-2qqYxp/build/fixed_work 100000000000
+directive identity=159930:159930:4131965338418 generation=6 action=SLEEP cpu=4294967295
+task identity=159930:159930:4131965338418 generation=6 action=SLEEP requested_cpu=4294967295 dispatched_cpu=0 actual_cpu=0 accepted=3972 dispatched=3369 running=4162 effective=3378 fallback=784 errors=180
+telemetry accepted=3972 dispatched=3369 running=1303652 fallback=1297291 migrate_target=516 migrate_other=180 timer_ticks=685977 deferred_scans=5852 deferred_future=5851 deferred_release_fail=0 deferred_cpu_fail=0 enqueue=188183 run_disp=1298230 yield_disp=1916 mig_acc=513 mig_disp=513 throttle_acc=0 throttle_def=0 sleep_acc=1 sleep_def=1 deferred=1 deferred_rel=1 stale_lease=181 bad_id=0 expired=0 bad_cpu=0 map_err=0

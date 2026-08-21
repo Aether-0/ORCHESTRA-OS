@@ -1,0 +1,77 @@
+=== /home/sharda/src/linux-source-7.0 ===
+aad6f6cda8d52711125d9e73fb22c199043b4fd4cc709703fef25ca3d4ad7dba  /home/sharda/src/linux-source-7.0/tools/sched_ext/include/scx/common.bpf.h
+=== /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0 ===
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 7
+PATCHLEVEL = 0
+SUBLEVEL = 12
+EXTRAVERSION =
+NAME = Baby Opossum Posse
+
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+# Comments in this file are targeted only to the developer, do not
+# expect to learn how to build the kernel reading this file.
+
+ifeq ($(filter output-sync,$(.FEATURES)),)
+$(error GNU Make >= 4.0 is required. Your Make version is $(MAKE_VERSION))
+endif
+
+$(if $(filter __%, $(MAKECMDGOALS)), \
+	$(error targets prefixed with '__' are only for internal use))
+
+# That's our default target when none is given on the command line
+PHONY := __all
+__all:
+
+# We are using a recursive build, so we need to do a little thinking
+# to get the ordering right.
+#
+# Most importantly: sub-Makefiles should only ever modify files in
+aad6f6cda8d52711125d9e73fb22c199043b4fd4cc709703fef25ca3d4ad7dba  /home/sharda/Downloads/ORCHESTRA-OS-main/artifacts/real-world/20260821-084900-kali-kernel-bench/kernel/linux-source-7.0/tools/sched_ext/include/scx/common.bpf.h
+07c787c4eeac01a2f9d60916577806d00863b15f
+=== /home/sharda/src/linux-v6.12.96 ===
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 7
+PATCHLEVEL = 2
+SUBLEVEL = 0
+EXTRAVERSION = -rc7
+NAME = Baby Opossum Posse
+
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+# Comments in this file are targeted only to the developer, do not
+# expect to learn how to build the kernel reading this file.
+
+ifeq ($(filter output-sync,$(.FEATURES)),)
+$(error GNU Make >= 4.0 is required. Your Make version is $(MAKE_VERSION))
+endif
+
+$(if $(filter __%, $(MAKECMDGOALS)), \
+	$(error targets prefixed with '__' are only for internal use))
+
+# That's our default target when none is given on the command line
+PHONY := __all
+__all:
+
+# We are using a recursive build, so we need to do a little thinking
+# to get the ordering right.
+#
+# Most importantly: sub-Makefiles should only ever modify files in
+180209ffefa7bc89f54822f3e0719b1b4be71fc9427de1863375a1e130480084  /home/sharda/src/linux-v6.12.96/tools/sched_ext/include/scx/common.bpf.h
+d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
+=== /usr/src/linux-headers-7.0.12+kali-amd64 ===
+KBUILD_OUTPUT=/usr/src/linux-headers-7.0.12+kali-amd64
+include /usr/src/linux-headers-7.0.12+kali-common/Makefile
+a84558e6813e971c76306d6deb7e5162e1b7c03be94829b2a701372333fd6379  /usr/src/linux-headers-7.0.12+kali-amd64/.config
+=== running config identity ===
+CONFIG_BPF=y
+CONFIG_BPF_SYSCALL=y
+CONFIG_BPF_JIT=y
+CONFIG_SCHED_CLASS_EXT=y
+CONFIG_DEBUG_INFO_BTF=y
+CONFIG_BPF_EVENTS=y
+=== BTF identity ===
+3f39484930b332629a5864a1a703b0a39320cc1584f6e8a00dfbc6375b58ec76  /sys/kernel/btf/vmlinux

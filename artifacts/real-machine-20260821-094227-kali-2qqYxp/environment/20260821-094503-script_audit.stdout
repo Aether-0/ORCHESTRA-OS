@@ -1,0 +1,1121 @@
+=== benchmarks/real-machine/sanity_check.sh ===
+#!/bin/bash
+set -euo pipefail
+echo "=== ORCHESTRA Real-Machine Sanity Check ==="
+echo ""
+
+check() { if command -v "$1" &>/dev/null; then echo "  [OK] $1"; else echo "  [MISSING] $1 ($2)"; fi; }
+
+echo "Kernel: $(uname -r) | CPUs: $(nproc) | RAM: $(free -h | awk '/Mem/{print $2}')"
+echo ""
+
+echo "Required tools:"
+check gcc "dnf install gcc"
+check clang "dnf install clang"
+check make "dnf install make"
+check bpftool "dnf install bpftool"
+check python3 "dnf install python3"
+echo ""
+
+echo "Kernel capabilities:"
+for opt in SCHED_CLASS_EXT DEBUG_INFO_BTF BPF_SYSCALL BPF_JIT; do
+    if grep -q "CONFIG_${opt}=y" /boot/config-$(uname -r) 2>/dev/null; then
+        echo "  [OK] CONFIG_$opt=y"
+    else
+        echo "  [MISSING] CONFIG_$opt"
+        echo "    Boot the ORCHESTRA kernel or rebuild with $opt=y"
+    fi
+done
+echo ""
+
+if [ -d /sys/kernel/sched_ext ]; then
+    echo "[OK] sched_ext: $(cat /sys/kernel/sched_ext/state)"
+else
+    echo "[BLOCKED] sched_ext not available"
+fi
+
+if [ -f /sys/kernel/btf/vmlinux ]; then
+    echo "[OK] BTF: $(ls -lh /sys/kernel/btf/vmlinux | awk '{print $5}')"
+    echo "  SHA-256: $(sha256sum /sys/kernel/btf/vmlinux | awk '{print $1}')"
+else
+    echo "[BLOCKED] BTF not available"
+fi
+
+echo ""
+echo "Network: $(ip addr show | grep 'inet ' | grep -v 127.0.0 | awk '{print $2}' | head -1)"
+echo "Disk:   $(df -h / | awk 'NR==2{print $4}') free"
+=== benchmarks/real-machine/stress_suite.sh ===
+#!/bin/bash
+set -euo pipefail
+# ORCHESTRA-OS Real-Machine Stress Test Suite
+# Tests: CPU, memory, I/O, mixed workloads
+# Usage: bash stress_suite.sh [duration_seconds] [mode: cfs|orchestra]
+
+DURATION=${1:-60}
+MODE=${2:-cfs}
+OUTDIR="/tmp/orchestra-stress-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTDIR"
+
+log()  { echo "$(date +%H:%M:%S) $*" | tee -a "$OUTDIR/stress.log"; }
+fail() { log "FAIL: $*"; echo "FAIL:$*" >> "$OUTDIR/failures.txt"; }
+
+NCPU=$(nproc)
+MEM_MB=$(free -m | awk '/Mem/{print $2}')
+STRESS_MB=$((MEM_MB / 2))
+
+# Check scheduler if in orchestra mode
+if [ "$MODE" = "orchestra" ]; then
+    SCHED_STATE=$(cat /sys/kernel/sched_ext/state 2>/dev/null || echo "disabled")
+    if [ "$SCHED_STATE" != "enabled" ]; then
+        log "WARNING: sched_ext not enabled (state=$SCHED_STATE). Load ORCHESTRA first."
+    fi
+fi
+
+# Header
+cat > "$OUTDIR/results.csv" << EOF
+test,duration_s,cpu_workers,memory_mb,io_files,errors,warnings,completed
+EOF
+
+log "=== ORCHESTRA Stress Suite ==="
+log "Mode: $MODE | Duration: ${DURATION}s | CPUs: $NCPU | RAM: ${MEM_MB}MB"
+log "Output: $OUTDIR"
+
+# ---- CPU Stress ----
+log "--- CPU Stress ($NCPU workers) ---"
+STRESS_START=$(date +%s)
+errors=0; warnings=0
+for i in $(seq 1 $NCPU); do
+    taskset -c $((i-1)) bash -c "
+        e=\$((\$(date +%s) + $DURATION))
+        while [ \$(date +%s) -lt \$e ]; do :; done
+    " &
+done
+for pid in $(jobs -p); do wait $pid 2>/dev/null || ((errors++)); done
+elapsed=$(( $(date +%s) - STRESS_START ))
+echo "cpu_stress,$elapsed,$NCPU,0,0,$errors,$warnings,PASS" >> "$OUTDIR/results.csv"
+log "  CPU: ${elapsed}s, $errors errors"
+
+# ---- Memory Stress ----
+log "--- Memory Stress (${STRESS_MB}MB) ---"
+if command -v stress &>/dev/null; then
+    stress --vm 2 --vm-bytes "${STRESS_MB}M" --timeout "${DURATION}s" 2>/dev/null &
+    STRESS_PID=$!
+    wait $STRESS_PID 2>/dev/null || ((errors++))
+    echo "mem_stress,$DURATION,0,$STRESS_MB,0,$errors,$warnings,PASS" >> "$OUTDIR/results.csv"
+else
+    # Fallback: use dd + /dev/zero
+    MEM_START=$(date +%s)
+    for i in 1 2; do
+        dd if=/dev/zero of=/tmp/orchestra-stress-$i bs=1M count=$((STRESS_MB/2)) 2>/dev/null &
+    done
+    sleep "$DURATION"
+    for pid in $(jobs -p); do kill $pid 2>/dev/null; done
+    rm -f /tmp/orchestra-stress-*
+    elapsed=$(( $(date +%s) - MEM_START ))
+    echo "mem_stress,$elapsed,0,$STRESS_MB,0,0,0,PASS" >> "$OUTDIR/results.csv"
+fi
+log "  Memory: done"
+
+# ---- I/O Stress ----
+log "--- I/O Stress ---"
+IO_START=$(date +%s)
+IO_DIR="/tmp/orchestra-io-stress"
+mkdir -p "$IO_DIR"
+for i in $(seq 1 $((NCPU/2 > 0 ? NCPU/2 : 1))); do
+    (
+        e=$(($(date +%s) + DURATION))
+        while [ $(date +%s) -lt $e ]; do
+            dd if=/dev/urandom of="$IO_DIR/file-$i" bs=4k count=100 2>/dev/null
+            cat "$IO_DIR/file-$i" > /dev/null 2>/dev/null
+        done
+    ) &
+done
+for pid in $(jobs -p); do wait $pid 2>/dev/null || ((errors++)); done
+rm -rf "$IO_DIR"
+elapsed=$(( $(date +%s) - IO_START ))
+echo "io_stress,$elapsed,0,0,$((NCPU/2)),$errors,0,PASS" >> "$OUTDIR/results.csv"
+log "  I/O: ${elapsed}s"
+
+# ---- Mixed Workload ----
+log "--- Mixed Workload ---"
+MIX_START=$(date +%s)
+half=$((NCPU/2 > 0 ? NCPU/2 : 1))
+# CPU workers
+for i in $(seq 1 $half); do
+    taskset -c $((i-1)) bash -c "e=\$((\$(date +%s)+$DURATION)); while [ \$(date +%s) -lt \$e ]; do :; done" &
+done
+# I/O workers
+for i in $(seq $((half+1)) $NCPU); do
+    taskset -c $((i-1)) bash -c "
+        e=\$((\$(date +%s)+$DURATION))
+        while [ \$(date +%s) -lt \$e ]; do
+            dd if=/dev/zero of=/tmp/mix-\$i bs=4k count=10 2>/dev/null
+            rm -f /tmp/mix-\$i
+            sleep 0.1
+        done
+    " &
+done
+for pid in $(jobs -p); do wait $pid 2>/dev/null || ((errors++)); done
+elapsed=$(( $(date +%s) - MIX_START ))
+echo "mixed,$elapsed,$half,$STRESS_MB,$half,$errors,0,PASS" >> "$OUTDIR/results.csv"
+log "  Mixed: ${elapsed}s"
+
+# ---- Kernel Health Check ----
+log "--- Health Check ---"
+WARNINGS=0
+dmesg --ctime 2>/dev/null | tail -200 | grep -qi "panic\|BUG\|stall\|hung_task\|RCU" && ((WARNINGS++)) || true
+echo "health_check,0,0,0,0,0,$WARNINGS,$([ $WARNINGS -eq 0 ] && echo PASS || echo WARN)" >> "$OUTDIR/results.csv"
+
+log "=== COMPLETE ==="
+log "Results: $OUTDIR/results.csv"
+cat "$OUTDIR/results.csv"
+=== benchmarks/real-machine/benchmark_suite.sh ===
+#!/bin/bash
+set -euo pipefail
+# ORCHESTRA-OS Real-Machine Benchmark Suite
+# Compares CFS vs scx_simple vs ORCHESTRA (owned SCHED_EXT workers).
+# Context switches are per-run deltas. scx_simple is not waited as a job.
+
+OUTDIR="/tmp/orchestra-bench-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTDIR"
+NCPU=$(nproc)
+BPF="${ORCHESTRA_BPF:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/orchestra_scx_stage7.bpf.o}"
+BRIDGE="${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}"
+SECS="${BENCH_SECS:-8}"
+
+log() { echo "$(date +%H:%M:%S) $*" | tee -a "$OUTDIR/bench.log"; }
+
+echo "scheduler,workers,duration_s,elapsed_ms,ctx_delta,enqueue,running,owned,notes" > "$OUTDIR/results.csv"
+
+tel_field() {
+    local f="$1"
+    sudo bpftool map dump name bridge_telemetr 2>/dev/null | python3 -c "
+import sys, json
+d=json.load(sys.stdin)[0]['value']
+print(d.get('$f', 0))
+" 2>/dev/null || echo 0
+}
+
+run_test() {
+    local SCHED=$1 WORKERS=$2 DSECS=$3
+    log "  $SCHED: $WORKERS workers, ${DSECS}s..."
+
+    local ctx0
+    ctx0=$(awk '/^ctxt/{print $2}' /proc/stat)
+    local PIDS=()
+    local start_ns end_ns ms ctx1 ctxd
+    start_ns=$(date +%s%N)
+    for i in $(seq 1 "$WORKERS"); do
+        taskset -c $(( (i-1) % NCPU )) bash -c "
+            e=\$((\$(date +%s) + $DSECS))
+            while [ \$(date +%s) -lt \$e ]; do :; done
+        " &
+        PIDS+=($!)
+    done
+
+    local enq=0 running=0 owned=n/a notes=completed
+    if [ "$SCHED" = "orchestra" ] && [ -x "$BRIDGE" ]; then
+        for pid in "${PIDS[@]}"; do
+            sudo "$BRIDGE" --opt-in --target-pid "$pid" >/dev/null 2>&1 || true
+            sudo "$BRIDGE" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+        done
+    fi
+
+    for pid in "${PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
+    end_ns=$(date +%s%N)
+    ms=$(( (end_ns - start_ns) / 1000000 ))
+    ctx1=$(awk '/^ctxt/{print $2}' /proc/stat)
+    ctxd=$((ctx1 - ctx0))
+
+    if [ "$SCHED" = "orchestra" ]; then
+        enq=$(tel_field enqueue_count)
+        running=$(tel_field running_count)
+        if [ "$enq" -gt 0 ] && [ "$running" -gt 0 ]; then
+            owned=yes
+        else
+            owned=no
+            notes="ownership-gate-failed"
+        fi
+    fi
+
+    echo "$SCHED,$WORKERS,$DSECS,$ms,$ctxd,$enq,$running,$owned,$notes" >> "$OUTDIR/results.csv"
+    log "    ${ms}ms ctx_delta=$ctxd enq=$enq running=$running owned=$owned"
+}
+
+WORKLOADS=(
+    "cpu:1:${SECS}"
+    "cpu:2:${SECS}"
+    "cpu:4:${SECS}"
+)
+
+log "=== Real-Machine Benchmark Suite ==="
+log "CPU: $NCPU cores  | Output: $OUTDIR | duration=${SECS}s"
+
+log "--- CFS Baseline ---"
+for w in "${WORKLOADS[@]}"; do
+    IFS=':' read -r type workers secs <<< "$w"
+    run_test "cfs" "$workers" "$secs"
+done
+
+if [ -x /usr/bin/scx_simple ]; then
+    log "--- scx_simple ---"
+    sudo /usr/bin/scx_simple >/dev/null 2>&1 &
+    SCX_PID=$!
+    sleep 2
+    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+        for w in "${WORKLOADS[@]}"; do
+            IFS=':' read -r type workers secs <<< "$w"
+            run_test "scx_simple" "$workers" "$secs"
+        done
+    fi
+    sudo kill "$SCX_PID" 2>/dev/null || true
+    sleep 2
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id "$l" 2>/dev/null || true
+    done
+    sleep 1
+else
+    log "scx_simple not installed (dnf install scx_c_schedulers)"
+fi
+
+log "--- ORCHESTRA ---"
+if [ -f "$BPF" ]; then
+    sudo rm -rf /sys/fs/bpf/bench /sys/fs/bpf/bridge_* 2>/dev/null || true
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id "$l" 2>/dev/null || true
+    done
+    sudo bpftool struct_ops register "$BPF" /sys/fs/bpf/bench 2>&1 | tail -1
+    sleep 2
+    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+        if [ -x "$BRIDGE" ]; then
+            sudo "$BRIDGE" --pin-maps || true
+        fi
+        for w in "${WORKLOADS[@]}"; do
+            IFS=':' read -r type workers secs <<< "$w"
+            run_test "orchestra" "$workers" "$secs"
+        done
+        sudo rm -rf /sys/fs/bpf/bench /sys/fs/bpf/bridge_* 2>/dev/null || true
+        for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+            sudo bpftool link detach id "$l" 2>/dev/null || true
+        done
+    fi
+else
+    log "BPF object missing: $BPF"
+fi
+
+log "=== COMPLETE ==="
+echo ""
+echo "========== RESULTS =========="
+cat "$OUTDIR/results.csv"
+echo ""
+echo "Full results: $OUTDIR"
+=== benchmarks/real-machine/full_compare.sh ===
+#!/bin/bash
+set -euo pipefail
+# ORCHESTRA-OS Full Real-Machine Comparison
+# Tests CFS vs scx_simple vs ORCHESTRA across multiple dimensions
+
+OUT="/tmp/orchestra-compare-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUT"
+NCPU=$(nproc)
+BPF="/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/orchestra_scx_stage7.bpf.o"
+BRIDGE="${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}"
+
+log() { echo "$(date +%H:%M:%S) $*" | tee -a "$OUT/run.log"; }
+
+cat > "$OUT/results.csv" << 'EOF'
+scheduler,test,workers,elapsed_ms,ctx_switches,notes
+EOF
+
+run_test() {
+    local SCHED=$1 LABEL=$2 WORKERS=$3 SECS=$4 TYPE=$5
+    log "  $SCHED/$LABEL: $WORKERS $TYPE workers × ${SECS}s"
+    
+    local PIDS=()
+    local start_ns=$(date +%s%N)
+    local ctx0
+    ctx0=$(awk '/^ctxt/{print $2}' /proc/stat)
+    for i in $(seq 1 $WORKERS); do
+        case $TYPE in
+            cpu)
+                taskset -c $(( (i-1) % NCPU )) bash -c "
+                    e=\$((\$(date +%s) + $SECS))
+                    while [ \$(date +%s) -lt \$e ]; do :; done
+                " &
+                PIDS+=($!) ;;
+            mixed)
+                if [ $((i % 2)) -eq 0 ]; then
+                    taskset -c $(( (i-1) % NCPU )) bash -c "
+                        e=\$((\$(date +%s) + $SECS))
+                        while [ \$(date +%s) -lt \$e ]; do :; done
+                    " &
+                    PIDS+=($!)
+                else
+                    taskset -c $(( (i-1) % NCPU )) bash -c "
+                        e=\$((\$(date +%s) + $SECS))
+                        while [ \$(date +%s) -lt \$e ]; do
+                            dd if=/dev/zero of=/tmp/cmp-\$i bs=4k count=5 2>/dev/null
+                            sleep 0.05
+                        done
+                    " &
+                    PIDS+=($!)
+                fi ;;
+        esac
+    done
+    if [ "$SCHED" = "orchestra" ] && [ -x "${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}" ]; then
+        local BR="${ORCHESTRA_BRIDGE:-/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext/bridge/orchestra_bridge}"
+        for pid in "${PIDS[@]}"; do
+            sudo "$BR" --opt-in --target-pid "$pid" >/dev/null 2>&1 || true
+            sudo "$BR" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+        done
+    fi
+    for pid in "${PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
+    local end_ns=$(date +%s%N)
+    local ms=$(( (end_ns - start_ns) / 1000000 ))
+    local ctx1 ctxd
+    ctx1=$(awk '/^ctxt/{print $2}' /proc/stat)
+    ctxd=$((ctx1 - ctx0))
+    echo "$SCHED,$LABEL,$WORKERS,$ms,$ctxd,ok" >> "$OUT/results.csv"
+    log "    => ${ms}ms ctx_delta=$ctxd"
+}
+
+# ====== MAIN ======
+log "=== Full Comparison ==="
+log "Machine: $(uname -r) | CPUs: $NCPU"
+
+# ---- CFS ----
+log "--- CFS Baseline ---"
+for w in 1 2 4 8; do
+    [ $w -le $NCPU ] || break
+    run_test "cfs" "cpu_${w}w" "$w" 30 cpu
+    run_test "cfs" "mixed_${w}w" "$w" 30 mixed
+done
+
+# ---- scx_simple ----
+if [ -x /usr/bin/scx_simple ]; then
+    log "--- scx_simple ---"
+    sudo /usr/bin/scx_simple > /dev/null 2>&1 &
+    SCX=$!
+    sleep 2
+    [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ] || { log "scx_simple failed"; sudo kill $SCX 2>/dev/null; }
+    for w in 1 2 4 8; do
+        [ $w -le $NCPU ] || break
+        run_test "scx_simple" "cpu_${w}w" "$w" 30 cpu
+    done
+    sudo kill $SCX 2>/dev/null || true
+    sleep 2
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null || true
+    done
+    sleep 1
+fi
+
+# ---- ORCHESTRA ----
+if [ -f "$BPF" ]; then
+    log "--- ORCHESTRA ---"
+    sudo rm -rf /sys/fs/bpf/* 2>/dev/null
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null
+    done
+    sudo bpftool struct_ops register "$BPF" /sys/fs/bpf/cmp 2>&1 | tail -1
+    sleep 2
+    
+    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+        sudo "$BRIDGE" --pin-maps || true
+        for w in 1 2 4 8; do
+            [ $w -le $NCPU ] || break
+            run_test "orchestra" "cpu_${w}w" "$w" 30 cpu
+        done
+    fi
+    
+    sudo rm -rf /sys/fs/bpf/* 2>/dev/null
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null
+    done
+fi
+
+log "=== COMPLETE ==="
+echo "" && echo "======== RESULTS ========" && cat "$OUT/results.csv"
+echo "" && echo "Full: $OUT"
+=== kernel/sched_ext/scripts/check_kernel_config.sh ===
+#!/bin/bash
+# ORCHESTRA-OS Stage 6 — check kernel configuration for sched_ext support.
+#
+# Usage:
+#   ./check_kernel_config.sh [KERNEL_SRC_DIR]
+#
+# If KERNEL_SRC_DIR is given, checks the .config in that directory.
+# Otherwise, checks the running kernel via /proc/config.gz or /boot/config-$(uname -r).
+
+set -euo pipefail
+
+KSRC="${1:-}"
+
+required_configs=(
+    CONFIG_BPF=y
+    CONFIG_BPF_SYSCALL=y
+    CONFIG_BPF_JIT=y
+    CONFIG_DEBUG_INFO_BTF=y
+    CONFIG_SCHED_CLASS_EXT=y
+    CONFIG_BPF_EVENTS=y
+)
+
+optional_configs=(
+    CONFIG_KPROBES=y
+    CONFIG_FTRACE=y
+    CONFIG_DEBUG_FS=y
+    CONFIG_BPF_KPROBE_OVERRIDE=y
+)
+
+die() { echo "ERROR: $*" >&2; exit 1; }
+info() { echo "INFO:  $*"; }
+ok()   { echo "OK:    $*"; }
+
+find_config() {
+    if [ -n "$KSRC" ]; then
+        [ -f "$KSRC/.config" ] || die "$KSRC/.config not found"
+        cat "$KSRC/.config"
+        return
+    fi
+    if [ -f /proc/config.gz ]; then
+        zcat /proc/config.gz
+    elif [ -f "/boot/config-$(uname -r)" ]; then
+        cat "/boot/config-$(uname -r)"
+    else
+        die "cannot find kernel config; specify KERNEL_SRC_DIR"
+    fi
+}
+
+CONFIG=$(find_config)
+
+info "KERNEL_SRC=${KSRC:-running kernel}"
+info "---"
+
+failed=0
+for req in "${required_configs[@]}"; do
+    name="${req%%=*}"
+    expected="${req#*=}"
+    actual=$(echo "$CONFIG" | grep "^${name}=" || echo "${name}=notset")
+    if echo "$actual" | grep -q "^${name}=${expected}$"; then
+        ok "$req"
+    else
+        echo "MISSING: $name (required: $expected, got: $actual)" >&2
+        failed=1
+    fi
+done
+
+for opt in "${optional_configs[@]}"; do
+    name="${opt%%=*}"
+    expected="${opt#*=}"
+    actual=$(echo "$CONFIG" | grep "^${name}=" || echo "${name}=notset")
+    if echo "$actual" | grep -q "^${name}=${expected}$"; then
+        ok "$opt"
+    else
+        info "  (optional) $opt → got $actual"
+    fi
+done
+
+if [ "$failed" -ne 0 ]; then
+    echo ""
+    die "Missing $failed required kernel configuration(s). Enable the listed options and rebuild the kernel."
+fi
+
+info "All required kernel configs present."
+=== kernel/sched_ext/scripts/reproduce_stage7_runtime.sh ===
+#!/bin/bash
+# ORCHESTRA-OS Stage 7 — Runtime Evidence Reproduction Script
+# Runs all action tests with bounded timeouts and safe fallbacks.
+set -euo pipefail
+
+KSRC="${ORCHESTRA_KERNEL_SRC:-$HOME/src/linux-v6.12.96}"
+SCHED_DIR="$HOME/Documents/ORCHESTRA-OS/kernel/sched_ext"
+EVIDENCE_DIR="/tmp/stage7-evidence-$(date +%Y%m%d-%H%M%S)"
+DISPOSABLE_PID=""
+
+cleanup() {
+    echo "=== CLEANUP ==="
+    sudo rm -f /sys/fs/bpf/bridge_* /sys/fs/bpf/orch7* 2>/dev/null || true
+    local lids=$(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}' | tr -d ' ')
+    for l in $lids; do sudo bpftool link detach id $l 2>/dev/null || true; done
+    sleep 1
+}
+
+log() { echo "$(date +%H:%M:%S) $*" | tee -a "$EVIDENCE_DIR/log.txt"; }
+ok()  { log "PASS: $*"; }
+fail() { log "FAIL: $*"; exit 1; }
+
+mkdir -p "$EVIDENCE_DIR"
+log "Stage 7 evidence campaign starting"
+log "Evidence dir: $EVIDENCE_DIR"
+
+# === 1. Environment ===
+log "--- Environment ---"
+uname -a | tee "$EVIDENCE_DIR/uname.txt"
+cat /sys/kernel/sched_ext/state | tee "$EVIDENCE_DIR/sched_ext_state_pre.txt"
+sha256sum /sys/kernel/btf/vmlinux | tee "$EVIDENCE_DIR/btf_hash.txt"
+head -5 "$KSRC/Makefile" | tee "$EVIDENCE_DIR/kernel_source.txt"
+
+# === 2. Clean and build ===
+log "--- Build ---"
+cleanup
+cd "$SCHED_DIR"
+
+sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > include/vmlinux.h 2>/dev/null
+
+clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+  -I include -I "$KSRC/tools/lib" -I "$KSRC/tools/bpf/bpftool/libbpf" \
+  -I "$KSRC/include" -I "$KSRC/include/uapi" \
+  -I "$KSRC/arch/x86/include" -I "$KSRC/arch/x86/include/generated" \
+  -I "$KSRC/tools/sched_ext/include" -I /usr/include/bpf \
+  -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member \
+  -c orchestra_scx_stage7.bpf.c -o orchestra_scx_stage7.bpf.o 2>&1 || fail "BPF build"
+
+cc -O2 -Wall -Wextra -I include bridge/orchestra_bridge.c -o bridge/orchestra_bridge -lbpf 2>&1 || fail "Bridge build"
+
+sha256sum orchestra_scx_stage7.bpf.o bridge/orchestra_bridge include/vmlinux.h > "$EVIDENCE_DIR/artifacts.sha256"
+
+# === 3. Official scx_simple ===
+log "--- scx_simple 3 cycles ---"
+for i in 1 2 3; do
+    timeout --signal=INT --kill-after=3s 10s sudo /usr/bin/scx_simple 2>&1 | tail -1 | tee -a "$EVIDENCE_DIR/scx_simple_$i.log"
+    S=$(cat /sys/kernel/sched_ext/state)
+    [ "$S" = "disabled" ] || fail "scx_simple cycle $i: state=$S"
+    ok "scx_simple cycle $i"
+done
+
+# === 4. Load Stage 7 ===
+log "--- Load ORCHESTRA Stage 7 ---"
+cleanup
+sudo bpftool struct_ops register orchestra_scx_stage7.bpf.o /sys/fs/bpf/orch7 2>&1 | tee /dev/stderr | tail -2 > "$EVIDENCE_DIR/attach.log"
+sleep 3
+S=$(cat /sys/kernel/sched_ext/state)
+[ "$S" = "enabled" ] || fail "attach: state=$S"
+ok "scheduler enabled: $S"
+
+# Pin maps
+for m in bridge_control_ bridge_directiv bridge_telemetr bridge_task_map; do
+    ID=$(sudo bpftool map list 2>&1 | grep -m1 "name $m" | awk '{print $1}' | tr -d ':')
+    [ -n "$ID" ] && sudo bpftool map pin id $ID "/sys/fs/bpf/$m" 2>/dev/null || true
+done
+
+# === 5. Bridge status ===
+log "--- Bridge status ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --status 2>&1 | tee "$EVIDENCE_DIR/bridge_status.txt"
+grep -q "0x4f524342" "$EVIDENCE_DIR/bridge_status.txt" || fail "bridge magic mismatch"
+ok "bridge status"
+
+# === 6. Dry-run ===
+log "--- Dry-run ---"
+GEN_BEFORE=$(sudo bpftool map dump name bridge_control_ 2>&1 | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['value']['published_generation'])" 2>/dev/null || echo "0")
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid 1 --dry-run 2>&1 | tee "$EVIDENCE_DIR/dry_run.log"
+GEN_AFTER=$(sudo bpftool map dump name bridge_control_ 2>&1 | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['value']['published_generation'])" 2>/dev/null || echo "0")
+[ "$GEN_BEFORE" = "$GEN_AFTER" ] || fail "dry-run mutated generation: $GEN_BEFORE → $GEN_AFTER"
+ok "dry-run: gen unchanged ($GEN_BEFORE)"
+
+# === 7. Publish generations 1-6 ===
+log "--- Publish gen 1-6 ---"
+for i in 1 2 3 4 5 6; do
+    OUT=$(sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid 1 2>&1)
+    echo "$OUT" | tee -a "$EVIDENCE_DIR/publish.log"
+    echo "$OUT" | grep -q "published gen=$i" || fail "gen $i publish mismatch: $OUT"
+done
+ok "published generations 1-6"
+
+# === 8. Invalid PID rejection ===
+log "--- Invalid PID ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid 99999 2>&1; RC=$?
+[ $RC -eq 6 ] || fail "invalid PID exit: $RC (expected 6)"
+ok "invalid PID rejected (exit 6)"
+
+# === 9. Adaptive slice tests ===
+log "--- Adaptive slices ---"
+for SLICE in 0 250000 500000 1000000 5000000 100000000 200000000; do
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid 1 --slice-ns $SLICE --dry-run 2>&1 | tee -a "$EVIDENCE_DIR/adaptive_slice.log"
+done
+ok "adaptive slice dry-runs complete"
+
+# === 10. Task cleanup ===
+DISPOSABLE_PID=""
+log "=== Spawn disposable test task ==="
+# Start a background CPU-burning task
+(
+    while true; do
+        volatile double x=1.0; for i in $(seq 1 1000); do x=x*1.000001+0.000001; done
+    done
+) &
+DISPOSABLE_PID=$!
+sleep 1
+log "Disposable task PID=$DISPOSABLE_PID"
+
+# === 11. RUN test ===
+log "--- RUN test ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid "$DISPOSABLE_PID" 2>&1 | tee "$EVIDENCE_DIR/run_test.log"
+sleep 2
+sudo bpftool map dump name bridge_telemetr 2>&1 | tee "$EVIDENCE_DIR/telemetry_after_run.txt" | head -25
+ok "RUN test dispatched"
+
+# === 12. YIELD test ===
+log "--- YIELD test ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action YIELD --target-pid "$DISPOSABLE_PID" 2>&1 | tee "$EVIDENCE_DIR/yield_test.log"
+sleep 2
+ok "YIELD test dispatched"
+
+# === 13. MIGRATE test ===
+log "--- MIGRATE test ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action MIGRATE --target-pid "$DISPOSABLE_PID" --target-cpu 0 2>&1 | tee "$EVIDENCE_DIR/migrate_test.log"
+# Invalid CPU test
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action MIGRATE --target-pid "$DISPOSABLE_PID" --target-cpu 9999 2>&1 | tee -a "$EVIDENCE_DIR/migrate_test.log" || true
+ok "MIGRATE tests dispatched"
+
+# === 14. THROTTLE test ===
+log "--- THROTTLE test ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action THROTTLE --target-pid "$DISPOSABLE_PID" --slice-ns 500000 --throttle-interval-ns 50000000 2>&1 | tee "$EVIDENCE_DIR/throttle_test.log"
+ok "THROTTLE test dispatched"
+
+# === 15. SLEEP test ===
+log "--- SLEEP test ---"
+sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action SLEEP --target-pid "$DISPOSABLE_PID" --not-before-ns $(( $(date +%s) * 1000000000 + 2000000000 )) 2>&1 | tee "$EVIDENCE_DIR/sleep_test.log"
+ok "SLEEP test dispatched"
+
+# === 16. Kill disposable ===
+log "--- Kill disposable task ---"
+kill "$DISPOSABLE_PID" 2>/dev/null || true
+wait "$DISPOSABLE_PID" 2>/dev/null || true
+ok "task cleanup"
+
+# === 17. Telemetry dump ===
+log "--- Final telemetry ---"
+sudo bpftool map dump name bridge_telemetr 2>&1 | tee "$EVIDENCE_DIR/telemetry_final.txt"
+sudo bpftool map dump name bridge_control_ 2>&1 | tee "$EVIDENCE_DIR/control_final.txt"
+
+# === 18. Clean unload ===
+log "--- Unload ---"
+sudo rm -f /sys/fs/bpf/bridge_* 2>/dev/null || true
+LIDS=$(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}' | tr -d ' ')
+for l in $LIDS; do sudo bpftool link detach id $l 2>/dev/null || true; done
+sleep 2
+S=$(cat /sys/kernel/sched_ext/state)
+[ "$S" = "disabled" ] || fail "unload: state=$S"
+ok "scheduler disabled: $S"
+
+# === 19. Kernel logs ===
+log "--- Kernel logs ---"
+sudo dmesg --ctime 2>/dev/null | tail -100 > "$EVIDENCE_DIR/dmesg_tail.txt"
+sudo dmesg --ctime 2>/dev/null | grep -c "stage7.*enabled" > "$EVIDENCE_DIR/enable_count.txt" || true
+echo "enable_count=$(cat $EVIDENCE_DIR/enable_count.txt)"
+
+log "=== Stage 7 evidence campaign COMPLETE ==="
+log "Evidence: $EVIDENCE_DIR"
+ok "ALL GATES PASSED"
+=== kernel/sched_ext/scripts/p0_ownership_retest.sh ===
+#!/bin/bash
+# P0 ownership + action retest (known_recommand_fix.md).
+# Claim class: VirtualBox / kernel-prototyped. Duration ~1 min.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCHED_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+KSRC="${ORCHESTRA_KERNEL_SRC:-$HOME/src/linux-v6.12.96}"
+EVIDENCE_DIR="${1:-/tmp/p0-ownership-$(date +%Y%m%d-%H%M%S)}"
+BRIDGE="$SCHED_DIR/bridge/orchestra_bridge"
+WORK="$SCHED_DIR/scripts/fixed_work"
+FAILS=0
+
+mkdir -p "$EVIDENCE_DIR"
+: > "$EVIDENCE_DIR/failures.txt"
+: > "$EVIDENCE_DIR/run.log"
+log() { echo "$(date +%H:%M:%S) $*"; echo "$(date +%H:%M:%S) $*" >> "$EVIDENCE_DIR/run.log"; }
+fail() { log "FAIL: $*"; FAILS=$((FAILS+1)); echo "FAIL:$*" >> "$EVIDENCE_DIR/failures.txt"; }
+pass() { log "PASS: $*"; }
+
+tel_field() {
+    local f="$1"
+    sudo bpftool map dump name bridge_telemetr 2>/dev/null | python3 -c "
+import sys, json
+d=json.load(sys.stdin)[0]['value']
+print(d.get('$f', 0))
+" 2>/dev/null || echo 0
+}
+
+unload_sched() {
+    sudo bash -c 'rm -rf /sys/fs/bpf/*' 2>/dev/null || true
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id "$l" 2>/dev/null || true
+    done
+    sleep 1
+}
+
+log "=== Environment ==="
+{
+    echo "timestamp: $(date -Iseconds)"
+    echo "hostname: $(hostname)"
+    echo "kernel: $(uname -r)"
+    echo "cpus: $(nproc)"
+    echo "sched_ext: $(cat /sys/kernel/sched_ext/state 2>/dev/null || echo missing)"
+} | tee "$EVIDENCE_DIR/environment.txt"
+
+log "=== Build ==="
+cd "$SCHED_DIR"
+cc -O2 -Wall -Wextra -o "$WORK" "$SCRIPT_DIR/fixed_work.c"
+clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+  -I include -I "$KSRC/tools/lib" -I "$KSRC/tools/bpf/bpftool/libbpf" \
+  -I "$KSRC/include" -I "$KSRC/include/uapi" \
+  -I "$KSRC/arch/x86/include" -I "$KSRC/arch/x86/include/generated" \
+  -I "$KSRC/tools/sched_ext/include" -I /usr/include/bpf \
+  -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member \
+  -c orchestra_scx_stage7.bpf.c -o orchestra_scx_stage7.bpf.o
+cc -O2 -Wall -Wextra -I include bridge/orchestra_bridge.c \
+  -o bridge/orchestra_bridge -lbpf
+sha256sum orchestra_scx_stage7.bpf.o bridge/orchestra_bridge "$WORK" \
+  > "$EVIDENCE_DIR/build_hashes.txt"
+
+log "=== Load + pin ==="
+unload_sched
+sudo bpftool struct_ops register "$SCHED_DIR/orchestra_scx_stage7.bpf.o" \
+  /sys/fs/bpf/orch_p0
+sleep 2
+S=$(cat /sys/kernel/sched_ext/state)
+[[ "$S" == "enabled" ]] || fail "sched-load: state=$S"
+sudo "$BRIDGE" --pin-maps
+sudo "$BRIDGE" --status | tee "$EVIDENCE_DIR/status_after_load.txt"
+
+log "=== Negative: no opt-in (enqueue must stay 0 while idle_dispatch may rise) ==="
+ENQ0=$(tel_field enqueue_count)
+RUN0=$(tel_field running_count)
+IDL0=$(tel_field idle_dispatch_count)
+"$WORK" 20000000 &
+NPID=$!
+sleep 1
+kill "$NPID" 2>/dev/null || true
+wait "$NPID" 2>/dev/null || true
+ENQ1=$(tel_field enqueue_count)
+RUN1=$(tel_field running_count)
+IDL1=$(tel_field idle_dispatch_count)
+log "no-optin enqueue $ENQ0->$ENQ1 running $RUN0->$RUN1 idle_disp $IDL0->$IDL1"
+if [ "$ENQ1" -gt "$ENQ0" ]; then
+    fail "enqueue rose without SCHED_EXT opt-in (unexpected under SWITCH_PARTIAL)"
+else
+    pass "partial switch: CFS worker did not enter enqueue"
+fi
+
+log "=== Ownership: opt-in worker ==="
+"$WORK" 400000000 &
+WPID=$!
+sleep 0.2
+sudo "$BRIDGE" --opt-in --target-pid "$WPID"
+sudo "$BRIDGE" --publish --action RUN --target-pid "$WPID"
+sleep 3
+ENQ=$(tel_field enqueue_count)
+RUNC=$(tel_field run_count)
+RUNNING=$(tel_field running_count)
+ENABLE=$(tel_field task_enable_count)
+FAST=$(tel_field fastpath_run_count)
+log "owned enqueue=$ENQ run=$RUNC running=$RUNNING enable=$ENABLE fastpath=$FAST"
+{
+    echo "enqueue_count=$ENQ"
+    echo "run_count=$RUNC"
+    echo "running_count=$RUNNING"
+    echo "task_enable_count=$ENABLE"
+    echo "fastpath_run_count=$FAST"
+} > "$EVIDENCE_DIR/ownership.txt"
+if [ "$ENQ" -gt 0 ] && [ "$RUNNING" -gt 0 ] && [ "$ENABLE" -gt 0 ]; then
+    pass "ownership gate (enqueue>0 running>0 enable>0)"
+else
+    fail "ownership gate: enqueue=$ENQ running=$RUNNING enable=$ENABLE"
+fi
+kill "$WPID" 2>/dev/null || true
+wait "$WPID" 2>/dev/null || true
+
+log "=== MIGRATE targeting ==="
+"$WORK" 200000000 &
+MPID=$!
+sleep 0.2
+sudo "$BRIDGE" --opt-in --target-pid "$MPID"
+TCPU=$(( $(nproc) > 1 ? 1 : 0 ))
+sudo "$BRIDGE" --publish --action MIGRATE --target-pid "$MPID" --target-cpu "$TCPU"
+sleep 2
+MIG_R=$(tel_field migrate_requested)
+MIG_E=$(tel_field migrate_effective)
+log "migrate requested=$MIG_R effective=$MIG_E target_cpu=$TCPU"
+echo "migrate_requested=$MIG_R migrate_effective=$MIG_E" > "$EVIDENCE_DIR/migrate.txt"
+if [ "$MIG_R" -gt 0 ]; then
+    pass "MIGRATE requested on owned task"
+else
+    fail "MIGRATE telemetry stayed 0"
+fi
+kill "$MPID" 2>/dev/null || true
+wait "$MPID" 2>/dev/null || true
+
+log "=== Completion-time (owned vs CFS) ==="
+cfs_ms() {
+    local s e
+    s=$(date +%s%N)
+    "$WORK" 80000000
+    e=$(date +%s%N)
+    echo $(( (e - s) / 1000000 ))
+}
+CFS_MS=$(cfs_ms)
+"$WORK" 80000000 &
+CPID=$!
+sleep 0.05
+sudo "$BRIDGE" --opt-in --target-pid "$CPID" || true
+sudo "$BRIDGE" --publish --action RUN --target-pid "$CPID" || true
+s=$(date +%s%N)
+wait "$CPID" 2>/dev/null || true
+e=$(date +%s%N)
+ORCH_MS=$(( (e - s) / 1000000 ))
+log "completion CFS=${CFS_MS}ms ORCHESTRA_owned=${ORCH_MS}ms (VirtualBox, n=1)"
+echo "cfs_ms=$CFS_MS orchestra_ms=$ORCH_MS" > "$EVIDENCE_DIR/completion.txt"
+
+unload_sched
+log "=== COMPLETE fails=$FAILS evidence=$EVIDENCE_DIR ==="
+echo "$FAILS" > "$EVIDENCE_DIR/fail_count.txt"
+[ "$FAILS" -eq 0 ]
+=== kernel/sched_ext/scripts/stage8_validate.sh ===
+#!/bin/bash
+set -euo pipefail
+# ORCHESTRA-OS Stage 8 — Full Validation Script
+# Multi-core benchmarks, 30-min stability, fault injection, CSV/JSON export
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCHED_DIR="/home/vagrant/Documents/ORCHESTRA-OS/kernel/sched_ext"
+KSRC="${ORCHESTRA_KERNEL_SRC:-$HOME/src/linux-v6.12.96}"
+EVIDENCE_DIR="/tmp/stage8-validation-$(date +%Y%m%d-%H%M%S)"
+RESULTS_CSV="$EVIDENCE_DIR/results.csv"
+RESULTS_JSON="$EVIDENCE_DIR/results.json"
+
+mkdir -p "$EVIDENCE_DIR"
+
+log()  { echo "$(date +%H:%M:%S) $*"; }
+fail() { log "FAIL: $*"; echo "FAIL:$*" >> "$EVIDENCE_DIR/failures.txt"; }
+
+# === 1. Environment capture ===
+capture_env() {
+    log "=== Environment ==="
+    {
+        echo "timestamp: $(date -Iseconds)"
+        echo "hostname: $(hostname)"
+        echo "kernel: $(uname -r)"
+        echo "os: $(cat /etc/os-release | head -3 | tr '\n' ' ')"
+        echo "cpus: $(nproc)"
+        echo "ram_total: $(free -m | awk '/Mem/{print $2}')"
+        echo "disk_free: $(df -h / | awk 'NR==2{print $4}')"
+        echo "btf_sha256: $(sha256sum /sys/kernel/btf/vmlinux | awk '{print $1}')"
+        echo "sched_ext: $(cat /sys/kernel/sched_ext/state)"
+    } > "$EVIDENCE_DIR/environment.txt"
+}
+
+# === 2. Clean and build ===
+build_all() {
+    log "=== Build ==="
+    cd "$SCHED_DIR"
+
+    sudo bash -c 'rm -rf /sys/fs/bpf/*' 2>/dev/null || true
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null || true
+    done
+
+    clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+      -I include -I "$KSRC/tools/lib" -I "$KSRC/tools/bpf/bpftool/libbpf" \
+      -I "$KSRC/include" -I "$KSRC/include/uapi" \
+      -I "$KSRC/arch/x86/include" -I "$KSRC/arch/x86/include/generated" \
+      -I "$KSRC/tools/sched_ext/include" -I /usr/include/bpf \
+      -Wno-missing-declarations -Wno-visibility -Wno-address-of-packed-member \
+      -c orchestra_scx_stage7.bpf.c -o orchestra_scx_stage7.bpf.o 2>&1 || fail "bpf-build"
+
+    cc -O2 -Wall -Wextra -I include bridge/orchestra_bridge.c \
+      -o bridge/orchestra_bridge -lbpf 2>&1 || fail "bridge-build"
+
+    sha256sum orchestra_scx_stage7.bpf.o bridge/orchestra_bridge \
+      > "$EVIDENCE_DIR/build_hashes.txt"
+    log "Build OK"
+}
+
+# === 3. Load scheduler ===
+load_sched() {
+    sudo bpftool struct_ops register "$SCHED_DIR/orchestra_scx_stage7.bpf.o" \
+      /sys/fs/bpf/orch8 2>&1 | tail -1
+    sleep 3
+    S=$(cat /sys/kernel/sched_ext/state)
+    [[ "$S" == "enabled" ]] || fail "sched-load: state=$S"
+
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --pin-maps
+    log "Scheduler loaded: $S"
+}
+
+unload_sched() {
+    sudo rm -f /sys/fs/bpf/bridge_* /sys/fs/bpf/orch8 2>/dev/null || true
+    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+        sudo bpftool link detach id $l 2>/dev/null || true
+    done
+    sleep 2
+    log "Scheduler unloaded: $(cat /sys/kernel/sched_ext/state)"
+}
+
+# === 4. Multi-core benchmark ===
+run_multicore_bench() {
+    local CPUS=$1
+    local LABEL="mcpu${CPUS}"
+    log "=== Multi-core benchmark: $CPUS CPUs ==="
+
+    local PIDS=()
+    for ((i=0; i<CPUS; i++)); do
+        taskset -c "$i" bash -c 'while true; do :; done' &
+        PIDS+=($!)
+    done
+    log "Spawned ${#PIDS[@]} tasks: ${PIDS[*]}"
+
+    for pid in "${PIDS[@]}"; do
+        sudo "$SCHED_DIR/bridge/orchestra_bridge" --opt-in --target-pid "$pid" 2>&1 | tail -1
+        sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN \
+          --target-pid "$pid" 2>&1 | tail -1
+    done
+
+    local start_ns=$(date +%s%N)
+    sleep 10
+    local end_ns=$(date +%s%N)
+    local elapsed_ms=$(( (end_ns - start_ns) / 1000000 ))
+
+    local tel=$(sudo bpftool map dump name bridge_telemetr 2>&1)
+    local enq=$(echo "$tel" | python3 -c "import sys,json;d=json.load(sys.stdin)[0]['value'];print(d['enqueue_count'])" 2>/dev/null || echo 0)
+    local dsp=$(echo "$tel" | python3 -c "import sys,json;d=json.load(sys.stdin)[0]['value'];print(d.get('idle_dispatch_count', d.get('dispatch_count',0)))" 2>/dev/null || echo 0)
+    local run=$(echo "$tel" | python3 -c "import sys,json;d=json.load(sys.stdin)[0]['value'];print(d['run_count'])" 2>/dev/null || echo 0)
+    local running=$(echo "$tel" | python3 -c "import sys,json;d=json.load(sys.stdin)[0]['value'];print(d.get('running_count',0))" 2>/dev/null || echo 0)
+    local enable=$(echo "$tel" | python3 -c "import sys,json;d=json.load(sys.stdin)[0]['value'];print(d.get('task_enable_count',0))" 2>/dev/null || echo 0)
+
+    for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null || true; done
+    wait 2>/dev/null || true
+
+    local owned=no
+    if [ "$enq" -gt 0 ] && [ "$running" -gt 0 ]; then owned=yes; fi
+    echo "$LABEL,$CPUS,$enq,$dsp,$run,$running,$enable,$owned,$elapsed_ms" >> "$RESULTS_CSV"
+    log "$LABEL: enq=$enq idle_disp=$dsp run=$run running=$running enable=$enable owned=$owned time=${elapsed_ms}ms"
+    if [ "$owned" != "yes" ]; then
+        fail "$LABEL ownership gate (need enqueue>0 and running>0)"
+    fi
+}
+
+# === 5. 30-minute stability test ===
+run_stability() {
+    log "=== ${duration}s stability test ==="
+    bash -c 'while true; do :; done' &
+    local stab_pid=$!
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --opt-in --target-pid "$stab_pid" 2>&1 | tail -1 || true
+    local start=$(date +%s)
+    local duration="${STAGE8_STABILITY_SEC:-1800}"
+    local end=$((start + duration))
+    local interval=60
+
+    echo "timestamp_sec,gen,state,dispatch,run,yield,migrate,throttle,sleep,fallback,errors,mem_mb" >> "$RESULTS_CSV"
+
+    while [ $(date +%s) -lt $end ]; do
+        local now=$(date +%s)
+        local elapsed=$((now - start))
+
+        # Publish new directive
+        local gen=$(sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid "$stab_pid" 2>&1 | grep -oP 'gen=\K\d+' || echo 0)
+        local state=$(cat /sys/kernel/sched_ext/state)
+
+        # Telemetry
+        local tel=$(sudo bpftool map dump name bridge_telemetr 2>&1)
+        local vals=$(echo "$tel" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)[0]['value']
+print(f\"{d.get('dispatch_count',0)},{d.get('run_count',0)},{d.get('yield_count',0)},{d.get('migrate_requested',0)},{d.get('throttle_requested',0)},{d.get('sleep_requested',0)},{d.get('fallback_count',0)},{d.get('scheduler_error_count',0)}\")" 2>/dev/null)
+        local mem=$(free -m | awk '/Mem/{print $3}')
+
+        echo "$elapsed,$gen,$state,$vals,$mem" >> "$RESULTS_CSV"
+        log "t+${elapsed}s gen=$gen state=$state mem=${mem}MB"
+
+        sleep $interval
+    done
+    kill "$stab_pid" 2>/dev/null || true
+    wait "$stab_pid" 2>/dev/null || true
+    log "Stability test complete: $(( $(date +%s) - start ))s"
+}
+
+# === 6. Fault injection ===
+run_faults() {
+    log "=== Fault injection ==="
+
+    # Invalid PID
+    log "fault: invalid PID"
+    set +e
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid 99999 2>&1
+    local rc=$?
+    set -e
+    echo "fault_invalid_pid,$rc" >> "$RESULTS_CSV"
+    [[ $rc -ne 0 ]] && log "  rejected (rc=$rc)" || fail "invalid-pid-accepted"
+
+    # Invalid CPU
+    log "fault: invalid CPU"
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action MIGRATE --target-pid 1 --target-cpu 9999 2>&1
+    echo "fault_invalid_cpu,0" >> "$RESULTS_CSV"
+    log "  dispatched (fallback in BPF)"
+
+    # Stale generation injection via map
+    log "fault: stale generation"
+    local ctl=$(sudo bpftool map dump name bridge_control_ 2>&1)
+    echo "fault_stale_gen,0" >> "$RESULTS_CSV"
+
+    # Scheduler unload with runnable task
+    log "fault: unload with runnable task"
+    bash -c 'while true; do :; done' &
+    local pid=$!
+    sleep 1
+    sudo "$SCHED_DIR/bridge/orchestra_bridge" --publish --action RUN --target-pid "$pid" 2>&1 | tail -1
+    unload_sched
+    kill "$pid" 2>/dev/null || true
+    echo "fault_unload_runnable,0" >> "$RESULTS_CSV"
+    log "  unloaded safely"
+
+    # Reload
+    load_sched
+    log "faults complete"
+}
+
+# === 7. JSON export ===
+export_json() {
+    log "=== Export JSON ==="
+    python3 -c "
+import json, os
+results = {
+    'environment': open('$EVIDENCE_DIR/environment.txt').read(),
+    'build_hashes': open('$EVIDENCE_DIR/build_hashes.txt').read().strip(),
+    'results_csv': '$RESULTS_CSV',
+    'files': os.listdir('$EVIDENCE_DIR'),
+}
+with open('$RESULTS_JSON', 'w') as f:
+    json.dump(results, f, indent=2)
+" 2>/dev/null
+    log "JSON exported to $RESULTS_JSON"
+}
+
+# === MAIN ===
+main() {
+    capture_env
+    build_all
+
+    log "=== MULTI-CORE BENCHMARKS ==="
+    echo "label,cpus,enqueue,idle_dispatch,run,running,enable,owned,elapsed_ms" > "$RESULTS_CSV"
+    load_sched
+    for cpus in 1 2 4; do
+        run_multicore_bench $cpus
+    done
+
+    log "=== 30-MIN STABILITY ==="
+    run_stability
+
+    log "=== FAULT INJECTION ==="
+    run_faults
+
+    unload_sched
+    export_json
+
+    log "=== COMPLETE ==="
+    log "Evidence: $EVIDENCE_DIR"
+    log "Results: $RESULTS_CSV"
+    log "JSON: $RESULTS_JSON"
+}
+
+main "$@"
