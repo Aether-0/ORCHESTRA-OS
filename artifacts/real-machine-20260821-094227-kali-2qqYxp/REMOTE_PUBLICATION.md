@@ -9,7 +9,6 @@
 - Test evidence before this manifest: 186 files total; 185 tracked in the local evidence commit. The remaining generated BPF object is ignored by the repository's `*.o` rule.
 - Current campaign directory: 187 files total; 186 tracked after adding this manifest.
 - Remote files published: 50 report and raw-evidence files, including this manifest.
-- Remote publication tip: `ef94611517c3bdc518946e9bc67a019be3769df2`
 
 The remote branch was created from `main` through the authenticated GitHub connector because the local Git CLI had no configured GitHub credential. No direct update to `main` was performed.
 
