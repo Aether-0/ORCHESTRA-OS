@@ -1,0 +1,23 @@
+gate,verdict,evidence,notes
+G0 Repository identified,PASS,environment/20260821-095919-final_repo_state.stdout,Root branch and HEAD recorded; no tracked diff.
+G1 Host inventory complete,PASS,environment/20260821-094317-host_inventory.stdout,Physical HP host; CPU memory storage kernel security and tool inventory captured.
+G2 Running-kernel sched_ext support,PASS,kernel/20260821-094519-sanity_check.stdout,Running 7.0.12+kali-amd64 exposes sched_ext and required configuration.
+G3 BTF/eBPF prerequisites,PASS,kernel/20260821-094521-kernel_config_check.stdout,BTF exists; required BPF JIT syscall events and debug options pass.
+G4 Toolchain/dependencies,PASS,build/20260821-094533-build_prerequisites.stdout,Required build tools pass; optional perf stress-ng and scx_simple are unavailable.
+G5 ORCHESTRA build,PASS,build/20260821-094804-loader_compile.stdout,Fresh out-of-tree BPF object bridge loader and workload compiled with warnings treated as errors for userspace.
+G6 BPF/verifier compatibility,PASS,scheduler/20260821-095013-scheduler_load_attempt1.stdout,Loader reached verifier/attach successfully; no verifier rejection occurred.
+G7 Scheduler load/register,PASS,scheduler/20260821-095704-scheduler_post_load2.stdout,Second load enabled sched_ext and created only the expected ORCHESTRA pins/link.
+G8 Scheduler basic lifecycle,PASS,recovery/20260821-100033-post_unload_snapshot3.stdout,Three load cycles and three clean unloads; final state disabled and ORCHESTRA pins absent.
+G9 Single-task forward progress,INCONCLUSIVE,workloads/20260821-095946-finite_orchestra_forward_progress.stdout,Long-lived action worker ran; finite 10-billion-iteration worker timed out with per-task accepted/dispatched zero so ownership was not proven.
+G10 Multi-task forward progress,BLOCKED,recovery/20260821-100033-post_unload_snapshot3.stdout,Stopped after the single-task ownership/forward-progress anomaly; no multi-task ORCHESTRA completion run was attempted.
+G11 RUN behavior,PASS,workloads/20260821-095148-positive_status_run.stdout,Exact live TID showed accepted dispatched running and effective counts with zero fallback for RUN.
+G12 YIELD behavior,PASS,workloads/20260821-095203-positive_status_yield.stdout,Exact live TID and global yield dispatch counters increased with zero target fallback.
+G13 Fallback/default behavior,PASS,workloads/20260821-095124-negative_ownership_status.stdout,Non-opted task had no exact task ownership record while full-switch fallback telemetry increased.
+G14 Scheduler detach/recovery,PASS,recovery/20260821-095759-post_unload_snapshot2.stdout,Unload returned normal scheduling and removed ORCHESTRA-owned objects without touching unrelated BPF state.
+G15 Baseline benchmark,PASS,baseline/20260821-094943-baseline_fixed_work_retry2.stdout,Native CFS fixed-work matrix: 12 rows; all completed.
+G16 ORCHESTRA benchmark,INCONCLUSIVE,workloads/20260821-095946-finite_orchestra_forward_progress.stdout,No valid completed comparable ORCHESTRA timing sample; ownership gate failed for the finite workload.
+G17 Comparative measurement,BLOCKED,environment/20260821-095810-final_tool_availability.stdout,perf and scx_simple absent; repository comparison scripts have unsafe cleanup and hard-coded paths.
+G18 Stress/robustness,BLOCKED,stress/20260821-100155-stress_suite_cfs_smoke.stdout,Short CFS stress passed; ORCHESTRA stress was not run because the existing mode does not opt tasks in.
+G19 Telemetry validation,PASS,telemetry/20260821-095344-control_map_inspect.stdout,Exposed per-task/global counters were cross-checked for RUN YIELD MIGRATE SLEEP and THROTTLE; research-level metrics are absent.
+G20 Kernel-log cleanliness,PASS,environment/20260821-100249-final_host_health_after_stress.stdout,No ORCHESTRA oops panic lockup stall or scheduler error; unrelated boot ACPI and sslh warnings predate the campaign.
+G21 Tracked-source integrity,PASS,environment/20260821-095919-final_repo_state.stdout,git diff is empty; campaign outputs and pre-existing untracked artifacts remain unmodified.
