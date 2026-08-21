@@ -6,8 +6,10 @@
 - Branch base commit: `07c787c4eeac01a2f9d60916577806d00863b15f`
 - Local evidence commit: `4d248df26092f51b823669ecf1ae5e98d0f81c35`
 - Campaign directory: `artifacts/real-machine-20260821-094227-kali-2qqYxp/`
-- Local campaign files: 186 total; 185 tracked in the local evidence commit. The remaining generated BPF object is ignored by the repository's `*.o` rule.
-- Remote files published: 49 report and raw-evidence files.
+- Test evidence before this manifest: 186 files total; 185 tracked in the local evidence commit. The remaining generated BPF object is ignored by the repository's `*.o` rule.
+- Current campaign directory: 187 files total; 186 tracked after adding this manifest.
+- Remote files published: 50 report and raw-evidence files, including this manifest.
+- Remote publication tip: `ef94611517c3bdc518946e9bc67a019be3769df2`
 
 The remote branch was created from `main` through the authenticated GitHub connector because the local Git CLI had no configured GitHub credential. No direct update to `main` was performed.
 
