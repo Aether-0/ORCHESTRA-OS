@@ -1,0 +1,171 @@
+make -C orchestra_paper_cpu_demo check
+make[1]: Entering directory '/home/sharda/Downloads/ORCHESTRA-OS-main/orchestra_paper_cpu_demo'
+cc -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wformat=2 -Werror -fsyntax-only orchestra_paper_cpu.c
+make[1]: Leaving directory '/home/sharda/Downloads/ORCHESTRA-OS-main/orchestra_paper_cpu_demo'
+./tests/unit/run.sh
+Running GCC ASan+UBSan unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Running GCC ASan+UBSan generation-publication thread stress
+reader=0 attempts=3656 verified=1971 valid=1971 no-new=1685 unstable=0 retries=821 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=1 attempts=5986 verified=1989 valid=1989 no-new=3997 unstable=0 retries=772 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=2 attempts=6097 verified=1978 valid=1978 no-new=4119 unstable=0 retries=871 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=3 attempts=2263 verified=1940 valid=1940 no-new=323 unstable=0 retries=421 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+stress-summary publisher-success=2000 publisher-attempts=2004 publisher-contention=4 read-attempts=18002 verified=7878 retries=2885 retry-exhaustions=0 unstable=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=7589
+PASS generation publication thread stress
+Running GCC ASan+UBSan bridge parser/ABI tests
+PASS bridge parser/ABI/publication-source tests
+Running GCC ASan+UBSan legacy-publication reference unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Checking direct GCC legacy-reference source build
+Running Clang policy-warning unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Running Clang generation-publication thread stress
+reader=0 attempts=1436 verified=1412 valid=1412 no-new=24 unstable=0 retries=296 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=1 attempts=1448 verified=1408 valid=1408 no-new=40 unstable=0 retries=332 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=2 attempts=1453 verified=1408 valid=1408 no-new=45 unstable=0 retries=328 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+reader=3 attempts=1425 verified=1385 valid=1385 no-new=40 unstable=0 retries=337 retry-exhaustions=0 invalid-frame-reads=0 regressions=0 duplicates=0 final=2000
+stress-summary publisher-success=2000 publisher-attempts=2001 publisher-contention=1 read-attempts=5762 verified=5613 retries=1293 retry-exhaustions=0 unstable=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=2963
+PASS generation publication thread stress
+Running Clang bridge parser/ABI tests
+PASS bridge parser/ABI/publication-source tests
+Running Clang legacy-publication reference unit tests
+[PASS] sha256_hmac_known_vectors
+[PASS] canonical_128_byte_serialization
+[PASS] frame_verification_matrix
+[PASS] publication_canonical_equivalence
+[PASS] publication_fault_injection
+[PASS] directive_boundaries_and_precedence
+[PASS] state_schema_v2_alignment
+[PASS] epsilon_schedule
+[PASS] prediction_and_baseline_fallback
+[PASS] normalized_geometric_mean
+[PASS] coordination_metric_scenarios
+[PASS] s4_burst_basic_semantics
+[PASS] s4_burst_directive_and_oscillation
+[PASS] s4_burst_invalid_and_zero_semantics
+[PASS] s4_burst_history_and_random_invariants
+[PASS] state_conditioned_coherence
+[PASS] first_decision_has_no_s4_penalty
+[PASS] effective_action_rules
+[PASS] migrate_restores_affinity
+[PASS] bounded_run_action_execution
+[PASS] bounded_yield_action_execution
+[PASS] effective_metric_aggregation
+[PASS] difference_reward_local_dominance
+[PASS] difference_reward_aggregate_equivalence
+[PASS] controller_mapping_rate_and_bounds
+[PASS] predictor_calibration_and_noise
+[PASS] strict_cli_numeric_parsing
+[PASS] policy_aggregation_excludes_rt
+[PASS] policy_atomic_save_uses_private_temp
+[PASS] consensus_blending_and_timeout
+PASS summary: 30/30 named unit tests passed
+Checking direct Clang legacy-reference source build
+Running benchmark-validator unit tests
+Running signal-publication microbenchmark-runner unit tests
+Running sched_ext source safety invariants
+PASS sched_ext source safety invariants
+All requested unit-test compiler passes completed
+./tests/integration/run.sh
+process-reader=0 status=0 attempts=1819 valid=1756 verified=1756 retries=191 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=1 status=0 attempts=1822 valid=1765 verified=1765 retries=172 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=2 status=0 attempts=1846 valid=1766 verified=1766 retries=188 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-reader=3 status=0 attempts=1841 valid=1758 verified=1758 retries=199 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 regressions=0 duplicates=0 final=2000
+process-stress-summary publisher-success=2000 publisher-attempts=2000 publisher-contention=0 read-attempts=7328 verified=7045 retries=750 retry-exhaustions=0 unstable=0 invalid=0 hmac=0 invalid-fields=0 invalid-schema=0 invalid-tier=0 invalid-source=0 invalid-directive=0 invalid-sequence=0 invalid-key-epoch=0 stale=0 torn-frame-detections=0 regressions=0 accepted-duplicates=0 reader-crashes=0 reader-hangs=0 hook-yields=3336 final-generation=2000 final-slot=1
+PASS signal publication MAP_SHARED integration scenarios
+PASS csv=/tmp/orchestra-integration.ZxDYlz/baseline.csv rows=10 mode=baseline schema=orchestra.paper_cpu.metrics/v7
+PASS csv=/tmp/orchestra-integration.ZxDYlz/orchestra.csv rows=30 mode=orchestra schema=orchestra.paper_cpu.metrics/v7
+PASS csv=/tmp/orchestra-integration.ZxDYlz/tamper.csv rows=20 mode=orchestra schema=orchestra.paper_cpu.metrics/v7
+PASS csv=/tmp/orchestra-integration.ZxDYlz/controller-tamper.csv rows=30 mode=orchestra schema=orchestra.paper_cpu.metrics/v7
+PASS csv=/tmp/orchestra-integration.ZxDYlz/signal-stop.csv rows=19 mode=orchestra schema=orchestra.paper_cpu.metrics/v7
+PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2/v3/v4 validator contracts, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown
