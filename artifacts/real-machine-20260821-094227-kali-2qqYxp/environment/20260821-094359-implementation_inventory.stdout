@@ -1,0 +1,966 @@
+=== kernel/sched_ext files ===
+kernel/sched_ext/README.md
+kernel/sched_ext/bridge/orchestra_bridge
+kernel/sched_ext/bridge/orchestra_bridge.c
+kernel/sched_ext/bridge/orchestra_loader
+kernel/sched_ext/bridge/orchestra_loader.c
+kernel/sched_ext/include/orchestra_abi.h
+kernel/sched_ext/include/orchestra_bridge_v1.h
+kernel/sched_ext/include/orchestra_scx.h
+kernel/sched_ext/include/vmlinux.h
+kernel/sched_ext/orchestra_scx.bpf.c
+kernel/sched_ext/orchestra_scx.c
+kernel/sched_ext/orchestra_scx_stage7.bpf.c
+kernel/sched_ext/orchestra_scx_stage7.bpf.o
+kernel/sched_ext/scripts/check_kernel_config.sh
+kernel/sched_ext/scripts/fixed_work
+kernel/sched_ext/scripts/fixed_work.c
+kernel/sched_ext/scripts/p0_ownership_retest.sh
+kernel/sched_ext/scripts/reproduce_stage7_runtime.sh
+kernel/sched_ext/scripts/stage8_validate.sh
+=== real-machine files ===
+benchmarks/real-machine/README.md
+benchmarks/real-machine/benchmark_suite.sh
+benchmarks/real-machine/full_compare.sh
+benchmarks/real-machine/sanity_check.sh
+benchmarks/real-machine/stress_suite.sh
+=== stage scripts ===
+kernel/sched_ext/scripts/check_kernel_config.sh
+kernel/sched_ext/scripts/fixed_work
+kernel/sched_ext/scripts/fixed_work.c
+kernel/sched_ext/scripts/p0_ownership_retest.sh
+kernel/sched_ext/scripts/reproduce_stage7_runtime.sh
+kernel/sched_ext/scripts/stage8_validate.sh
+=== tracked implementation files ===
+Makefile
+benchmarks/real-machine/README.md
+benchmarks/real-machine/benchmark_suite.sh
+benchmarks/real-machine/full_compare.sh
+benchmarks/real-machine/sanity_check.sh
+benchmarks/real-machine/stress_suite.sh
+kernel/sched_ext/README.md
+kernel/sched_ext/bridge/orchestra_bridge.c
+kernel/sched_ext/bridge/orchestra_loader.c
+kernel/sched_ext/include/orchestra_abi.h
+kernel/sched_ext/include/orchestra_bridge_v1.h
+kernel/sched_ext/include/orchestra_scx.h
+kernel/sched_ext/orchestra_scx.bpf.c
+kernel/sched_ext/orchestra_scx.c
+kernel/sched_ext/orchestra_scx_stage7.bpf.c
+kernel/sched_ext/scripts/check_kernel_config.sh
+kernel/sched_ext/scripts/fixed_work.c
+kernel/sched_ext/scripts/p0_ownership_retest.sh
+kernel/sched_ext/scripts/reproduce_stage7_runtime.sh
+kernel/sched_ext/scripts/stage8_validate.sh
+tests/integration/run.sh
+tests/integration/test_signal_publication_integration.c
+tests/integration/test_validate_paper_cpu_csv.py
+tests/integration/validate_paper_cpu_csv.py
+tests/unit/run.sh
+tests/unit/test_benchmark_validator.py
+tests/unit/test_orchestra_bridge.c
+tests/unit/test_orchestra_paper_cpu.c
+tests/unit/test_orchestra_scx_source.py
+tests/unit/test_signal_publication_microbenchmark_runner.py
+tests/unit/test_signal_publication_stress.c
+=== source symbols ===
+docs/kernel/sched-ext-vbox-runtime-result.md:10:| BPF build target | v6.12.96 headers + running-kernel BTF |
+docs/kernel/sched-ext-vbox-runtime-result.md:22:| ORCHESTRA struct_ops attach | PASS |
+docs/kernel/sched-ext-vbox-runtime-result.md:23:| ORCHESTRA sched_ext enabled (partial) | PASS |
+docs/kernel/sched-ext-vbox-runtime-result.md:25:| Clean disable (unregistered from user space) | PASS |
+docs/kernel/sched-ext-vbox-runtime-result.md:32:- Flags: `SCX_OPS_SWITCH_PARTIAL`
+docs/kernel/sched-ext-vbox-runtime-result.md:37:- Dispatch callback is minimal (telemetry-only); real action dispatch deferred to Stage 7
+docs/kernel/sched-ext-vbox-runtime-result.md:39:- No userspace-to-BPF signal bridge
+docs/kernel/sched-ext-vbox-runtime-result.md:50:| vmlinux.h | Generated from running kernel BTF | `f8633340...` |
+docs/kernel/sched-ext-vbox-runtime-result.md:64:| scx_simple 3-cycle | PASS | Clean enable/disable |
+docs/kernel/sched-ext-vbox-runtime-result.md:66:| Stage 7 BPF verifier | PASS | struct_ops accepted |
+docs/kernel/sched-ext-vbox-runtime-result.md:67:| struct_ops attach | PASS | id 505, link 116 |
+docs/kernel/sched-ext-vbox-runtime-result.md:68:| state enabled (partial) | PASS | dmesg confirms |
+docs/kernel/sched-ext-vbox-runtime-result.md:69:| Bridge status | PASS | magic=0x4f524342, fmt=1, schema=1 |
+docs/kernel/sched-ext-vbox-runtime-result.md:74:| dmesg enables | 20+ events | No errors |
+docs/kernel/sched-ext-vbox-runtime-result.md:75:| enable_seq | 50 | Cumulative |
+docs/kernel/sched-ext-vbox-runtime-result.md:82:- Maps must be individually pinned after struct_ops registration
+docs/kernel/sched-ext-vbox-runtime-result.md:83:- Mixed kernel version (6.12.15 running, 6.12.96 headers)
+docs/adr/0012-stage9-production-validation.md:30:- Scheduler overhead (dispatch count, BPF callback count)
+docs/adr/0012-stage9-production-validation.md:43:- Compiler versions
+docs/kernel/stage8-exact-kernel-blocked.md:22:- Fedora 40 stock kernel config enables ~5000 modules and drivers
+docs/kernel/stage8-exact-kernel-blocked.md:27:## Validated fallback
+docs/kernel/stage8-exact-kernel-blocked.md:31:- ORCHESTRA Stage 7 all 5 actions pass
+docs/kernel/stage8-exact-kernel-validated.md:20:| sched_ext state | disabled (pre-attach) |
+docs/kernel/stage8-exact-kernel-validated.md:40:| ORCHESTRA attach | PASS (state=enabled) |
+docs/kernel/stage8-exact-kernel-validated.md:41:| Bridge status | PASS (magic=0x4f524342) |
+docs/kernel/stage8-exact-kernel-validated.md:44:| Clean unload | PASS (state=disabled) |
+docs/kernel/virtualbox-bringup.md:15:| Chipset | I/O APIC enabled |
+docs/kernel/virtualbox-bringup.md:18:| Serial | COM1 enabled, port mode: Raw File at `/tmp/vm-serial.log` |
+docs/kernel/virtualbox-bringup.md:34:# Verify tool versions
+docs/kernel/virtualbox-bringup.md:35:clang --version | head -1
+docs/kernel/virtualbox-bringup.md:36:bpftool version
+docs/kernel/virtualbox-bringup.md:39:Record exact versions in evidence.
+docs/kernel/virtualbox-bringup.md:63:# If not present, start from distro config and enable:
+docs/kernel/virtualbox-bringup.md:149:sleep 5
+docs/kernel/stage8-kernel-build-log.md:9:- Config: `make x86_64_defconfig` + BPF/SCHED_CLASS_EXT/BTF enabled
+docs/kernel/stage8-kernel-build-log.md:23:- Fedora 40 stock config enables 5000+ modules causing 5h+ build + cert failures
+docs/adr/0001-userspace-state-metric-controller-contract.md:14:The ORCHESTRA-OS paper reports a controlled, pre-kernel simulation. The maintained `orchestra_paper_cpu_demo/orchestra_paper_cpu.c` is a real-process userspace approximation: it observes a real Linux host and asks processes to sleep, yield, change affinity, throttle themselves, or consume CPU. Linux CFS/EEVDF still performs final dispatch. Neither this ADR nor a passing userspace test establishes a Linux scheduling-class implementation.
+docs/adr/0001-userspace-state-metric-controller-contract.md:22:- temporal stability requires an explicit `S4` term;
+docs/adr/0001-userspace-state-metric-controller-contract.md:24:- a controller must use an actuator with a causal path to the deficient submetric;
+docs/adr/0001-userspace-state-metric-controller-contract.md:25:- the outer controller must update more slowly than the inner learner;
+docs/adr/0001-userspace-state-metric-controller-contract.md:27:- difference rewards must provide population credit without displacing the local directive signal.
+docs/adr/0001-userspace-state-metric-controller-contract.md:33:### 2.1 Scope and version identifiers
+docs/adr/0001-userspace-state-metric-controller-contract.md:35:The C signal carries numeric state schema version `2`. The machine-readable CSV contract is maintained separately as `orchestra.paper_cpu.metrics/v2`. The program prints signal- and state-schema numbers, mode, seed, and run configuration to diagnostics; the CSV rows do not carry a state-schema or metric-schema identifier themselves.
+docs/adr/0001-userspace-state-metric-controller-contract.md:37:The canonical action set remains exactly:
+docs/adr/0001-userspace-state-metric-controller-contract.md:43:Signal payload validation requires finite normalized state and confidence values and bounded controller values before a worker accepts the frame. This ADR does not redefine the signal-frame byte contract.
+docs/adr/0001-userspace-state-metric-controller-contract.md:45:### 2.2 Directive, prediction fallback, and state schema v2
+docs/adr/0001-userspace-state-metric-controller-contract.md:57:In ORCHESTRA mode, `decision_cpu` is predicted CPU only when confidence is finite and at least `0.50`; otherwise it is observed CPU. Baseline mode always uses observed CPU. The chosen value is clamped to `[0, 1]`.
+docs/adr/0001-userspace-state-metric-controller-contract.md:86:q_index = state_id * 5 + action_id
+docs/adr/0001-userspace-state-metric-controller-contract.md:91:Workers start with zeroed Q-tables in fresh anonymous shared memory. No policy persistence, in-place v1-to-v2 conversion, or resume path exists. A frame with a state-schema version other than `2` is rejected before use. Because every worker is compiled into the same executable, the current program does not negotiate heterogeneous per-worker schemas.
+docs/adr/0001-userspace-state-metric-controller-contract.md:97:Population utility is the exact, zero-preserving geometric mean of action-dependent components:
+docs/adr/0001-userspace-state-metric-controller-contract.md:100:G(a_vector) = (S2 * S3 * S4)^(1/3)
+docs/adr/0001-userspace-state-metric-controller-contract.md:103:For worker `i`, the counterfactual replaces that worker's action with fixed baseline action `YIELD` while retaining the population size:
+docs/adr/0001-userspace-state-metric-controller-contract.md:113:L_i = +0.6, if selected_action == directive
+docs/adr/0001-userspace-state-metric-controller-contract.md:115:L_i -= 0.4, if thermal > 0.90 and selected_action == RUN
+docs/adr/0001-userspace-state-metric-controller-contract.md:116:L_i -= switch_penalty, if selected_action != previous_action
+docs/adr/0001-userspace-state-metric-controller-contract.md:133:The final reward is not globally clamped: thermal and switching penalties can make an incorrect action's reward lower than `-0.60`. The C stores the final reward together with an atomic frame-sequence stamp. A worker consumes it only when the stamp matches the action transition being updated, then clears the stamp; an absent, stale, or already consumed reward does not update the Q value. The program does not emit local, raw difference, clamped difference, final reward, or reward-sequence telemetry.
+docs/adr/0001-userspace-state-metric-controller-contract.md:139:Each worker exposes action, previous action, alive/exempt/fallback flags, and accepted sequence through a per-worker decision seqlock. `compute_metrics` omits a worker if that coherent snapshot cannot be obtained, if it is not alive, or if it is real-time exempt. It does not create one globally simultaneous snapshot across all workers.
+docs/adr/0001-userspace-state-metric-controller-contract.md:143:CSV column. Metrics remain observable when acceptance is incomplete so S1 can
+docs/adr/0001-userspace-state-metric-controller-contract.md:144:show lost reach, but reward assignment and outer-controller action are gated on
+docs/adr/0001-userspace-state-metric-controller-contract.md:147:Let `N` be the resulting eligible count. Fallback workers are included in the action metrics and are separately counted.
+docs/adr/0001-userspace-state-metric-controller-contract.md:149:The implemented signal score is:
+docs/adr/0001-userspace-state-metric-controller-contract.md:155:signal_reach = mean(exp(-0.7 * (frame.sequence - worker.accepted_sequence)))
+docs/adr/0001-userspace-state-metric-controller-contract.md:156:S1 = clamp(freshness * accuracy * frame.confidence * signal_reach, 0, 1)
+docs/adr/0001-userspace-state-metric-controller-contract.md:159:The sequence gap is floored at zero. When `N == 0`, `signal_reach` is `1`.
+docs/adr/0001-userspace-state-metric-controller-contract.md:164:S2 = matching_selected_actions / N
+docs/adr/0001-userspace-state-metric-controller-contract.md:167:S3 = 1 - H / ln(5)
+docs/adr/0001-userspace-state-metric-controller-contract.md:169:S4 = 1 - changed_actions / N
+docs/adr/0001-userspace-state-metric-controller-contract.md:172:For entropy, `p_a` is the fraction selecting canonical action `a`. Normalized entropy is defined as zero when `N <= 1`, making `S3 = 1`. When `N == 0`, the C reports `S2 = S3 = S4 = 1`; it emits `eligible_workers = 0` but no separate sample-validity flag. `S4` uses every eligible worker in the denominator, including a worker's first observed action transition; there is no separate `N_temporal` cohort.
+docs/adr/0001-userspace-state-metric-controller-contract.md:174:S3 is whole-population action entropy, not a state-conditioned comparison among similarly situated workers. Unanimous incorrect behavior can therefore have `S3 = 1`; exact `S2 = 0` makes aggregate Q zero.
+docs/adr/0001-userspace-state-metric-controller-contract.md:180:Q = exp((ln(S1) + ln(S2) + ln(S3) + ln(S4)) / 4), otherwise
+docs/adr/0001-userspace-state-metric-controller-contract.md:183:The helper clamps every factor to `[0, 1]`; its clamp maps non-finite values to zero. It does not insert an epsilon floor. Stable unanimous wrong action and a unanimous mass switch therefore both produce exact `Q = 0` through `S2 = 0` and `S4 = 0`, respectively.
+docs/adr/0001-userspace-state-metric-controller-contract.md:187:The controller runs only in ORCHESTRA mode, only when `tick % 20 == 0`, and only for a complete current-frame acceptance sample. A scheduled update is skipped rather than allowing a rejected or incomplete frame to change actuators or Q-table consensus. It uses the instantaneous `S3` and `S4` values computed at that tick, not a rolling 20-tick mean.
+docs/adr/0001-userspace-state-metric-controller-contract.md:189:The controller step is one-based in the maintained C. `controller_step` starts at zero, is incremented before the first update at tick 20, and is then passed to:
+docs/adr/0001-userspace-state-metric-controller-contract.md:192:beta_step = 0.02 / sqrt(1 + controller_step)
+docs/adr/0001-userspace-state-metric-controller-contract.md:201:| `S4 < 0.82` | jitter `+= 0.20 * beta`; otherwise `-= 0.05 * beta` | `[jitter_min, 0.20]` |
+docs/adr/0001-userspace-state-metric-controller-contract.md:202:| `S3 < 0.82` or `S4 < 0.82` | switching penalty `+= 0.15 * beta`; otherwise `-= 0.04 * beta` | `[0.00, 0.30]` |
+docs/adr/0001-userspace-state-metric-controller-contract.md:203:| `S3 < 0.82` | consensus blend `+= 0.10 * beta`; otherwise `-= 0.03 * beta` | `[0.00, 0.15]` |
+docs/adr/0001-userspace-state-metric-controller-contract.md:205:Calibration computes `1.5 * sigma_observation` and caps it at `0.20`. `controller_update` defensively clamps the supplied floor into `[0, 0.20]`; a floor greater than `0.20` therefore yields `jitter_min = 0.20` rather than rejecting the configuration. Jitter is always clamped between that effective floor and `0.20`.
+docs/adr/0001-userspace-state-metric-controller-contract.md:207:For each actuator, the controller first computes a raw requested value. Its saturation flag is true only if that raw value lies below the lower bound or above the upper bound; an exactly-on-bound request is not flagged. It then clamps the applied next value.
+docs/adr/0001-userspace-state-metric-controller-contract.md:209:The metrics and rewards for tick `t` use the actuator values published at tick `t`. On a controller tick, the new jitter and switching values are retained for publication at tick `t+1`. Consensus is different: the program immediately attempts consensus at tick `t` using the newly computed blend. CSV output distinguishes applied actuator values from `next_*` values.
+docs/adr/0001-userspace-state-metric-controller-contract.md:211:The controller does not act on `S1`, `S2`, or aggregate Q and does not retune predictor gain, noise covariance, prediction horizon, or sampling interval. Predictor gain is selected once during the pre-run calibration trace. Confidence below `0.50`, rather than an `S1` controller branch, switches the ORCHESTRA directive input to observed CPU.
+docs/adr/0001-userspace-state-metric-controller-contract.md:215:The operational controller path passes a blend in `[0, 0.15]`. The consensus helper itself does not clamp an arbitrary direct caller's blend.
+docs/adr/0001-userspace-state-metric-controller-contract.md:227:and Q-table reads used for action selection. A worker publishes that flag and
+docs/adr/0001-userspace-state-metric-controller-contract.md:233:The convex runtime blend preserves the population mean of each Q cell. Consensus can execute on a controller tick even when instantaneous `S3` is healthy, because an existing positive blend decays gradually rather than becoming zero immediately. `consensus_applied` reports only whether the blend completed; it does not distinguish zero blend, no eligible participants, or timeout.
+docs/adr/0001-userspace-state-metric-controller-contract.md:237:### 2.7 Emitted telemetry
+docs/adr/0001-userspace-state-metric-controller-contract.md:239:The version-2 CSV currently emits:
+docs/adr/0001-userspace-state-metric-controller-contract.md:242:- observed, predicted, and decision CPU;
+docs/adr/0001-userspace-state-metric-controller-contract.md:243:- whether prediction was used, confidence, forecast error, and frame age;
+docs/adr/0001-userspace-state-metric-controller-contract.md:245:- selected-action counts, eligible-worker count, and fallback-worker count;
+docs/adr/0001-userspace-state-metric-controller-contract.md:246:- `S1`, `S2`, `S3`, `S4`, and Q;
+docs/adr/0001-userspace-state-metric-controller-contract.md:249:- controller-updated flag, one-based step, reason (`NONE`, `S3`, `S4`, or `S3+S4`), and beta;
+docs/adr/0001-userspace-state-metric-controller-contract.md:255:The current CSV does not emit per-worker state or accepted sequence, the internal current-acceptance count or an explicit controller-skip reason, raw/requested actuator values, bound values, saturation streaks, consensus participant count or timeout reason, reward components, Q-table values, fallback entry/exit reasons, action syscall outcomes, or final Linux dispatch outcomes. The startup diagnostic prints seed and signal/state schema numbers; those identifiers are not repeated in each CSV row.
+docs/adr/0001-userspace-state-metric-controller-contract.md:261:- a rolling-window controller input matching the paper's rolling-average description;
+docs/adr/0001-userspace-state-metric-controller-contract.md:262:- consecutive-saturation counters, sustained-saturation alerts, rollback, and controller disable/re-entry state;
+docs/adr/0001-userspace-state-metric-controller-contract.md:263:- an explicit non-finite controller-input rejection path with a last-known-good controller vector;
+docs/adr/0001-userspace-state-metric-controller-contract.md:264:- per-worker state/action schema advertisement and selective consensus disablement for heterogeneous schemas;
+docs/adr/0001-userspace-state-metric-controller-contract.md:266:- state-conditioned S3 for similarly situated processes;
+docs/adr/0001-userspace-state-metric-controller-contract.md:267:- one globally coherent population snapshot or explicit incomplete-snapshot telemetry;
+docs/adr/0001-userspace-state-metric-controller-contract.md:269:- a conventional-scheduler fallback after signal expiry - the current worker records fallback and selects userspace `THROTTLE`;
+docs/adr/0001-userspace-state-metric-controller-contract.md:270:- verified action outcomes, migration failures, affinity results, and Linux dispatch outcomes;
+docs/adr/0001-userspace-state-metric-controller-contract.md:271:- independently held-out predictor calibration, parameter artifact versioning, and recalibration triggers;
+docs/adr/0001-userspace-state-metric-controller-contract.md:273:- kernel, NUMA, node, or cluster controller semantics; and
+docs/adr/0001-userspace-state-metric-controller-contract.md:276:These limitations must not be described as completed functionality merely because the state, metric, reward, and controller unit tests pass.
+docs/adr/0001-userspace-state-metric-controller-contract.md:280:The maintained C implements the userspace mechanics described above and exercises real processes. The supported claim is limited to a userspace prototype whose selected paths are covered by unit and short integration tests. It does not establish kernel correctness, hard-real-time guarantees, experimental performance superiority, distributed coordination, production security, or deployment readiness.
+docs/adr/0001-userspace-state-metric-controller-contract.md:286:Rejected because memory pressure changes the directive but was absent from the table state, and strict boundary values could share a bucket with observations requiring another action.
+docs/adr/0001-userspace-state-metric-controller-contract.md:298:Rejected. A raw product changes scale as dimensions are added, and an epsilon floor reports nonzero coordination when a required component is exactly zero.
+docs/adr/0001-userspace-state-metric-controller-contract.md:300:### Drive the controller from aggregate Q or retune predictor gain online
+docs/adr/0001-userspace-state-metric-controller-contract.md:304:### Use rolling controller inputs
+docs/adr/0001-userspace-state-metric-controller-contract.md:306:Deferred rather than implemented. A rolling input would more closely match the paper's narrative and could reduce single-snapshot sensitivity, but its window, latency, and stability effects require a versioned experiment.
+docs/adr/0001-userspace-state-metric-controller-contract.md:312:### Update the outer controller every tick
+docs/adr/0001-userspace-state-metric-controller-contract.md:314:Rejected because it would collapse the intended separation between the inner learning process and outer controller.
+docs/adr/0001-userspace-state-metric-controller-contract.md:318:The paper reports that directive-matched reward improved compliance, directive-aligned buckets removed a structural state ceiling, `S4` exposed synchronized mass switching, geometric-mean aggregation restored cross-version scale, and the three actuator classes target `S3` and `S4` deficits more directly than predictor retuning.
+docs/adr/0001-userspace-state-metric-controller-contract.md:320:The maintained source implements state schema version 2, zero-preserving geometric means, a `[-0.60, +0.60]` difference clamp, one-based decaying controller steps, actuator bounds and saturation flags, coherent per-worker decision snapshots, and bounded consensus timeout behavior.
+docs/adr/0001-userspace-state-metric-controller-contract.md:322:The unit suite characterizes strict directive boundaries, all 30 state buckets over boundary-adjacent samples, epsilon decay, zero-preserving metric cases, three-worker difference-reward cases, controller mapping/rates/bounds, predictor helpers, and consensus blending/timeout. The integration suite performs short baseline, adaptive, tamper, cadence, CSV-contract, and teardown checks. These tests support implementation correctness for exercised cases; they are not repeated benchmark evidence or statistical experimental validation.
+docs/adr/0001-userspace-state-metric-controller-contract.md:328:- Accepted frames carry state schema version 2 and bounded normalized inputs before workers index their tables.
+docs/adr/0001-userspace-state-metric-controller-contract.md:329:- The difference clamp and switching bound preserve the directive action's reward ordering under the implemented reward terms.
+docs/adr/0001-userspace-state-metric-controller-contract.md:332:- Invalid or expired signal service eventually records fallback and selects userspace `THROTTLE`; this is not the full conventional-scheduler fallback required by the research program.
+docs/adr/0001-userspace-state-metric-controller-contract.md:334:- Selected action and userspace approximation are not proof of final kernel dispatch or successful migration.
+docs/adr/0001-userspace-state-metric-controller-contract.md:341:Difference-reward computation is approximately O(N^2) in eligible workers. Metric collection performs bounded per-worker snapshot retries. Consensus is O(N * 150) per completed blend and may wait up to approximately 200 ms for active Q-table accesses, which can exceed short signal intervals; the program records aggregate missed publication deadlines but not consensus wait duration.
+docs/adr/0001-userspace-state-metric-controller-contract.md:343:CSV telemetry adds formatted output each tick. The present unit and integration tests do not quantify disabled/enabled instrumentation overhead, tail latency, fairness, migration cost, cache effects, or energy. No performance conclusion follows from this ADR.
+docs/adr/0001-userspace-state-metric-controller-contract.md:349:All workers in one run must use the same executable and table shape. Mixed v1/v2 consensus is unsupported rather than dynamically negotiated. The CSV schema is version 2 in the external schema and experiment manifest; comparisons with older sample CSV files require explicit schema qualification.
+docs/adr/0001-userspace-state-metric-controller-contract.md:357:No ADR is superseded. A future ADR must supersede this one if it changes directive thresholds, state dimensions, reward weights or bounds, S1-S4 definitions, aggregation, controller inputs or mapping, cadence, step indexing, actuator bounds, consensus behavior, telemetry semantics, or policy migration.
+docs/adr/0009-sched-ext-virtualbox-mvp.md:15:- Safe load/unload with fallback to CFS
+docs/adr/0009-sched-ext-virtualbox-mvp.md:16:- Bounded telemetry
+docs/adr/0009-sched-ext-virtualbox-mvp.md:20:- Full five-action kernel scheduler
+docs/adr/0009-sched-ext-virtualbox-mvp.md:22:- Userspace-to-BPF signal bridge
+docs/adr/0009-sched-ext-virtualbox-mvp.md:29:preserves system stability and enables controlled A/B comparison.
+docs/adr/0009-sched-ext-virtualbox-mvp.md:33:Stage 6 uses a hardcoded 30-entry state→action lookup table embedded in
+docs/adr/0009-sched-ext-virtualbox-mvp.md:44:- Record requested and actual dispatch
+docs/adr/0009-sched-ext-virtualbox-mvp.md:50:- Record yield action
+docs/adr/0009-sched-ext-virtualbox-mvp.md:54:Unknown actions fall back to RUN. Invalid policy metadata → loader reject.
+docs/adr/0009-sched-ext-virtualbox-mvp.md:55:Scheduler error → SCX_EXIT_ERROR → CFS fallback.
+docs/adr/0009-sched-ext-virtualbox-mvp.md:61:| orchestra_policy_map | ARRAY | state_index | policy_entry | Frozen action lookup |
+docs/adr/0009-sched-ext-virtualbox-mvp.md:62:| orchestra_task_state_map | HASH | pid | task_state | Per-task action/fallback |
+docs/adr/0009-sched-ext-virtualbox-mvp.md:63:| orchestra_telemetry_map | ARRAY | 0 | telemetry | Aggregated counters |
+docs/adr/0009-sched-ext-virtualbox-mvp.md:68:- No NUMA-aware CPU selection
+docs/adr/0009-sched-ext-virtualbox-mvp.md:70:- No signal verification in BPF (signal stays in userspace)
+docs/adr/0003-metrics-v3-conditioned-coherence.md:3:- Status: Accepted — userspace telemetry implementation; experimental metric
+docs/adr/0003-metrics-v3-conditioned-coherence.md:9:The v2 `S3` is one global action-entropy score. It can penalize workers that
+docs/adr/0003-metrics-v3-conditioned-coherence.md:10:select different actions because their policy states legitimately differ.
+docs/adr/0003-metrics-v3-conditioned-coherence.md:14:Metrics v3 retains v2 `S3` unchanged and emits it again as `S3_global`.
+docs/adr/0003-metrics-v3-conditioned-coherence.md:15:`S3_conditioned` is the eligible-worker weighted mean of per-state action
+docs/adr/0003-metrics-v3-conditioned-coherence.md:18:The reported historical Q remains based on `S3`, not the experimental metric.
+docs/adr/0003-metrics-v3-conditioned-coherence.md:24:not a kernel-dispatch or scheduler-performance metric. Future experiments must
+docs/adr/0010-userspace-bpf-signal-bridge.md:7:Stage 6 proved the sched_ext BPF scheduler could load, enable, and schedule opted-in tasks with RUN and YIELD. Stage 7 extends this to a full two-way bridge: the userspace controller publishes validated directives through versioned BPF maps, and the BPF scheduler reads, validates, and executes all five ORCHESTRA actions with bounded behavior.
+docs/adr/0010-userspace-bpf-signal-bridge.md:11:The userspace controller resides outside the kernel trust boundary. The BPF scheduler validates every directive read from userspace-populated maps:
+docs/adr/0010-userspace-bpf-signal-bridge.md:12:- Bridge magic and schema version must match
+docs/adr/0010-userspace-bpf-signal-bridge.md:16:- Controller state must permit the requested action
+docs/adr/0010-userspace-bpf-signal-bridge.md:18:Invalid, stale, or unverifiable directives produce safe RUN fallback and telemetry only. No invalid directive may influence scheduler behavior beyond the fallback path.
+docs/adr/0010-userspace-bpf-signal-bridge.md:20:## Bridge versioning
+docs/adr/0010-userspace-bpf-signal-bridge.md:25:| Format version | 1 |
+docs/adr/0010-userspace-bpf-signal-bridge.md:26:| Schema version | 1 |
+docs/adr/0010-userspace-bpf-signal-bridge.md:37:| `bridge_telemetr` | ARRAY | uint32=0 | `bridge_telemetry` | 1 | 40-counter telemetry v2 |
+docs/adr/0010-userspace-bpf-signal-bridge.md:44:4. Control map generation is incremented (checked arithmetic)
+docs/adr/0010-userspace-bpf-signal-bridge.md:45:5. Active slot is updated, generation published atomically
+docs/adr/0010-userspace-bpf-signal-bridge.md:46:6. BPF reads control first, validates magic/schema/generation
+docs/adr/0010-userspace-bpf-signal-bridge.md:47:7. BPF reads the active slot only when generation matches control
+docs/adr/0010-userspace-bpf-signal-bridge.md:49:A partial or failed inactive-slot write never becomes active because the control generation is not advanced.
+docs/adr/0010-userspace-bpf-signal-bridge.md:53:Three-component identity: TGID, PID, task start-time cookie (`/proc/[pid]/stat` field 22, `p->start_boottime` in BPF). Cookie zero disables the check for legacy compatibility. PID reuse is mitigated by the cookie: a new task with the same PID will have a different start time.
+docs/adr/0010-userspace-bpf-signal-bridge.md:57:Reuses Stage 5 policy validator. Invalid policy preserves previous active generation. BPF never parses policy files.
+docs/adr/0010-userspace-bpf-signal-bridge.md:63:| RUN | `scx_bpf_dispatch(p, SCX_DSQ_LOCAL, slice, flags)` |
+docs/adr/0010-userspace-bpf-signal-bridge.md:65:| MIGRATE | CPU validation, SCX_DSQ_LOCAL dispatch with target recording |
+docs/adr/0010-userspace-bpf-signal-bridge.md:66:| THROTTLE | Reduced slice dispatch with per-task throttle-until timestamp |
+docs/adr/0010-userspace-bpf-signal-bridge.md:76:| ROLLBACK | RUN fallback | reject | reject | reject | reject |
+docs/adr/0010-userspace-bpf-signal-bridge.md:82:- SLEEP capability requires kernel support for deferred BPF task dispatch
+docs/adr/0007-controller-safety-state-machine.md:7:The previous ORCHESTRA-OS userspace prototype implemented a bounded multi-actuator feedback controller but operated as a memoryless reactive function. While it successfully adjusted jitter, switching penalties, and consensus blends based on recent metrics, it could not persistently track degradation, handle long-term saturation, or safely roll back from severe parameter drift. Furthermore, invalid frames (due to tampering, missing telemetry, or timeouts) risked corrupting the control loop history.
+docs/adr/0007-controller-safety-state-machine.md:9:This document defines an explicitly stateful, observable, fail-safe control subsystem for the ORCHESTRA-OS signal architecture.
+docs/adr/0007-controller-safety-state-machine.md:13:The controller introduces six explicit, mutually exclusive states. All transitions and time spent in each state are measurable.
+docs/adr/0007-controller-safety-state-machine.md:15:1. **NORMAL**: The controller receives valid accepted frames and applies adaptive updates according to the scheduled cadence and mathematical bounds.
+docs/adr/0007-controller-safety-state-machine.md:16:2. **DEGRADED**: Coordination metrics (e.g., S3_global, S4) have persistently remained below the acceptable threshold (0.82) despite control efforts. Control updates continue, but the degradation is tracked for severity.
+docs/adr/0007-controller-safety-state-machine.md:17:3. **SATURATED**: At least one actuator has hit its mathematical bound, and the targeted metric deficit persists beyond the specified saturation persistence limit. The controller warns that its authority is exhausted.
+docs/adr/0007-controller-safety-state-machine.md:18:4. **DISABLED**: The controller has encountered repeated critical faults (e.g., invalid frames exceeding a threshold) or unrecoverable oscillation/saturation. No adaptive changes are applied.
+docs/adr/0007-controller-safety-state-machine.md:19:5. **ROLLBACK**: Following a critical saturation or oscillation event, the controller atomically restores the last-known-good actuator vector to stabilize the population.
+docs/adr/0007-controller-safety-state-machine.md:20:6. **RECOVERY**: A temporary quarantine state following a rollback, wherein the controller observes coordination quality without applying new adaptive changes. If metrics stabilize, it transitions back to `NORMAL`. Otherwise, it disables itself or rolls back again.
+docs/adr/0007-controller-safety-state-machine.md:24:Instead of reacting to instantaneous point-in-time metrics, the controller incorporates two fixed-size rolling windows:
+docs/adr/0007-controller-safety-state-machine.md:25:* `controller_window_t`: Tracks `S3_global`, `S4`, and `S4_burst` over the last 10 accepted valid updates to average out noise.
+docs/adr/0007-controller-safety-state-machine.md:33:* Degradation requires at least 3 continuous updates in `NORMAL` where the moving average of `S3_global` or `S4` is below `CONTROLLER_THRESHOLD`.
+docs/adr/0007-controller-safety-state-machine.md:39:The controller records applied actuator movements. If the derivative of the actuator changes sign repeatedly without matching coordination improvement (4 or more reversals over the past 8 updates), an oscillation event is raised. Severe oscillation from `DEGRADED` automatically transitions the controller into `DISABLED`.
+docs/adr/0007-controller-safety-state-machine.md:43:A `last_known_good` vector is captured only when the controller has been in `NORMAL` for at least 5 updates without experiencing saturation or oscillation events. 
+docs/adr/0007-controller-safety-state-machine.md:45:During `ROLLBACK`, the controller atomically applies the `last_known_good` vector. If no known-good vector was successfully recorded (e.g., fault at startup), the controller falls back to safe default constraints (`TRANSITION_REASON_DEFAULT_RECOVERY`).
+docs/adr/0007-controller-safety-state-machine.md:55:To accommodate the complex diagnostic data (residence time, rollback causes, invalid frame counts, oscillation scores) without violating the strictly 83-column `v4` schema, a new explicitly versioned, append-only `orchestra.paper_cpu.metrics/v5` schema has been introduced.
+docs/adr/0007-controller-safety-state-machine.md:57:The `v5` schema introduces 24 new columns detailing the exact numeric state of the controller, requested vs. applied limits, transition reasons, and suppression mechanisms.
+docs/adr/0007-controller-safety-state-machine.md:63:No dynamic allocation, unbounded loops, or sleeping mechanisms occur inside the controller update logic.
+docs/adr/0007-controller-safety-state-machine.md:67:* This controller represents an exploratory control-theory safeguard. It does not replace the Linux scheduler (`sched_ext`).
+docs/adr/0007-controller-safety-state-machine.md:68:* Fallbacks triggered by this controller merely stabilize userspace behavior guidelines; hard real-time tasks are exempt from this flow entirely.
+docs/adr/0005-burst-sensitive-temporal-stability.md:13:S4 = 1 - changed_eligible_workers / eligible_workers
+docs/adr/0005-burst-sensitive-temporal-stability.md:16:It is 1 for zero eligible workers. Historical S4 is bounded and comparable with
+docs/adr/0005-burst-sensitive-temporal-stability.md:22:directive can appropriately cause workers to move to a new action, yet a
+docs/adr/0005-burst-sensitive-temporal-stability.md:24:an invalid or stale signal must never excuse a burst. Linux remains the real
+docs/adr/0005-burst-sensitive-temporal-stability.md:25:scheduler: all actions and transitions in this ADR are userspace policy
+docs/adr/0005-burst-sensitive-temporal-stability.md:26:selection observations, not CFS/EEVDF dispatch, kernel intent, task state,
+docs/adr/0005-burst-sensitive-temporal-stability.md:33:burst diagnostics, including S4_burst. S4_burst neither replaces historical S4
+docs/adr/0005-burst-sensitive-temporal-stability.md:34:nor changes the historical coordination index:
+docs/adr/0005-burst-sensitive-temporal-stability.md:37:Q = (S1 * S2 * S3 * S4)^(1/4)
+docs/adr/0005-burst-sensitive-temporal-stability.md:42:Each eligible worker's current selected action is compared with its prior
+docs/adr/0005-burst-sensitive-temporal-stability.md:43:selected action. Every changed worker increments one cell in the fixed matrix:
+docs/adr/0005-burst-sensitive-temporal-stability.md:46:transition_counts[old_action][new_action], old_action != new_action
+docs/adr/0005-burst-sensitive-temporal-stability.md:52:are no changes, both dominant-action cells are the -1 sentinel and the
+docs/adr/0005-burst-sensitive-temporal-stability.md:55:Only canonical old/new pairs enter the matrix. A malformed action snapshot is
+docs/adr/0005-burst-sensitive-temporal-stability.md:61:change_fraction = changed_eligible_workers / eligible_workers
+docs/adr/0005-burst-sensitive-temporal-stability.md:63:dominant_transition_fraction =
+docs/adr/0005-burst-sensitive-temporal-stability.md:73:change_fraction is zero for zero eligible workers. dominant_transition_fraction
+docs/adr/0005-burst-sensitive-temporal-stability.md:84:current directive, and no current worker is in fallback. previous_directive_valid
+docs/adr/0005-burst-sensitive-temporal-stability.md:89:is one and its new selected action equals the current directive:
+docs/adr/0005-burst-sensitive-temporal-stability.md:92:justified_change_fraction =
+docs/adr/0005-burst-sensitive-temporal-stability.md:96:This fraction is zero if no worker changed. Rejected, stale, unauthenticated,
+docs/adr/0005-burst-sensitive-temporal-stability.md:97:unavailable, or partial signals cannot justify a change. They can be measured
+docs/adr/0005-burst-sensitive-temporal-stability.md:106:    0.80 * change_fraction * population_scale *
+docs/adr/0005-burst-sensitive-temporal-stability.md:107:    dominant_transition_fraction *
+docs/adr/0005-burst-sensitive-temporal-stability.md:108:    (0.20 + 0.80 * (1 - justified_change_fraction))
+docs/adr/0005-burst-sensitive-temporal-stability.md:113:S4_burst = clamp(1 - burst_penalty - oscillation_penalty, 0, 1)
+docs/adr/0005-burst-sensitive-temporal-stability.md:116:The population scale leaves a single action change at one. The 0.20 floor
+docs/adr/0005-burst-sensitive-temporal-stability.md:128:change_fraction >= 0.50
+docs/adr/0005-burst-sensitive-temporal-stability.md:129:dominant_transition_fraction >= 0.75
+docs/adr/0005-burst-sensitive-temporal-stability.md:146:prior.old_action == current.new_action
+docs/adr/0005-burst-sensitive-temporal-stability.md:147:prior.new_action == current.old_action
+docs/adr/0005-burst-sensitive-temporal-stability.md:155:write history. Invalid signals never seed future history.
+docs/adr/0005-burst-sensitive-temporal-stability.md:159:| Scenario | S4 | S4_burst |
+docs/adr/0005-burst-sensitive-temporal-stability.md:169:For no changed workers, S4_burst=1, change_fraction,
+docs/adr/0005-burst-sensitive-temporal-stability.md:170:dominant_transition_fraction, justified_change_fraction, and population_scale
+docs/adr/0005-burst-sensitive-temporal-stability.md:184:One worker pass plus a five-by-five matrix scan yields O(N + A^2) time per
+docs/adr/0005-burst-sensitive-temporal-stability.md:191:### Replace historical S4 or add S4_burst to Q
+docs/adr/0005-burst-sensitive-temporal-stability.md:194:specified four-factor Q definition. A new experimental coordination index is
+docs/adr/0005-burst-sensitive-temporal-stability.md:199:Retained as historical S4, but insufficient as the only diagnostic because it
+docs/adr/0005-burst-sensitive-temporal-stability.md:205:a selected action, or a signal frame also cannot prove kernel scheduling
+docs/adr/0005-burst-sensitive-temporal-stability.md:218:v4 validator rejects impossible counts, invalid action IDs, fraction ranges,
+docs/adr/0005-burst-sensitive-temporal-stability.md:226:Existing authentication, freshness, fallback, learning, consensus, and
+docs/adr/0005-burst-sensitive-temporal-stability.md:227:controller gates are unchanged. Rejected/stale frames remain telemetry-only:
+docs/adr/0005-burst-sensitive-temporal-stability.md:228:they cannot cause adaptive learning, consensus/controller update, justification,
+docs/adr/0005-burst-sensitive-temporal-stability.md:230:it is not a kernel hook, process-group coordinator, privilege requirement, or
+docs/adr/0005-burst-sensitive-temporal-stability.md:237:diagnostics. A mislabeled, truncated, reordered, or cross-version row is
+docs/adr/0005-burst-sensitive-temporal-stability.md:241:This ADR supplements ADR 0001's historical S1--S4/Q contract, ADR 0003's
+docs/adr/0005-burst-sensitive-temporal-stability.md:242:state-conditioned S3, and ADR 0004's effective-action telemetry. It provides
+docs/adr/0005-burst-sensitive-temporal-stability.md:244:coordination, formal metric optimality, nor causal scheduler-performance
+docs/adr/0005-burst-sensitive-temporal-stability.md:245:evidence. Formula, thresholds, validity rule, history window, action sentinel,
+docs/adr/0008-policy-lifecycle-and-persistence.md:7:The ORCHESTRA-OS userspace prototype previously operated in a single mode where policy learning, adaptation, and controller feedback were continuously active. This inhibited:
+docs/adr/0008-policy-lifecycle-and-persistence.md:12:This ADR defines a policy lifecycle with three explicit modes (TRAIN, ADAPT, EVALUATE), a canonical binary policy file format, deterministic save/load, and controller-state gating.
+docs/adr/0008-policy-lifecycle-and-persistence.md:16:- Exploration enabled (epsilon-greedy with the declared schedule).
+docs/adr/0008-policy-lifecycle-and-persistence.md:17:- Q-table updates enabled when controller state permits.
+docs/adr/0008-policy-lifecycle-and-persistence.md:19:- Consensus learning enabled.
+docs/adr/0008-policy-lifecycle-and-persistence.md:20:- Policy generation increments on each applied controller update.
+docs/adr/0008-policy-lifecycle-and-persistence.md:24:- Exploration disabled (greedy selection only).
+docs/adr/0008-policy-lifecycle-and-persistence.md:25:- Q-table updates enabled only in NORMAL state; suppressed in DEGRADED, SATURATED, ROLLBACK, DISABLED.
+docs/adr/0008-policy-lifecycle-and-persistence.md:26:- Consensus learning enabled.
+docs/adr/0008-policy-lifecycle-and-persistence.md:27:- Policy generation increments on each applied update.
+docs/adr/0008-policy-lifecycle-and-persistence.md:31:- Exploration disabled.
+docs/adr/0008-policy-lifecycle-and-persistence.md:34:- Policy generation frozen.
+docs/adr/0008-policy-lifecycle-and-persistence.md:53:| 0 | 4 | magic (0x504f4c59 = "POLY") |
+docs/adr/0008-policy-lifecycle-and-persistence.md:54:| 4 | 4 | format version (1) |
+docs/adr/0008-policy-lifecycle-and-persistence.md:55:| 8 | 4 | schema version (1) |
+docs/adr/0008-policy-lifecycle-and-persistence.md:59:| 24 | 4 | action count |
+docs/adr/0008-policy-lifecycle-and-persistence.md:60:| 28 | 8 | policy generation |
+docs/adr/0008-policy-lifecycle-and-persistence.md:64:| 64 | N | Q-table payload (state_count * action_count * 8 bytes) |
+docs/adr/0008-policy-lifecycle-and-persistence.md:85:An append-only `orchestra.paper_cpu.metrics/v6` schema adds 13 policy-telemetry columns to the strict 107-column v5 contract, yielding 120 columns. New fields: policy_mode, policy_schema_version, policy_generation, policy_update_allowed, policy_update_applied, policy_update_suppression_reason, policy_exploration_enabled, policy_train_update_count, policy_adapt_update_count, policy_load_status, policy_save_status, policy_digest_prefix, policy_format_version.
+docs/adr/0008-policy-lifecycle-and-persistence.md:98:- No migration between policy schema versions.
+docs/adr/0008-policy-lifecycle-and-persistence.md:100:- Policy telemetry delayed by one controller cadence.
+tests/integration/test_signal_publication_integration.c:2: * Integration coverage for the generation-stamped userspace signal transport.
+tests/integration/test_signal_publication_integration.c:31:    INTEGRATION_PROCESS_START_WAIT_LIMIT = 200000,
+tests/integration/test_signal_publication_integration.c:37:    INTEGRATION_PROCESS_READER_START_ABORTED,
+tests/integration/test_signal_publication_integration.c:38:    INTEGRATION_PROCESS_READER_START_TIMEOUT,
+tests/integration/test_signal_publication_integration.c:52:    _Atomic uint64_t hook_yields;
+tests/integration/test_signal_publication_integration.c:104:        (void)nanosleep(&pause, NULL);
+tests/integration/test_signal_publication_integration.c:126:        (void)nanosleep(&pause, NULL);
+tests/integration/test_signal_publication_integration.c:136:static signal_payload_t integration_valid_payload(uint64_t sequence) {
+tests/integration/test_signal_publication_integration.c:137:    return (signal_payload_t) {
+tests/integration/test_signal_publication_integration.c:138:        .magic = SIGNAL_MAGIC,
+tests/integration/test_signal_publication_integration.c:139:        .schema_version = SIGNAL_SCHEMA_VERSION,
+tests/integration/test_signal_publication_integration.c:147:        .state_schema_version = STATE_SCHEMA_VERSION,
+tests/integration/test_signal_publication_integration.c:148:        .prediction_used = 1u,
+tests/integration/test_signal_publication_integration.c:161:static void integration_initialize_shared_bus(signal_bus_t *bus,
+tests/integration/test_signal_publication_integration.c:162:                                              signal_reader_gates_t *gates) {
+tests/integration/test_signal_publication_integration.c:165:    initialize_selected_signal_publication(&bus->publication);
+tests/integration/test_signal_publication_integration.c:166:    initialize_signal_reader_gates(gates);
+tests/integration/test_signal_publication_integration.c:167:    initialize_signal_publisher_diagnostics(&bus->diagnostics);
+tests/integration/test_signal_publication_integration.c:172:static size_t integration_active_slot(const signal_bus_t *bus) {
+tests/integration/test_signal_publication_integration.c:178:static size_t integration_next_slot(const signal_bus_t *bus) {
+tests/integration/test_signal_publication_integration.c:193:static safe_disposition_t integration_classify_publication(signal_publish_result_t result,
+tests/integration/test_signal_publication_integration.c:201:    signal_publication_hook_stage_t stage) {
+tests/integration/test_signal_publication_integration.c:208:static void integration_stop_reader_while_pinned(signal_publication_hook_stage_t stage) {
+tests/integration/test_signal_publication_integration.c:223:    atomic_init(&control->hook_yields, 0);
+tests/integration/test_signal_publication_integration.c:226:static void integration_process_stress_hook(signal_publication_hook_stage_t stage) {
+tests/integration/test_signal_publication_integration.c:238:     * yields at writer and reader copy phases without synchronizing every
+tests/integration/test_signal_publication_integration.c:239:     * process at one predictable iteration. */
+tests/integration/test_signal_publication_integration.c:243:        (void)sched_yield();
+tests/integration/test_signal_publication_integration.c:244:        (void)atomic_fetch_add_explicit(&control->hook_yields, UINT64_C(1),
+tests/integration/test_signal_publication_integration.c:251:    const signal_reader_diagnostics_t *diagnostics) {
+tests/integration/test_signal_publication_integration.c:290:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:294:    signal_reader_diagnostics_t diagnostics;
+tests/integration/test_signal_publication_integration.c:295:    initialize_signal_reader_diagnostics(&diagnostics);
+tests/integration/test_signal_publication_integration.c:305:    for (unsigned int attempt = 0; attempt < INTEGRATION_PROCESS_START_WAIT_LIMIT;
+tests/integration/test_signal_publication_integration.c:308:            report.status = INTEGRATION_PROCESS_READER_START_ABORTED;
+tests/integration/test_signal_publication_integration.c:316:        (void)sched_yield();
+tests/integration/test_signal_publication_integration.c:319:        report.status = INTEGRATION_PROCESS_READER_START_TIMEOUT;
+tests/integration/test_signal_publication_integration.c:328:            report.status = INTEGRATION_PROCESS_READER_START_ABORTED;
+tests/integration/test_signal_publication_integration.c:331:        signal_payload_t frame = {0};
+tests/integration/test_signal_publication_integration.c:367:        if ((attempt & 31u) == 0u) (void)sched_yield();
+tests/integration/test_signal_publication_integration.c:387:        (void)nanosleep(&pause, NULL);
+tests/integration/test_signal_publication_integration.c:418:            (void)nanosleep(&pause, NULL);
+tests/integration/test_signal_publication_integration.c:425: * beside the selected generation transport.  Touch them here so this strict
+tests/integration/test_signal_publication_integration.c:429:    legacy_signal_publication_t legacy;
+tests/integration/test_signal_publication_integration.c:430:    signal_reader_diagnostics_t diagnostics;
+tests/integration/test_signal_publication_integration.c:433:    action_t actions[MAX_WORKERS] = {ACT_RUN};
+tests/integration/test_signal_publication_integration.c:434:    action_t previous[MAX_WORKERS] = {ACT_RUN};
+tests/integration/test_signal_publication_integration.c:437:    atomic_init(&legacy.publish_version, 0);
+tests/integration/test_signal_publication_integration.c:442:    initialize_signal_reader_diagnostics(&diagnostics);
+tests/integration/test_signal_publication_integration.c:447:    CHECK(isfinite(population_utility_reference(actions, previous, states, 0,
+tests/integration/test_signal_publication_integration.c:452:static bool integration_readonly_fork_reader(signal_bus_t *bus,
+tests/integration/test_signal_publication_integration.c:453:                                              signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:470:            signal_payload_t out = {0};
+tests/integration/test_signal_publication_integration.c:471:            signal_reader_diagnostics_t diagnostics;
+tests/integration/test_signal_publication_integration.c:472:            initialize_signal_reader_diagnostics(&diagnostics);
+tests/integration/test_signal_publication_integration.c:499:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:502:    signal_payload_t first = integration_valid_payload(UINT64_C(100));
+tests/integration/test_signal_publication_integration.c:503:    signal_payload_t second = integration_valid_payload(UINT64_C(101));
+tests/integration/test_signal_publication_integration.c:506:    signal_payload_t direct_read = {0};
+tests/integration/test_signal_publication_integration.c:511:    CHECK(signal_gate_try_lock_writer(gates, blocked_slot));
+tests/integration/test_signal_publication_integration.c:515:    signal_gate_unlock_writer(gates, blocked_slot);
+tests/integration/test_signal_publication_integration.c:520:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:523:    signal_payload_t payload = integration_valid_payload(UINT64_C(200));
+tests/integration/test_signal_publication_integration.c:524:    signal_payload_t accepted = {0};
+tests/integration/test_signal_publication_integration.c:525:    signal_reader_diagnostics_t diagnostics;
+tests/integration/test_signal_publication_integration.c:526:    initialize_signal_reader_diagnostics(&diagnostics);
+tests/integration/test_signal_publication_integration.c:533:    CHECK(signal_gate_try_lock_writer(gates, active_slot));
+tests/integration/test_signal_publication_integration.c:534:    signal_payload_t unstable = {0};
+tests/integration/test_signal_publication_integration.c:545:    signal_gate_unlock_writer(gates, active_slot);
+tests/integration/test_signal_publication_integration.c:550:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:553:    signal_payload_t payload = integration_valid_payload(UINT64_C(250));
+tests/integration/test_signal_publication_integration.c:556:    g_signal_publication_test_hook = integration_stop_reader_between_token_and_words;
+tests/integration/test_signal_publication_integration.c:561:        signal_payload_t partial = {0};
+tests/integration/test_signal_publication_integration.c:570:    g_signal_publication_test_hook = NULL;
+tests/integration/test_signal_publication_integration.c:584:    signal_payload_t complete = {0};
+tests/integration/test_signal_publication_integration.c:592:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:595:    signal_payload_t first = integration_valid_payload(UINT64_C(260));
+tests/integration/test_signal_publication_integration.c:596:    signal_payload_t second = integration_valid_payload(UINT64_C(261));
+tests/integration/test_signal_publication_integration.c:597:    signal_payload_t third = integration_valid_payload(UINT64_C(262));
+tests/integration/test_signal_publication_integration.c:598:    signal_payload_t out = {0};
+tests/integration/test_signal_publication_integration.c:605:    g_signal_publication_test_hook = integration_stop_reader_while_pinned;
+tests/integration/test_signal_publication_integration.c:610:        signal_payload_t child_out = {0};
+tests/integration/test_signal_publication_integration.c:617:    g_signal_publication_test_hook = NULL;
+tests/integration/test_signal_publication_integration.c:648:     * last-known-good retention or observed-state fallback. */
+tests/integration/test_signal_publication_integration.c:659:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:682:    g_signal_publication_test_hook = integration_process_stress_hook;
+tests/integration/test_signal_publication_integration.c:728:            signal_payload_t payload = integration_valid_payload(sequence);
+tests/integration/test_signal_publication_integration.c:732:                signal_publish_result_t outcome = publish_frame(bus, gates, &payload, key,
+tests/integration/test_signal_publication_integration.c:740:                    (void)sched_yield();
+tests/integration/test_signal_publication_integration.c:752:            /* This explicit bounded yield supplements the deterministic hook
+tests/integration/test_signal_publication_integration.c:753:             * yields and makes repeated alternating-slot reuse observable to
+tests/integration/test_signal_publication_integration.c:755:            if ((sequence & UINT64_C(31)) == 0u) (void)sched_yield();
+tests/integration/test_signal_publication_integration.c:783:    g_signal_publication_test_hook = NULL;
+tests/integration/test_signal_publication_integration.c:864:    uint64_t final_generation = final_token >> SIGNAL_TOKEN_GENERATION_SHIFT;
+tests/integration/test_signal_publication_integration.c:878:           " hook-yields=%" PRIu64 " final-generation=%" PRIu64
+tests/integration/test_signal_publication_integration.c:887:           reader_hangs, atomic_load_explicit(&control->hook_yields,
+tests/integration/test_signal_publication_integration.c:889:           final_generation, final_slot);
+tests/integration/test_signal_publication_integration.c:894:         && final_generation == (uint64_t)INTEGRATION_PROCESS_PUBLICATION_COUNT
+tests/integration/test_signal_publication_integration.c:903:         && atomic_load_explicit(&control->hook_yields, memory_order_relaxed) > 0u;
+tests/integration/test_signal_publication_integration.c:909:    signal_bus_t *bus, signal_reader_gates_t *gates,
+tests/integration/test_signal_publication_integration.c:912:    signal_payload_t first = integration_valid_payload(UINT64_C(300));
+tests/integration/test_signal_publication_integration.c:913:    signal_payload_t recovered = integration_valid_payload(UINT64_C(301));
+tests/integration/test_signal_publication_integration.c:914:    signal_payload_t out = {0};
+tests/integration/test_signal_publication_integration.c:924:        if (!signal_gate_try_lock_writer(gates, target_slot)) _exit(EXIT_FAILURE);
+tests/integration/test_signal_publication_integration.c:927:        uint64_t next_generation = (token >> SIGNAL_TOKEN_GENERATION_SHIFT)
+tests/integration/test_signal_publication_integration.c:929:        uint64_t odd_sequence = (next_generation << SIGNAL_TOKEN_GENERATION_SHIFT)
+tests/integration/test_signal_publication_integration.c:933:        /* Simulates publisher death after the writer lease/odd generation. */
+tests/integration/test_signal_publication_integration.c:954:    signal_gate_unlock_writer(gates, target_slot);
+tests/integration/test_signal_publication_integration.c:964:#error "signal publication integration coverage requires the generation transport"
+tests/integration/test_signal_publication_integration.c:966:    signal_bus_t *bus = mmap(NULL, sizeof(*bus), PROT_READ | PROT_WRITE,
+tests/integration/test_signal_publication_integration.c:968:    signal_reader_gates_t *gates = mmap(NULL, sizeof(*gates), PROT_READ | PROT_WRITE,
+tests/integration/test_signal_publication_integration.c:980:    bool ok = selected_signal_publication_atomics_are_lock_free(&bus->publication)
+tests/integration/test_signal_publication_integration.c:994:    printf("PASS signal publication MAP_SHARED integration scenarios\n");
+tests/integration/run.sh:7:ARTIFACT_DIR=${ORCHESTRA_INTEGRATION_ARTIFACT_DIR:-}
+tests/integration/run.sh:9:if [[ -n "$ARTIFACT_DIR" ]]; then
+tests/integration/run.sh:10:    if [[ -e "$ARTIFACT_DIR" ]]; then
+tests/integration/run.sh:11:        echo "FAIL integration artifact directory already exists: $ARTIFACT_DIR" >&2
+tests/integration/run.sh:15:    mkdir -p -- "$ARTIFACT_DIR"
+tests/integration/run.sh:19:    if [[ -n "$ARTIFACT_DIR" ]]; then
+tests/integration/run.sh:23:            cp -a -- "${result_files[@]}" "$ARTIFACT_DIR"/
+tests/integration/run.sh:36:PUBLICATION_INTEGRATION_SOURCE="$SCRIPT_DIR/test_signal_publication_integration.c"
+tests/integration/run.sh:37:PUBLICATION_INTEGRATION_BIN="$TEST_DIR/test_signal_publication_integration"
+tests/integration/run.sh:39:gcc -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+tests/integration/run.sh:42:gcc -O1 -g -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+tests/integration/run.sh:51:timeout --signal=INT --kill-after=2s 3s "$BIN" --duration nonsense \
+tests/integration/run.sh:60:timeout --signal=INT --kill-after=2s 8s nice -n 10 "$BIN" \
+tests/integration/run.sh:67:timeout --signal=INT --kill-after=2s 10s nice -n 10 "$BIN" \
+tests/integration/run.sh:74:timeout --signal=INT --kill-after=2s 9s nice -n 10 "$BIN" \
+tests/integration/run.sh:81:timeout --signal=INT --kill-after=2s 10s nice -n 10 "$BIN" \
+tests/integration/run.sh:84:    >"$TEST_DIR/controller-tamper.csv" 2>"$TEST_DIR/controller-tamper.log"
+tests/integration/run.sh:85:python3 "$VALIDATE" "$TEST_DIR/controller-tamper.csv" --mode orchestra --schema "$SCHEMA_V7" \
+tests/integration/run.sh:87:    --expect-controller-skip 20
+tests/integration/run.sh:89:timeout --preserve-status --signal=INT --kill-after=2s 3s nice -n 10 "$BIN" \
+tests/integration/run.sh:92:    >"$TEST_DIR/signal-stop.csv" 2>"$TEST_DIR/signal-stop.log"
+tests/integration/run.sh:93:python3 "$VALIDATE" "$TEST_DIR/signal-stop.csv" --mode orchestra --schema "$SCHEMA_V7" --min-rows 5
+tests/integration/run.sh:100:echo "PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2/v3/v4 validator contracts, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown"
+docs/adr/0006-generation-stamped-signal-publication.md:1:# ADR 0006: Generation-stamped signal publication
+docs/adr/0006-generation-stamped-signal-publication.md:10:- Supersedes: ADR 0002 section 2.4's former versioned atomic-byte publication transport only
+docs/adr/0006-generation-stamped-signal-publication.md:15:ADR 0002 fixes the schema-1 signal contract: a canonical 128-byte payload and
+docs/adr/0006-generation-stamped-signal-publication.md:17:160 individual atomic byte cells guarded by a publication-version seqlock. That
+docs/adr/0006-generation-stamped-signal-publication.md:26:reuse a generation token after exhaustion.
+docs/adr/0006-generation-stamped-signal-publication.md:49:The canonical signal-bus mapping contains two fixed slots. Each slot has:
+docs/adr/0006-generation-stamped-signal-publication.md:68:run rather than selecting a non-atomic fallback. That is a platform assumption
+docs/adr/0006-generation-stamped-signal-publication.md:71:### 2.2 Token, generation, and slot-state encoding
+docs/adr/0006-generation-stamped-signal-publication.md:76:token = (generation << 1) | active_slot
+docs/adr/0006-generation-stamped-signal-publication.md:82:generation reuse. It does not wrap, reinterpret, or silently reset a token.
+docs/adr/0006-generation-stamped-signal-publication.md:84:For a slot assigned generation g:
+docs/adr/0006-generation-stamped-signal-publication.md:91:A completed reader snapshot must match the selected token's generation and
+docs/adr/0006-generation-stamped-signal-publication.md:93:generation, or any failed confirmation is not an accepted frame.
+docs/adr/0006-generation-stamped-signal-publication.md:102:For a new generation the writer:
+docs/adr/0006-generation-stamped-signal-publication.md:109:6. releases the new generation/active-slot token; and
+docs/adr/0006-generation-stamped-signal-publication.md:118:generation likewise refuses publication safely.
+docs/adr/0006-generation-stamped-signal-publication.md:134:2. derives the active slot and generation from that token;
+docs/adr/0006-generation-stamped-signal-publication.md:141:A failed pin, token confirmation, slot-sequence confirmation, or generation
+docs/adr/0006-generation-stamped-signal-publication.md:152:For a successful generation-stamped snapshot attempt, the reader uses an
+docs/adr/0006-generation-stamped-signal-publication.md:161:bad frames. In the generation-stamped path it records a failed pin/generation
+docs/adr/0006-generation-stamped-signal-publication.md:164:version confirmation. Every such observation retries or returns
+docs/adr/0006-generation-stamped-signal-publication.md:169:does not create a new adaptive decision, reward update, consensus action,
+docs/adr/0006-generation-stamped-signal-publication.md:170:controller update, or effective-action success. It follows the existing
+docs/adr/0006-generation-stamped-signal-publication.md:171:last-known-good and bounded userspace fallback contract.
+docs/adr/0006-generation-stamped-signal-publication.md:176:versioned transport at compile time. It remains for differential tests and
+docs/adr/0006-generation-stamped-signal-publication.md:177:reference comparisons while the generation-stamped path is validated. Both
+docs/adr/0006-generation-stamped-signal-publication.md:180:runtime negotiation mechanism, a production fallback, or a performance
+docs/adr/0006-generation-stamped-signal-publication.md:215:contention refusal, reader pinning, generation exhaustion behavior, and
+docs/adr/0006-generation-stamped-signal-publication.md:222:The separately documented [v1 local microbenchmark protocol](../experiments/signal_publication_microbenchmark_v1.md)
+docs/adr/0006-generation-stamped-signal-publication.md:228:reason; a generation-stamped non-tampered invocation requires no such
+docs/adr/0006-generation-stamped-signal-publication.md:234:latency distributions, cache behavior, scalability across sockets/NUMA/nodes,
+docs/adr/0006-generation-stamped-signal-publication.md:236:performance, or kernel suitability. Long-duration generation-exhaustion and
+docs/adr/0006-generation-stamped-signal-publication.md:249:- Token, slot sequence, and generation checks reject incomplete or stale
+docs/adr/0006-generation-stamped-signal-publication.md:256:  retain last-known-good state or use the existing bounded fallback. There is
+docs/adr/0006-generation-stamped-signal-publication.md:259:- Existing invalid/stale frame rules and last-known-good fallback remain
+docs/adr/0006-generation-stamped-signal-publication.md:266:model. A successful legacy reference publication performs one acquire version
+docs/adr/0006-generation-stamped-signal-publication.md:267:load, two version read-modify-writes (the first acquire-release to mark odd,
+docs/adr/0006-generation-stamped-signal-publication.md:269:successful generation-stamped publication performs one acquire token load, one
+docs/adr/0006-generation-stamped-signal-publication.md:275:For the generation-stamped reader, at most ten snapshot attempts each use the
+docs/adr/0006-generation-stamped-signal-publication.md:278:acquire version loads, 160 relaxed byte loads, and an acquire fence before the
+docs/adr/0006-generation-stamped-signal-publication.md:279:final version comparison, again with at most ten attempts. These counts exclude
+docs/adr/0006-generation-stamped-signal-publication.md:280:the subsequent deserialization and authentication path and do not predict
+docs/adr/0006-generation-stamped-signal-publication.md:293:verification order, freshness checks, and action semantics are unchanged.
+docs/adr/0006-generation-stamped-signal-publication.md:294:The generation-stamped mechanism is an implementation-internal shared-memory
+docs/adr/0006-generation-stamped-signal-publication.md:295:transport revision, not a new signal schema or metrics schema.
+docs/adr/0006-generation-stamped-signal-publication.md:319:generation exhaustion behavior, mapping protection, canonical payload/tag
+docs/adr/0004-effective-userspace-action-metrics.md:3:- Status: Accepted — implemented userspace telemetry; exploratory measurement semantics
+docs/adr/0004-effective-userspace-action-metrics.md:10:- Supersedes: The absence of action-outcome telemetry described in ADR 0001 sections 2.7 and 2.8; all other ADR 0001 metric and controller contracts remain unchanged
+docs/adr/0004-effective-userspace-action-metrics.md:15:The original userspace CSV records an action selected by the adaptive policy.
+docs/adr/0004-effective-userspace-action-metrics.md:16:That makes historical `S2` useful as a policy/directive agreement measure, but
+docs/adr/0004-effective-userspace-action-metrics.md:19:post-action observation is consistent with the requested operation.
+docs/adr/0004-effective-userspace-action-metrics.md:22:cannot infer Linux's dispatch intent, prove that it ran immediately, prove that
+docs/adr/0004-effective-userspace-action-metrics.md:23:another task ran after `sched_yield()`, or establish a lasting CPU placement or
+docs/adr/0004-effective-userspace-action-metrics.md:24:CPU-capacity reduction. Treating selected action or successful affinity alone
+docs/adr/0004-effective-userspace-action-metrics.md:27:The decision therefore keeps selected-action compliance intact and adds a
+docs/adr/0004-effective-userspace-action-metrics.md:35:`S2_selected` is the historical selected-action compliance metric:
+docs/adr/0004-effective-userspace-action-metrics.md:38:S2_selected = selected actions matching the valid directive / eligible workers
+docs/adr/0004-effective-userspace-action-metrics.md:41:The historical `S2` column is retained unchanged and is an exact alias of
+docs/adr/0004-effective-userspace-action-metrics.md:42:`S2_selected`. It measures policy/directive agreement only. It is not kernel
+docs/adr/0004-effective-userspace-action-metrics.md:43:dispatch compliance.
+docs/adr/0004-effective-userspace-action-metrics.md:45:`S2_effective` is a distinct observable outcome metric:
+docs/adr/0004-effective-userspace-action-metrics.md:48:S2_effective = effective_action_success_count / eligible workers
+docs/adr/0004-effective-userspace-action-metrics.md:51:It is named **userspace action-attempt effectiveness based on observable
+docs/adr/0004-effective-userspace-action-metrics.md:52:post-action outcomes, not kernel scheduler compliance**. It does not become a
+docs/adr/0004-effective-userspace-action-metrics.md:53:component of the historical Q formula, so `Q = (S1*S2*S3*S4)^(1/4)` remains
+docs/adr/0004-effective-userspace-action-metrics.md:56:For zero eligible workers, both `S2_selected` and `S2_effective` are `1`,
+docs/adr/0004-effective-userspace-action-metrics.md:58:exist but no current action attempt was observed, `S2_effective` is `0`.
+docs/adr/0004-effective-userspace-action-metrics.md:59:Rejected or stale frames never count as successful effective actions.
+docs/adr/0004-effective-userspace-action-metrics.md:63:For the latest action in each current observation window, an eligible worker
+docs/adr/0004-effective-userspace-action-metrics.md:66:- selected action;
+docs/adr/0004-effective-userspace-action-metrics.md:68:- action error number;
+docs/adr/0004-effective-userspace-action-metrics.md:69:- CPU before the action, requested CPU, and CPU observed afterwards;
+docs/adr/0004-effective-userspace-action-metrics.md:71:- requested and monotonic-observed sleep durations;
+docs/adr/0004-effective-userspace-action-metrics.md:72:- yield and throttle attempt flags;
+docs/adr/0004-effective-userspace-action-metrics.md:73:- bounded fallback reason; and
+docs/adr/0004-effective-userspace-action-metrics.md:74:- bounded effective-action result.
+docs/adr/0004-effective-userspace-action-metrics.md:77:readers consume a coherent snapshot rather than independent uncoordinated
+docs/adr/0004-effective-userspace-action-metrics.md:79:export PID-keyed telemetry or arbitrary worker strings.
+docs/adr/0004-effective-userspace-action-metrics.md:85:| `action_attempt_result` | `NOT_ATTEMPTED=0`, `ATTEMPT_SUCCEEDED=1`, `ATTEMPT_FAILED=2` |
+docs/adr/0004-effective-userspace-action-metrics.md:86:| `fallback_reason` | `NONE=0`, `NO_VALID_FRAME=1`, `LAST_KNOWN_GOOD_EXPIRED=2` |
+docs/adr/0004-effective-userspace-action-metrics.md:87:| `effective_action_result` | `NOT_ATTEMPTED=0`, `SUCCESS=1`, `FALLBACK=2`, `INVALID_ACTION=3`, `ACTION_ERROR=4`, `UNDERSLEEP=5`, `EXCESSIVE_OVERSLEEP=6`, `MIGRATION_NOT_OBSERVED=7`, `INVALID_REQUESTED_CPU=8` |
+docs/adr/0004-effective-userspace-action-metrics.md:89:The aggregate CSV encodes fallback reason as `NONE`, `NO_VALID_FRAME`,
+docs/adr/0004-effective-userspace-action-metrics.md:93:### 2.3 Conservative action-specific effectiveness rules
+docs/adr/0004-effective-userspace-action-metrics.md:96:verification and freshness path cannot create a successful effective action.
+docs/adr/0004-effective-userspace-action-metrics.md:98:| Selected action | Effective only when | Explicit limitation |
+docs/adr/0004-effective-userspace-action-metrics.md:100:| `RUN` | the bounded intended work path completed with no action-specific error or fallback | This does not prove immediate or uninterrupted Linux dispatch. |
+docs/adr/0004-effective-userspace-action-metrics.md:101:| `SLEEP` | the sleep operation completed, observed elapsed time is at least requested duration minus 1 ms, and no more than requested duration plus 250 ms | It measures elapsed userspace wall time, not a kernel wake-up or dispatch guarantee. |
+docs/adr/0004-effective-userspace-action-metrics.md:103:| `THROTTLE` | the program applied its bounded reduced-work and/or delay operation without fallback or action error | This is **throttle-operation effectiveness**, not verified CPU-capacity reduction. |
+docs/adr/0004-effective-userspace-action-metrics.md:104:| `YIELD` | `sched_yield()` returned successfully with no fallback or invalid-state error | It does not prove a context switch, fairness outcome, or that another process ran. |
+docs/adr/0004-effective-userspace-action-metrics.md:106:Sleep requests and recorded observed duration are bounded. Under-sleep and
+docs/adr/0004-effective-userspace-action-metrics.md:107:excessive oversleep have distinct effective-result values so an apparently
+docs/adr/0004-effective-userspace-action-metrics.md:108:successful system call cannot silently count as an effective bounded sleep.
+docs/adr/0004-effective-userspace-action-metrics.md:110:### 2.4 Aggregate v3 telemetry and zero denominators
+docs/adr/0004-effective-userspace-action-metrics.md:114:`S3_global`, and experimental `S3_conditioned` fields. It then appends action
+docs/adr/0004-effective-userspace-action-metrics.md:115:attempt counts, effective-success/error counts, migration stages, sleep totals,
+docs/adr/0004-effective-userspace-action-metrics.md:116:yield/throttle results, fallback fraction, and aggregate fallback reason.
+docs/adr/0004-effective-userspace-action-metrics.md:118:Action-specific fractions use their corresponding attempt count. If an action
+docs/adr/0004-effective-userspace-action-metrics.md:119:was not attempted, its fraction is `1` to represent *not applicable*, not a
+docs/adr/0004-effective-userspace-action-metrics.md:121:`fallback_fraction` is `fallback_workers / eligible_workers` when eligible
+docs/adr/0004-effective-userspace-action-metrics.md:128:S2 == S2_selected
+docs/adr/0004-effective-userspace-action-metrics.md:129:effective_action_success_count + action_error_count <= action_attempt_count <= eligible_workers
+docs/adr/0004-effective-userspace-action-metrics.md:132:each action-specific success count <= its attempt count <= eligible_workers
+docs/adr/0004-effective-userspace-action-metrics.md:133:fallback_workers <= eligible_workers
+docs/adr/0004-effective-userspace-action-metrics.md:136:`S3_global` remains the historical global entropy metric and `S3_conditioned`
+docs/adr/0004-effective-userspace-action-metrics.md:140:### 2.5 Frame rejection and fallback behavior
+docs/adr/0004-effective-userspace-action-metrics.md:142:Invalid, stale, or otherwise non-current frames remain telemetry-only. They do
+docs/adr/0004-effective-userspace-action-metrics.md:143:not create a new adaptive decision, Q update, consensus operation, controller
+docs/adr/0004-effective-userspace-action-metrics.md:144:update, or successful effective action. A bounded last-known-good record may
+docs/adr/0004-effective-userspace-action-metrics.md:146:expired, the worker records the bounded userspace fallback and its reason.
+docs/adr/0004-effective-userspace-action-metrics.md:153:### Keep selected action as the only S2 meaning
+docs/adr/0004-effective-userspace-action-metrics.md:155:Rejected. It hides failed affinity requests, failed yields, sleep timing
+docs/adr/0004-effective-userspace-action-metrics.md:156:deviations, and fallback activation behind a policy selection count.
+docs/adr/0004-effective-userspace-action-metrics.md:163:### Treat `sched_yield()` success as proof that another process ran
+docs/adr/0004-effective-userspace-action-metrics.md:167:### Treat throttle operation as a verified CPU cap
+docs/adr/0004-effective-userspace-action-metrics.md:172:### Replace historical S2 or add S2_effective to Q
+docs/adr/0004-effective-userspace-action-metrics.md:186:action-observation records, so unit tests can cover operation success, error,
+docs/adr/0004-effective-userspace-action-metrics.md:187:invalid request, undersleep, oversleep, and unobserved migration paths without
+docs/adr/0004-effective-userspace-action-metrics.md:196:action-effectiveness rate.
+docs/adr/0004-effective-userspace-action-metrics.md:203:  treated as a research-validity defect rather than benign telemetry loss.
+docs/adr/0004-effective-userspace-action-metrics.md:206:- No privileged scheduler class is enabled by this telemetry. `SCHED_FIFO` is
+docs/adr/0004-effective-userspace-action-metrics.md:215:unbounded wait, allocation, kernel hook, or group coordinator. The effects on
+docs/adr/0004-effective-userspace-action-metrics.md:216:userspace load and timing must be measured separately; the telemetry is not a
+docs/adr/0004-effective-userspace-action-metrics.md:231:fallback and action-attempt fields have no backfill for v2 artifacts.
+docs/adr/0004-effective-userspace-action-metrics.md:240:kernel scheduler integration, hard-real-time behavior, a complete fallback
+docs/adr/0004-effective-userspace-action-metrics.md:243:It supersedes only the listed action-outcome telemetry omissions in ADR 0001.
+docs/adr/0004-effective-userspace-action-metrics.md:244:ADR 0001's directive, reward, Q, controller, and historical S1--S4 contracts
+docs/adr/0004-effective-userspace-action-metrics.md:246:zero-denominator behavior, CSV column order, or the meaning of either S2 field
+docs/adr/0004-effective-userspace-action-metrics.md:247:requires a new ADR and schema version review.
+tests/integration/test_validate_paper_cpu_csv.py:34:        "prediction_used": "0",
+tests/integration/test_validate_paper_cpu_csv.py:42:        "sleep": "4",
+tests/integration/test_validate_paper_cpu_csv.py:43:        "migrate": "0",
+tests/integration/test_validate_paper_cpu_csv.py:44:        "throttle": "0",
+tests/integration/test_validate_paper_cpu_csv.py:45:        "yield": "0",
+tests/integration/test_validate_paper_cpu_csv.py:47:        "fallback_workers": "0",
+tests/integration/test_validate_paper_cpu_csv.py:48:        "S1": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:49:        "S2": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:50:        "S3": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:51:        "S4": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:59:        "controller_updated": "0",
+tests/integration/test_validate_paper_cpu_csv.py:60:        "controller_step": "0",
+tests/integration/test_validate_paper_cpu_csv.py:61:        "controller_reason": "NONE",
+tests/integration/test_validate_paper_cpu_csv.py:62:        "controller_beta": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:79:            "S3_global": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:80:            "S3_conditioned": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:81:            "S2_selected": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:82:            "S2_effective": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:83:            "action_attempt_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:84:            "effective_action_success_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:85:            "action_error_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:90:            "migration_observed_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:91:            "sleep_attempt_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:92:            "sleep_effective_success_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:93:            "sleep_effectiveness_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:94:            "requested_sleep_ns_total": "140000000",
+tests/integration/test_validate_paper_cpu_csv.py:95:            "observed_sleep_ns_total": "150000000",
+tests/integration/test_validate_paper_cpu_csv.py:96:            "yield_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:97:            "yield_call_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:98:            "yield_call_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:99:            "throttle_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:100:            "throttle_operation_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:101:            "throttle_operation_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:102:            "fallback_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:103:            "fallback_reason": "NONE",
+tests/integration/test_validate_paper_cpu_csv.py:110:    """Return a first accepted no-change v4 row with neutral burst telemetry."""
+tests/integration/test_validate_paper_cpu_csv.py:116:            "S4_burst": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:117:            "change_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:118:            "dominant_transition_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:119:            "justified_change_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:121:            "dominant_old_action": "-1",
+tests/integration/test_validate_paper_cpu_csv.py:122:            "dominant_new_action": "-1",
+tests/integration/test_validate_paper_cpu_csv.py:138:def valid_v4_mass_transition_row(tick: int, directive: str, old_action: int,
+tests/integration/test_validate_paper_cpu_csv.py:139:                                 new_action: int, rolling_bursts: int,
+tests/integration/test_validate_paper_cpu_csv.py:144:    action_values = {field: "0" for field in validator.ACTION_FIELDS}
+tests/integration/test_validate_paper_cpu_csv.py:145:    action_values[validator.ACTION_FIELDS[new_action]] = "4"
+tests/integration/test_validate_paper_cpu_csv.py:154:            **action_values,
+tests/integration/test_validate_paper_cpu_csv.py:155:            "S2": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:156:            "S3": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:157:            "S4": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:159:            "S3_global": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:160:            "S3_conditioned": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:161:            "S2_selected": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:162:            "S2_effective": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:163:            "action_attempt_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:164:            "effective_action_success_count": "4",
+tests/integration/test_validate_paper_cpu_csv.py:165:            "action_error_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:170:            "migration_observed_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:171:            "sleep_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:172:            "sleep_effective_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:173:            "sleep_effectiveness_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:174:            "requested_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:175:            "observed_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:176:            "yield_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:177:            "yield_call_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:178:            "yield_call_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:179:            "throttle_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:180:            "throttle_operation_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:181:            "throttle_operation_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:182:            "S4_burst": f"{s4_burst:.8f}",
+tests/integration/test_validate_paper_cpu_csv.py:183:            "change_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:184:            "dominant_transition_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:185:            "justified_change_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:187:            "dominant_old_action": str(old_action),
+tests/integration/test_validate_paper_cpu_csv.py:188:            "dominant_new_action": str(new_action),
+tests/integration/test_validate_paper_cpu_csv.py:214:                writer = csv.DictWriter(stream, fieldnames=header, extrasaction="ignore")
+tests/integration/test_validate_paper_cpu_csv.py:238:                writer = csv.DictWriter(stream, fieldnames=header, extrasaction="ignore")
+tests/integration/test_validate_paper_cpu_csv.py:278:                "S4": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:280:                "S4_burst": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:281:                "change_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:282:                "dominant_transition_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:283:                "justified_change_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:285:                "dominant_old_action": "-1",
+tests/integration/test_validate_paper_cpu_csv.py:286:                "dominant_new_action": "-1",
+tests/integration/test_validate_paper_cpu_csv.py:307:                "S4": "0.75000000",
+tests/integration/test_validate_paper_cpu_csv.py:309:                "S4_burst": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:310:                "change_fraction": "0.25000000",
+tests/integration/test_validate_paper_cpu_csv.py:311:                "dominant_transition_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:312:                "dominant_old_action": "0",
+tests/integration/test_validate_paper_cpu_csv.py:313:                "dominant_new_action": "1",
+tests/integration/test_validate_paper_cpu_csv.py:328:                "sleep": "0",
+tests/integration/test_validate_paper_cpu_csv.py:330:                "fallback_workers": "0",
+tests/integration/test_validate_paper_cpu_csv.py:331:                "S2": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:332:                "S3": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:333:                "S4": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:335:                "S2_selected": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:336:                "S2_effective": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:337:                "action_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:338:                "effective_action_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:339:                "sleep_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:340:                "sleep_effective_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:341:                "requested_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:342:                "observed_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:364:    def test_fatal_action_error_cannot_also_be_effective(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:366:        row["action_error_count"] = "1"
+tests/integration/test_validate_paper_cpu_csv.py:377:                "migration_observed_success_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:384:        row["S2_effective"] = "1.00000001"
+tests/integration/test_validate_paper_cpu_csv.py:387:    def test_negative_observed_sleep_is_rejected(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:389:        row["observed_sleep_ns_total"] = "-1"
+tests/integration/test_validate_paper_cpu_csv.py:392:    def test_bounded_sleep_aggregate_is_rejected_above_schema_limit(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:394:        row["requested_sleep_ns_total"] = "32000000001"
+tests/integration/test_validate_paper_cpu_csv.py:397:    def test_nonfinite_telemetry_is_rejected(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:399:        row["S2_effective"] = "nan"
+tests/integration/test_validate_paper_cpu_csv.py:402:    def test_unknown_fallback_reason_is_rejected(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:404:        row["fallback_reason"] = "UNBOUNDED_STRING"
+tests/integration/test_validate_paper_cpu_csv.py:417:    def test_inconsistent_action_totals_are_rejected(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:419:        row["sleep"] = "3"
+tests/integration/test_validate_paper_cpu_csv.py:424:        row["effective_action_success_count"] = "5"
+tests/integration/test_validate_paper_cpu_csv.py:432:                "sleep": "0",
+tests/integration/test_validate_paper_cpu_csv.py:434:                "S2": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:435:                "S3": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:436:                "S4": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:438:                "S2_selected": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:439:                "S2_effective": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:440:                "action_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:441:                "effective_action_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:442:                "sleep_attempt_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:443:                "sleep_effective_success_count": "0",
+tests/integration/test_validate_paper_cpu_csv.py:444:                "requested_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:445:                "observed_sleep_ns_total": "0",
+tests/integration/test_validate_paper_cpu_csv.py:446:                "fallback_workers": "0",
+tests/integration/test_validate_paper_cpu_csv.py:447:                "fallback_fraction": "0.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:448:                "fallback_reason": "NONE",
+tests/integration/test_validate_paper_cpu_csv.py:458:        row["S4_burst"] = "-0.00000001"
+tests/integration/test_validate_paper_cpu_csv.py:463:        row["S4_burst"] = "1.00000001"
+tests/integration/test_validate_paper_cpu_csv.py:478:                "dominant_old_action": "0",
+tests/integration/test_validate_paper_cpu_csv.py:479:                "dominant_new_action": "1",
+tests/integration/test_validate_paper_cpu_csv.py:480:                "change_fraction": "0.25000000",
+tests/integration/test_validate_paper_cpu_csv.py:481:                "dominant_transition_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:482:                "justified_change_fraction": "2.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:493:                "dominant_old_action": "0",
+tests/integration/test_validate_paper_cpu_csv.py:494:                "dominant_new_action": "1",
+tests/integration/test_validate_paper_cpu_csv.py:495:                "change_fraction": "0.25000000",
+tests/integration/test_validate_paper_cpu_csv.py:496:                "dominant_transition_fraction": "2.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:501:    def test_v4_invalid_dominant_action_enum_is_rejected(self) -> None:
+tests/integration/test_validate_paper_cpu_csv.py:507:                "dominant_old_action": "5",
+tests/integration/test_validate_paper_cpu_csv.py:508:                "dominant_new_action": "1",
+tests/integration/test_validate_paper_cpu_csv.py:509:                "change_fraction": "0.25000000",
+tests/integration/test_validate_paper_cpu_csv.py:510:                "dominant_transition_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:543:                "S4": "0.75000000",
+tests/integration/test_validate_paper_cpu_csv.py:545:                "change_fraction": "0.25000000",
+tests/integration/test_validate_paper_cpu_csv.py:546:                "dominant_transition_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:547:                "justified_change_fraction": "1.00000000",
+tests/integration/test_validate_paper_cpu_csv.py:548:                "dominant_old_action": "0",
+tests/integration/test_validate_paper_cpu_csv.py:549:                "dominant_new_action": "1",
+benchmarks/real-machine/benchmark_suite.sh:16:echo "scheduler,workers,duration_s,elapsed_ms,ctx_delta,enqueue,running,owned,notes" > "$OUTDIR/results.csv"
+benchmarks/real-machine/benchmark_suite.sh:44:    local enq=0 running=0 owned=n/a notes=completed
+benchmarks/real-machine/benchmark_suite.sh:48:            sudo "$BRIDGE" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+benchmarks/real-machine/benchmark_suite.sh:59:        enq=$(tel_field enqueue_count)
+benchmarks/real-machine/benchmark_suite.sh:60:        running=$(tel_field running_count)
+benchmarks/real-machine/benchmark_suite.sh:61:        if [ "$enq" -gt 0 ] && [ "$running" -gt 0 ]; then
+benchmarks/real-machine/benchmark_suite.sh:69:    echo "$SCHED,$WORKERS,$DSECS,$ms,$ctxd,$enq,$running,$owned,$notes" >> "$OUTDIR/results.csv"
+benchmarks/real-machine/benchmark_suite.sh:70:    log "    ${ms}ms ctx_delta=$ctxd enq=$enq running=$running owned=$owned"
+benchmarks/real-machine/benchmark_suite.sh:92:    sleep 2
+benchmarks/real-machine/benchmark_suite.sh:93:    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+benchmarks/real-machine/benchmark_suite.sh:100:    sleep 2
+benchmarks/real-machine/benchmark_suite.sh:101:    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/benchmark_suite.sh:104:    sleep 1
+benchmarks/real-machine/benchmark_suite.sh:112:    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/benchmark_suite.sh:115:    sudo bpftool struct_ops register "$BPF" /sys/fs/bpf/bench 2>&1 | tail -1
+benchmarks/real-machine/benchmark_suite.sh:116:    sleep 2
+benchmarks/real-machine/benchmark_suite.sh:117:    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+benchmarks/real-machine/benchmark_suite.sh:126:        for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/full_compare.sh:46:                            sleep 0.05
+benchmarks/real-machine/full_compare.sh:57:            sudo "$BR" --publish --action RUN --target-pid "$pid" >/dev/null 2>&1 || true
+benchmarks/real-machine/full_compare.sh:87:    sleep 2
+benchmarks/real-machine/full_compare.sh:88:    [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ] || { log "scx_simple failed"; sudo kill $SCX 2>/dev/null; }
+benchmarks/real-machine/full_compare.sh:94:    sleep 2
+benchmarks/real-machine/full_compare.sh:95:    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/full_compare.sh:98:    sleep 1
+benchmarks/real-machine/full_compare.sh:105:    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/full_compare.sh:108:    sudo bpftool struct_ops register "$BPF" /sys/fs/bpf/cmp 2>&1 | tail -1
+benchmarks/real-machine/full_compare.sh:109:    sleep 2
+benchmarks/real-machine/full_compare.sh:111:    if [ "$(cat /sys/kernel/sched_ext/state 2>/dev/null)" = "enabled" ]; then
+benchmarks/real-machine/full_compare.sh:120:    for l in $(sudo bpftool link list 2>&1 | grep struct_ops | awk -F: '{print $1}'); do
+benchmarks/real-machine/stress_suite.sh:21:    SCHED_STATE=$(cat /sys/kernel/sched_ext/state 2>/dev/null || echo "disabled")
+benchmarks/real-machine/stress_suite.sh:22:    if [ "$SCHED_STATE" != "enabled" ]; then
+benchmarks/real-machine/stress_suite.sh:23:        log "WARNING: sched_ext not enabled (state=$SCHED_STATE). Load ORCHESTRA first."
+benchmarks/real-machine/stress_suite.sh:38:STRESS_START=$(date +%s)
+benchmarks/real-machine/stress_suite.sh:47:elapsed=$(( $(date +%s) - STRESS_START ))
+benchmarks/real-machine/stress_suite.sh:60:    MEM_START=$(date +%s)
+benchmarks/real-machine/stress_suite.sh:64:    sleep "$DURATION"
+benchmarks/real-machine/stress_suite.sh:67:    elapsed=$(( $(date +%s) - MEM_START ))
+benchmarks/real-machine/stress_suite.sh:74:IO_START=$(date +%s)
+benchmarks/real-machine/stress_suite.sh:88:elapsed=$(( $(date +%s) - IO_START ))
+benchmarks/real-machine/stress_suite.sh:94:MIX_START=$(date +%s)
+benchmarks/real-machine/stress_suite.sh:107:            sleep 0.1
+benchmarks/real-machine/stress_suite.sh:112:elapsed=$(( $(date +%s) - MIX_START ))
+docs/adr/0002-userspace-signal-frame-contract.md:16:The ORCHESTRA-OS paper specifies a signed shared signal with a monotonic sequence and rotating keys, but reports a pre-kernel simulation. It assumes that a verifier already has the correct key and does not solve provisioning, revocation, node membership, compromise recovery, or distributed key lifecycle.
+docs/adr/0002-userspace-signal-frame-contract.md:18:The first userspace demo authenticated the native bytes of a C structure. The current implementation no longer does so: it serializes a fixed 128-byte payload, authenticates that complete payload with a separate 32-byte HMAC-SHA256 tag, and publishes the resulting 160-byte canonical image through the generation-stamped transport defined by ADR 0006. This ADR records the implemented wire and verification contract rather than a future protocol design.
+docs/adr/0002-userspace-signal-frame-contract.md:20:The contract is deliberately local and experimental. It defines one producer, one monotonic clock domain, one core-local tier identifier, fork-inherited key material, and userspace action approximations. It is not a Linux kernel ABI, scheduler-class interface, distributed protocol, production key-management design, or security-validation result.
+docs/adr/0002-userspace-signal-frame-contract.md:26:The implemented signal payload uses schema version `1` and is exactly 128 bytes. The authentication tag is a separate, full 32-byte HMAC-SHA256 value; it is not part of the 128-byte payload.
+docs/adr/0002-userspace-signal-frame-contract.md:32:- magic: `0x4f524348`, the ASCII bytes `ORCH`;
+docs/adr/0002-userspace-signal-frame-contract.md:33:- signal schema: `1`;
+docs/adr/0002-userspace-signal-frame-contract.md:38:No other tier, source, signal schema, or state schema value is accepted by this implementation.
+docs/adr/0002-userspace-signal-frame-contract.md:44:| 0 | 4 | `magic` | Unsigned big-endian; exactly `0x4f524348` |
+docs/adr/0002-userspace-signal-frame-contract.md:45:| 4 | 4 | `schema_version` | Unsigned big-endian; exactly `1` |
+docs/adr/0002-userspace-signal-frame-contract.md:51:| 40 | 4 | `key_epoch` | Unsigned big-endian; exactly `floor(sequence / 100)` after conversion to `uint32_t` |
+docs/adr/0002-userspace-signal-frame-contract.md:53:| 48 | 4 | `state_schema_version` | Unsigned big-endian; exactly `2` |
+docs/adr/0002-userspace-signal-frame-contract.md:54:| 52 | 4 | `prediction_used` | Unsigned big-endian; `0` or `1` |
+docs/adr/0002-userspace-signal-frame-contract.md:67:NaNs and infinities are rejected by field validation. Numeric range comparisons accept either binary64 representation of zero, including negative zero; schema 1 does not impose an additional unique-zero encoding rule. The payload contains no flags, prediction-horizon field, run identifier, pointers, handles, authentication tag, or secret material.
+docs/adr/0002-userspace-signal-frame-contract.md:103:token = (generation << 1) | active_slot
+docs/adr/0002-userspace-signal-frame-contract.md:108:than allowing generation/token reuse. A slot's sequence is `generation << 1`
+docs/adr/0002-userspace-signal-frame-contract.md:109:while complete and `(generation << 1) | 1` while the writer owns it.
+docs/adr/0002-userspace-signal-frame-contract.md:111:Reader ownership is kept outside the read-only canonical signal bus in a
+docs/adr/0002-userspace-signal-frame-contract.md:123:terminates the run rather than selecting a non-atomic fallback. This is a
+docs/adr/0002-userspace-signal-frame-contract.md:139:refusal and the existing last-known-good or fallback behavior. The explicit
+docs/adr/0002-userspace-signal-frame-contract.md:146:copying a complete matching-generation image. It performs final acquire checks
+docs/adr/0002-userspace-signal-frame-contract.md:148:If a token/slot/generation confirmation fails, the reader unpins and retries.
+docs/adr/0002-userspace-signal-frame-contract.md:175:2. validate magic, signal schema, state schema, directive, `prediction_used`, `max_age_ns`, and all numeric bounds;
+docs/adr/0002-userspace-signal-frame-contract.md:198:telemetry.
+docs/adr/0002-userspace-signal-frame-contract.md:202:preceding Q update, and selects a new action. It then publishes the selected
+docs/adr/0002-userspace-signal-frame-contract.md:203:action, previous action, fallback flag, and `accepted_sequence` together under
+docs/adr/0002-userspace-signal-frame-contract.md:204:the per-worker decision version. `FRAME_INVALID`, `FRAME_NO_NEW`, and
+docs/adr/0002-userspace-signal-frame-contract.md:206:separately publish the bounded fallback decision while retaining the last
+docs/adr/0002-userspace-signal-frame-contract.md:209:The parent still emits coordination telemetry for incomplete or rejected-frame
+docs/adr/0002-userspace-signal-frame-contract.md:210:samples, allowing lost reach to reduce S1. It assigns difference rewards and
+docs/adr/0002-userspace-signal-frame-contract.md:211:runs the outer controller or consensus only when every configured non-exempt
+docs/adr/0002-userspace-signal-frame-contract.md:213:invalid frame or unstable transport read may be measured as a coordination
+docs/adr/0002-userspace-signal-frame-contract.md:216:### 2.6 Prediction selection, last-known-good behavior, and fallback
+docs/adr/0002-userspace-signal-frame-contract.md:218:Prediction fallback and signal-loss fallback are separate mechanisms.
+docs/adr/0002-userspace-signal-frame-contract.md:226:`prediction_used` records that choice in the authenticated payload and CSV output. This is observed-state fallback for predictor confidence; it does not bypass signal-frame verification.
+docs/adr/0002-userspace-signal-frame-contract.md:230:- if a last-known-good payload exists and its authenticated `max_age_ns` has not expired, the worker keeps its previously selected action and does not make a new decision from the rejected, absent, or unstable frame;
+docs/adr/0002-userspace-signal-frame-contract.md:231:- if no last-known-good payload exists, its timestamp is now in the future, or its age exceeds its `max_age_ns`, the worker records `THROTTLE` and sets `fallback_active`; and
+docs/adr/0002-userspace-signal-frame-contract.md:232:- a later `FRAME_VALID` decision clears `fallback_active` and re-enters the adaptive path.
+docs/adr/0002-userspace-signal-frame-contract.md:234:The fallback action is the userspace `THROTTLE` approximation implemented as bounded busy work followed by sleep. It is not a transition to a different Linux scheduling class and is not a conventional Linux scheduler fallback. There is no independently acquired worker-local observation fallback after signal loss.
+docs/adr/0002-userspace-signal-frame-contract.md:236:Hard-real-time-designated workers enter a separate bypass loop and do not enter this adaptive verification or fallback chain. An unsuccessful `SCHED_FIFO` attempt is reported on stderr, but the worker remains classified as exempt and continues its deterministic userspace loop under the Linux policy actually granted.
+docs/adr/0002-userspace-signal-frame-contract.md:238:### 2.7 Implemented telemetry
+docs/adr/0002-userspace-signal-frame-contract.md:243:- observed, predicted, and selected decision CPU values;
+docs/adr/0002-userspace-signal-frame-contract.md:244:- `prediction_used`, confidence, forecast error, and parent-observed frame age;
+docs/adr/0002-userspace-signal-frame-contract.md:246:- eligible action counts and eligible/fallback worker counts;
+docs/adr/0002-userspace-signal-frame-contract.md:247:- S1, S2, S3, S4, and geometric-mean Q;
+docs/adr/0002-userspace-signal-frame-contract.md:249:- controller update, step, reason, beta, saturation, and consensus-application fields;
+docs/adr/0002-userspace-signal-frame-contract.md:253:Startup diagnostics on stderr include configuration, effective random seed, signal schema, and state schema. `SCHED_FIFO` failure and environment/setup failures also use stderr, keeping diagnostics separate from CSV.
+docs/adr/0002-userspace-signal-frame-contract.md:255:Per-worker `accepted_sequence`, heartbeat, alive state, fallback state, and rejection count exist in shared state. Of these, accepted sequence contributes to S1 signal reach, fallback state contributes to `fallback_workers`, and rejection counts are summed for CSV.
+docs/adr/0002-userspace-signal-frame-contract.md:257:The generation-stamped transport also maintains bounded shared diagnostics for
+docs/adr/0002-userspace-signal-frame-contract.md:258:publication attempts/successes/contention/generation exhaustion and for reader
+docs/adr/0002-userspace-signal-frame-contract.md:267:current-frame acceptance count, controller-skip reason, key epoch, tier/source
+docs/adr/0002-userspace-signal-frame-contract.md:269:fallback-reason changes, per-reader records, or a separate count of injected
+docs/adr/0002-userspace-signal-frame-contract.md:279:- no core/socket/NUMA/system hierarchy beyond the one accepted local tier value;
+docs/adr/0002-userspace-signal-frame-contract.md:285:- no per-reader diagnostics or retry/reason counts in the paper-CPU CSV, sequence-gap telemetry, or component-level verification-latency telemetry in that CSV; bounded internal diagnostics and the separate v1 local microbenchmark protocol do not change the CSV contract;
+docs/adr/0002-userspace-signal-frame-contract.md:286:- no long-duration generation-exhaustion/soak evidence or general publication/verification overhead budget; the v1 protocol can record bounded local invocation-level snapshot-copy and full verified-read timings, but does not establish a performance result;
+docs/adr/0002-userspace-signal-frame-contract.md:288:- no independent local-observation or conventional-scheduler fallback after signal expiry; and
+docs/adr/0002-userspace-signal-frame-contract.md:295:The implementation supports the statement that the current single-host userspace prototype serializes a canonical 128-byte schema-1 payload, authenticates it with a separate full HMAC-SHA256 tag, and uses the bounded generation-stamped two-slot userspace transport described in ADR 0006 before a greater-sequence frame drives a new adaptive decision.
+docs/adr/0002-userspace-signal-frame-contract.md:309:### Retain the byte-wise versioned transport as the default
+docs/adr/0002-userspace-signal-frame-contract.md:348:The paper's simulator reports detection of injected payload corruption and models stale information as reducing signal fidelity. It also identifies key distribution as unsolved and evaluates only one local coordination tier. Those simulation results motivate the mechanism but do not validate this userspace implementation or a production security property.
+docs/adr/0002-userspace-signal-frame-contract.md:351:deterministic big-endian encoding, a full-payload HMAC, the generation-stamped
+docs/adr/0002-userspace-signal-frame-contract.md:353:validation, sequence classification, and last-known-good fallback behavior.
+docs/adr/0002-userspace-signal-frame-contract.md:355:cases together with bounded generation-stamped publication behavior. The unit
+docs/adr/0002-userspace-signal-frame-contract.md:360:The [v1 local microbenchmark protocol](../experiments/signal_publication_microbenchmark_v1.md)
+docs/adr/0002-userspace-signal-frame-contract.md:377:- The HMAC covers all 128 payload bytes, including schema, identity, sequence, age bound, directive, predictor metadata, observed/predicted state, and controller parameters.
+docs/adr/0002-userspace-signal-frame-contract.md:379:  slot generation, acquired token confirmation, and a reader pin obtained from
+docs/adr/0002-userspace-signal-frame-contract.md:384:- Invalid, no-new, and unstable reads retain only the previous action while the last-known-good frame remains fresh; expiry selects the bounded userspace `THROTTLE` fallback.
+docs/adr/0002-userspace-signal-frame-contract.md:395:snapshot attempt uses token/slot-generation checks, a reader-count pin, and up
+docs/adr/0002-userspace-signal-frame-contract.md:415:the same selected publication mode. The default is generation-stamped; the
+docs/adr/0002-userspace-signal-frame-contract.md:420:non-`1` signal schema, non-`2` state schema, nonlocal tier/source, or
+docs/adr/0002-userspace-signal-frame-contract.md:425:Experiment records currently identify signal and state schema in startup diagnostics, while CSV rows use the fixed metrics header. The payload itself has no run identifier or manifest checksum. External experiment manifests and artifact provenance remain responsible for tying a run, binary, environment, and dataset together.
+docs/adr/0002-userspace-signal-frame-contract.md:438:stale-frame behavior, and bounded generation-stamped publication behavior have
+docs/adr/0002-userspace-signal-frame-contract.md:452:freshness model, fallback behavior, or key lifecycle.
+docs/adr/0011-stage8-full-kernel-validation.md:12:| 8B | Full kernel validation matrix (actions × states × failures) |
+docs/adr/0011-stage8-full-kernel-validation.md:14:| 8D | NUMA-aware placement |
+docs/adr/0011-stage8-full-kernel-validation.md:45:Matrix dimensions: 5 actions × 6 controller states × 11 directive conditions × 11 lifecycle conditions.
+docs/adr/0011-stage8-full-kernel-validation.md:51:Test configurations: 1/2/4/8 vCPU. Workloads: CPU-bound, mixed, short-burst, migration-heavy, throttled, deferred-eligibility.
+docs/adr/0011-stage8-full-kernel-validation.md:55:## 8D — NUMA placement
+docs/adr/0011-stage8-full-kernel-validation.md:57:Current VirtualBox VM exposes single NUMA node. NUMA-aware placement implemented in source with capability detection. Runtime validation blocked pending multi-node topology.
+docs/adr/0011-stage8-full-kernel-validation.md:59:Status: **BLOCKED** — no multi-node NUMA topology in current VM.
+docs/adr/0011-stage8-full-kernel-validation.md:65:During campaigns: publish new generations, rotate actions, create/exit disposable tasks, change controller states, read telemetry, verify scheduler health.
+docs/adr/0011-stage8-full-kernel-validation.md:69:Controlled faults: corrupted policy, wrong digest, stale generation, partial inactive slot, bridge death, loader death, invalid task identity, invalid CPU, affinity change, map update failure.
+docs/adr/0011-stage8-full-kernel-validation.md:71:For each fault: verify safe RUN fallback, previous generation preserved, scheduler survival or clean disable.
+docs/adr/0011-stage8-full-kernel-validation.md:83:CLI hardening: argument validation, policy path handling, file type/ownership checks, map schema validation, fixed-width arithmetic, generation overflow, privilege drop.
+docs/adr/0011-stage8-full-kernel-validation.md:88:- NUMA placement blocked by single-node VM topology
+tests/integration/validate_paper_cpu_csv.py:9:experimental and deliberately does not alter historical S4 or Q validation.
+tests/integration/validate_paper_cpu_csv.py:36:    "prediction_used",
+tests/integration/validate_paper_cpu_csv.py:44:    "sleep",
+tests/integration/validate_paper_cpu_csv.py:45:    "migrate",
+tests/integration/validate_paper_cpu_csv.py:46:    "throttle",
+tests/integration/validate_paper_cpu_csv.py:47:    "yield",
+tests/integration/validate_paper_cpu_csv.py:49:    "fallback_workers",
+tests/integration/validate_paper_cpu_csv.py:50:    "S1",
+tests/integration/validate_paper_cpu_csv.py:51:    "S2",
+tests/integration/validate_paper_cpu_csv.py:52:    "S3",
+tests/integration/validate_paper_cpu_csv.py:53:    "S4",
+tests/integration/validate_paper_cpu_csv.py:61:    "controller_updated",
+tests/integration/validate_paper_cpu_csv.py:62:    "controller_step",
+tests/integration/validate_paper_cpu_csv.py:63:    "controller_reason",
+tests/integration/validate_paper_cpu_csv.py:64:    "controller_beta",
+tests/integration/validate_paper_cpu_csv.py:73:# v3 is strictly append-only relative to V2_HEADER.  The telemetry fields are
+tests/integration/validate_paper_cpu_csv.py:74:# aggregate observation-window data, not claims about Linux kernel dispatch.
+tests/integration/validate_paper_cpu_csv.py:77:    "S3_global",
+tests/integration/validate_paper_cpu_csv.py:78:    "S3_conditioned",
+tests/integration/validate_paper_cpu_csv.py:79:    "S2_selected",
+tests/integration/validate_paper_cpu_csv.py:80:    "S2_effective",
+tests/integration/validate_paper_cpu_csv.py:81:    "action_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:82:    "effective_action_success_count",
+tests/integration/validate_paper_cpu_csv.py:83:    "action_error_count",
+tests/integration/validate_paper_cpu_csv.py:88:    "migration_observed_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:89:    "sleep_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:90:    "sleep_effective_success_count",
+tests/integration/validate_paper_cpu_csv.py:91:    "sleep_effectiveness_fraction",
+tests/integration/validate_paper_cpu_csv.py:92:    "requested_sleep_ns_total",
+tests/integration/validate_paper_cpu_csv.py:93:    "observed_sleep_ns_total",
+tests/integration/validate_paper_cpu_csv.py:94:    "yield_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:95:    "yield_call_success_count",
+tests/integration/validate_paper_cpu_csv.py:96:    "yield_call_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:97:    "throttle_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:98:    "throttle_operation_success_count",
+tests/integration/validate_paper_cpu_csv.py:99:    "throttle_operation_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:100:    "fallback_fraction",
+tests/integration/validate_paper_cpu_csv.py:101:    "fallback_reason",
+tests/integration/validate_paper_cpu_csv.py:106:# contract.  Its action identifiers use the canonical action enum 0..4 and
+tests/integration/validate_paper_cpu_csv.py:109:    "S4_burst",
+tests/integration/validate_paper_cpu_csv.py:110:    "change_fraction",
+tests/integration/validate_paper_cpu_csv.py:111:    "dominant_transition_fraction",
+tests/integration/validate_paper_cpu_csv.py:112:    "justified_change_fraction",
+tests/integration/validate_paper_cpu_csv.py:114:    "dominant_old_action",
+tests/integration/validate_paper_cpu_csv.py:115:    "dominant_new_action",
+tests/integration/validate_paper_cpu_csv.py:130:    "controller_state",
+tests/integration/validate_paper_cpu_csv.py:158:    "policy_mode", "policy_schema_version", "policy_generation",
+tests/integration/validate_paper_cpu_csv.py:160:    "policy_update_suppression_reason", "policy_exploration_enabled",
+tests/integration/validate_paper_cpu_csv.py:163:    "policy_digest_prefix", "policy_format_version"
+tests/integration/validate_paper_cpu_csv.py:166:V7_APPEND: Final = ("coordination_semantics_version",)
+tests/integration/validate_paper_cpu_csv.py:170:ACTION_FIELDS: Final = ("run", "sleep", "migrate", "throttle", "yield")
+tests/integration/validate_paper_cpu_csv.py:174:CONTROLLER_REASONS: Final = ("NONE", "S3", "S4", "S3+S4")
+tests/integration/validate_paper_cpu_csv.py:190:    "S1",
+tests/integration/validate_paper_cpu_csv.py:191:    "S2",
+tests/integration/validate_paper_cpu_csv.py:192:    "S3",
+tests/integration/validate_paper_cpu_csv.py:193:    "S4",
+tests/integration/validate_paper_cpu_csv.py:197:    "S3_global",
+tests/integration/validate_paper_cpu_csv.py:198:    "S3_conditioned",
+tests/integration/validate_paper_cpu_csv.py:199:    "S2_selected",
+tests/integration/validate_paper_cpu_csv.py:200:    "S2_effective",
+tests/integration/validate_paper_cpu_csv.py:201:    "migration_observed_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:202:    "sleep_effectiveness_fraction",
+tests/integration/validate_paper_cpu_csv.py:203:    "yield_call_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:204:    "throttle_operation_success_fraction",
+tests/integration/validate_paper_cpu_csv.py:205:    "fallback_fraction",
+tests/integration/validate_paper_cpu_csv.py:208:    "S4_burst",
+tests/integration/validate_paper_cpu_csv.py:209:    "change_fraction",
+tests/integration/validate_paper_cpu_csv.py:210:    "dominant_transition_fraction",
+tests/integration/validate_paper_cpu_csv.py:211:    "justified_change_fraction",
+tests/integration/validate_paper_cpu_csv.py:215:    "prediction_used",
+tests/integration/validate_paper_cpu_csv.py:216:    "controller_updated",
+tests/integration/validate_paper_cpu_csv.py:231:    "action_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:232:    "effective_action_success_count",
+tests/integration/validate_paper_cpu_csv.py:233:    "action_error_count",
+tests/integration/validate_paper_cpu_csv.py:238:    "sleep_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:239:    "sleep_effective_success_count",
+tests/integration/validate_paper_cpu_csv.py:240:    "requested_sleep_ns_total",
+tests/integration/validate_paper_cpu_csv.py:241:    "observed_sleep_ns_total",
+tests/integration/validate_paper_cpu_csv.py:242:    "yield_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:243:    "yield_call_success_count",
+tests/integration/validate_paper_cpu_csv.py:244:    "throttle_attempt_count",
+tests/integration/validate_paper_cpu_csv.py:245:    "throttle_operation_success_count",
+tests/integration/validate_paper_cpu_csv.py:250:    if field not in {"requested_sleep_ns_total", "observed_sleep_ns_total"}
+tests/integration/validate_paper_cpu_csv.py:267:# 64 workers × 500 ms bounded request; observed sleep permits 250 ms oversleep.
+tests/integration/validate_paper_cpu_csv.py:295:    parser.add_argument("--expect-rejections", action="store_true")
+tests/integration/validate_paper_cpu_csv.py:297:        "--expect-controller-skip", type=int, action="append", default=[]
+tests/integration/validate_paper_cpu_csv.py:335:    """Parse a strictly decimal signed integer used by a versioned enum."""
+tests/integration/validate_paper_cpu_csv.py:366:def _fraction(numerator: int, denominator: int, empty_value: float) -> float:
+tests/integration/validate_paper_cpu_csv.py:367:    """Return a versioned fraction with an explicit empty-population value."""
+tests/integration/validate_paper_cpu_csv.py:377:    expected_controller_skips: set[int],
+tests/integration/validate_paper_cpu_csv.py:378:    controller_step: int,
+tests/integration/validate_paper_cpu_csv.py:397:    _raw_float(row, "controller_beta", tick, 0.0, 0.02)
+tests/integration/validate_paper_cpu_csv.py:402:    action_counts = [_raw_uint(row, field, tick) for field in ACTION_FIELDS]
+tests/integration/validate_paper_cpu_csv.py:403:    if any(count > MAX_WORKERS for count in action_counts):
+tests/integration/validate_paper_cpu_csv.py:404:        raise AssertionError(f"tick {tick}: action count exceeds {MAX_WORKERS}")
+tests/integration/validate_paper_cpu_csv.py:405:    actions = sum(action_counts)
+tests/integration/validate_paper_cpu_csv.py:406:    if actions != eligible:
+tests/integration/validate_paper_cpu_csv.py:408:            f"tick {tick}: action count {actions} != eligible {eligible}"
+tests/integration/validate_paper_cpu_csv.py:410:    fallbacks = _raw_uint(row, "fallback_workers", tick)
