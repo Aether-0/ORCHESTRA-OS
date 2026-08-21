@@ -1,602 +1,618 @@
-<!-- Converted faithfully from ORCHESTRA_OS_Real_World_Machine_Test_Checklist.docx. -->
-
-> Source: `ORCHESTRA_OS_Real_World_Machine_Test_Checklist.docx`
-> This is a format conversion; checklist wording and item order are preserved.
+<!-- State-enriched from the real-machine campaign audit. The source DOCX remains unchanged. -->
 
 # ORCHESTRA-OS
 
 ## REAL-WORLD MACHINE TEST — FULL CHECKLIST
 
-> Use: ☐ PASS   ☐ FAIL   ☐ BLOCKED   ☐ N/A    |    Record Test ID, date, kernel commit, hardware, workload, parameters, result and evidence for every applicable item.
+> Source: `ORCHESTRA_OS_Real_World_Machine_Test_Checklist.docx` (unchanged)
+> Campaign state source: `artifacts/real-machine-20260821-094227-kali-2qqYxp/CHECKLIST_AUDIT.csv`
+> Tested commit: `07c787c4eeac01a2f9d60916577806d00863b15f` · Kernel: `7.0.12+kali-amd64`
+
+## Campaign State Summary
+
+| State | Count | Markdown representation |
+|---|---:|---|
+| PASS | 94 | `[x]` checked |
+| INCONCLUSIVE | 39 | `[ ]` plus explicit status/reason |
+| BLOCKED | 178 | `[ ]` plus explicit status/reason |
+| NOT IMPLEMENTED | 208 | `[ ]` plus explicit status/reason |
+| FAIL | 0 | No hard FAIL verdicts in this campaign |
+
+> Only PASS items are checked. Every other item is intentionally unchecked and carries its actual campaign state, evidence, and reason below. A blank checkbox does not mean “not reviewed.”
+
+> Original checklist instruction: record Test ID, date, kernel commit, hardware, workload, parameters, result, and evidence for every applicable item.
+
+
+
+
+
 
 ## Phase 0 — Test Governance & Baseline
-- [ ] Assign unique test-run ID
-- [ ] Record date/time and operator
-- [ ] Record ORCHESTRA-OS version/commit
-- [ ] Record Linux kernel version
-- [ ] Record compiler/toolchain version
-- [ ] Record kernel configuration
-- [ ] Record ORCHESTRA parameter configuration
-- [ ] Record workload version/commit
-- [ ] Record random seed where applicable
-- [ ] Record test duration and repetitions
-- [ ] Preserve raw logs, traces and workload results
-- [ ] Record CPU model, physical/logical CPUs, topology, NUMA, cache, RAM, storage, network, GPU if relevant, BIOS/UEFI, microcode
-- [ ] Verify machine boots normally
-- [ ] Check system/kernel logs for pre-existing errors
-- [ ] Check CPU temperature
-- [ ] Check memory/storage health
-- [ ] Check networking
-- [ ] Check background workload
-- [ ] Verify clock/time synchronization
-- [ ] Run and record baseline Linux scheduler results: CPU utilization, memory, load, context switches, migrations, latency, throughput, cache behavior, I/O, network and thermal behavior
-- [ ] Repeat baseline experiments and archive dataset
+- [x] `00-001` Assign unique test-run ID — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-002` Record date/time and operator — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-003` Record ORCHESTRA-OS version/commit — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-004` Record Linux kernel version — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-005` Record compiler/toolchain version — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-006` Record kernel configuration — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [ ] `00-007` Record ORCHESTRA parameter configuration — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `00-008` Record workload version/commit — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [ ] `00-009` Record random seed where applicable — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `00-010` Record test duration and repetitions — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-011` Preserve raw logs, traces and workload results — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-012` Record CPU model, physical/logical CPUs, topology, NUMA, cache, RAM, storage, network, GPU if relevant, BIOS/UEFI, microcode — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-013` Verify machine boots normally — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-014` Check system/kernel logs for pre-existing errors — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [x] `00-015` Check CPU temperature — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [ ] `00-016` Check memory/storage health — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `00-017` Check networking — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
+- [ ] `00-018` Check background workload — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `00-019` Verify clock/time synchronization — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `00-020` Run and record baseline Linux scheduler results: CPU utilization, memory, load, context switches, migrations, latency, throughput, cache behavior, I/O, network and thermal behavior — **INCONCLUSIVE** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `00-021` Repeat baseline experiments and archive dataset — **PASS** · Evidence: `environment/20260821-094317-host_inventory.stdout; environment/20260821-094437-kernel_health_before.stdout`
 
 ## Phase 1 — Kernel Build & Installation
-- [ ] Verify ORCHESTRA source tree and intended kernel version
-- [ ] Verify required kernel options
-- [ ] Perform clean build
-- [ ] Review build warnings/errors
-- [ ] Generate kernel/modules
-- [ ] Install kernel
-- [ ] Verify bootloader entry
-- [ ] Retain known-good fallback kernel
-- [ ] Boot ORCHESTRA kernel
-- [ ] Confirm kernel/ORCHESTRA version
-- [ ] Confirm ORCHESTRA initialization
-- [ ] Check for kernel panic/oops/WARN
-- [ ] Confirm scheduler initialization
-- [ ] Confirm Signal Bus initialization
-- [ ] Confirm monitoring initialization
-- [ ] Verify storage/network/user-space operation
-- [ ] Boot fallback kernel
-- [ ] Verify fallback remains usable
-- [ ] Verify ORCHESTRA failure cannot prevent recovery
-- [ ] Verify disable/reset procedure
+- [x] `01-022` Verify ORCHESTRA source tree and intended kernel version — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-023` Verify required kernel options — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-024` Perform clean build — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-025` Review build warnings/errors — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [ ] `01-026` Generate kernel/modules — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [ ] `01-027` Install kernel — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [ ] `01-028` Verify bootloader entry — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [x] `01-029` Retain known-good fallback kernel — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [ ] `01-030` Boot ORCHESTRA kernel — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [x] `01-031` Confirm kernel/ORCHESTRA version — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-032` Confirm ORCHESTRA initialization — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-033` Check for kernel panic/oops/WARN — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-034` Confirm scheduler initialization — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [ ] `01-035` Confirm Signal Bus initialization — **NOT IMPLEMENTED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `01-036` Confirm monitoring initialization — **INCONCLUSIVE** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `01-037` Verify storage/network/user-space operation — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [ ] `01-038` Boot fallback kernel — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [ ] `01-039` Verify fallback remains usable — **BLOCKED** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout` · Reason: Not executed: kernel installation/boot/reboot is outside this campaign safety authority; ACTION REQUIRES USER APPROVAL.
+- [x] `01-040` Verify ORCHESTRA failure cannot prevent recovery — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
+- [x] `01-041` Verify disable/reset procedure — **PASS** · Evidence: `build/20260821-094646-make_test.stdout; kernel/20260821-094521-kernel_config_check.stdout`
 
 ## Phase 2 — Linux Scheduler Integration
-- [ ] Verify scheduler initialization
-- [ ] Verify run queues and scheduler domains
-- [ ] Verify scheduler hooks
-- [ ] Verify existing scheduling classes remain functional
-- [ ] Test ORCHESTRA path for eligible task
-- [ ] Verify ineligible task bypasses ORCHESTRA
-- [ ] Verify scheduling decision is generated/applied
-- [ ] Test RUN
-- [ ] Test SLEEP
-- [ ] Test MIGRATE
-- [ ] Test THROTTLE
-- [ ] Test YIELD
-- [ ] Test invalid action handling
-- [ ] Test normal Linux tasks
-- [ ] Test ORCHESTRA tasks
-- [ ] Test mixed scheduling classes
-- [ ] Test task migration
-- [ ] Test preemption
-- [ ] Test wake-up
-- [ ] Test CPU affinity
-- [ ] Test load balancing
+- [x] `02-042` Verify scheduler initialization — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-043` Verify run queues and scheduler domains — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [ ] `02-044` Verify scheduler hooks — **BLOCKED** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Not executed after prerequisite/implementation/safety boundary; no claim made.
+- [ ] `02-045` Verify existing scheduling classes remain functional — **INCONCLUSIVE** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `02-046` Test ORCHESTRA path for eligible task — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-047` Verify ineligible task bypasses ORCHESTRA — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-048` Verify scheduling decision is generated/applied — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-049` Test RUN — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [ ] `02-050` Test SLEEP — **INCONCLUSIVE** · Evidence: `workloads/20260821-095327-sleep_valid_timeline.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `02-051` Test MIGRATE — **PASS** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout`
+- [x] `02-052` Test THROTTLE — **PASS** · Evidence: `workloads/20260821-095429-throttle_timeline.stdout`
+- [x] `02-053` Test YIELD — **PASS** · Evidence: `workloads/20260821-095203-positive_status_yield.stdout`
+- [x] `02-054` Test invalid action handling — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-055` Test normal Linux tasks — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [x] `02-056` Test ORCHESTRA tasks — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [ ] `02-057` Test mixed scheduling classes — **BLOCKED** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Not executed after prerequisite/implementation/safety boundary; no claim made.
+- [x] `02-058` Test task migration — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [ ] `02-059` Test preemption — **BLOCKED** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Not executed after prerequisite/implementation/safety boundary; no claim made.
+- [ ] `02-060` Test wake-up — **BLOCKED** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Not executed after prerequisite/implementation/safety boundary; no claim made.
+- [x] `02-061` Test CPU affinity — **PASS** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout`
+- [ ] `02-062` Test load balancing — **BLOCKED** · Evidence: `scheduler/20260821-095704-scheduler_post_load2.stdout; workloads/20260821-095148-positive_status_run.stdout` · Reason: Not executed after prerequisite/implementation/safety boundary; no claim made.
 
 ## Phase 3 — Hybrid Safety / Real-Time
-- [ ] Create SCHED_FIFO task and verify conventional deterministic scheduling
-- [ ] Create SCHED_RR task and verify conventional deterministic scheduling
-- [ ] Verify ORCHESTRA does not override RT tasks
-- [ ] Verify RT priority behavior
-- [ ] Verify RT response behavior
-- [ ] Run RT + ORCHESTRA CPU-bound workload
-- [ ] Run RT + memory workload
-- [ ] Run RT + I/O workload
-- [ ] Run RT + network workload
-- [ ] Check priority inversion
-- [ ] Check starvation
-- [ ] Check deadlock
-- [ ] Check system responsiveness
+- [ ] `03-063` Create SCHED_FIFO task and verify conventional deterministic scheduling — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-064` Create SCHED_RR task and verify conventional deterministic scheduling — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-065` Verify ORCHESTRA does not override RT tasks — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-066` Verify RT priority behavior — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-067` Verify RT response behavior — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-068` Run RT + ORCHESTRA CPU-bound workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-069` Run RT + memory workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-070` Run RT + I/O workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-071` Run RT + network workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-072` Check priority inversion — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-073` Check starvation — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-074` Check deadlock — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `03-075` Check system responsiveness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 4 — Signal Bus
-- [ ] Verify CPU utilization acquisition
-- [ ] Verify memory-pressure acquisition
-- [ ] Verify cache-behavior acquisition
-- [ ] Verify thermal-state acquisition
-- [ ] Verify I/O activity acquisition
-- [ ] Verify network-utilization acquisition
-- [ ] Verify scheduler-queue statistics
-- [ ] Verify signal frame generation
-- [ ] Verify timestamp
-- [ ] Verify sequence number
-- [ ] Verify raw measurements
-- [ ] Verify predicted values
-- [ ] Verify confidence
-- [ ] Verify directive
-- [ ] Verify metadata/version
-- [ ] Measure signal update frequency and latency
-- [ ] Verify publication/replacement/expiry
-- [ ] Check lost/duplicate/inconsistent updates
-- [ ] Verify read-only shared-memory access
-- [ ] Verify unauthorized write fails
-- [ ] Test concurrent readers
-- [ ] Test multi-CPU reads
-- [ ] Check corruption/cache contention
-- [ ] Test mapping/unmapping and cleanup
-- [ ] Test multi-core signal consistency, sequence numbers, timestamps and synchronization latency
+- [ ] `04-076` Verify CPU utilization acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-077` Verify memory-pressure acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-078` Verify cache-behavior acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-079` Verify thermal-state acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-080` Verify I/O activity acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-081` Verify network-utilization acquisition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-082` Verify scheduler-queue statistics — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-083` Verify signal frame generation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-084` Verify timestamp — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-085` Verify sequence number — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-086` Verify raw measurements — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-087` Verify predicted values — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-088` Verify confidence — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-089` Verify directive — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-090` Verify metadata/version — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-091` Measure signal update frequency and latency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-092` Verify publication/replacement/expiry — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-093` Check lost/duplicate/inconsistent updates — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-094` Verify read-only shared-memory access — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-095` Verify unauthorized write fails — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-096` Test concurrent readers — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-097` Test multi-CPU reads — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-098` Check corruption/cache contention — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-099` Test mapping/unmapping and cleanup — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `04-100` Test multi-core signal consistency, sequence numbers, timestamps and synchronization latency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 5 — Signal Integrity & Fault Injection
-- [ ] Valid signal accepted
-- [ ] Modified signal rejected
-- [ ] Invalid authentication rejected
-- [ ] Wrong key rejected
-- [ ] Corrupt frame rejected
-- [ ] Incomplete frame rejected
-- [ ] Duplicate frame handled
-- [ ] Old/stale frame rejected
-- [ ] Out-of-order frame handled
-- [ ] Invalid sequence rejected
-- [ ] Stop signal producer
-- [ ] Stop signal consumer
-- [ ] Delay signal
-- [ ] Interrupt publication
-- [ ] Temporarily remove signal availability
-- [ ] Restart/recover Signal Bus
-- [ ] Verify safe scheduler fallback
-- [ ] Verify recovery after valid signals resume
+- [ ] `05-101` Valid signal accepted — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-102` Modified signal rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-103` Invalid authentication rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-104` Wrong key rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-105` Corrupt frame rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-106` Incomplete frame rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-107` Duplicate frame handled — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-108` Old/stale frame rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-109` Out-of-order frame handled — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-110` Invalid sequence rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-111` Stop signal producer — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-112` Stop signal consumer — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-113` Delay signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-114` Interrupt publication — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-115` Temporarily remove signal availability — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-116` Restart/recover Signal Bus — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-117` Verify safe scheduler fallback — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `05-118` Verify recovery after valid signals resume — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 6 — Predictive Scheduling Engine
-- [ ] Verify predictor initialization
-- [ ] Verify historical samples
-- [ ] Generate prediction
-- [ ] Verify prediction timestamp/horizon
-- [ ] Verify scheduler consumes prediction
-- [ ] Verify prediction expiry/replacement
-- [ ] Test stable CPU load
-- [ ] Increasing load
-- [ ] Decreasing load
-- [ ] Periodic load
-- [ ] Sudden CPU spike/drop
-- [ ] Memory pressure
-- [ ] I/O burst
-- [ ] Network burst
-- [ ] Mixed workload
-- [ ] Record MAE
-- [ ] Record MSE/RMSE
-- [ ] Record forecast bias
-- [ ] Record prediction latency
-- [ ] Record confidence
-- [ ] Record prediction error distribution
-- [ ] Test high-confidence prediction
-- [ ] Test low-confidence prediction
-- [ ] Verify observed-state fallback
-- [ ] Verify predictor failure does not crash scheduler
-- [ ] Verify recovery
+- [ ] `06-119` Verify predictor initialization — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-120` Verify historical samples — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-121` Generate prediction — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-122` Verify prediction timestamp/horizon — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-123` Verify scheduler consumes prediction — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-124` Verify prediction expiry/replacement — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-125` Test stable CPU load — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-126` Increasing load — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-127` Decreasing load — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-128` Periodic load — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-129` Sudden CPU spike/drop — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-130` Memory pressure — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-131` I/O burst — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-132` Network burst — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-133` Mixed workload — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-134` Record MAE — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-135` Record MSE/RMSE — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-136` Record forecast bias — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-137` Record prediction latency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-138` Record confidence — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-139` Record prediction error distribution — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-140` Test high-confidence prediction — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-141` Test low-confidence prediction — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-142` Verify observed-state fallback — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-143` Verify predictor failure does not crash scheduler — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `06-144` Verify recovery — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 7 — Adaptive Response Function
-- [ ] Verify state construction from CPU, memory, thermal, queue and predicted state
-- [ ] Test RUN decision
-- [ ] Test SLEEP decision
-- [ ] Test MIGRATE decision
-- [ ] Test THROTTLE decision
-- [ ] Test YIELD decision
-- [ ] Test invalid/missing state handling
-- [ ] Verify policy initialization/update
-- [ ] Verify reward generation
-- [ ] Check policy stability
-- [ ] Bound exploration
-- [ ] Record adaptation frequency
-- [ ] Test policy reset/suspension/recovery
-- [ ] Test synchronized migrations
-- [ ] wake-ups
-- [ ] sleep
-- [ ] throttling
-- [ ] collective oscillation
-- [ ] mass switching
-- [ ] CPU hot-spot formation
-- [ ] load oscillation
+- [ ] `07-145` Verify state construction from CPU, memory, thermal, queue and predicted state — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-146` Test RUN decision — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-147` Test SLEEP decision — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-148` Test MIGRATE decision — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-149` Test THROTTLE decision — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-150` Test YIELD decision — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-151` Test invalid/missing state handling — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-152` Verify policy initialization/update — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-153` Verify reward generation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-154` Check policy stability — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-155` Bound exploration — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-156` Record adaptation frequency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-157` Test policy reset/suspension/recovery — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-158` Test synchronized migrations — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-159` wake-ups — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-160` sleep — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-161` throttling — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-162` collective oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-163` mass switching — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-164` CPU hot-spot formation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `07-165` load oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 8 — Coordination Index (S1/S2/S3/S4/Q)
-- [ ] S1: measure signal freshness
-- [ ] S1: measure forecast accuracy
-- [ ] S1: measure signal age/prediction divergence
-- [ ] S2: verify eligible/exempt counts
-- [ ] S2: count compliant/non-compliant actions
-- [ ] S2: verify calculation
-- [ ] S3: capture action distribution
-- [ ] S3: measure action consistency
-- [ ] S3: detect divergent behavior
-- [ ] S3: calculate population coherence
-- [ ] S4: record previous/current actions
-- [ ] S4: count transitions
-- [ ] S4: detect mass switching
-- [ ] S4: detect oscillation
-- [ ] S4: calculate temporal stability
-- [ ] Verify composite Q calculation
-- [ ] Verify Q range
-- [ ] Verify Q responds to coordination degradation
-- [ ] Verify Q improves with coordination
-- [ ] Verify Q remains meaningful under synchronized behavior
-- [ ] Verify process/core/system aggregation
+- [ ] `08-166` S1: measure signal freshness — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-167` S1: measure forecast accuracy — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-168` S1: measure signal age/prediction divergence — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-169` S2: verify eligible/exempt counts — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-170` S2: count compliant/non-compliant actions — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-171` S2: verify calculation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-172` S3: capture action distribution — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-173` S3: measure action consistency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-174` S3: detect divergent behavior — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-175` S3: calculate population coherence — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-176` S4: record previous/current actions — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-177` S4: count transitions — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-178` S4: detect mass switching — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-179` S4: detect oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-180` S4: calculate temporal stability — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-181` Verify composite Q calculation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-182` Verify Q range — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-183` Verify Q responds to coordination degradation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-184` Verify Q improves with coordination — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-185` Verify Q remains meaningful under synchronized behavior — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `08-186` Verify process/core/system aggregation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 9 — Feedback Controller
-- [ ] Verify controller initialization
-- [ ] Verify controller reads Q
-- [ ] Verify deficient sub-metric identification
-- [ ] Verify actuator selection
-- [ ] Verify parameter update
-- [ ] Verify parameter bounds
-- [ ] Check controller oscillation/saturation
-- [ ] Measure stabilization
-- [ ] Test per-agent perceptual jitter actuator
-- [ ] Test switching-penalty actuator
-- [ ] Test Q-table consensus mechanism
-- [ ] Test prediction-horizon actuator
-- [ ] Test signal-update-frequency actuator
-- [ ] Test scheduling thresholds
-- [ ] Verify inner adaptation and slower outer controller
-- [ ] Record controller cadence/step size
-- [ ] Record parameter evolution
-- [ ] Check learner/controller feedback oscillation
+- [ ] `09-187` Verify controller initialization — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-188` Verify controller reads Q — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-189` Verify deficient sub-metric identification — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-190` Verify actuator selection — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-191` Verify parameter update — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-192` Verify parameter bounds — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-193` Check controller oscillation/saturation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-194` Measure stabilization — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-195` Test per-agent perceptual jitter actuator — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-196` Test switching-penalty actuator — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-197` Test Q-table consensus mechanism — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-198` Test prediction-horizon actuator — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-199` Test signal-update-frequency actuator — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-200` Test scheduling thresholds — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-201` Verify inner adaptation and slower outer controller — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-202` Record controller cadence/step size — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-203` Record parameter evolution — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `09-204` Check learner/controller feedback oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 10 — Instrumentation & Observability
-- [ ] Trace dispatch
-- [ ] Trace migration
-- [ ] Trace preemption
-- [ ] Trace throttling
-- [ ] Trace yield
-- [ ] Trace sleep/wake
-- [ ] Trace scheduling decisions and associated signal state
-- [ ] Trace signal creation/publication/dissemination/validation/expiry/replacement
-- [ ] Measure signal propagation latency
-- [ ] Record synchronization/integrity failures
-- [ ] Record prediction generation time/value/confidence/error/latency/model version
-- [ ] Record scheduler state/action/policy/reward/adaptation/migration/decision latency
-- [ ] Record S1/S2/S3/S4/Q
-- [ ] Record controller activation/actuator/parameters/stabilization/saturation
+- [ ] `10-205` Trace dispatch — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-206` Trace migration — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-207` Trace preemption — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-208` Trace throttling — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-209` Trace yield — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-210` Trace sleep/wake — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-211` Trace scheduling decisions and associated signal state — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-212` Trace signal creation/publication/dissemination/validation/expiry/replacement — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `10-213` Measure signal propagation latency — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `10-214` Record synchronization/integrity failures — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `10-215` Record prediction generation time/value/confidence/error/latency/model version — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `10-216` Record scheduler state/action/policy/reward/adaptation/migration/decision latency — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `10-217` Record S1/S2/S3/S4/Q — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `10-218` Record controller activation/actuator/parameters/stabilization/saturation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 11 — Performance Overhead
-- [ ] Measure scheduling latency
-- [ ] Context-switch overhead
-- [ ] Decision latency
-- [ ] Prediction computation cost
-- [ ] Signal Bus cost
-- [ ] HMAC/integrity verification cost
-- [ ] Coordination-index cost
-- [ ] Controller cost
-- [ ] Adaptive-policy cost
-- [ ] Monitoring cost
-- [ ] Measure CPU overhead
-- [ ] Memory overhead
-- [ ] Kernel memory footprint
-- [ ] Cache misses/hit rate
-- [ ] Lock contention
-- [ ] Synchronization overhead
-- [ ] Inter-CPU communication overhead
+- [ ] `11-219` Measure scheduling latency — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-220` Context-switch overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-221` Decision latency — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-222` Prediction computation cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-223` Signal Bus cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-224` HMAC/integrity verification cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-225` Coordination-index cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-226` Controller cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-227` Adaptive-policy cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-228` Monitoring cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-229` Measure CPU overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-230` Memory overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-231` Kernel memory footprint — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-232` Cache misses/hit rate — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-233` Lock contention — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-234` Synchronization overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `11-235` Inter-CPU communication overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 12 — Workload Matrix
-- [ ] CPU: single CPU-bound process
-- [ ] CPU: multiple CPU-bound processes
-- [ ] CPU: under-subscribed
-- [ ] CPU: equal to CPU count
-- [ ] CPU: over-subscribed
-- [ ] CPU: bursty
-- [ ] Memory: sequential
-- [ ] Memory: random
-- [ ] Memory: high pressure
-- [ ] Memory: near exhaustion
-- [ ] Memory: multiple workers
-- [ ] I/O: sequential read/write
-- [ ] I/O: random read/write
-- [ ] I/O: multiple workers
-- [ ] I/O: read-heavy
-- [ ] I/O: write-heavy
-- [ ] I/O: mixed
-- [ ] Network: high throughput
-- [ ] Network: high packet rate
-- [ ] Network: multiple processes
-- [ ] Network: bursty
-- [ ] Network: mixed CPU/network
-- [ ] Mixed: CPU+memory
-- [ ] CPU+I/O
-- [ ] CPU+network
-- [ ] memory+I/O
-- [ ] CPU+memory+I/O
-- [ ] CPU+memory+network
-- [ ] full mixed workload
+- [x] `12-236` CPU: single CPU-bound process — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-237` CPU: multiple CPU-bound processes — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-238` CPU: under-subscribed — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-239` CPU: equal to CPU count — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `12-240` CPU: over-subscribed — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-241` CPU: bursty — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `12-242` Memory: sequential — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `12-243` Memory: random — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `12-244` Memory: high pressure — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `12-245` Memory: near exhaustion — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `12-246` Memory: multiple workers — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-247` I/O: sequential read/write — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `12-248` I/O: random read/write — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `12-249` I/O: multiple workers — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-250` I/O: read-heavy — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-251` I/O: write-heavy — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `12-252` I/O: mixed — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `12-253` Network: high throughput — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-254` Network: high packet rate — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-255` Network: multiple processes — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-256` Network: bursty — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-257` Network: mixed CPU/network — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-258` Mixed: CPU+memory — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-259` CPU+I/O — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-260` CPU+network — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-261` memory+I/O — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-262` CPU+memory+I/O — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-263` CPU+memory+network — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `12-264` full mixed workload — **INCONCLUSIVE** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
 
 ## Phase 13 — Dynamic Workloads
-- [ ] Stable workload
-- [ ] Gradually increasing load
-- [ ] Gradually decreasing load
-- [ ] Sudden load spike
-- [ ] Sudden load collapse
-- [ ] Periodic workload
-- [ ] Alternating workload
-- [ ] Random workload
-- [ ] Bursty workload
-- [ ] Multiple simultaneous transitions
-- [ ] Workload migration between CPUs
-- [ ] For every dynamic case record prediction accuracy, response latency, Q, CPU utilization, throughput, migration rate, oscillation rate and recovery time
+- [ ] `13-265` Stable workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-266` Gradually increasing load — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-267` Gradually decreasing load — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-268` Sudden load spike — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-269` Sudden load collapse — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-270` Periodic workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-271` Alternating workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-272` Random workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-273` Bursty workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-274` Multiple simultaneous transitions — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-275` Workload migration between CPUs — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `13-276` For every dynamic case record prediction accuracy, response latency, Q, CPU utilization, throughput, migration rate, oscillation rate and recovery time — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 14 — Stress Testing
-- [ ] CPU at 50%
-- [ ] 70%
-- [ ] 80%
-- [ ] 90%
-- [ ] 95%
-- [ ] near saturation
-- [ ] full saturation
-- [ ] Moderate memory pressure
-- [ ] High memory pressure
-- [ ] Near exhaustion
-- [ ] Concurrent memory workers
-- [ ] One CPU heavily loaded
-- [ ] Half CPUs heavily loaded
-- [ ] Uneven workload distribution
-- [ ] Forced affinity imbalance
-- [ ] Migration pressure
-- [ ] Normal temperature
-- [ ] Elevated temperature
-- [ ] Sustained high temperature
-- [ ] Safely reproducible thermal-throttling condition
-- [ ] 10-minute run
-- [ ] 30-minute run
-- [ ] 1-hour run
-- [ ] Multi-hour run
-- [ ] Overnight run if practical
-- [ ] Check memory leaks
-- [ ] CPU-overhead drift
-- [ ] Q degradation
-- [ ] Predictor degradation
-- [ ] Controller drift
-- [ ] scheduler instability
-- [ ] log-buffer exhaustion
-- [ ] resource exhaustion
+- [ ] `14-277` CPU at 50% — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-278` 70% — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-279` 80% — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-280` 90% — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-281` 95% — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-282` near saturation — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-283` full saturation — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `14-284` Moderate memory pressure — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [x] `14-285` High memory pressure — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `14-286` Near exhaustion — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `14-287` Concurrent memory workers — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `14-288` One CPU heavily loaded — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-289` Half CPUs heavily loaded — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-290` Uneven workload distribution — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-291` Forced affinity imbalance — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-292` Migration pressure — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `14-293` Normal temperature — **PASS** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout`
+- [ ] `14-294` Elevated temperature — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-295` Sustained high temperature — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-296` Safely reproducible thermal-throttling condition — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-297` 10-minute run — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-298` 30-minute run — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-299` 1-hour run — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-300` Multi-hour run — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-301` Overnight run if practical — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-302` Check memory leaks — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-303` CPU-overhead drift — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-304` Q degradation — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-305` Predictor degradation — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-306` Controller drift — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-307` scheduler instability — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-308` log-buffer exhaustion — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `14-309` resource exhaustion — **BLOCKED** · Evidence: `stress/20260821-100155-cfs-smoke-output/results.csv; baseline/20260821-094943-baseline_fixed_work_retry2.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 15 — Thundering-Herd / Synchronization
-- [ ] Create many eligible processes with similar observed state
-- [ ] Induce common threshold crossing
-- [ ] Induce common CPU-load change
-- [ ] Induce common predicted-state transition
-- [ ] Induce common directive
-- [ ] Measure simultaneous action changes
-- [ ] Measure migration bursts
-- [ ] Measure wake-up bursts
-- [ ] Measure CPU-utilization oscillation
-- [ ] Measure queue oscillation
-- [ ] Measure S3
-- [ ] Measure S4
-- [ ] Measure Q
-- [ ] Measure recovery time
-- [ ] Compare Linux baseline vs ORCHESTRA without anti-synchronization vs final ORCHESTRA
+- [ ] `15-310` Create many eligible processes with similar observed state — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-311` Induce common threshold crossing — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-312` Induce common CPU-load change — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-313` Induce common predicted-state transition — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-314` Induce common directive — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-315` Measure simultaneous action changes — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-316` Measure migration bursts — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-317` Measure wake-up bursts — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-318` Measure CPU-utilization oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-319` Measure queue oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-320` Measure S3 — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-321` Measure S4 — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-322` Measure Q — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-323` Measure recovery time — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `15-324` Compare Linux baseline vs ORCHESTRA without anti-synchronization vs final ORCHESTRA — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 16 — Fairness & Starvation
-- [ ] Measure CPU share per process
-- [ ] Measure CPU-share variance
-- [ ] Calculate fairness metric if adopted
-- [ ] Measure waiting time
-- [ ] Measure response time
-- [ ] Measure completion time
-- [ ] Detect starvation
-- [ ] Test long-running task fairness
-- [ ] Test short-task responsiveness
-- [ ] Test interactive responsiveness
-- [ ] Test I/O-bound fairness
-- [ ] Test CPU-bound fairness
+- [ ] `16-325` Measure CPU share per process — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-326` Measure CPU-share variance — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-327` Calculate fairness metric if adopted — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-328` Measure waiting time — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-329` Measure response time — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-330` Measure completion time — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-331` Detect starvation — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-332` Test long-running task fairness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-333` Test short-task responsiveness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-334` Test interactive responsiveness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-335` Test I/O-bound fairness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `16-336` Test CPU-bound fairness — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 17 — Migration
-- [ ] Single migration
-- [ ] Repeated migration
-- [ ] Multiple-process migration
-- [ ] Cross-core migration
-- [ ] Cross-socket migration
-- [ ] NUMA migration
-- [ ] Migration under CPU saturation
-- [ ] Migration under memory pressure
-- [ ] Migration under thermal pressure
-- [ ] Detect migration oscillation
-- [ ] Measure migration overhead
-- [ ] Measure cache impact
-- [ ] Measure NUMA locality impact
+- [x] `17-337` Single migration — **PASS** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout`
+- [x] `17-338` Repeated migration — **PASS** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout`
+- [ ] `17-339` Multiple-process migration — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `17-340` Cross-core migration — **PASS** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout`
+- [ ] `17-341` Cross-socket migration — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-342` NUMA migration — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-343` Migration under CPU saturation — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-344` Migration under memory pressure — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-345` Migration under thermal pressure — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-346` Detect migration oscillation — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-347` Measure migration overhead — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-348` Measure cache impact — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `17-349` Measure NUMA locality impact — **BLOCKED** · Evidence: `workloads/20260821-095235-migrate_observe_3_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 18 — Failure & Recovery
-- [ ] Signal producer failure
-- [ ] Signal consumer failure
-- [ ] Signal corruption
-- [ ] Signal delay
-- [ ] Signal loss
-- [ ] Signal recovery
-- [ ] Predictor unavailable
-- [ ] Predictor invalid output
-- [ ] Predictor timeout
-- [ ] Prediction-confidence collapse
-- [ ] Fallback to observed state
-- [ ] Predictor recovery
-- [ ] Policy unavailable
-- [ ] Invalid policy
-- [ ] Policy reset
-- [ ] Policy suspension
-- [ ] Fallback scheduling
-- [ ] Controller disabled
-- [ ] Controller saturation
-- [ ] Invalid parameter update
-- [ ] Parameter oscillation
-- [ ] Controller restart
-- [ ] Controller recovery
-- [ ] CPU offline/online where supported
-- [ ] Process termination during scheduling
-- [ ] Process creation during load
-- [ ] CPU hotplug where supported
-- [ ] Memory pressure
-- [ ] Safe scheduler recovery
+- [ ] `18-350` Signal producer failure — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-351` Signal consumer failure — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-352` Signal corruption — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-353` Signal delay — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-354` Signal loss — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-355` Signal recovery — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-356` Predictor unavailable — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-357` Predictor invalid output — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-358` Predictor timeout — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-359` Prediction-confidence collapse — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `18-360` Fallback to observed state — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `18-361` Predictor recovery — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-362` Policy unavailable — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-363` Invalid policy — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-364` Policy reset — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-365` Policy suspension — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [x] `18-366` Fallback scheduling — **PASS** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr`
+- [ ] `18-367` Controller disabled — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-368` Controller saturation — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-369` Invalid parameter update — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `18-370` Parameter oscillation — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `18-371` Controller restart — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-372` Controller recovery — **NOT IMPLEMENTED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `18-373` CPU offline/online where supported — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `18-374` Process termination during scheduling — **PASS** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr`
+- [x] `18-375` Process creation during load — **PASS** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr`
+- [ ] `18-376` CPU hotplug where supported — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `18-377` Memory pressure — **BLOCKED** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `18-378` Safe scheduler recovery — **PASS** · Evidence: `recovery/20260821-100033-post_unload_snapshot3.stdout; failures/20260821-095736-invalid_cpu_publish.stderr`
 
 ## Phase 19 — Security / Integrity
-- [ ] Tamper signal
-- [ ] Modify CPU value
-- [ ] Modify memory value
-- [ ] Modify thermal value
-- [ ] Modify prediction
-- [ ] Modify directive
-- [ ] Modify timestamp
-- [ ] Modify sequence number
-- [ ] Replay old signal
-- [ ] Duplicate signal
-- [ ] Out-of-order signal
-- [ ] Stale signal
-- [ ] Invalid authentication
-- [ ] For each invalid frame verify detection, rejection, no scheduler corruption, safe fallback, diagnostic event and recovery
+- [ ] `19-379` Tamper signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-380` Modify CPU value — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-381` Modify memory value — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-382` Modify thermal value — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-383` Modify prediction — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-384` Modify directive — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-385` Modify timestamp — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-386` Modify sequence number — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-387` Replay old signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-388` Duplicate signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-389` Out-of-order signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-390` Stale signal — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-391` Invalid authentication — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `19-392` For each invalid frame verify detection, rejection, no scheduler corruption, safe fallback, diagnostic event and recovery — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
 
 ## Phase 20 — Multi-Core
-- [ ] Run core-1 test
-- [ ] Run core-2 test
-- [ ] Run core-4 test
-- [ ] Run core-8 test
-- [ ] Run core-16+ test if available
-- [ ] For each configuration measure scheduling latency, Q, CPU utilization, migration rate, signal propagation latency, synchronization overhead, memory overhead and cache effects
+- [ ] `20-393` Run core-1 test — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `20-394` Run core-2 test — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `20-395` Run core-4 test — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `20-396` Run core-8 test — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `20-397` Run core-16+ test if available — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `20-398` For each configuration measure scheduling latency, Q, CPU utilization, migration rate, signal propagation latency, synchronization overhead, memory overhead and cache effects — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 21 — NUMA
-- [ ] Detect NUMA topology
-- [ ] Verify node-local signals
-- [ ] Verify system-level signals
-- [ ] Run local-memory workload
-- [ ] Run remote-memory workload
-- [ ] Cross-node migration
-- [ ] Memory-locality-aware scheduling
-- [ ] Measure remote-memory access
-- [ ] Measure NUMA migration overhead
-- [ ] Measure coordination per NUMA domain
-- [ ] Measure global coordination
+- [x] `21-399` Detect NUMA topology — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `21-400` Verify node-local signals — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-401` Verify system-level signals — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-402` Run local-memory workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-403` Run remote-memory workload — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-404` Cross-node migration — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-405` Memory-locality-aware scheduling — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `21-406` Measure remote-memory access — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-407` Measure NUMA migration overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-408` Measure coordination per NUMA domain — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `21-409` Measure global coordination — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 22 — Scalability
-- [ ] Increase task count
-- [ ] Increase CPU count
-- [ ] Increase scheduling-domain size
-- [ ] Increase NUMA-node count if available
-- [ ] Measure scheduling latency
-- [ ] Signal latency
-- [ ] Signal Bus overhead
-- [ ] Coordination cost
-- [ ] Controller cost
-- [ ] Memory footprint
-- [ ] CPU overhead
-- [ ] Migration overhead
-- [ ] Q
-- [ ] throughput
-- [ ] scalability limit
+- [ ] `22-410` Increase task count — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-411` Increase CPU count — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-412` Increase scheduling-domain size — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-413` Increase NUMA-node count if available — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-414` Measure scheduling latency — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-415` Signal latency — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-416` Signal Bus overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-417` Coordination cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-418` Controller cost — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-419` Memory footprint — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-420` CPU overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-421` Migration overhead — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-422` Q — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-423` throughput — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `22-424` scalability limit — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 23 — Baseline & Ablation
-- [ ] Linux scheduler baseline
-- [ ] ORCHESTRA infrastructure with adaptive behavior disabled if available
-- [ ] Full ORCHESTRA
-- [ ] Ablation: prediction OFF
-- [ ] Ablation: adaptation OFF
-- [ ] Ablation: feedback controller OFF
-- [ ] Ablation: anti-synchronization OFF
-- [ ] Ablation: consensus mechanism OFF
-- [ ] Ablation: monitoring OFF
-- [ ] Use identical hardware/workload/duration/parameters across comparable runs
+- [x] `23-425` Linux scheduler baseline — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [ ] `23-426` ORCHESTRA infrastructure with adaptive behavior disabled if available — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-427` Full ORCHESTRA — **INCONCLUSIVE** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `23-428` Ablation: prediction OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-429` Ablation: adaptation OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-430` Ablation: feedback controller OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-431` Ablation: anti-synchronization OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-432` Ablation: consensus mechanism OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-433` Ablation: monitoring OFF — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `23-434` Use identical hardware/workload/duration/parameters across comparable runs — **INCONCLUSIVE** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
 
 ## Phase 24 — Statistical Validation
-- [ ] Repeat each major experiment
-- [ ] Use controlled random seeds where applicable
-- [ ] Record every run
-- [ ] Calculate mean
-- [ ] Median
-- [ ] Standard deviation
-- [ ] Minimum
-- [ ] Maximum
-- [ ] Confidence interval where appropriate
-- [ ] Analyze outliers
-- [ ] Compare distributions
-- [ ] Report effect size where appropriate
-- [ ] Report workload variability
-- [ ] Perform multi-seed validation
+- [x] `24-435` Repeat each major experiment — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [ ] `24-436` Use controlled random seeds where applicable — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `24-437` Record every run — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [x] `24-438` Calculate mean — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [x] `24-439` Median — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [x] `24-440` Standard deviation — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [x] `24-441` Minimum — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [x] `24-442` Maximum — **PASS** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout`
+- [ ] `24-443` Confidence interval where appropriate — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `24-444` Analyze outliers — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `24-445` Compare distributions — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `24-446` Report effect size where appropriate — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `24-447` Report workload variability — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `24-448` Perform multi-seed validation — **BLOCKED** · Evidence: `baseline/20260821-094943-baseline_fixed_work_retry2.stdout; baseline/20260821-095844-baseline_summary_retry.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
 
 ## Phase 25 — Reproducibility
-- [ ] Archive hardware configuration
-- [ ] Archive kernel source/commit
-- [ ] Archive ORCHESTRA commit
-- [ ] Save kernel .config
-- [ ] Record compiler/toolchain
-- [ ] Archive workload source/version
-- [ ] Record benchmark version
-- [ ] Save parameters
-- [ ] Save random seeds
-- [ ] Save test scripts
-- [ ] Document trace format
-- [ ] Preserve raw measurements
-- [ ] Preserve analysis scripts
-- [ ] Ensure figures/tables are reproducible
-- [ ] Archive baseline and ORCHESTRA results
+- [x] `25-449` Archive hardware configuration — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [x] `25-450` Archive kernel source/commit — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [x] `25-451` Archive ORCHESTRA commit — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [ ] `25-452` Save kernel .config — **INCONCLUSIVE** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `25-453` Record compiler/toolchain — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [ ] `25-454` Archive workload source/version — **BLOCKED** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `25-455` Record benchmark version — **INCONCLUSIVE** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `25-456` Save parameters — **INCONCLUSIVE** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `25-457` Save random seeds — **BLOCKED** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `25-458` Save test scripts — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [ ] `25-459` Document trace format — **INCONCLUSIVE** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `25-460` Preserve raw measurements — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
+- [ ] `25-461` Preserve analysis scripts — **BLOCKED** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `25-462` Ensure figures/tables are reproducible — **BLOCKED** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `25-463` Archive baseline and ORCHESTRA results — **PASS** · Evidence: `COMMANDS.log; environment/20260821-095919-final_repo_state.stdout`
 
 ## Phase 26 — Final Acceptance
-- [ ] Functional: kernel boots
-- [ ] Scheduler works
-- [ ] Signal Bus works
-- [ ] Predictor works
-- [ ] Adaptive scheduler works
-- [ ] Coordination measurement works
-- [ ] Feedback controller works
-- [ ] Monitoring works
-- [ ] Conventional Linux scheduling works
-- [ ] RT safety path works
-- [ ] Correctness: signals correct
-- [ ] Predictions measurable
-- [ ] Invalid signals rejected
-- [ ] Scheduling actions correct
-- [ ] Q calculated correctly
-- [ ] Controller targets correct deficit
-- [ ] No scheduler corruption
-- [ ] No deadlock
-- [ ] No starvation
-- [ ] Performance: scheduler overhead quantified
-- [ ] prediction overhead quantified
-- [ ] Signal overhead quantified
-- [ ] integrity overhead quantified
-- [ ] coordination overhead quantified
-- [ ] controller overhead quantified
-- [ ] monitoring overhead quantified
-- [ ] Behavioral: no thundering herd
-- [ ] no synchronized migration oscillation
-- [ ] stable adaptation
-- [ ] stable Q
-- [ ] good resource utilization
-- [ ] acceptable fairness
-- [ ] acceptable responsiveness
-- [ ] Robustness: CPU stress
-- [ ] memory stress
-- [ ] I/O stress
-- [ ] network stress
-- [ ] thermal stress
-- [ ] dynamic workload
-- [ ] long-duration execution
-- [ ] failure recovery
-- [ ] Security: tamper detection
-- [ ] replay rejection
-- [ ] stale-frame rejection
-- [ ] sequence validation
-- [ ] authentication validation
-- [ ] safe fallback
-- [ ] recovery
-- [ ] Scientific evidence: baseline comparison
-- [ ] repeated trials
-- [ ] multi-seed evaluation
-- [ ] statistical analysis
-- [ ] ablation study
-- [ ] raw dataset archived
-- [ ] logs archived
-- [ ] reproduction procedure documented
+- [x] `26-464` Functional: kernel boots — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-465` Scheduler works — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-466` Signal Bus works — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-467` Predictor works — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [x] `26-468` Adaptive scheduler works — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-469` Coordination measurement works — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-470` Feedback controller works — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-471` Monitoring works — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `26-472` Conventional Linux scheduling works — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-473` RT safety path works — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-474` Correctness: signals correct — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-475` Predictions measurable — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-476` Invalid signals rejected — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-477` Scheduling actions correct — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-478` Q calculated correctly — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-479` Controller targets correct deficit — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [x] `26-480` No scheduler corruption — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-481` No deadlock — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-482` No starvation — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-483` Performance: scheduler overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-484` prediction overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-485` Signal overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-486` integrity overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-487` coordination overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-488` controller overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-489` monitoring overhead quantified — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-490` Behavioral: no thundering herd — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-491` no synchronized migration oscillation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-492` stable adaptation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-493` stable Q — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-494` good resource utilization — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `26-495` acceptable fairness — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-496` acceptable responsiveness — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [x] `26-497` Robustness: CPU stress — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-498` memory stress — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-499` I/O stress — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-500` network stress — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-501` thermal stress — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-502` dynamic workload — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-503` long-duration execution — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-504` failure recovery — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-505` Security: tamper detection — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-506` replay rejection — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-507` stale-frame rejection — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-508` sequence validation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-509` authentication validation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-510` safe fallback — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [ ] `26-511` recovery — **BLOCKED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Not executed: safe ownership-validating infrastructure, exact feature implementation, or required tool was unavailable.
+- [x] `26-512` Scientific evidence: baseline comparison — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-513` repeated trials — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [ ] `26-514` multi-seed evaluation — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [ ] `26-515` statistical analysis — **INCONCLUSIVE** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: Partial evidence exists, but the exact checklist claim was not fully demonstrated.
+- [ ] `26-516` ablation study — **NOT IMPLEMENTED** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md` · Reason: The checked-out kernel prototype does not implement this capability; userspace or simulation evidence was not promoted.
+- [x] `26-517` raw dataset archived — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-518` logs archived — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
+- [x] `26-519` reproduction procedure documented — **PASS** · Evidence: `ORCHESTRA_Real_Machine_Validation_2026-08-21_100242.md; FINDINGS.md`
 
-> TEST RECORD TEMPLATE
+## Completed Campaign Record
 
-## Test Record Template
-
-| Field | Value |
+| Field | Recorded state |
 |---|---|
-| Test ID |  |
-| Date/Time |  |
-| Hardware |  |
-| Kernel/Commit |  |
-| Workload |  |
-| Parameters |  |
-| Baseline |  |
-| ORCHESTRA |  |
-| Result | PASS / FAIL / BLOCKED / N/A |
-| Evidence |  |
-| Notes |  |
-| Operator |  |
+| Test IDs | `00-001` through `26-519` — 519 checklist items audited |
+| Date/Time | Campaign `real-machine-20260821-094227-kali-2qqYxp` on 2026-08-21 |
+| Hardware | Real Linux host `kali-2qqYxp`; complete inventory in `environment/20260821-094317-host_inventory.stdout` |
+| Kernel/Commit | Kernel `7.0.12+kali-amd64`; ORCHESTRA commit `07c787c4eeac01a2f9d60916577806d00863b15f` |
+| Workload | Controlled baseline, scheduler lifecycle, ownership, action, recovery, benchmark, and robustness checks as supported by the checked-out implementation |
+| Parameters | Exact commands and parameters are preserved in `COMMANDS.log`, `TEST_RESULTS.csv`, and the campaign evidence tree |
+| Baseline | Native Linux scheduler baseline captured where the relevant test was executable; otherwise marked `BLOCKED` or `INCONCLUSIVE` per item |
+| ORCHESTRA | sched_ext/BPF scheduler built, verified, loaded, exercised, and detached for the supported runtime checks; limitations are stated per item |
+| Result | PASS 94; INCONCLUSIVE 39; BLOCKED 178; NOT IMPLEMENTED 208; FAIL 0 |
+| Evidence | `artifacts/real-machine-20260821-094227-kali-2qqYxp/CHECKLIST_AUDIT.csv` plus linked raw evidence paths in every checklist item |
+| Notes | Unchecked items are not blank: each carries its actual verdict, evidence, and reason. `ACTION REQUIRES USER APPROVAL` is recorded for prohibited host changes such as reboot/kernel installation. |
+| Operator | Automated ORCHESTRA-OS real-machine validation agent |
