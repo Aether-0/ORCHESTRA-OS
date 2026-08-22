@@ -8,6 +8,16 @@
     "append_only": "coordination_semantics_version is appended as column 121 and must equal 7.",
     "reader_contract": "Readers must require the exact ordered header and metrics_schema value."
   },
+  "q_absolute_tolerance": 1e-7,
+  "base_schema": "paper_cpu_metrics_v6.json",
+  "append_columns": [
+    {
+      "name": "coordination_semantics_version",
+      "type": "integer",
+      "minimum": 7,
+      "maximum": 7
+    }
+  ],
   "canonical_action_ids": {
     "RUN": 0,
     "SLEEP": 1,

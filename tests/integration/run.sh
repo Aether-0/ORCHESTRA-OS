@@ -86,7 +86,10 @@ python3 "$VALIDATE" "$TEST_DIR/controller-tamper.csv" --mode orchestra --schema 
     --min-rows 25 --max-rows 32 --expect-rejections \
     --expect-controller-skip 20
 
-timeout --preserve-status --signal=INT --kill-after=2s 3s nice -n 10 "$BIN" \
+# The program's bounded worker cleanup includes a TERM grace period followed
+# by a KILL/reap grace period.  The external timeout must outlive that cleanup
+# window or it can kill the parent while it is still reaping children.
+timeout --preserve-status --signal=INT --kill-after=5s 3s nice -n 10 "$BIN" \
     --workers 4 --rt-exempt 0 --duration 0 --interval-ms 100 \
     --calibration 1 --mode orchestra --seed 404 \
     >"$TEST_DIR/signal-stop.csv" 2>"$TEST_DIR/signal-stop.log"
@@ -97,4 +100,4 @@ if ps -eo args= | awk -v binary="$BIN" '$1 == binary { found=1 } END { exit foun
     exit 1
 fi
 
-echo "PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2/v3/v4 validator contracts, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown"
+echo "PASS integration: MAP_SHARED signal-publication contention/retry/death and high-frequency multiprocess coverage, v2-v7 validator contracts, policy lifecycle, conditioned coordination, CLI, cadence, experimental burst telemetry, rejected-frame control gate, tamper, and signal teardown"

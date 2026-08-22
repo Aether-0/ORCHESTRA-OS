@@ -14,5 +14,13 @@ int main(int argc, char **argv)
         n = strtoul(argv[1], NULL, 10);
     for (i = 0; i < n; i++)
         x = x * 3UL + 1UL;
-    return (int)(x & 255);
+
+    /*
+     * The result is deliberately not part of the benchmark contract.  The
+     * volatile accumulator keeps the fixed work observable, while returning
+     * success lets harnesses distinguish completed work from an execution
+     * failure using the normal process-status convention.
+     */
+    (void)x;
+    return 0;
 }

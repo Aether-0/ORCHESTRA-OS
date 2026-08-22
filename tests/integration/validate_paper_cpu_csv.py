@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Strictly validate historical v2 and append-only v3/v4 paper-CPU CSV files.
+"""Strictly validate historical v2 and append-only v3-v7 paper-CPU CSV files.
 
 The v2 contract predates an inline schema cell, so it is recognized only by
-its exact historical 40-column header.  v3 and v4 are recognized by their
-exact append-only headers *and* require the explicit ``metrics_schema`` value
-in every row.  Callers can additionally pin the expected schema with
-``--schema``; benchmark manifests should do so.  The v4 burst metric remains
-experimental and deliberately does not alter historical S4 or Q validation.
+its exact historical 40-column header.  v3-v7 are recognized by their exact
+append-only headers *and* require the explicit ``metrics_schema`` value in every
+row.  Callers can additionally pin the expected schema with ``--schema``;
+benchmark manifests should do so.  The v4 burst metric is experimental, while
+v7 explicitly defines the conditioned-coordination canonical S3/S4 fields.
 """
 
 from __future__ import annotations
@@ -178,6 +178,40 @@ FALLBACK_REASONS: Final = (
     "LAST_KNOWN_GOOD_EXPIRED",
     "MULTIPLE",
 )
+POLICY_MODES: Final = ("TRAIN", "ADAPT", "EVALUATE")
+POLICY_SUPPRESSION_REASONS: Final = (
+    "NONE",
+    "MODE",
+    "STATE",
+    "FRAME_INVALID",
+    "CADENCE",
+    "DELTA",
+    "EXPLORATION_DISABLED",
+)
+POLICY_LOAD_STATUSES: Final = (
+    "OK",
+    "SKIP",
+    "MAGIC",
+    "VERSION",
+    "SCHEMA",
+    "TRUNCATED",
+    "OVERSIZED",
+    "OVERFLOW",
+    "STATE_COUNT",
+    "ACTION_COUNT",
+    "DIMENSIONS",
+    "NON_FINITE",
+    "DIGEST",
+    "TRAILING",
+    "MISSING",
+)
+POLICY_SAVE_STATUSES: Final = (
+    "OK",
+    "WRITE_ERROR",
+    "RENAME_ERROR",
+    "TEMP_FAILED",
+    "VALIDATION_FAILED",
+)
 
 COMMON_NORMALIZED: Final = (
     "cpu_now",
@@ -340,6 +374,13 @@ def _raw_int(row: dict[str, str | None], field: str, tick: int) -> int:
     return int(text, 10)
 
 
+def _raw_string(row: dict[str, str | None], field: str, tick: int) -> str:
+    text = row.get(field)
+    if text is None or text == "":
+        raise AssertionError(f"tick {tick}: {field} is missing")
+    return text
+
+
 def _raw_float(
     row: dict[str, str | None],
     field: str,
@@ -377,7 +418,7 @@ def _validate_common_row(
     expected_controller_skips: set[int],
     controller_step: int,
 ) -> tuple[int, int, int]:
-    """Validate shared v2/v3/v4 fields and return chronology counters."""
+    """Validate shared v2-v7 fields and return chronology counters."""
 
     if row.get("mode") != mode:
         raise AssertionError(f"tick {tick}: mode {row.get('mode')!r} != {mode!r}")
@@ -835,6 +876,52 @@ def _validate_v4_row(
     return last_valid_directive
 
 
+def _validate_policy_lifecycle_row(
+    row: dict[str, str | None], tick: int, schema: str
+) -> None:
+    """Validate the append-only v6 policy lifecycle contract."""
+
+    policy_mode = _raw_string(row, "policy_mode", tick)
+    if policy_mode not in POLICY_MODES:
+        raise AssertionError(f"tick {tick}: invalid policy_mode {policy_mode!r}")
+    if _raw_int(row, "policy_schema_version", tick) != 1:
+        raise AssertionError(f"tick {tick}: policy_schema_version must be 1")
+    if _raw_int(row, "policy_format_version", tick) != 1:
+        raise AssertionError(f"tick {tick}: policy_format_version must be 1")
+
+    allowed = _raw_uint(row, "policy_update_allowed", tick)
+    applied = _raw_uint(row, "policy_update_applied", tick)
+    exploration = _raw_uint(row, "policy_exploration_enabled", tick)
+    if allowed not in (0, 1) or applied not in (0, 1) or exploration not in (0, 1):
+        raise AssertionError(f"tick {tick}: policy boolean fields must be 0 or 1")
+    if applied and not allowed:
+        raise AssertionError(f"tick {tick}: policy update applied while disallowed")
+    if exploration != int(policy_mode == "TRAIN"):
+        raise AssertionError(
+            f"tick {tick}: policy exploration does not match {policy_mode} mode"
+        )
+    if policy_mode == "EVALUATE" and allowed:
+        raise AssertionError(f"tick {tick}: EVALUATE mode cannot allow updates")
+
+    suppression = _raw_string(row, "policy_update_suppression_reason", tick)
+    if suppression not in POLICY_SUPPRESSION_REASONS:
+        raise AssertionError(f"tick {tick}: invalid policy suppression reason")
+    load_status = _raw_string(row, "policy_load_status", tick)
+    if load_status not in POLICY_LOAD_STATUSES:
+        raise AssertionError(f"tick {tick}: invalid policy load status")
+    save_status = _raw_string(row, "policy_save_status", tick)
+    if save_status not in POLICY_SAVE_STATUSES:
+        raise AssertionError(f"tick {tick}: invalid policy save status")
+    _raw_uint(row, "policy_generation", tick)
+    _raw_uint(row, "policy_train_update_count", tick)
+    _raw_uint(row, "policy_adapt_update_count", tick)
+    _raw_string(row, "policy_digest_prefix", tick)
+    if schema == SCHEMA_V7 and _raw_uint(
+        row, "coordination_semantics_version", tick
+    ) != 7:
+        raise AssertionError(f"tick {tick}: invalid coordination semantics version")
+
+
 def validate(
     path: Path,
     mode: str,
@@ -887,12 +974,8 @@ def validate(
                 accepted_large_bursts,
                 previous_rejections,
             )
-        if schema == SCHEMA_V7 and _raw_uint(
-            row, "coordination_semantics_version", tick
-        ) != 7:
-            raise AssertionError(
-                f"tick {tick}: invalid coordination semantics version"
-            )
+        if schema in (SCHEMA_V6, SCHEMA_V7):
+            _validate_policy_lifecycle_row(row, tick, schema)
 
         rejections = _raw_uint(row, "rejected_frames", tick)
         missed = _raw_uint(row, "missed_deadlines", tick)

@@ -1,34 +1,42 @@
-# ORCHESTRA-OS sched_ext Kernel Integration — Stage 6 MVP
+# ORCHESTRA-OS sched_ext Kernel Integration — Stage 7 Bridge and v8 Adaptive Core
 
 **Status:** Implemented  
-**Maturity:** Kernel-prototyped (VirtualBox)
+**Maturity:** Kernel-prototyped; runtime evidence is kernel- and machine-specific
 
 ## Scope
 
-This directory implements a minimal sched_ext scheduler for the ORCHESTRA-OS
-research program. Stage 6 provides:
+The canonical implementation is `orchestra_scx_stage7.bpf.c` with the
+privileged bridge under `bridge/`. It uses full-switch sched_ext operations,
+but task ownership is still explicit: a task must pass the bridge's exact
+identity admission path; loading the object alone is not proof that any
+workload is owned by ORCHESTRA. It provides:
 
-- Partial opt-in via `SCHED_EXT` scheduling policy
-- RUN action: bounded 5ms slice on global DSQ
-- YIELD action: bounded 1ms slice with eventual progress
-- Unknown action fallback to RUN
-- Frozen deterministic policy (no online learning in kernel)
-- Bounded dispatch loops (max 4 per tick)
-- Per-task state tracking (action, fallback count)
-- Global telemetry counters (load/unload/enable/enqueue/dispatch/run/yield/fallback/error)
-- Safe unload — tasks return to Linux fair scheduler
+- Exact-schema control, identity, directive, task, telemetry, deferred-timer,
+  and fixed-point signal-frame maps
+- Strong task lifetime identity (TGID, TID, and start-boottime cookie)
+- The canonical actions RUN, SLEEP, MIGRATE, THROTTLE, and YIELD
+- Bounded signal-frame publication with sequence, freshness, epoch, range, and
+  controller-coherence validation
+- A fail-closed `--require-signal` directive gate with signal accept/invalid/
+  stale telemetry
+- Bridge-side refusal to publish adaptive directives to `SCHED_FIFO`,
+  `SCHED_RR`, or `SCHED_DEADLINE` targets
+- Bounded deferred eligibility for SLEEP and THROTTLE
+- Affinity/online-CPU validation for MIGRATE
+- Safe RUN fallback with per-task and global diagnostics
+- A pinned-map loader that pins the timer map before struct_ops attach
+- Safe unload — opted-in tasks return to the normal Linux scheduler
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `include/orchestra_scx.h` | Shared definitions (actions, maps, telemetry) |
-| `orchestra_scx.bpf.c` | BPF scheduler program |
-| `orchestra_scx.c` | Userspace loader skeleton |
+| `include/orchestra_abi.h` | Canonical actions and policy ABI |
+| `include/orchestra_bridge_v1.h` | Bridge map and telemetry contract |
+| `orchestra_scx_stage7.bpf.c` | Canonical Stage 7 BPF scheduler |
+| `bridge/orchestra_bridge.c` | Privileged map bridge CLI |
+| `bridge/orchestra_loader.c` | Exact-map pin/load/unload helper |
 | `scripts/check_kernel_config.sh` | Kernel config validation |
-| `scripts/verify_sched_ext.sh` | sched_ext subsystem verification |
-| `tests/test_optin.c` | Partial opt-in test driver |
-| `tests/test_dispatch.c` | Dispatch correctness exercises |
 
 ## Prerequisites
 
@@ -40,37 +48,68 @@ research program. Stage 6 provides:
 
 ## Build
 
+Preferred: use the repository's target-matched out-of-tree builder. It keeps
+generated headers and binaries outside the source tree and stops before a
+build when the source does not match the running kernel.
+
+```bash
+ORCHESTRA_KERNEL_SRC=/path/to/exact/running-kernel-source \
+ORCHESTRA_BUILD_DIR=/tmp/orchestra-stage7-build \
+  bash scripts/build_stage7_out_of_tree.sh
+```
+
+The output directory contains `vmlinux.h`, `orchestra_scx_stage7.bpf.o`,
+`orchestra_bridge`, `orchestra_loader`, and `build-manifest.txt`. A
+`BLOCKED_*` result is a prerequisite failure, not a source-pass result.
+
+Some distribution source/header exports omit `tools/include/uapi/linux/bpf.h`
+or `scripts/bpf_doc.py`. In that case, `ORCHESTRA_BPF_UAPI` may point to the
+exact running-kernel UAPI header and `ORCHESTRA_BPF_DOC` may point to a
+reviewed helper-definition generator. Both paths are recorded; using an
+override does not upgrade runtime validation until the loader is exercised.
+
+For manual diagnosis, the equivalent low-level build is:
+
 ```bash
 # From the Linux kernel source tree:
 cd $ORCHESTRA_KERNEL_SRC
 make -C tools/bpf/bpftool
 
-# Build the ORCHESTRA BPF scheduler:
+# Generate the running-kernel BTF header and build the canonical scheduler:
+sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > include/vmlinux.h
 clang -O2 -target bpf -g \
-    -I $ORCHESTRA_KERNEL_SRC/tools/lib \
-    -I $ORCHESTRA_OS/kernel/sched_ext/include \
-    -c orchestra_scx.bpf.c -o orchestra_scx.bpf.o
+    -nostdinc -D__BPF__ \
+    -I include -I $ORCHESTRA_KERNEL_SRC/tools/lib \
+    -I $ORCHESTRA_KERNEL_SRC/include \
+    -I $ORCHESTRA_KERNEL_SRC/include/uapi \
+    -I $ORCHESTRA_KERNEL_SRC/arch/x86/include \
+    -I $ORCHESTRA_KERNEL_SRC/arch/x86/include/generated \
+    -I $ORCHESTRA_KERNEL_SRC/tools/sched_ext/include \
+    -I /usr/include/bpf \
+    -Wno-missing-declarations -Wno-visibility \
+    -Wno-address-of-packed-member \
+    -c orchestra_scx_stage7.bpf.c -o orchestra_scx_stage7.bpf.o
 
-# Verify with BPF verifier:
-bpftool prog load orchestra_scx.bpf.o /sys/fs/bpf/orchestra_scx type sched_ext
+# Build the bridge and exact-map loader:
+cc -O2 -Wall -Wextra -Werror -I include \
+    bridge/orchestra_bridge.c -o bridge/orchestra_bridge
+cc -O2 -Wall -Wextra -Werror -I include \
+    bridge/orchestra_loader.c -o bridge/orchestra_loader -lbpf -lelf -lz
 
-# Generate skeleton:
-bpftool gen skeleton orchestra_scx.bpf.o > orchestra_scx.skel.h
-
-# Build userspace loader:
-cc -O2 -Wall -Wextra -Werror orchestra_scx.c -o orchestra_scx -lbpf -lelf -lz
+# The build must use headers and BTF matching the running kernel.
 ```
 
 ## Load and Test
 
 ```bash
 # Run the loader (requires root):
-sudo ./orchestra_scx
+sudo ./bridge/orchestra_loader --load ./orchestra_scx_stage7.bpf.o
 
 # Verify sched_ext is active:
 cat /sys/kernel/sched_ext/state
 
-# Should show "orchestra_scx_stage6" as the active scheduler
+# Should show "enabled"; task ownership still requires explicit opt-in.
+sudo ./bridge/orchestra_bridge --status
 ```
 
 ## Telemetry
@@ -82,23 +121,108 @@ After scheduler unload, telemetry is printed to stdout:
 - `enqueue_count` / `dispatch_count` — scheduling operations
 - `run_count` / `yield_count` — action frequencies
 - `fallback_count` / `invalid_action_count` — error diagnostics
+- `signal_accepted_count` / `signal_invalid_count` /
+  `signal_stale_count` — required-signal gate outcomes
+
+## Signal frame
+
+`orch_signal` is an `ARRAY[1]` map containing the 152-byte
+`bridge_signal_frame`. It is a bounded native-endian transport for values
+that have already been validated and quantized by the bridge. `--signal-publish`
+updates it under `BPF_F_LOCK`; `--require-signal` makes a directive fail closed
+unless BPF observes a current frame with the same scheduler epoch, controller
+state, policy mode, and policy generation.
+
+The frame can carry externally computed prediction inputs and S1/S2/S3/S4/Q
+values, but the kernel prototype does not compute those metrics, run the
+predictor, or verify the userspace HMAC. A valid map frame is therefore
+`KERNEL_PROTOTYPED` transport/gating evidence, not authenticated signal-bus or
+real-machine predictor validation.
+
+The RT policy check is an admission guard in the privileged bridge. It avoids
+publishing adaptive directives to a target whose current Linux policy is
+real-time, but it is not a kernel RT bypass/coexistence implementation.
 
 ## Unload
 
 ```bash
-# Ctrl+C in the loader unloads the scheduler
-# Or:
-sudo bpftool struct_ops unregister /sys/fs/bpf/orchestra_scx/orchestra_sched_ops
+# Use the loader so only its exact link and map pins are removed:
+sudo ./bridge/orchestra_loader --unload
 ```
 
 All opted-in tasks return to CFS/EEVDF safely.
 
-## Limitations (Stage 6)
+## ABI v8 kernel-resident adaptive core
 
-- No SLEEP, MIGRATE, or THROTTLE kernel implementations
-- No userspace-to-BPF signal bridge
-- No online policy learning in kernel
-- Fixed slice durations only
-- Single frozen policy
-- No NUMA-aware CPU selection
-- Requires VirtualBox or test VM for safe evaluation
+`orchestra_scx_stage7.bpf.c` now contains an additive v8 execution path. The
+legacy bridge ABI remains unchanged; v8 is defined in
+`include/orchestra_kernel_v8.h` and is exposed through six additional maps:
+
+- `orch_runtime_v8`: fixed-point CPU/queue/memory/thermal state, prediction
+  record, S1/S2/S3/S4/Q coordination fields, and controller/policy generations
+- `orch_meta_v8` plus `orch_entry_v8`: two bounded policy banks with inactive
+  bank staging and generation-checked active-bank publication
+- `orch_task_v8` plus `orch_diag_v8`: hot per-task action/deadline state and
+  separate diagnostic counters
+- `orch_tel_v8`: policy lookup/cache, generation, controller override,
+  unsupported-action, fallback, lifecycle, action, and prediction telemetry
+
+For each enqueue/select path the kernel performs the single decision sequence:
+
+```text
+read runtime state -> build bounded state index -> policy lookup
+-> controller gate -> action/capability validation -> action execution
+-> task/result telemetry
+```
+
+The policy lookup has a deterministic RUN fallback. Controller semantics are
+explicit for NORMAL, DEGRADED, SATURATED, DISABLED, ROLLBACK, and RECOVERY;
+MIGRATE selects a bounded affinity/online CPU when the policy target is ANY
+and records selected/already-local/affinity/offline/no-target/fallback
+outcomes, YIELD has a repeated-progress guard, and the existing
+deadline-ordered SLEEP/THROTTLE compatibility path remains work-preserving.
+Backend capabilities explicitly negotiate adaptive slices, state-derived CPU
+selection, and the SLEEP/THROTTLE defer-compatible implementations; an
+unsupported selection falls back to RUN without changing the active policy.
+
+TRAIN stages only into the inactive bank, ADAPT permits generation-safe
+activation, and EVALUATE freezes active-policy mutation until an explicit
+TRAIN/ADAPT transition is requested. A rollback commit switches back to the
+last committed bank/generation and marks the controller state ROLLBACK; the
+controller gate remains RUN-only until recovery is explicitly selected.
+
+Hot task state and diagnostics distinguish requested, deferred, executed, and
+running observations. The v8 telemetry also records state, policy, and signal
+generation changes, prediction fallback, unsupported actions, and policy
+lookup/cache outcomes.
+
+The bridge can stage and atomically activate a policy bank without changing
+the legacy per-task publication interface:
+
+```bash
+./orchestra_bridge --policy-entry --policy-state-index 0 \
+  --action RUN
+./orchestra_bridge --policy-commit --policy-mode 1 \
+  --controller-state NORMAL
+```
+
+The v8 implementation is source/build validated here. It is not, by itself,
+proof of verifier acceptance, scheduler attachment, task ownership, or
+real-machine performance. Those remain separate runtime claims.
+
+## Limitations
+
+- SLEEP is a one-shot deferred eligibility transition; a successful release
+  retires that generation to RUN, rather than creating a persistent sleep state
+- The bridge signal frame is local-trust map IPC, not kernel HMAC verification
+- RT protection currently stops at bridge admission; full kernel RT/deadline
+  coexistence and starvation validation remain unimplemented
+- The kernel consumes bounded prediction and coordination records and applies
+  policy/controller state, but it does not train a predictor, compute a full
+  userspace-quality S1/S2/S3/S4/Q pipeline, or implement distributed/NUMA
+  policy learning
+- The v8 TRAIN/ADAPT/EVALUATE lifecycle is a generation-safe policy-bank
+  publication contract; it is not evidence that an online learning algorithm
+  has converged on hardware
+- Runtime acceptance requires a matching kernel source/BTF toolchain and
+  remains separate from userspace/simulation validation

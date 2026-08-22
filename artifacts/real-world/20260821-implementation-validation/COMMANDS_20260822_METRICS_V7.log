@@ -1,0 +1,65 @@
+ORCHESTRA-OS metrics-v7 implementation validation command record
+campaign_date=2026-08-22
+repository=/home/aether/Documents/ORCHESTRA-OS
+commit=85c500afed8cb6f4e8ac480e536b439af870ec2f
+kernel=7.0.12+kali-amd64
+timestamp_basis=The non-file-backed make/check commands were recorded after completion at the campaign capture time below; benchmark invocation timestamps and stdout/stderr are preserved in each runner output directory.
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=make check
+return_code=0
+stdout_stderr=terminal capture in campaign transcript
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=make test
+return_code=0
+stdout_stderr=terminal capture in campaign transcript
+notes=30/30 named unit tests per compiler/transport; 24 benchmark-validator tests; 4 publication-runner tests; 34 CSV-validator tests; integration scenarios passed
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=make
+return_code=0
+stdout_stderr=terminal capture in campaign transcript
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=python3 tools/benchmark/run_paper_cpu_benchmark.py --manifest experiments/manifests/paper_cpu_exploratory_v7.json --schema experiments/schemas/paper_cpu_metrics_v7.json --binary orchestra_paper_cpu_demo/orchestra_paper_cpu --source orchestra_paper_cpu_demo/orchestra_paper_cpu.c --repository-root . --output-dir /tmp/orchestra-benchmark-v7-20260822-r4
+return_code=0
+stdout_stderr=runner artifacts under /tmp/orchestra-benchmark-v7-20260822-r4
+result=status=complete attempted=6 validated=6 failed_or_excluded=0
+result=mode-level policy lifecycle summaries present for baseline and orchestra
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=python3 tests/integration/validate_paper_cpu_csv.py /tmp/orchestra-benchmark-v7-20260822-r4/runs/rep_01_seed_3100001_orchestra.csv --mode orchestra --schema orchestra.paper_cpu.metrics/v7 --min-rows 40 --max-rows 40
+return_code=0
+stdout=PASS rows=40 schema=orchestra.paper_cpu.metrics/v7
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=python3 tests/unit/test_orchestra_scx_source.py
+return_code=0
+stdout=PASS sched_ext source safety invariants
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=bash kernel/sched_ext/scripts/check_kernel_config.sh
+return_code=0
+stdout=required running-kernel options present
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=ORCHESTRA_KERNEL_SRC=... ORCHESTRA_BPF_UAPI=... ORCHESTRA_BPF_DOC=... ORCHESTRA_BUILD_DIR=/tmp/orchestra-stage7-final-20260822 bash kernel/sched_ext/scripts/build_stage7_out_of_tree.sh
+return_code=0
+stdout=BUILD_COMPLETE; manifest=/tmp/orchestra-stage7-final-20260822/build-manifest.txt
+
+timestamp=2026-08-22T00:44:33+05:30
+cwd=/home/aether/Documents/ORCHESTRA-OS
+command=git diff --check
+return_code=0
+stdout_stderr=clean
+
+runtime_boundary=sched_ext remained disabled; privileged verifier/attach/ownership/unload was not run because sudo -n authorization is unavailable

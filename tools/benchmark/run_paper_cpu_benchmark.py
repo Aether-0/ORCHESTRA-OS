@@ -36,10 +36,19 @@ V3_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v3"
 
 V4_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v4"
 V5_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v5"
+V6_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v6"
+V7_SCHEMA_ID: Final = "orchestra.paper_cpu.metrics/v7"
 
 # Retain the historical public names for v2-focused callers and tests.
 SCHEMA_ID: Final = V2_SCHEMA_ID
-SUPPORTED_SCHEMA_IDS: Final = (V2_SCHEMA_ID, V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID)
+SUPPORTED_SCHEMA_IDS: Final = (
+    V2_SCHEMA_ID,
+    V3_SCHEMA_ID,
+    V4_SCHEMA_ID,
+    V5_SCHEMA_ID,
+    V6_SCHEMA_ID,
+    V7_SCHEMA_ID,
+)
 MANIFEST_ID: Final = "orchestra.paper_cpu.benchmark_manifest/v1"
 COMPARISON_DESIGN: Final = "descriptive-unpaired-endogenous"
 MATURITY_CLASS: Final = "userspace-validated"
@@ -178,17 +187,70 @@ V5_EXPECTED_HEADER: Final = (
     "update_suppressed",
     "suppression_reason",
 )
+V6_EXPECTED_HEADER: Final = (
+    *V5_EXPECTED_HEADER,
+    "policy_mode",
+    "policy_schema_version",
+    "policy_generation",
+    "policy_update_allowed",
+    "policy_update_applied",
+    "policy_update_suppression_reason",
+    "policy_exploration_enabled",
+    "policy_train_update_count",
+    "policy_adapt_update_count",
+    "policy_load_status",
+    "policy_save_status",
+    "policy_digest_prefix",
+    "policy_format_version",
+)
+V7_EXPECTED_HEADER: Final = (*V6_EXPECTED_HEADER, "coordination_semantics_version")
 EXPECTED_HEADERS_BY_SCHEMA: Final = {
     V2_SCHEMA_ID: V2_EXPECTED_HEADER,
     V3_SCHEMA_ID: V3_EXPECTED_HEADER,
     V4_SCHEMA_ID: V4_EXPECTED_HEADER,
     V5_SCHEMA_ID: V5_EXPECTED_HEADER,
+    V6_SCHEMA_ID: V6_EXPECTED_HEADER,
+    V7_SCHEMA_ID: V7_EXPECTED_HEADER,
 }
 
 ACTION_COLUMNS: Final = ("run", "sleep", "migrate", "throttle", "yield")
 DIRECTIVES: Final = ("RUN", "SLEEP", "MIGRATE", "THROTTLE", "YIELD")
 MODES: Final = ("baseline", "orchestra")
 CONTROLLER_REASONS: Final = ("NONE", "S3", "S4", "S3+S4")
+POLICY_MODES: Final = ("TRAIN", "ADAPT", "EVALUATE")
+POLICY_SUPPRESSION_REASONS: Final = (
+    "NONE",
+    "MODE",
+    "STATE",
+    "FRAME_INVALID",
+    "CADENCE",
+    "DELTA",
+    "EXPLORATION_DISABLED",
+)
+POLICY_LOAD_STATUSES: Final = (
+    "OK",
+    "SKIP",
+    "MAGIC",
+    "VERSION",
+    "SCHEMA",
+    "TRUNCATED",
+    "OVERSIZED",
+    "OVERFLOW",
+    "STATE_COUNT",
+    "ACTION_COUNT",
+    "DIMENSIONS",
+    "NON_FINITE",
+    "DIGEST",
+    "TRAILING",
+    "MISSING",
+)
+POLICY_SAVE_STATUSES: Final = (
+    "OK",
+    "WRITE_ERROR",
+    "RENAME_ERROR",
+    "TEMP_FAILED",
+    "VALIDATION_FAILED",
+)
 PARAMETER_COLUMNS: Final = (
     "jitter_sigma",
     "switch_penalty",
@@ -286,7 +348,7 @@ V4_AGGREGATE_METRICS: Final = tuple(f"{name}_mean" for name in V4_RUN_MEAN_COLUM
     "missed_deadlines_final",
 )
 # Retain v2 constants for existing imports.  Schema-aware helper functions
-# below select append-only v3/v4 extensions only for an explicit manifest.
+# below select append-only v3-v7 extensions only for an explicit manifest.
 RUN_MEAN_COLUMNS: Final = V2_RUN_MEAN_COLUMNS
 AGGREGATE_METRICS: Final = V2_AGGREGATE_METRICS
 
@@ -500,12 +562,9 @@ def load_manifest(path: Path) -> Manifest:
             f"{list(SUPPORTED_SCHEMA_IDS)!r}, got {manifest.metrics_schema_id!r}"
         )
     expected_columns = len(EXPECTED_HEADERS_BY_SCHEMA[manifest.metrics_schema_id])
-    if (
-        manifest.metrics_schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}
-        and manifest.expected_csv_column_count is None
-    ):
+    if manifest.metrics_schema_id != V2_SCHEMA_ID and manifest.expected_csv_column_count is None:
         raise BenchmarkError(
-            "v3 and v4 manifests must declare expected_csv_column_count"
+            "append-only manifests must declare expected_csv_column_count"
         )
     if (
         manifest.expected_csv_column_count is not None
@@ -574,18 +633,9 @@ def optional_number(value: object, name: str) -> float | None:
     return result
 
 
-def load_metrics_schema(path: Path, expected_id: str) -> MetricsSchema:
-    """Load one fixed schema and reject a mismatched or weakened contract."""
+def _parse_schema_columns(raw_columns: object) -> list[CsvColumn]:
+    """Parse the compact column declarations used by a metrics schema."""
 
-    obj = read_json_object(path)
-    schema_id = obj.get("schema_id")
-    if expected_id not in SUPPORTED_SCHEMA_IDS:
-        raise BenchmarkError(f"unsupported expected schema_id {expected_id!r}")
-    if schema_id != expected_id:
-        raise BenchmarkError(
-            f"schema_id mismatch: manifest requires {expected_id!r}, schema declares {schema_id!r}"
-        )
-    raw_columns = obj.get("columns")
     if not isinstance(raw_columns, list):
         raise BenchmarkError("schema columns must be a list")
 
@@ -616,6 +666,64 @@ def load_metrics_schema(path: Path, expected_id: str) -> MetricsSchema:
                 enum=tuple(raw_enum),
             )
         )
+    return columns
+
+
+def _load_append_only_columns(path: Path, expected_id: str, obj: JsonObject) -> list[CsvColumn]:
+    """Resolve a local append-only schema extension without weakening its ABI.
+
+    v6 and v7 intentionally keep their large historical prefix in the
+    already-reviewed v5 schema.  The child file declares the exact local base
+    filename and only adds new, typed columns.  This keeps the JSON contracts
+    readable while the compiled-in header below remains the final order gate.
+    """
+
+    base_name = obj.get("base_schema")
+    raw_append = obj.get("append_columns")
+    if not isinstance(base_name, str) or not base_name:
+        raise BenchmarkError("append-only schema requires a non-empty base_schema")
+    if not isinstance(raw_append, list):
+        raise BenchmarkError("append-only schema requires append_columns list")
+    if expected_id == V6_SCHEMA_ID:
+        base_id = V5_SCHEMA_ID
+    elif expected_id == V7_SCHEMA_ID:
+        base_id = V6_SCHEMA_ID
+    else:
+        raise BenchmarkError(f"append-only schema is not supported for {expected_id!r}")
+    base_path = (path.parent / base_name).resolve()
+    if base_path.parent != path.parent.resolve():
+        raise BenchmarkError("append-only schema base must remain in its schema directory")
+    if not base_path.is_file():
+        raise BenchmarkError(f"append-only schema base is missing: {base_path}")
+    base = load_metrics_schema(base_path, base_id)
+    columns = [
+        CsvColumn(
+            name=column.name,
+            kind=column.kind,
+            minimum=column.minimum,
+            maximum=column.maximum,
+            enum=(expected_id,) if column.name == "metrics_schema" else column.enum,
+        )
+        for column in base.columns
+    ]
+    return columns + _parse_schema_columns(raw_append)
+
+
+def load_metrics_schema(path: Path, expected_id: str) -> MetricsSchema:
+    """Load one fixed schema and reject a mismatched or weakened contract."""
+
+    obj = read_json_object(path)
+    schema_id = obj.get("schema_id")
+    if expected_id not in SUPPORTED_SCHEMA_IDS:
+        raise BenchmarkError(f"unsupported expected schema_id {expected_id!r}")
+    if schema_id != expected_id:
+        raise BenchmarkError(
+            f"schema_id mismatch: manifest requires {expected_id!r}, schema declares {schema_id!r}"
+        )
+    if "columns" in obj:
+        columns = _parse_schema_columns(obj["columns"])
+    else:
+        columns = _load_append_only_columns(path, expected_id, obj)
 
     header = tuple(column.name for column in columns)
     expected_header = EXPECTED_HEADERS_BY_SCHEMA[expected_id]
@@ -643,7 +751,7 @@ def run_mean_columns_for_schema(schema_id: str) -> tuple[str, ...]:
         return V2_RUN_MEAN_COLUMNS
     if schema_id == V3_SCHEMA_ID:
         return V3_RUN_MEAN_COLUMNS
-    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID):
         return V4_RUN_MEAN_COLUMNS
     raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
@@ -655,7 +763,7 @@ def aggregate_metrics_for_schema(schema_id: str) -> tuple[str, ...]:
         return V2_AGGREGATE_METRICS
     if schema_id == V3_SCHEMA_ID:
         return V3_AGGREGATE_METRICS
-    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID):
         return V4_AGGREGATE_METRICS
     raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
@@ -966,7 +1074,7 @@ def expected_controller_reasons(row: ParsedRow, tolerance: float) -> set[str]:
 
 
 def success_fraction(successes: int, attempts: int) -> float:
-    """Return the explicit v3/v4 zero-attempt convention for action outcomes."""
+    """Return the explicit v3-v7 zero-attempt convention for action outcomes."""
 
     # Counter ordering is reported as a validation issue by the caller.  Keep
     # this arithmetic total so malformed raw data cannot turn validation into
@@ -982,7 +1090,7 @@ def validate_effective_action_semantics(
     tolerance: float,
     schema_id: str,
 ) -> list[str]:
-    """Validate append-only v3/v4 observable action-outcome aggregates.
+    """Validate append-only v3-v7 observable action-outcome aggregates.
 
     These checks intentionally validate only bounded userspace observations.
     They do not infer Linux dispatch state or kernel scheduler compliance.
@@ -991,7 +1099,13 @@ def validate_effective_action_semantics(
     issues: list[str] = []
     prefix = f"row {row_number}"
 
-    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
+    if schema_id not in {
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         raise AssertionError(f"unsupported effective-action schema {schema_id!r}")
     if str(row["metrics_schema"]) != schema_id:
         issues.append(f"{prefix}: metrics_schema is not {schema_id!r}")
@@ -1004,14 +1118,15 @@ def validate_effective_action_semantics(
         issues.append(
             f"{prefix}: S2_selected must be the explicit alias of historical S2"
         )
+    canonical_s3 = "S3_conditioned" if schema_id == V7_SCHEMA_ID else "S3_global"
     if not math.isclose(
-        float_value(row, "S3_global"),
+        float_value(row, canonical_s3),
         float_value(row, "S3"),
         rel_tol=0.0,
         abs_tol=tolerance,
     ):
         issues.append(
-            f"{prefix}: S3_global must be the explicit alias of historical S3"
+            f"{prefix}: {canonical_s3} must be the explicit alias of historical S3"
         )
 
     attempted = int_value(row, "action_attempt_count")
@@ -1133,17 +1248,22 @@ def validate_v4_burst_semantics(
     eligible: int,
     tolerance: float,
 ) -> list[str]:
-    """Validate the bounded, experimental v4 burst-metric aggregates.
+    """Validate the bounded, experimental v4-v7 burst-metric aggregates.
 
     The runner retains historical S4 and Q validation elsewhere.  This check
-    only verifies the append-only v4 diagnostic and deliberately does not
+    only verifies the append-only burst diagnostics and deliberately does not
     infer kernel dispatch behavior from userspace observations.
     """
 
     issues: list[str] = []
     prefix = f"row {row_number}"
-    if str(row["metrics_schema"]) != V4_SCHEMA_ID:
-        issues.append(f"{prefix}: metrics_schema is not {V4_SCHEMA_ID!r}")
+    if str(row["metrics_schema"]) not in {
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
+        issues.append(f"{prefix}: metrics_schema is not an accepted burst schema")
 
     changed = int_value(row, "changed_eligible_workers")
     justified = int_value(row, "justified_changed_workers")
@@ -1274,6 +1394,8 @@ def validate_v4_burst_semantics(
             f"expected {expected_s4_burst:.10g}"
         )
     expected_s4 = 1.0 - expected_change_fraction
+    if str(row["metrics_schema"]) == V7_SCHEMA_ID:
+        expected_s4 = min(expected_s4, float_value(row, "S4_burst"))
     if not math.isclose(
         float_value(row, "S4"), expected_s4, rel_tol=0.0, abs_tol=tolerance
     ):
@@ -1281,6 +1403,53 @@ def validate_v4_burst_semantics(
             f"{prefix}: historical S4={float_value(row, 'S4'):.10g}, "
             f"expected {expected_s4:.10g}"
         )
+    return issues
+
+
+def validate_policy_lifecycle_semantics(
+    row: ParsedRow, row_number: int, schema_id: str
+) -> list[str]:
+    """Validate the append-only v6 policy lifecycle fields."""
+
+    if schema_id not in {V6_SCHEMA_ID, V7_SCHEMA_ID}:
+        return []
+    issues: list[str] = []
+    prefix = f"row {row_number}"
+    policy_mode = str(row["policy_mode"])
+    if policy_mode not in POLICY_MODES:
+        issues.append(f"{prefix}: invalid policy_mode {policy_mode!r}")
+    if int_value(row, "policy_schema_version") != 1:
+        issues.append(f"{prefix}: policy_schema_version must be 1")
+    if int_value(row, "policy_format_version") != 1:
+        issues.append(f"{prefix}: policy_format_version must be 1")
+    for field in (
+        "policy_update_allowed",
+        "policy_update_applied",
+        "policy_exploration_enabled",
+    ):
+        if int_value(row, field) not in {0, 1}:
+            issues.append(f"{prefix}: {field} must be boolean01")
+    if int_value(row, "policy_update_applied") and not int_value(
+        row, "policy_update_allowed"
+    ):
+        issues.append(f"{prefix}: policy update cannot be applied when disallowed")
+    expected_exploration = int(policy_mode == "TRAIN")
+    if int_value(row, "policy_exploration_enabled") != expected_exploration:
+        issues.append(
+            f"{prefix}: policy_exploration_enabled does not match {policy_mode} mode"
+        )
+    if policy_mode == "EVALUATE" and int_value(row, "policy_update_allowed"):
+        issues.append("{}: EVALUATE mode cannot allow policy updates".format(prefix))
+    if str(row["policy_update_suppression_reason"]) not in POLICY_SUPPRESSION_REASONS:
+        issues.append(f"{prefix}: invalid policy suppression reason")
+    if str(row["policy_load_status"]) not in POLICY_LOAD_STATUSES:
+        issues.append(f"{prefix}: invalid policy load status")
+    if str(row["policy_save_status"]) not in POLICY_SAVE_STATUSES:
+        issues.append(f"{prefix}: invalid policy save status")
+    if schema_id == V7_SCHEMA_ID and int_value(
+        row, "coordination_semantics_version"
+    ) != 7:
+        issues.append(f"{prefix}: coordination_semantics_version must be 7")
     return issues
 
 
@@ -1368,7 +1537,7 @@ def validate_row_semantics(
     tolerance: float,
     schema_id: str = V2_SCHEMA_ID,
 ) -> list[str]:
-    """Validate shared cross-column invariants and explicit v3 extensions."""
+    """Validate shared invariants and the explicit append-only extensions."""
 
     issues: list[str] = []
     prefix = f"row {row_number}"
@@ -1396,7 +1565,11 @@ def validate_row_semantics(
     directive = str(row["directive"])
     action_column = directive.lower()
     compliant = int_value(row, action_column)
-    expected_s2 = compliant / eligible if eligible else 1.0
+    expected_s2 = (
+        float_value(row, "S2_selected")
+        if schema_id == V7_SCHEMA_ID
+        else (compliant / eligible if eligible else 1.0)
+    )
     if not math.isclose(
         float_value(row, "S2"), expected_s2, rel_tol=0.0, abs_tol=tolerance
     ):
@@ -1404,7 +1577,9 @@ def validate_row_semantics(
             f"{prefix}: S2={float_value(row, 'S2'):.10g}, exact compliance={expected_s2:.10g}"
         )
 
-    if eligible <= 1:
+    if schema_id == V7_SCHEMA_ID:
+        expected_s3 = float_value(row, "S3_conditioned")
+    elif eligible <= 1:
         expected_s3 = 1.0
     else:
         entropy = 0.0
@@ -1505,7 +1680,13 @@ def validate_row_semantics(
         for flag in ("jitter_saturated", "switch_saturated", "consensus_saturated"):
             if int_value(row, flag) != 0:
                 issues.append(f"{prefix}: baseline unexpectedly reports {flag}=1")
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
+    if schema_id in {
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         issues.extend(
             validate_effective_action_semantics(
                 row,
@@ -1516,11 +1697,20 @@ def validate_row_semantics(
                 schema_id,
             )
         )
-        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
+        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID):
             issues.extend(
                 validate_v4_burst_semantics(row, row_number, eligible, tolerance)
             )
-    elif schema_id not in (V2_SCHEMA_ID, V5_SCHEMA_ID):
+    if schema_id in (V6_SCHEMA_ID, V7_SCHEMA_ID):
+        issues.extend(validate_policy_lifecycle_semantics(row, row_number, schema_id))
+    if schema_id not in {
+        V2_SCHEMA_ID,
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
     return issues
 
@@ -1583,7 +1773,7 @@ def validate_csv(
             )
             rows.append(parsed)
 
-    if schema.schema_id == V4_SCHEMA_ID and rows:
+    if schema.schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID) and rows:
         issues.extend(validate_v4_burst_chronology(rows))
     if not rows:
         issues.append("raw CSV contains no parseable data rows")
@@ -1637,8 +1827,12 @@ def validate_csv(
             reason = str(row["controller_reason"])
             beta = float_value(row, "controller_beta")
             current_jitter, current_switch, current_consensus = current
+            jitter_can_increase = "S4" in reason and (
+                schema.schema_id != V7_SCHEMA_ID
+                or float_value(row, "S2") >= CONTROLLER_THRESHOLD
+            )
             raw_jitter = current_jitter + (
-                0.20 * beta if "S4" in reason else -0.05 * beta
+                0.20 * beta if jitter_can_increase else -0.05 * beta
             )
             raw_switch = current_switch + (
                 0.15 * beta if reason != "NONE" else -0.04 * beta
@@ -1724,12 +1918,12 @@ def run_integration_validator(
     expected_rows: int,
     schema_id: str,
 ) -> JsonObject:
-    """Run the repository's independent v3/v4 CSV validator with a timeout.
+    """Run the repository's independent v3-v7 CSV validator with a timeout.
 
     v2 remains readable through the runner's embedded historical contract.
-    v3 and v4 invocations additionally execute the independent validator so
-    their inline schema markers and version-specific aggregate invariants are
-    checked before a row contributes to an invocation-level summary.
+    v3-v7 invocations additionally execute the independent validator so their
+    inline schema markers and version-specific aggregate invariants are checked
+    before a row contributes to an invocation-level summary.
     """
 
     if schema_id == V2_SCHEMA_ID:
@@ -1743,7 +1937,13 @@ def run_integration_validator(
             "stderr": "",
             "return_code": None,
         }
-    if schema_id not in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
+    if schema_id not in {
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
 
     validator = repository_root / "tests/integration/validate_paper_cpu_csv.py"
@@ -1811,8 +2011,8 @@ def run_v3_integration_validator(
 ) -> JsonObject:
     """Backward-compatible name for callers of the versioned validator hook.
 
-    The function now accepts v3 and v4 explicitly; its historical name is
-    retained because external test harnesses imported it before metrics v4.
+    The function now accepts v3-v7 explicitly; its historical name is retained
+    because external test harnesses imported it before metrics v4.
     """
 
     return run_integration_validator(
@@ -1905,14 +2105,14 @@ def make_run_summary(
     seed: int,
     rows: tuple[ParsedRow, ...],
     schema_id: str = V2_SCHEMA_ID,
-) -> dict[str, Scalar]:
+) -> dict[str, object]:
     """Reduce one post-warm-up run to one independent statistical observation."""
 
     if not rows:
         raise AssertionError(
             "validated run summaries require at least one post-warm-up row"
         )
-    summary: dict[str, Scalar] = {
+    summary: dict[str, object] = {
         "run_id": run_id,
         "metrics_schema_id": schema_id,
         "mode": mode,
@@ -1942,7 +2142,13 @@ def make_run_summary(
     )
     summary["rejected_frames_final"] = int_value(rows[-1], "rejected_frames")
     summary["missed_deadlines_final"] = int_value(rows[-1], "missed_deadlines")
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
+    if schema_id in {
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         action_outcome_fractions = (
             (
                 "migration_observed_success_fraction",
@@ -1972,16 +2178,73 @@ def make_run_summary(
         summary["action_error_count"] = sum(
             int_value(row, "action_error_count") for row in rows
         )
-        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
+        if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID):
             summary["large_burst_event_count"] = sum(
                 int_value(row, "large_burst_event") for row in rows
             )
             summary["repeated_oscillation_event_count"] = sum(
                 int_value(row, "repeated_oscillation_event") for row in rows
             )
-    elif schema_id not in (V2_SCHEMA_ID, V5_SCHEMA_ID):
+        if schema_id in (V6_SCHEMA_ID, V7_SCHEMA_ID):
+            summary["policy_lifecycle"] = make_policy_lifecycle_run_summary(
+                rows, schema_id
+            )
+    elif schema_id not in (V2_SCHEMA_ID,):
         raise AssertionError(f"unsupported validated schema {schema_id!r}")
     return summary
+
+
+def make_policy_lifecycle_run_summary(
+    rows: tuple[ParsedRow, ...], schema_id: str
+) -> JsonObject:
+    """Summarize policy lifecycle fields without treating ticks as runs."""
+
+    if schema_id not in (V6_SCHEMA_ID, V7_SCHEMA_ID):
+        raise AssertionError(f"unsupported policy lifecycle schema {schema_id!r}")
+    policy_modes = sorted({str(row["policy_mode"]) for row in rows})
+    policy_load_statuses = sorted({str(row["policy_load_status"]) for row in rows})
+    policy_save_statuses = sorted({str(row["policy_save_status"]) for row in rows})
+    policy_digest_prefixes = sorted({str(row["policy_digest_prefix"]) for row in rows})
+    lifecycle: JsonObject = {
+        "policy_modes": policy_modes,
+        "policy_schema_versions": sorted(
+            {int_value(row, "policy_schema_version") for row in rows}
+        ),
+        "policy_format_versions": sorted(
+            {int_value(row, "policy_format_version") for row in rows}
+        ),
+        "policy_load_statuses": policy_load_statuses,
+        "policy_save_statuses": policy_save_statuses,
+        "policy_digest_prefixes": policy_digest_prefixes,
+        "policy_generation_initial": int_value(rows[0], "policy_generation"),
+        "policy_generation_final": int_value(rows[-1], "policy_generation"),
+        "policy_update_allowed_fraction": sum(
+            int_value(row, "policy_update_allowed") for row in rows
+        )
+        / len(rows),
+        "policy_update_applied_rows": sum(
+            int_value(row, "policy_update_applied") for row in rows
+        ),
+        "policy_update_suppressed_rows": sum(
+            int(str(row["policy_update_suppression_reason"]) != "NONE")
+            for row in rows
+        ),
+        "policy_exploration_enabled_fraction": sum(
+            int_value(row, "policy_exploration_enabled") for row in rows
+        )
+        / len(rows),
+        "policy_train_update_count_final": int_value(
+            rows[-1], "policy_train_update_count"
+        ),
+        "policy_adapt_update_count_final": int_value(
+            rows[-1], "policy_adapt_update_count"
+        ),
+    }
+    if schema_id == V7_SCHEMA_ID:
+        lifecycle["coordination_semantics_versions"] = sorted(
+            {int_value(row, "coordination_semantics_version") for row in rows}
+        )
+    return lifecycle
 
 
 def t_critical_95(degrees_of_freedom: int) -> float:
@@ -2039,7 +2302,7 @@ def summarize_values(values: list[float]) -> JsonObject:
 
 
 def aggregate_run_summaries(
-    run_summaries: list[dict[str, Scalar]], schema_id: str = V2_SCHEMA_ID
+    run_summaries: list[dict[str, object]], schema_id: str = V2_SCHEMA_ID
 ) -> JsonObject:
     """Aggregate only across independent validated invocations, never ticks."""
 
@@ -2075,7 +2338,89 @@ def aggregate_run_summaries(
         ),
         "modes": modes,
     }
-    if schema_id in {V3_SCHEMA_ID, V4_SCHEMA_ID, V5_SCHEMA_ID}:
+    if schema_id in (V6_SCHEMA_ID, V7_SCHEMA_ID):
+        for mode in MODES:
+            mode_runs = [summary for summary in run_summaries if summary["mode"] == mode]
+            lifecycle_runs: list[JsonObject] = []
+            for summary in mode_runs:
+                lifecycle = summary.get("policy_lifecycle")
+                if not isinstance(lifecycle, dict):
+                    raise AssertionError("v6/v7 run summary lacks policy lifecycle data")
+                lifecycle_runs.append(lifecycle)
+            numeric_fields = (
+                "policy_generation_initial",
+                "policy_generation_final",
+                "policy_update_allowed_fraction",
+                "policy_update_applied_rows",
+                "policy_update_suppressed_rows",
+                "policy_exploration_enabled_fraction",
+                "policy_train_update_count_final",
+                "policy_adapt_update_count_final",
+            )
+            lifecycle_aggregate: JsonObject = {
+                field: summarize_values(
+                    [float(entry[field]) for entry in lifecycle_runs]
+                )
+                for field in numeric_fields
+            }
+            lifecycle_aggregate["policy_modes"] = sorted(
+                {
+                    mode_name
+                    for entry in lifecycle_runs
+                    for mode_name in entry["policy_modes"]
+                }
+            )
+            lifecycle_aggregate["policy_load_statuses"] = sorted(
+                {
+                    status
+                    for entry in lifecycle_runs
+                    for status in entry["policy_load_statuses"]
+                }
+            )
+            lifecycle_aggregate["policy_save_statuses"] = sorted(
+                {
+                    status
+                    for entry in lifecycle_runs
+                    for status in entry["policy_save_statuses"]
+                }
+            )
+            lifecycle_aggregate["policy_digest_prefixes"] = sorted(
+                {
+                    digest
+                    for entry in lifecycle_runs
+                    for digest in entry["policy_digest_prefixes"]
+                }
+            )
+            if schema_id == V7_SCHEMA_ID:
+                lifecycle_aggregate["coordination_semantics_versions"] = sorted(
+                    {
+                        version
+                        for entry in lifecycle_runs
+                        for version in entry["coordination_semantics_versions"]
+                    }
+                )
+            mode_value = modes[mode]
+            if not isinstance(mode_value, dict):
+                raise AssertionError("aggregate mode must be an object")
+            mode_value["policy_lifecycle"] = lifecycle_aggregate
+        aggregate["policy_lifecycle_summary_semantics"] = {
+            "statistical_unit": "one validated invocation after declared warm-up",
+            "numeric_fields": (
+                "Policy lifecycle numeric fields are summarized across validated "
+                "invocations; raw per-tick values remain in validated_rows.csv."
+            ),
+            "claim_limitation": (
+                "These are userspace policy lifecycle observations, not kernel "
+                "controller state or scheduler evidence."
+            ),
+        }
+    if schema_id in {
+        V3_SCHEMA_ID,
+        V4_SCHEMA_ID,
+        V5_SCHEMA_ID,
+        V6_SCHEMA_ID,
+        V7_SCHEMA_ID,
+    }:
         aggregate["effective_action_summary_semantics"] = {
             "statistical_unit": "one validated invocation after declared warm-up",
             "fractions": (
@@ -2092,7 +2437,7 @@ def aggregate_run_summaries(
                 "not Linux scheduler compliance or scheduler-performance evidence."
             ),
         }
-    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID):
+    if schema_id in (V4_SCHEMA_ID, V5_SCHEMA_ID, V6_SCHEMA_ID, V7_SCHEMA_ID):
         aggregate["burst_stability_summary_semantics"] = {
             "statistical_unit": "one validated invocation after declared warm-up",
             "historical_s4": (
@@ -2112,7 +2457,7 @@ def aggregate_run_summaries(
 
 
 def write_run_summaries_csv(
-    path: Path, summaries: list[dict[str, Scalar]], schema_id: str = V2_SCHEMA_ID
+    path: Path, summaries: list[dict[str, object]], schema_id: str = V2_SCHEMA_ID
 ) -> None:
     """Write one row per validated independent invocation."""
 
@@ -2358,7 +2703,7 @@ def run_benchmark(args: argparse.Namespace) -> int:
     write_json(output_dir / "provenance.json", provenance)
 
     run_records: list[JsonObject] = []
-    run_summaries: list[dict[str, Scalar]] = []
+    run_summaries: list[dict[str, object]] = []
     included_runs: list[tuple[str, int, int, tuple[ParsedRow, ...]]] = []
     stop_requested = False
     execution_index = 0

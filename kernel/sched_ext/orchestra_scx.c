@@ -12,6 +12,6 @@
 int main(void)
 {
     fputs("orchestra_scx: retired unsafe loader; use bridge/orchestra_bridge "
-          "with the ABI-v2 scheduler object\n", stderr);
+          "with the kernel-ABI-v8 scheduler object\n", stderr);
     return 2;
 }

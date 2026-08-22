@@ -1068,10 +1068,20 @@ static int choose_migration_cpu_for_pid(pid_t pid, int worker_index) {
     return first;
 }
 
+static uint32_t signal_permille(double value) {
+    if (!isfinite(value) || value <= 0.0) return 0;
+    if (value >= 1.0) return BRIDGE_SIGNAL_SCALE;
+    return (uint32_t)llround(value * (double)BRIDGE_SIGNAL_SCALE);
+}
+
 static bool kernel_bridge_publish(kernel_bridge_session_t *session,
                                   worker_state_t *worker, pid_t tid,
                                   int worker_index,
                                   const worker_snapshot_t *snapshot,
+                                  const signal_payload_t *signal,
+                                  const coord_metrics_t *metrics,
+                                  bool publish_signal,
+                                  bool require_signal,
                                   uint64_t frame_max_age_ns,
                                   uint32_t controller_state,
                                   uint32_t policy_mode,
@@ -1088,11 +1098,38 @@ static bool kernel_bridge_publish(kernel_bridge_session_t *session,
         .controller_state = controller_state,
         .policy_mode = policy_mode,
         .policy_generation = policy_generation,
-        .expiry_duration_ns = frame_max_age_ns
+        .expiry_duration_ns = frame_max_age_ns,
+        .signal_sequence = publish_signal && signal != NULL ? signal->sequence : 0,
+        .signal_max_age_ns = publish_signal && signal != NULL
+            ? (signal->max_age_ns > BRIDGE_SIGNAL_MAX_AGE_NS
+                ? BRIDGE_SIGNAL_MAX_AGE_NS : signal->max_age_ns) : 0,
+        .stream_flags = (publish_signal ? BRIDGE_STREAM_F_PUBLISH_SIGNAL : 0u)
+            | (require_signal ? BRIDGE_STREAM_F_REQUIRE_SIGNAL : 0u)
     };
     struct bridge_stream_response response;
     uint32_t wire_action;
     uint64_t now = monotonic_ns();
+
+    if (publish_signal && signal != NULL && metrics != NULL) {
+        request.signal_tier = signal->tier;
+        request.signal_source_id = signal->source_id;
+        request.signal_key_epoch = signal->key_epoch;
+        request.signal_directive = signal->directive;
+        request.signal_state_schema_version = signal->state_schema_version;
+        request.signal_prediction_used = signal->prediction_used;
+        request.signal_confidence_permille = signal_permille(signal->confidence);
+        request.signal_cpu_now_permille = signal_permille(signal->cpu_now);
+        request.signal_cpu_pred_permille = signal_permille(signal->cpu_pred);
+        request.signal_decision_cpu_permille = signal_permille(signal->decision_cpu);
+        request.signal_memory_pressure_permille =
+            signal_permille(signal->memory_pressure);
+        request.signal_thermal_permille = signal_permille(signal->thermal_proxy);
+        request.signal_s1_permille = signal_permille(metrics->s1);
+        request.signal_s2_permille = signal_permille(metrics->s2);
+        request.signal_s3_permille = signal_permille(metrics->s3);
+        request.signal_s4_permille = signal_permille(metrics->s4);
+        request.signal_q_permille = signal_permille(metrics->q);
+    }
 
     if (!canonical_action_to_wire(snapshot->action, &wire_action))
         wire_action = ORCHESTRA_ACTION_RUN;
@@ -1127,8 +1164,11 @@ static bool publish_kernel_decisions(kernel_bridge_session_t *session,
                                      const pid_t pids[MAX_WORKERS],
                                      uint64_t frame_sequence,
                                      uint64_t frame_max_age_ns,
-                                     const signal_bus_t *bus) {
+                                     const signal_bus_t *bus,
+                                     const signal_payload_t *signal,
+                                     const coord_metrics_t *metrics) {
     bool all_ok = true;
+    bool signal_published = false;
 
     for (int i = 0; i < workers->worker_count; ++i) {
         worker_snapshot_t snapshot;
@@ -1137,7 +1177,9 @@ static bool publish_kernel_decisions(kernel_bridge_session_t *session,
             || snapshot.accepted_sequence != frame_sequence)
             continue;
         if (!kernel_bridge_publish(session, &workers->worker[i], pids[i], i,
-                                   &snapshot, frame_max_age_ns,
+                                   &snapshot, signal, metrics,
+                                   !signal_published, true,
+                                   frame_max_age_ns,
                                    (uint32_t)atomic_load_explicit(
                                        &bus->controller_state,
                                        memory_order_relaxed),
@@ -1145,8 +1187,11 @@ static bool publish_kernel_decisions(kernel_bridge_session_t *session,
                                        &bus->policy_mode,
                                        memory_order_relaxed),
                                    atomic_load_explicit(&g_policy_generation,
-                                                        memory_order_relaxed)))
+                                                        memory_order_relaxed))) {
             all_ok = false;
+            break;
+        }
+        signal_published = true;
     }
     return all_ok;
 }
@@ -4248,22 +4293,28 @@ int main(int argc, char **argv) {
         /* Let workers observe the new signal and choose/execute an action. */
         sleep_until_ns(next_publish_ns + interval_ns / 2u);
 
-        if (kernel_session.active
-            && !publish_kernel_decisions(&kernel_session, workers, pids,
-                                         applied.sequence,
-                                         applied.max_age_ns, bus)) {
-            fprintf(stderr, "Kernel bridge stream failed; reverting workers to userspace action semantics\n");
-            atomic_store_explicit(&bus->kernel_bridge_enabled, 0,
-                                  memory_order_release);
-            kernel_bridge_stop(&kernel_session);
-        }
-
         double metric_forecast_error = mode == MODE_BASELINE ? 0.0 : forecast_error;
         coord_metrics_t metrics = compute_metrics(workers, &applied,
                                                   metric_forecast_error, interval_ms,
                                                   &burst_tracker);
         bool complete_accepted_sample = coordination_sample_complete(workers,
                                                                      &metrics);
+
+        /* Publish the measured fixed-point signal before its per-task
+         * directives.  The first stream record carries the signal; all
+         * following records require that same current frame, so BPF ownership
+         * is fail-closed if the signal is stale or incoherent. */
+        if (kernel_session.active
+            && !publish_kernel_decisions(&kernel_session, workers, pids,
+                                         applied.sequence,
+                                         applied.max_age_ns, bus,
+                                         &applied, &metrics)) {
+            fprintf(stderr, "Kernel bridge stream failed; reverting workers to userspace action semantics\n");
+            atomic_store_explicit(&bus->kernel_bridge_enabled, 0,
+                                  memory_order_release);
+            kernel_bridge_stop(&kernel_session);
+        }
+
         /* Invalid, stale, rejected, or partial frames cannot become a future
          * directive-transition justification or an oscillation history entry. */
         burst_tracker_record(&burst_tracker, &applied, &metrics);

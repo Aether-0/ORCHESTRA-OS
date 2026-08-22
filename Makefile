@@ -33,6 +33,9 @@ check:
 	@$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
 		-Wformat=2 -Werror -Ikernel/sched_ext/include -fsyntax-only \
 		kernel/sched_ext/bridge/orchestra_bridge.c
+	@$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+		-Wformat=2 -Werror -fsyntax-only \
+		kernel/sched_ext/scripts/fixed_work.c
 	@if printf '#include <bpf/libbpf.h>\n' | $(CC) -E - >/dev/null 2>&1; then \
 		$(CC) -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
 			-Wformat=2 -Werror -Ikernel/sched_ext/include -fsyntax-only \
@@ -60,7 +63,15 @@ check:
 	@python3 -m json.tool experiments/schemas/paper_cpu_metrics_v7.json >/dev/null
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v3.json >/dev/null
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v4.json >/dev/null
-	@bash -n tests/unit/run.sh tests/integration/run.sh
+	@bash -n tests/unit/run.sh tests/integration/run.sh \
+		benchmarks/real-machine/benchmark_suite.sh \
+		benchmarks/real-machine/full_compare.sh \
+		benchmarks/real-machine/stress_suite.sh \
+		benchmarks/stage9/benchmark_compare.sh \
+		kernel/sched_ext/scripts/build_stage7_out_of_tree.sh \
+		kernel/sched_ext/scripts/p0_ownership_retest.sh \
+		kernel/sched_ext/scripts/reproduce_stage7_runtime.sh \
+		kernel/sched_ext/scripts/stage8_validate.sh
 	@if command -v shellcheck >/dev/null 2>&1; then \
 		shellcheck tests/unit/run.sh tests/integration/run.sh; \
 	fi

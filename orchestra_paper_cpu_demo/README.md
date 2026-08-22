@@ -239,17 +239,19 @@ has a [build manifest](../docs/operations/release-readiness-brief-manifest.md).
 
 ## Metrics schema and historical samples
 
-New output uses the append-only 83-column
-`orchestra.paper_cpu.metrics/v4` contract in
-`experiments/schemas/paper_cpu_metrics_v4.json`; see
-`docs/experiments/paper_cpu_metrics_v4.md` and ADR 0005 for the complete
-contract. Its first 66 columns retain the strict v3 meaning and order; v3 in
-turn retains the first 40 v2 meanings. `S3` is retained as `S3_global` and
-`S3_conditioned` remains an additional experimental state-conditioned
-comparison metric. Empty state cohorts do not contribute and singleton cohorts
-have coherence 1. This is a userspace policy-state grouping, not evidence of
-kernel scheduler coherence. Applied controller parameters describe the frame
-that produced a row; `next_*` parameters describe the next frame.
+New output uses the append-only 121-column
+`orchestra.paper_cpu.metrics/v7` contract in
+`experiments/schemas/paper_cpu_metrics_v7.json`. Its first 120 columns retain
+the v6 policy-lifecycle contract, which in turn retains the reviewed v5/v4/v3
+prefixes. v7 requires `coordination_semantics_version=7`, uses
+`S3_conditioned` as canonical S3, and defines canonical `S4` as
+`min(historical S4, S4_burst)`. These are userspace data-pipeline semantics,
+not evidence of kernel scheduler coherence or dispatch.
+
+The v6 policy fields record mode, generation, persistence status, and update
+suppression. They describe the userspace policy lifecycle only; they are not
+kernel controller state. The older v4 contract remains available for historical
+reproduction, and v2-v7 observations must not be silently pooled.
 
 `S2` remains an exact alias for `S2_selected`: the fraction of eligible,
 non-exempt workers whose selected userspace action matches the valid directive.
@@ -271,18 +273,17 @@ and exact rapid reversals. Stale, rejected, unauthenticated, unavailable, or
 partial directives cannot justify a change or enter the history. This is a
 bounded userspace diagnostic, not a kernel scheduling or performance claim.
 
-The historical v3 exploratory pipeline remains readable but must remain
-separate from v4. The v4 exploratory pipeline can be run separately from the
-historical v1 smoke protocol:
+The historical v3/v4 exploratory pipelines remain readable but must remain
+separate from v7. The current bounded v7 exploratory pipeline can be run with:
 
 ```bash
 python3 tools/benchmark/run_paper_cpu_benchmark.py \
-  --manifest experiments/manifests/paper_cpu_exploratory_v4.json \
-  --schema experiments/schemas/paper_cpu_metrics_v4.json \
+  --manifest experiments/manifests/paper_cpu_exploratory_v7.json \
+  --schema experiments/schemas/paper_cpu_metrics_v7.json \
   --binary orchestra_paper_cpu_demo/orchestra_paper_cpu \
   --source orchestra_paper_cpu_demo/orchestra_paper_cpu.c \
   --repository-root . \
-  --output-dir /tmp/orchestra-paper-cpu-exploratory-v4
+  --output-dir /tmp/orchestra-paper-cpu-exploratory-v7
 ```
 
 This is a bounded data-pipeline validation protocol. It records
@@ -294,8 +295,8 @@ natural-workload result.
 
 The repository's existing `sample_*.csv` files use the older 21-column format,
 lack complete provenance, and are retained only as historical artifacts. Do not
-mix them with v2, v3, or v4 output or use them for a baseline-versus-ORCHESTRA
-comparison. Do not silently pool v2, v3, and v4 observations in one statistical
+mix them with v2-v7 output or use them for a baseline-versus-ORCHESTRA
+comparison. Do not silently pool v2-v7 observations in one statistical
 summary.
 
 ## Safety

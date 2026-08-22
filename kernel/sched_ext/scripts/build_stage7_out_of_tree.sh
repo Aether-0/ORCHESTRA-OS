@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build the canonical Stage 7 scheduler without modifying repository sources.
+#
+# Usage:
+#   ORCHESTRA_KERNEL_SRC=/path/to/exact/kernel/source \
+#     ORCHESTRA_BUILD_DIR=/external/output \
+#     bash build_stage7_out_of_tree.sh
+#
+# The kernel source must match uname(2).  The source tree is also required to
+# contain the sched_ext headers and the libbpf inputs used by that kernel; a
+# distro kernel-header symlink is not sufficient when those tools are absent.
+# If a source export omitted scripts/bpf_doc.py, ORCHESTRA_BPF_DOC may point to
+# an explicitly reviewed generator.  The selected paths are recorded in the
+# build log so such a build cannot be mistaken for a complete source export.
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
+RUNNING_KERNEL=$(uname -r)
+RUNNING_VERSION=${RUNNING_KERNEL%%+*}
+KSRC=${1:-${ORCHESTRA_KERNEL_SRC:-/lib/modules/$RUNNING_KERNEL/build}}
+
+if [ "$#" -gt 1 ]; then
+    echo "usage: $0 [EXACT_KERNEL_SOURCE]" >&2
+    exit 2
+fi
+
+if [ -n "${ORCHESTRA_BUILD_DIR:-}" ]; then
+    BUILD_DIR=$ORCHESTRA_BUILD_DIR
+else
+    BUILD_DIR=/tmp/orchestra-stage7-build-${RUNNING_KERNEL}-$(date +%Y%m%d-%H%M%S)
+fi
+
+blocked() {
+    echo "BLOCKED_$*" >&2
+    exit 2
+}
+
+require_command() {
+    command -v "$1" >/dev/null 2>&1 || blocked "MISSING_TOOL:$1"
+}
+
+require_file() {
+    [ -f "$1" ] || blocked "MISSING_INPUT:$1"
+}
+
+require_command clang
+require_command cc
+require_command bpftool
+require_file "$KSRC/Makefile"
+require_file /sys/kernel/btf/vmlinux
+
+SOURCE_VERSION=$(awk '
+    /^VERSION[[:space:]]*=/ { version = $3 }
+    /^PATCHLEVEL[[:space:]]*=/ { patchlevel = $3 }
+    /^SUBLEVEL[[:space:]]*=/ { sublevel = $3 }
+    /^EXTRAVERSION[[:space:]]*=/ { extra = $3 }
+    END {
+        if (version != "" && patchlevel != "" && sublevel != "")
+            printf "%s.%s.%s%s\n", version, patchlevel, sublevel, extra
+    }
+' "$KSRC/Makefile")
+[ -n "$SOURCE_VERSION" ] || blocked "UNREADABLE_KERNEL_VERSION:$KSRC/Makefile"
+[ "$SOURCE_VERSION" = "$RUNNING_VERSION" ] ||
+    blocked "KERNEL_VERSION_MISMATCH:running=$RUNNING_VERSION source=$SOURCE_VERSION"
+
+require_file "$KSRC/tools/sched_ext/include/scx/common.bpf.h"
+require_file "$KSRC/tools/sched_ext/include/scx/enum_defs.autogen.h"
+require_file "$KSRC/tools/lib/bpf/bpf_helpers.h"
+
+BPF_UAPI=${ORCHESTRA_BPF_UAPI:-}
+if [ -z "$BPF_UAPI" ]; then
+    if [ -f "$KSRC/tools/include/uapi/linux/bpf.h" ]; then
+        BPF_UAPI="$KSRC/tools/include/uapi/linux/bpf.h"
+    elif [ -f "$KSRC/include/uapi/linux/bpf.h" ]; then
+        # A matching source export may omit the tools copy while still
+        # shipping the exact kernel UAPI header.  bpf_doc.py consumes the
+        # header contents, so no other kernel revision is imported here.
+        BPF_UAPI="$KSRC/include/uapi/linux/bpf.h"
+    else
+        blocked "MISSING_MATCHING_BPF_UAPI:$KSRC/tools/include/uapi/linux/bpf.h"
+    fi
+fi
+require_file "$BPF_UAPI"
+
+BPF_DOC=${ORCHESTRA_BPF_DOC:-$KSRC/scripts/bpf_doc.py}
+HELPER_DEFS=${ORCHESTRA_BPF_HELPER_DEFS:-$KSRC/tools/lib/bpf/bpf_helper_defs.h}
+if [ ! -f "$HELPER_DEFS" ]; then
+    require_command python3
+    require_file "$BPF_DOC"
+fi
+
+case "$BUILD_DIR" in
+    /*) ;;
+    *) BUILD_DIR="$PWD/$BUILD_DIR" ;;
+esac
+BUILD_PARENT=$(dirname -- "$BUILD_DIR")
+BUILD_NAME=$(basename -- "$BUILD_DIR")
+mkdir -p "$BUILD_PARENT"
+BUILD_DIR=$(CDPATH= cd -- "$BUILD_PARENT" && pwd)/$BUILD_NAME
+case "$BUILD_DIR" in
+    "$REPO_ROOT"|"$REPO_ROOT"/*)
+        blocked "BUILD_DIR_INSIDE_REPOSITORY:$BUILD_DIR" ;;
+esac
+mkdir -p "$BUILD_DIR" "$BUILD_DIR/libbpf"
+
+LOG="$BUILD_DIR/build.log"
+exec > >(tee "$LOG") 2>&1
+
+echo "ORCHESTRA Stage 7 out-of-tree build"
+echo "repository=$REPO_ROOT"
+echo "running_kernel=$RUNNING_KERNEL"
+echo "kernel_source=$KSRC"
+echo "source_version=$SOURCE_VERSION"
+echo "build_dir=$BUILD_DIR"
+echo "bpf_uapi=$BPF_UAPI"
+echo "bpf_doc=$BPF_DOC"
+echo "bpf_helper_defs=$HELPER_DEFS"
+
+VMLINUX_H="$BUILD_DIR/vmlinux.h"
+echo "Generating $VMLINUX_H from /sys/kernel/btf/vmlinux"
+bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$VMLINUX_H"
+
+if [ ! -f "$HELPER_DEFS" ]; then
+    echo "Generating libbpf helper definitions from selected UAPI"
+    if ! python3 "$BPF_DOC" --header --file "$BPF_UAPI" \
+        > "$BUILD_DIR/libbpf/bpf_helper_defs.h" \
+        2> "$BUILD_DIR/libbpf-generate.log"; then
+        echo "libbpf helper-generation output:" >&2
+        sed -n '1,160p' "$BUILD_DIR/libbpf-generate.log" >&2 || true
+        blocked "BPF_HELPER_GENERATION_FAILED:$BPF_DOC"
+    fi
+    HELPER_DEFS="$BUILD_DIR/libbpf/bpf_helper_defs.h"
+fi
+require_file "$HELPER_DEFS"
+
+BPF_OBJECT="$BUILD_DIR/orchestra_scx_stage7.bpf.o"
+BRIDGE="$BUILD_DIR/orchestra_bridge"
+LOADER="$BUILD_DIR/orchestra_loader"
+
+BPF_INCLUDES=(
+    -I"$BUILD_DIR"
+    -I"$BUILD_DIR/libbpf"
+    -I"$REPO_ROOT/kernel/sched_ext/include"
+    -I"$KSRC/tools/lib"
+    -I"$KSRC/tools/include"
+    -I"$KSRC/tools/include/uapi"
+    -I"$KSRC/include"
+    -I"$KSRC/include/uapi"
+    -I"$KSRC/arch/x86/include"
+    -I"$KSRC/arch/x86/include/generated"
+    -I"$KSRC/tools/sched_ext/include"
+    -I/usr/include/bpf
+)
+
+echo "Building $BPF_OBJECT"
+clang -O2 -target bpf -g -nostdinc -D__BPF__ \
+    "${BPF_INCLUDES[@]}" \
+    -Wno-missing-declarations -Wno-visibility \
+    -Wno-address-of-packed-member \
+    -c "$REPO_ROOT/kernel/sched_ext/orchestra_scx_stage7.bpf.c" \
+    -o "$BPF_OBJECT"
+
+echo "Building $BRIDGE"
+cc -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+    -Wformat=2 -Werror -I"$REPO_ROOT/kernel/sched_ext/include" \
+    "$REPO_ROOT/kernel/sched_ext/bridge/orchestra_bridge.c" \
+    -o "$BRIDGE"
+
+echo "Building $LOADER"
+LIBBPF_INCLUDES=(
+    -isystem "$KSRC/tools/lib"
+    -I"$KSRC/include/uapi"
+    -I"$KSRC/arch/x86/include/uapi"
+)
+if ! printf '#include <bpf/libbpf.h>\n' | cc -E "${LIBBPF_INCLUDES[@]}" - \
+    >/dev/null 2>"$BUILD_DIR/libbpf-header-check.log"; then
+    echo "libbpf header-check output:" >&2
+    sed -n '1,160p' "$BUILD_DIR/libbpf-header-check.log" >&2 || true
+    blocked "MISSING_LIBBPF_HEADERS:$KSRC/tools/lib/bpf/libbpf.h"
+fi
+
+LIBBPF_SONAME=
+for candidate in /usr/lib/*/libbpf.so.* /lib/*/libbpf.so.*; do
+    if [ -f "$candidate" ]; then
+        LIBBPF_SONAME=$(basename -- "$candidate")
+        break
+    fi
+done
+[ -n "$LIBBPF_SONAME" ] || blocked "MISSING_LIBBPF_RUNTIME_LIBRARY:libbpf.so.1"
+
+echo "libbpf_link=$LIBBPF_SONAME"
+cc -O2 -std=c11 -Wall -Wextra -Wpedantic \
+    -Wconversion -Wshadow -Wformat=2 -Werror \
+    "${LIBBPF_INCLUDES[@]}" \
+    -I"$REPO_ROOT/kernel/sched_ext/include" \
+    "$REPO_ROOT/kernel/sched_ext/bridge/orchestra_loader.c" \
+    -o "$LOADER" -Wl,-rpath,/usr/lib/x86_64-linux-gnu \
+    -l:"$LIBBPF_SONAME"
+
+{
+    echo "running_kernel=$RUNNING_KERNEL"
+    echo "source_version=$SOURCE_VERSION"
+    echo "kernel_source=$KSRC"
+    echo "bpf_uapi=$BPF_UAPI"
+    echo "bpf_uapi_sha256=$(sha256sum "$BPF_UAPI" | awk '{print $1}')"
+    echo "bpf_doc=$BPF_DOC"
+    if [ -f "$BPF_DOC" ]; then
+        echo "bpf_doc_sha256=$(sha256sum "$BPF_DOC" | awk '{print $1}')"
+    else
+        echo "bpf_doc_sha256=not_used"
+    fi
+    echo "bpf_helper_defs=$HELPER_DEFS"
+    echo "bpf_helper_defs_sha256=$(sha256sum "$HELPER_DEFS" | awk '{print $1}')"
+    echo "libbpf_link=$LIBBPF_SONAME"
+    echo "vmlinux_sha256=$(sha256sum "$VMLINUX_H" | awk '{print $1}')"
+    echo "bpf_object_sha256=$(sha256sum "$BPF_OBJECT" | awk '{print $1}')"
+    echo "bridge_sha256=$(sha256sum "$BRIDGE" | awk '{print $1}')"
+    echo "loader_sha256=$(sha256sum "$LOADER" | awk '{print $1}')"
+} > "$BUILD_DIR/build-manifest.txt"
+
+echo "BUILD_COMPLETE"
+echo "manifest=$BUILD_DIR/build-manifest.txt"

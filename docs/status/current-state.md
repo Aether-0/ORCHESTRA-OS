@@ -1,32 +1,110 @@
 # ORCHESTRA-OS verified current state
 
-- Audit date: 2026-08-14
-- Repository commit: `853cfb40e23137e721557fe75f7475a3d4edc970`
+- Audit date: 2026-08-22
+- Repository commit: `85c500afed8cb6f4e8ac480e536b439af870ec2f`
 - Branch: `main` (`origin/main` at the same commit)
-- Current milestone: Stage 7 sched_ext bridge prototype with the P0 partial-switch ownership fix and bounded VirtualBox runtime gate passed; no bare-metal sched_ext acceptance has been run
-- Active work-package boundary: WP1 kernel foundation, with userspace precursors for WP2-WP6
+- Current milestone: Stage 7 sched_ext bridge prototype with the P0 ownership fix, bounded VirtualBox runtime gate, fixed-point signal gate, and additive kernel-ABI-v8 adaptive core implemented; no bare-metal v8 sched_ext acceptance has been run
+- Active work-package boundary: WP1 kernel foundation plus a source/build-validated v8 policy/runtime path, with userspace precursors for WP2-WP6
 - Overall claim class: mixed; see the component boundaries below
 
 This file is a handoff index. The paper, ADRs, experiment contracts, raw
 artifacts, and test protocols remain authoritative for their respective
 decisions and evidence.
 
+## 2026-08-21 working-tree follow-up
+
+The latest bare-metal continuation did not establish an ORCHESTRA performance
+result. The controlled ownership retest proved that an explicitly opted-in
+task can reach the prototype path, but the older comparison rows started work
+before exact opt-in and therefore remain `INCONCLUSIVE_OWNERSHIP_NOT_PROVEN`.
+The target-matched out-of-tree build now succeeds for the locally preserved
+7.0.12 source export, producing the BPF object, bridge, and loader. It uses an
+exact 7.0.12 UAPI header plus an explicitly supplied helper generator because
+the source export omitted those files; their paths and hashes are recorded in
+the build manifest. Verifier/attach testing remains blocked in this session
+because non-interactive root/sudo authorization is unavailable.
+
+The working tree now contains targeted remediations: benchmark and stress
+runners use repository-relative paths, loader-scoped attach/unload, exact-TID
+ownership barriers, bounded memory pressure, and interrupt cleanup; bridge
+status resolves and filters the full live task identity (including start
+time/epoch); SLEEP releases retire only the exact released generation to RUN;
+and the integration signal-stop grace period covers the existing worker
+teardown window. The fixed-iteration benchmark helper now reports
+conventional success after completing its work, and the runners record
+per-worker exit status, allowed CPU IDs, storage headroom after teardown, and
+thermal samples. The new signal slice adds a bounded 152-byte fixed-point
+`orch_signal` map, bridge readback/sequence/freshness checks,
+signal accept/invalid/stale telemetry, and a fail-closed `--require-signal`
+directive gate. The userspace kernel-bridge stream publishes one converted
+frame before its per-task directives and requires that frame for each
+directive. This is kernel-local transport/gating evidence: it does not make
+the userspace HMAC verifiable in BPF and does not implement the kernel
+predictor, S1-S4/Q computation, feedback controller, Hybrid Safety Layer,
+NUMA tier, or distributed tier.
+The bridge also refuses to publish adaptive directives to current
+`SCHED_FIFO`, `SCHED_RR`, or `SCHED_DEADLINE` targets; this is only an admission
+guard and not kernel RT coexistence validation.
+
+## 2026-08-22 fixed-point signal bridge follow-up
+
+The exact 7.0.12 target-matched out-of-tree build was rerun after the signal
+stream extension. The BPF object, bridge, and loader compile successfully with
+the running kernel's BTF and the recorded UAPI/helper-generator provenance.
+The userspace and source-level gates pass; privileged verifier/attach testing
+remains unavailable in this session because non-interactive root/sudo
+authorization is not present.
+
+## 2026-08-22 metrics-v7 contract follow-up
+
+The userspace binary's current 121-column output is now represented by the
+append-only v6/v7 JSON schemas and bounded exploratory manifests. The benchmark
+runner resolves those local append-only bases, enforces exact column counts,
+validates policy-lifecycle fields, and applies the v7 conditioned-coordination
+semantics. The first end-to-end v7 attempt is preserved as a failure artifact;
+after correcting the runner's controller-causality mapping to match the current
+C implementation, a fresh six-invocation run validated 6/6 CSVs and 6/6
+independent integration-validator invocations. This remains userspace
+pipeline validation, not kernel ownership or performance evidence.
+
+## 2026-08-22 kernel-ABI-v8 implementation follow-up
+
+The kernel path now includes an additive v8 runtime state record, two-bank
+generation-checked policy publication, task hot state and diagnostics, global
+telemetry, bounded state construction from observed/predicted/coordination
+inputs, an explicit controller gate, and a single canonical policy-to-action
+decision path for RUN, SLEEP, MIGRATE, THROTTLE, and YIELD. The legacy v2/v6/v7
+bridge maps and publication paths remain compatible. Exact 7.0.12 target-
+matched BPF, bridge, and loader builds plus source/unit/integration gates pass.
+This is `KERNEL_PROTOTYPED` source/build evidence only: verifier acceptance,
+attach, ownership, effective actions, unload, and performance remain untested
+in the current unprivileged session.
+The v8 contract also negotiates adaptive-slice/state-derived-CPU and
+defer-compatible action backends, records bounded migration outcomes, enforces
+EVALUATE lifecycle freeze/explicit transition rules, and exposes generation
+change/defer/action telemetry. These are implementation properties, not live
+kernel observations.
+
 ## Claim boundary
 
 The repository is not deployment-ready and does not contain a complete
-ORCHESTRA kernel scheduler. It contains:
+ORCHESTRA kernel architecture. It contains:
 
 - a pre-kernel discrete-event simulation reported by the research paper;
 - a real-process userspace prototype in which Linux CFS/EEVDF still performs
   final dispatch;
-- a partial-opt-in sched_ext BPF prototype and a privileged userspace map
-  bridge;
+- a full-switch sched_ext BPF prototype with explicit identity admission and a
+  privileged userspace map bridge;
 - VirtualBox evidence for exact Linux 6.12.96 boot, BPF verification, attach,
   bounded stability, action paths, deferred SLEEP/THROTTLE release, legal
   MIGRATE placement, clean unload, and explicit SCHED_EXT task ownership;
 - no bare-metal sched_ext execution evidence;
-- no kernel implementation of authenticated signal frames, prediction,
-  adaptive learning, S1-S4/Q, or the slower feedback controller.
+- no kernel implementation of authenticated signal frames, online predictor
+  training, full S1-S4/Q computation, or distributed/NUMA policy learning. The
+  v8 path consumes bounded externally supplied prediction/coordination records,
+  publishes generation-safe policy banks, applies explicit controller-state
+  gates, and records task/action telemetry; it does not establish online
+  learning convergence or hardware runtime behavior.
 
 Repository "Stage" numbers are historical development milestones. They are
 not equivalent to the WP1-WP10 exit gates.
@@ -50,10 +128,10 @@ not equivalent to the WP1-WP10 exit gates.
   userspace benchmark/microbenchmark tooling through the committed v5
   experiment contracts.
 
-On 2026-08-14, `make test` passed:
+On 2026-08-21, the captured `make test` gate passed:
 
-- 25/25 named unit tests under GCC ASan/UBSan;
-- the same 25/25 tests under the legacy transport and Clang passes;
+- 30/30 named unit tests under GCC ASan/UBSan;
+- the same 30/30 tests under the legacy transport and Clang passes;
 - generation-stamped thread and MAP_SHARED process stress tests;
 - 21 benchmark-runner validator tests;
 - 4 signal-publication runner tests;
@@ -65,8 +143,13 @@ On 2026-08-14, `make test` passed:
 
 The current kernel path is `orchestra_scx_stage7.bpf.c`, not the Stage 6
 loader skeleton. It uses exact-schema control, directive, identity, task,
-telemetry, per-task telemetry, and deferred-timer maps. It is partial-switch
-only: a task must explicitly enter SCHED_EXT.
+telemetry, per-task telemetry, deferred-timer, and fixed-point signal maps.
+It uses full-switch sched_ext operations, but a task must still pass the
+explicit exact-identity admission path before ownership is claimed.
+The additive v8 path also exposes runtime state, policy metadata and entries,
+hot task state, diagnostics, and global telemetry maps. Its source/build gate
+passes against the recorded running-kernel toolchain, but no v8 object has
+been verifier-checked or attached in the current session.
 
 The final VirtualBox runtime gate on 2026-08-14 established:
 
@@ -85,10 +168,11 @@ The final VirtualBox runtime gate on 2026-08-14 established:
 
 - The validated VM uses Linux 6.12.96. Newer or older kernels may require a
   sched_ext API compatibility build and separate verifier validation.
-- The bridge development headers and link inputs are not installed on the
-  current host (`libbpf-dev` and `libelf-dev` are absent).
-- No bare-metal BPF verifier, attach, ownership, action, watchdog, or detach
-  test has run.
+- The distro bridge development packages are not installed (`libbpf-dev` and
+  `libelf-dev` are absent); the successful out-of-tree build used the exact
+  source-tree public headers and the installed `libbpf.so.1` runtime.
+- No new bare-metal BPF verifier, attach, ownership, action, watchdog, or
+  detach test could run without non-interactive root/sudo authorization.
 - YIELD remains a bounded relinquish approximation; physical fairness and
   latency validation remain pending.
 - THROTTLE and SLEEP use bounded deferred eligibility; physical timing and
@@ -104,10 +188,11 @@ The final VirtualBox runtime gate on 2026-08-14 established:
 - The loader and bridge now validate exact map schemas, identity, generation,
   expiry, and timer-map pinning before attach; deterministic stress campaigns
   remain pending.
-- The current userspace binary emits 120-column metrics v6, but there is no
-  committed v6 JSON schema or v6 experiment manifest and the benchmark runner
-  supports only v2-v5. The latest VBox paper-CPU harness therefore ran but was
-  excluded for schema mismatch.
+- The current userspace binary emits the 121-column metrics v7 contract. v6/v7
+  schemas and manifests, exact-column append-only resolution, policy-lifecycle
+  checks, and v7 conditioned-coordination validation are now present. The
+  bounded v7 pipeline run validated 6/6 invocations; this is still userspace
+  pipeline evidence and does not prove sched_ext ownership or performance.
 - No kernel tests cover real-time/deadline non-interference, starvation,
   affinity/cpuset constraints, CPU hotplug, NUMA, cgroups, or security faults.
 - Earlier Stage 8/9 benchmark interpretations that predate the P0 ownership fix
@@ -140,7 +225,7 @@ map pinning, task opt-in, and detach. Unprivileged BPF is disabled.
 ## Next acceptance gate
 
 The next milestone is **bare-metal Linux 7.0.12 build/verifier compatibility
-and a non-destructive partial-switch acceptance run**. It is not another
+and a non-destructive explicit-ownership acceptance run**. It is not another
 simulator feature and not the SuperTuxKart demonstration.
 
 The gate passes only when a source-hashed build can:
@@ -166,17 +251,23 @@ duplicate checklist.
 
 ## Continuation order
 
-1. Obtain the exact Kali `7.0.12-2kali1` source/tool headers and install the
-   userspace development dependencies, after host-change approval.
-2. Add a repository-local, out-of-tree build recipe that never writes generated
-   headers or objects over source files.
+1. Run the target-matched build and preserve the explicit UAPI/generator
+   provenance, or obtain a complete exact Kali `7.0.12-2kali1` source export.
+2. Use `kernel/sched_ext/scripts/build_stage7_out_of_tree.sh`, which never
+   writes generated headers or objects over source files and refuses a kernel
+   source version mismatch.
+   A partial exact-version source export can use explicit
+   `ORCHESTRA_BPF_UAPI`/`ORCHESTRA_BPF_DOC` overrides, but the paths and hashes
+   must remain in the build evidence and do not replace a complete source
+   provenance requirement.
 3. Port the Stage 7 insertion calls to the Linux 7.0 sched_ext API while
    preserving action/fallback semantics; document the compatibility decision
    if it changes a contract.
 4. Add source-level tests for bridge CLI parsing, map schema/ownership checks,
    generation/cache invalidation, action bounds, and opt-in ABI portability.
-5. Replace broad cleanup and global struct_ops-link detachment in the current
-   scripts with exact link/map ownership tracking and a recovery trap.
+5. Keep the maintained benchmark, P0, Stage 8, Stage 9, and reproduction
+   runners on exact loader-scoped cleanup; legacy broad-cleanup paths have
+   been replaced by safe wrappers.
 6. Build and run verifier-only loading with complete logs; do not opt in a task
    until the verifier and attach/detach path is clean.
 7. Run the negative non-opt-in ownership test, then a single short opted RUN
@@ -214,7 +305,9 @@ same `7.0.12-2kali1` source version as the running kernel package. Installing
 these development packages does not replace the running kernel, but it changes
 host package state and therefore requires approval.
 
-Do not run the current `p0_ownership_retest.sh`, `stage8_validate.sh`, or old
-reproduction script unmodified on this host. They contain VirtualBox-specific
-paths and/or broad `/sys/fs/bpf` cleanup and global struct_ops detach logic that
-can disturb unrelated BPF programs or schedulers.
+The maintained `p0_ownership_retest.sh`, `stage8_validate.sh`,
+`reproduce_stage7_runtime.sh`, and `benchmarks/stage9/benchmark_compare.sh`
+now delegate to the out-of-tree builder, exact-TID ownership gate, and
+loader-scoped benchmark path. The historical 30-minute/fault-injection
+portion of Stage 8 is explicitly reported as untested by the safe wrapper;
+it is not silently counted as a pass.

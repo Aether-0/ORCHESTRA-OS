@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_id": "orchestra.paper_cpu.metrics/v6",
+  "format": "csv",
+  "maturity_class": "userspace-validated telemetry with policy lifecycle diagnostics",
+  "status": "Linux remains the scheduler. This schema records bounded userspace policy observations and does not establish kernel dispatch or scheduler-performance evidence.",
+  "compatibility": {
+    "base": "The first 107 columns retain the strict orchestra.paper_cpu.metrics/v5 meanings and order.",
+    "append_only": "The 13 policy lifecycle columns are appended in the declared order; readers must require the exact ordered header and metrics_schema value.",
+    "analysis": "Do not silently combine v2 through v6 rows in one statistical summary."
+  },
+  "q_definition": "Historical Q remains Q=(S1*S2*S3*S4)^(1/4); if any factor is zero, Q is exactly zero. S4_burst is experimental and is not included in Q.",
+  "q_absolute_tolerance": 1e-7,
+  "base_schema": "paper_cpu_metrics_v5.json",
+  "append_columns": [
+    {
+      "name": "policy_mode",
+      "type": "string",
+      "enum": ["TRAIN", "ADAPT", "EVALUATE"]
+    },
+    {
+      "name": "policy_schema_version",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    {
+      "name": "policy_generation",
+      "type": "integer",
+      "minimum": 0
+    },
+    {
+      "name": "policy_update_allowed",
+      "type": "boolean01"
+    },
+    {
+      "name": "policy_update_applied",
+      "type": "boolean01"
+    },
+    {
+      "name": "policy_update_suppression_reason",
+      "type": "string",
+      "enum": ["NONE", "MODE", "STATE", "FRAME_INVALID", "CADENCE", "DELTA", "EXPLORATION_DISABLED"]
+    },
+    {
+      "name": "policy_exploration_enabled",
+      "type": "boolean01"
+    },
+    {
+      "name": "policy_train_update_count",
+      "type": "integer",
+      "minimum": 0
+    },
+    {
+      "name": "policy_adapt_update_count",
+      "type": "integer",
+      "minimum": 0
+    },
+    {
+      "name": "policy_load_status",
+      "type": "string",
+      "enum": ["OK", "SKIP", "MAGIC", "VERSION", "SCHEMA", "TRUNCATED", "OVERSIZED", "OVERFLOW", "STATE_COUNT", "ACTION_COUNT", "DIMENSIONS", "NON_FINITE", "DIGEST", "TRAILING", "MISSING"]
+    },
+    {
+      "name": "policy_save_status",
+      "type": "string",
+      "enum": ["OK", "WRITE_ERROR", "RENAME_ERROR", "TEMP_FAILED", "VALIDATION_FAILED"]
+    },
+    {
+      "name": "policy_digest_prefix",
+      "type": "string"
+    },
+    {
+      "name": "policy_format_version",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    }
+  ]
+}

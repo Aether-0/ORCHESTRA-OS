@@ -26,6 +26,8 @@ struct orchestra_userspace_map_lock { uint32_t opaque; };
 #define ORCHESTRA_MAP_LOCK struct orchestra_userspace_map_lock
 #endif
 
+#include "orchestra_kernel_v8.h"
+
 /* Exact BPF object names. Linux BPF names are limited to 15 characters. */
 #define BRIDGE_CTL_MAP_NAME       "orch_control"
 #define BRIDGE_DIR_MAP_NAME       "orch_directives"
@@ -34,6 +36,7 @@ struct orchestra_userspace_map_lock { uint32_t opaque; };
 #define BRIDGE_TASK_TEL_MAP_NAME  "orch_task_tel"
 #define BRIDGE_TEL_MAP_NAME       "orch_telemetry"
 #define BRIDGE_DEFER_MAP_NAME     "orch_defer_tmr"
+#define BRIDGE_SIGNAL_MAP_NAME    "orch_signal"
 
 #define BRIDGE_MAX_TASKS          4096u
 #define BRIDGE_DEFERRED_DSQ        UINT64_C(0x4f52434800000001)
@@ -48,6 +51,20 @@ struct orchestra_userspace_map_lock { uint32_t opaque; };
 #define BRIDGE_EXPIRY_MAX_NS       UINT64_C(60000000000)
 #define BRIDGE_LEASE_MAX_NS        UINT64_C(60000000000)
 #define BRIDGE_STREAM_MAGIC         0x4f525153u /* "ORQS" */
+#define BRIDGE_SIGNAL_SCALE         1000u
+#define BRIDGE_SIGNAL_MAX_AGE_NS    UINT64_C(5000000000)
+
+#define BRIDGE_SIGNAL_F_PREDICTION_VALID (1u << 0)
+#define BRIDGE_SIGNAL_F_METRICS_VALID    (1u << 1)
+#define BRIDGE_SIGNAL_F_CONTROLLER_VALID (1u << 2)
+
+/* Stream records may carry one signal frame before their directive. */
+#define BRIDGE_STREAM_F_PUBLISH_SIGNAL  (1u << 0)
+#define BRIDGE_STREAM_F_REQUIRE_SIGNAL  (1u << 1)
+
+/* A directive carrying this flag is fail-closed until a current signal frame
+ * with the same scheduler/controller epoch is available. */
+#define BRIDGE_DIRECTIVE_F_REQUIRE_SIGNAL (1u << 0)
 
 #define BRIDGE_CAP_RUN              (1u << ORCHESTRA_ACTION_RUN)
 #define BRIDGE_CAP_SLEEP            (1u << ORCHESTRA_ACTION_SLEEP)
@@ -58,11 +75,42 @@ struct orchestra_userspace_map_lock { uint32_t opaque; };
 #define BRIDGE_CAP_STRONG_IDENTITY  (1u << 9)
 #define BRIDGE_CAP_DEFERRED_DSQ     (1u << 10)
 #define BRIDGE_CAP_RUNTIME_BUDGET   (1u << 11)
-#define BRIDGE_REQUIRED_CAPS \
+#define BRIDGE_CAP_SIGNAL_FRAME     (1u << 12)
+#define BRIDGE_CAP_SIGNAL_FRESHNESS (1u << 13)
+#define BRIDGE_CAP_KERNEL_POLICY_LOOKUP ORCHESTRA_KERNEL_CAP_POLICY_LOOKUP
+#define BRIDGE_CAP_KERNEL_STATE_DERIVED ORCHESTRA_KERNEL_CAP_STATE_DERIVED
+#define BRIDGE_CAP_KERNEL_CONTROLLER_GATE ORCHESTRA_KERNEL_CAP_CONTROLLER_GATE
+#define BRIDGE_CAP_KERNEL_ADAPTIVE_TASK_STATE ORCHESTRA_KERNEL_CAP_ADAPTIVE_TASK_STATE
+#define BRIDGE_CAP_KERNEL_PREDICTION ORCHESTRA_KERNEL_CAP_PREDICTION_RECORD
+#define BRIDGE_CAP_KERNEL_COORDINATION ORCHESTRA_KERNEL_CAP_COORDINATION
+#define BRIDGE_CAP_KERNEL_POLICY_BANK ORCHESTRA_KERNEL_CAP_POLICY_BANK
+#define BRIDGE_CAP_KERNEL_ACTION_FALLBACK ORCHESTRA_KERNEL_CAP_ACTION_FALLBACK
+#define BRIDGE_CAP_KERNEL_ADAPTIVE_SLICE ORCHESTRA_KERNEL_CAP_ADAPTIVE_SLICE
+#define BRIDGE_CAP_KERNEL_STATE_CPU_SELECTION \
+    ORCHESTRA_KERNEL_CAP_STATE_CPU_SELECTION
+#define BRIDGE_CAP_KERNEL_SLEEP_DEFER_COMPAT \
+    ORCHESTRA_KERNEL_CAP_SLEEP_DEFER_COMPAT
+#define BRIDGE_CAP_KERNEL_THROTTLE_DEFER_COMPAT \
+    ORCHESTRA_KERNEL_CAP_THROTTLE_DEFER_COMPAT
+#define BRIDGE_LEGACY_REQUIRED_CAPS \
     (BRIDGE_CAP_RUN | BRIDGE_CAP_SLEEP | BRIDGE_CAP_MIGRATE | \
      BRIDGE_CAP_THROTTLE | BRIDGE_CAP_YIELD | BRIDGE_CAP_PER_TASK | \
      BRIDGE_CAP_STRONG_IDENTITY | BRIDGE_CAP_DEFERRED_DSQ | \
-     BRIDGE_CAP_RUNTIME_BUDGET)
+     BRIDGE_CAP_RUNTIME_BUDGET | BRIDGE_CAP_SIGNAL_FRAME | \
+     BRIDGE_CAP_SIGNAL_FRESHNESS)
+#define BRIDGE_V8_REQUIRED_CAPS \
+    (BRIDGE_CAP_KERNEL_POLICY_LOOKUP | \
+     BRIDGE_CAP_KERNEL_STATE_DERIVED | BRIDGE_CAP_KERNEL_CONTROLLER_GATE | \
+     BRIDGE_CAP_KERNEL_ADAPTIVE_TASK_STATE | BRIDGE_CAP_KERNEL_PREDICTION | \
+     BRIDGE_CAP_KERNEL_COORDINATION | BRIDGE_CAP_KERNEL_POLICY_BANK | \
+     BRIDGE_CAP_KERNEL_ACTION_FALLBACK | BRIDGE_CAP_KERNEL_ADAPTIVE_SLICE | \
+     BRIDGE_CAP_KERNEL_STATE_CPU_SELECTION | \
+     BRIDGE_CAP_KERNEL_SLEEP_DEFER_COMPAT | \
+     BRIDGE_CAP_KERNEL_THROTTLE_DEFER_COMPAT)
+#define BRIDGE_KERNEL_REQUIRED_CAPS \
+    (BRIDGE_LEGACY_REQUIRED_CAPS | BRIDGE_V8_REQUIRED_CAPS)
+/* Existing v1/v2 bridge clients continue to validate against this name. */
+#define BRIDGE_REQUIRED_CAPS BRIDGE_LEGACY_REQUIRED_CAPS
 
 enum bridge_publication_status {
     BRIDGE_PUB_OK = 0,
@@ -85,7 +133,14 @@ enum bridge_fallback_reason {
     BRIDGE_FALLBACK_BAD_CPU = 8,
     BRIDGE_FALLBACK_BAD_PARAMETERS = 9,
     BRIDGE_FALLBACK_MAP_ERROR = 10,
-    BRIDGE_FALLBACK_UNSTABLE_PUBLICATION = 11
+    BRIDGE_FALLBACK_UNSTABLE_PUBLICATION = 11,
+    BRIDGE_FALLBACK_SIGNAL_INVALID = 12,
+    BRIDGE_FALLBACK_SIGNAL_STALE = 13,
+    BRIDGE_FALLBACK_POLICY_MISSING = 14,
+    BRIDGE_FALLBACK_POLICY_GENERATION = 15,
+    BRIDGE_FALLBACK_UNSUPPORTED_ACTION = 16,
+    BRIDGE_FALLBACK_CONTROLLER_OVERRIDE = 17,
+    BRIDGE_FALLBACK_PROGRESS_GUARD = 18
 };
 
 struct orchestra_task_identity {
@@ -111,6 +166,47 @@ struct orchestra_pid_key {
 struct bridge_identity_record {
     uint64_t start_boottime_ns;
     uint64_t scheduler_epoch;
+};
+
+/*
+ * ARRAY[1] fixed-point signal frame.  The frame is deliberately bounded and
+ * contains no pointers, floating point, or variable-length data.  Values
+ * ending in _permille are in [0, BRIDGE_SIGNAL_SCALE].  The bridge validates
+ * the frame before publication; BPF validates schema, epoch, freshness,
+ * sequence, bounds, and controller coherence before a directive may require
+ * it.  This is a trusted local map transport, not a kernel HMAC verifier.
+ */
+struct bridge_signal_frame {
+    ORCHESTRA_MAP_LOCK lock;
+    uint32_t magic;
+    uint32_t abi_version;
+    uint32_t value_size;
+    uint32_t flags;
+    uint32_t tier;
+    uint32_t source_id;
+    uint64_t scheduler_epoch;
+    uint64_t sequence;
+    uint64_t published_ns;
+    uint64_t expires_ns;
+    uint32_t key_epoch;
+    uint32_t directive;
+    uint32_t state_schema_version;
+    uint32_t prediction_used;
+    uint32_t confidence_permille;
+    uint32_t cpu_now_permille;
+    uint32_t cpu_pred_permille;
+    uint32_t decision_cpu_permille;
+    uint32_t memory_pressure_permille;
+    uint32_t thermal_permille;
+    uint32_t s1_permille;
+    uint32_t s2_permille;
+    uint32_t s3_permille;
+    uint32_t s4_permille;
+    uint32_t q_permille;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
+    uint64_t reserved;
 };
 
 /* ARRAY[1]. scheduler_epoch never changes for one attached BPF instance. */
@@ -236,6 +332,9 @@ struct bridge_telemetry {
     uint64_t deferred_timer_future_count;
     uint64_t deferred_release_failure_count;
     uint64_t deferred_cpu_failure_count;
+    uint64_t signal_accepted_count;
+    uint64_t signal_invalid_count;
+    uint64_t signal_stale_count;
 };
 
 /* Fixed records for the canonical engine -> privileged bridge stream. */
@@ -255,6 +354,26 @@ struct bridge_stream_request {
     uint64_t throttle_period_ns;
     uint64_t throttle_budget_ns;
     uint64_t expiry_duration_ns;
+    uint64_t signal_sequence;
+    uint64_t signal_max_age_ns;
+    uint32_t stream_flags;
+    uint32_t signal_tier;
+    uint32_t signal_source_id;
+    uint32_t signal_key_epoch;
+    uint32_t signal_directive;
+    uint32_t signal_state_schema_version;
+    uint32_t signal_prediction_used;
+    uint32_t signal_confidence_permille;
+    uint32_t signal_cpu_now_permille;
+    uint32_t signal_cpu_pred_permille;
+    uint32_t signal_decision_cpu_permille;
+    uint32_t signal_memory_pressure_permille;
+    uint32_t signal_thermal_permille;
+    uint32_t signal_s1_permille;
+    uint32_t signal_s2_permille;
+    uint32_t signal_s3_permille;
+    uint32_t signal_s4_permille;
+    uint32_t signal_q_permille;
 };
 
 struct bridge_stream_response {
@@ -273,6 +392,8 @@ _Static_assert(sizeof(struct orchestra_pid_key) == 8,
                "PID key ABI drift");
 _Static_assert(sizeof(struct bridge_identity_record) == 16,
                "identity record ABI drift");
+_Static_assert(sizeof(struct bridge_signal_frame) == 152,
+               "signal frame ABI drift");
 _Static_assert(sizeof(struct bridge_control) == 80,
                "control ABI drift");
 _Static_assert(sizeof(struct bridge_directive) == 112,
@@ -281,11 +402,11 @@ _Static_assert(sizeof(struct bridge_task_state) == 72,
                "task state ABI drift");
 _Static_assert(sizeof(struct bridge_task_telemetry) == 104,
                "task telemetry ABI drift");
-_Static_assert(sizeof(struct bridge_telemetry) == 304,
+_Static_assert(sizeof(struct bridge_telemetry) == 328,
                "global telemetry ABI drift");
 _Static_assert(sizeof(struct bridge_defer_timer) == 16,
                "deferred timer map ABI drift");
-_Static_assert(sizeof(struct bridge_stream_request) == 88,
+_Static_assert(sizeof(struct bridge_stream_request) == 176,
                "stream request ABI drift");
 _Static_assert(sizeof(struct bridge_stream_response) == 32,
                "stream response ABI drift");

@@ -18,8 +18,12 @@ HARNESS_PATH = REPOSITORY / "tools/benchmark/run_paper_cpu_benchmark.py"
 V2_SCHEMA_PATH = REPOSITORY / "experiments/schemas/paper_cpu_metrics_v2.json"
 V3_SCHEMA_PATH = REPOSITORY / "experiments/schemas/paper_cpu_metrics_v3.json"
 V4_SCHEMA_PATH = REPOSITORY / "experiments/schemas/paper_cpu_metrics_v4.json"
+V6_SCHEMA_PATH = REPOSITORY / "experiments/schemas/paper_cpu_metrics_v6.json"
+V7_SCHEMA_PATH = REPOSITORY / "experiments/schemas/paper_cpu_metrics_v7.json"
 V3_MANIFEST_PATH = REPOSITORY / "experiments/manifests/paper_cpu_exploratory_v3.json"
 V4_MANIFEST_PATH = REPOSITORY / "experiments/manifests/paper_cpu_exploratory_v4.json"
+V6_MANIFEST_PATH = REPOSITORY / "experiments/manifests/paper_cpu_exploratory_v6.json"
+V7_MANIFEST_PATH = REPOSITORY / "experiments/manifests/paper_cpu_exploratory_v7.json"
 
 spec = importlib.util.spec_from_file_location("orchestra_benchmark", HARNESS_PATH)
 if spec is None or spec.loader is None:
@@ -150,12 +154,68 @@ def valid_v4_rows() -> list[dict[str, str]]:
     return rows
 
 
+def valid_v7_rows() -> list[dict[str, str]]:
+    """Create a valid v7 fixture with conditioned coordination aliases."""
+
+    rows = valid_v4_rows()
+    for row in rows:
+        row.update(
+            {
+                "metrics_schema": harness.V7_SCHEMA_ID,
+                "S3_global": "1.00000000",
+                "S3_conditioned": "1.00000000",
+                "S2_selected": row["S2"],
+                "controller_state": "NORMAL",
+                "previous_state": "NORMAL",
+                "transition_reason": "NONE",
+                "state_residence_time": "0",
+                "valid_control_history_count": "0",
+                "invalid_frame_fault_count": "0",
+                "saturation_bitmask": "0",
+                "saturation_direction": "0",
+                "saturation_persistence": "0",
+                "oscillation_score": "0.00000000",
+                "oscillation_event": "0",
+                "rollback_event": "0",
+                "rollback_reason": "NONE",
+                "recovery_progress": "0.00000000",
+                "last_known_good_available": "0",
+                "requested_jitter": "0.02000000",
+                "applied_jitter": "0.02000000",
+                "requested_switch": "0.00000000",
+                "applied_switch": "0.00000000",
+                "requested_consensus": "0.00000000",
+                "applied_consensus": "0.00000000",
+                "update_accepted": "0",
+                "update_suppressed": "0",
+                "suppression_reason": "0",
+                "policy_mode": "TRAIN",
+                "policy_schema_version": "1",
+                "policy_generation": "0",
+                "policy_update_allowed": "1",
+                "policy_update_applied": "0",
+                "policy_update_suppression_reason": "NONE",
+                "policy_exploration_enabled": "1",
+                "policy_train_update_count": "0",
+                "policy_adapt_update_count": "0",
+                "policy_load_status": "SKIP",
+                "policy_save_status": "OK",
+                "policy_digest_prefix": "0000000000000000",
+                "policy_format_version": "1",
+                "coordination_semantics_version": "7",
+            }
+        )
+    return rows
+
+
 class BenchmarkValidatorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.schema = harness.load_metrics_schema(V2_SCHEMA_PATH, harness.V2_SCHEMA_ID)
         cls.v3_schema = harness.load_metrics_schema(V3_SCHEMA_PATH, harness.V3_SCHEMA_ID)
         cls.v4_schema = harness.load_metrics_schema(V4_SCHEMA_PATH, harness.V4_SCHEMA_ID)
+        cls.v6_schema = harness.load_metrics_schema(V6_SCHEMA_PATH, harness.V6_SCHEMA_ID)
+        cls.v7_schema = harness.load_metrics_schema(V7_SCHEMA_PATH, harness.V7_SCHEMA_ID)
 
     def validate(
         self,
@@ -302,6 +362,53 @@ class BenchmarkValidatorTests(unittest.TestCase):
         result = self.validate(rows, self.v4_schema)
         self.assertFalse(result.valid)
         self.assertTrue(any("dominant_transition_count" in issue for issue in result.issues))
+
+    def test_valid_v7_contract_and_append_only_schema_resolution(self) -> None:
+        result = self.validate(valid_v7_rows(), self.v7_schema)
+        self.assertTrue(result.valid, result.issues)
+        self.assertEqual(len(self.v6_schema.header), 120)
+        self.assertEqual(len(self.v7_schema.header), 121)
+        self.assertEqual(
+            self.v7_schema.header[-1], "coordination_semantics_version"
+        )
+        summary = harness.make_run_summary(
+            "v7-run",
+            "orchestra",
+            1,
+            41,
+            result.rows_after_warmup,
+            harness.V7_SCHEMA_ID,
+        )
+        self.assertEqual(summary["S3_conditioned_mean"], 1.0)
+        self.assertEqual(summary["S4_burst_mean"], 1.0)
+        self.assertEqual(
+            summary["policy_lifecycle"]["policy_modes"],  # type: ignore[index]
+            ["TRAIN"],
+        )
+        aggregate = harness.aggregate_run_summaries([summary], harness.V7_SCHEMA_ID)
+        self.assertEqual(aggregate["metrics_schema_id"], harness.V7_SCHEMA_ID)
+        orchestra_mode = aggregate["modes"]["orchestra"]  # type: ignore[index]
+        self.assertEqual(
+            orchestra_mode["policy_lifecycle"]["policy_update_applied_rows"]["mean"],  # type: ignore[index]
+            0.0,
+        )
+
+    def test_v7_policy_contract_rejects_inconsistent_mode_flags(self) -> None:
+        rows = valid_v7_rows()
+        rows[0]["policy_mode"] = "EVALUATE"
+        result = self.validate(rows, self.v7_schema)
+        self.assertFalse(result.valid)
+        self.assertTrue(
+            any("policy_exploration_enabled" in issue for issue in result.issues)
+        )
+
+    def test_v6_and_v7_manifests_declare_exact_column_contract(self) -> None:
+        v6 = harness.load_manifest(V6_MANIFEST_PATH)
+        v7 = harness.load_manifest(V7_MANIFEST_PATH)
+        self.assertEqual(v6.expected_csv_column_count, 120)
+        self.assertEqual(v7.expected_csv_column_count, 121)
+        self.assertEqual(v6.metrics_schema_id, harness.V6_SCHEMA_ID)
+        self.assertEqual(v7.metrics_schema_id, harness.V7_SCHEMA_ID)
 
     def test_v4_no_change_sentinels_are_required(self) -> None:
         rows = valid_v4_rows()
