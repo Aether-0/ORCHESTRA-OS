@@ -245,9 +245,9 @@ The gate passes only when a source-hashed build can:
 11. retain the environment, commands, stdout/stderr, dmesg excerpt, map data,
     scheduler state transitions, hashes, anomalies, and pass/block result.
 
-Use `Orchestra updated check list .docx` as the broad real-machine protocol.
-It is the newer, 36-phase expansion of the earlier checklist; do not create a
-duplicate checklist.
+Use `ORCHESTRA_OS_Real_World_Machine_Test_Checklist_Expanded.md` as the broad
+real-machine protocol. It is the newer, 36-phase expansion of the earlier
+checklist; do not create a duplicate checklist.
 
 ## Continuation order
 

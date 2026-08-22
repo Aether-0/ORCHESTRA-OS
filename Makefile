@@ -49,7 +49,6 @@ check:
 		tools/benchmark/run_signal_publication_microbenchmark.py \
 		tools/plotting/plot_paper_cpu_smoke.py \
 		tools/plotting/plot_release_readiness.py \
-		tools/reporting/build_release_readiness_docx.py \
 		tools/testing/capture_test_run.py \
 		tools/testing/index_test_artifacts.py \
 		tests/integration/validate_paper_cpu_csv.py \

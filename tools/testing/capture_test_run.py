@@ -38,7 +38,7 @@ INPUT_PATHS: Final = (
     "docs/adr/0006-generation-stamped-signal-publication.md",
     "tools/plotting/plot_paper_cpu_smoke.py",
     "tools/plotting/plot_release_readiness.py",
-    "tools/reporting/build_release_readiness_docx.py",
+    "docs/operations/release-readiness-plan.md",
     "tools/testing/capture_test_run.py",
     "tools/testing/index_test_artifacts.py",
 )

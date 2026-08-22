@@ -1,10 +1,10 @@
-<!-- State-enriched from the real-machine campaign audit. The source DOCX remains unchanged. -->
+<!-- Canonical Markdown checklist enriched from the real-machine campaign audit. -->
 
 # ORCHESTRA-OS
 
 ## REAL-WORLD MACHINE TEST — FULL CHECKLIST
 
-> Source: `ORCHESTRA_OS_Real_World_Machine_Test_Checklist.docx` (unchanged)
+> Canonical checklist: this Markdown file is the maintained campaign checklist.
 > Campaign state source: `artifacts/real-machine-20260821-094227-kali-2qqYxp/CHECKLIST_AUDIT.csv`
 > Tested commit: `07c787c4eeac01a2f9d60916577806d00863b15f` · Kernel: `7.0.12+kali-amd64`
 
