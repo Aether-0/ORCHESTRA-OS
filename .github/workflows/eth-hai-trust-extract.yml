@@ -99,7 +99,7 @@ jobs:
             mkdir -p "$out"
             (
               cd "$SOURCE_DIR/data_analysis"
-              PYTHONPATH="$SOURCE_DIR/data_analysis" \
+              PYTHONPATH="$PWD" \
               TRUST_EXTRACT_OUTPUT_DIR="$GITHUB_WORKSPACE/$out" \
               python "$GITHUB_WORKSPACE/eth_hai_trust_extract/extract_trust_aggregates.py"
             ) > "$out/stdout.txt" 2> "$out/stderr.txt"
