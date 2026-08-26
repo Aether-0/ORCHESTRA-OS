@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: eth-hai-environment-reconstruction
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   reconstruct-and-freeze:
@@ -36,6 +36,7 @@ jobs:
       OPENBLAS_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
       NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
 
     steps:
       - name: Check out private orchestration branch
@@ -86,8 +87,35 @@ jobs:
           source "$VENV_DIR/bin/activate"
           python -m pip install --disable-pip-version-check --no-input \
             pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          cat > "$RESULTS_DIR/constraints-historical-transitive.txt" <<'EOF'
+          # Resolver constraints for the Python 3.8.16 historical reconstruction.
+          # Selected from releases available by 10 February 2023.
+          xarray==2023.1.0
+          lazy-loader==0.1rc2
+          outdated==0.2.2
+          littleutils==0.2.2
+          requests==2.28.2
+          tabulate==0.9.0
+          packaging==23.0
+          patsy==0.5.3
+          python-dateutil==2.8.2
+          pytz==2022.7.1
+          six==1.16.0
+          contourpy==1.0.7
+          cycler==0.11.0
+          fonttools==4.38.0
+          kiwisolver==1.4.4
+          Pillow==9.4.0
+          pyparsing==3.0.9
+          certifi==2022.12.7
+          charset-normalizer==3.0.1
+          idna==3.4
+          urllib3==1.26.14
+          EOF
           python -m pip install --disable-pip-version-check --no-input \
+            --only-binary=:all: \
             --report "$RESULTS_DIR/pip-install-report.json" \
+            -c "$RESULTS_DIR/constraints-historical-transitive.txt" \
             -r eth_hai_repro/requirements-historical-direct.txt
           python -m pip check | tee "$RESULTS_DIR/pip-check.txt"
           python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-generated.txt"
@@ -98,6 +126,7 @@ jobs:
             --repo "$SOURCE_DIR" \
             --output-dir "$RESULTS_DIR/environment"
           sha256sum eth_hai_repro/requirements-historical-direct.txt \
+            "$RESULTS_DIR/constraints-historical-transitive.txt" \
             "$RESULTS_DIR/requirements-freeze-generated.txt" \
             "$RESULTS_DIR/pip-install-report.json" \
             > "$RESULTS_DIR/environment-lock-sha256.txt"
@@ -133,6 +162,7 @@ jobs:
               'source_objects_verified': 27,
               'python_runtime': '3.8.16',
               'resolved_environment_frozen': True,
+              'historical_resolver_constraints_applied': True,
               'statistical_scripts_executed': False,
               'participant_data_in_artifact': False,
           }
@@ -148,7 +178,7 @@ jobs:
               '- Complete 27-object manifest verification: **PASS**\n'
               '- Independent per-file SHA-256 manifest: **PASS**\n'
               '- Python 3.8.16 isolated virtual environment: **PASS**\n'
-              '- Direct dependency installation and `pip check`: **PASS**\n'
+              '- Historically constrained dependency installation and `pip check`: **PASS**\n'
               '- Resolved environment frozen with `pip freeze --all`: **PASS**\n'
               '- Import and syntax-only smoke test: **PASS**\n'
               '- Statistical analysis scripts executed: **NO**\n'
