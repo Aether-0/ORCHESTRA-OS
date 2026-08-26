@@ -1,0 +1,100 @@
+name: ETH HAI H3 correlation extraction evidence
+
+'on':
+  push:
+    branches:
+      - eth-hai-direct-h3-20260826
+    paths:
+      - .github/workflows/eth-hai-h3-correlation-debug.yml
+      - eth_hai_h3_extract/**
+      - eth_hai_schema_gate/**
+      - eth_hai_repro/**
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  capture-extraction-evidence:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-h3-extract
+      RESULTS_DIR: work/h3_correlation_evidence
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create and verify source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RESULTS_DIR/source" "$RESULTS_DIR/run"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          python3 eth_hai_repro/verify_source_snapshot.py --repo "$SOURCE_DIR" --manifest eth_hai_repro/git_object_snapshot_verified.json --output-dir "$RESULTS_DIR/source"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Recreate frozen environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          python -m pip check > "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-observed.txt"
+          diff -u eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt "$RESULTS_DIR/requirements-freeze-observed.txt" > "$RESULTS_DIR/environment-freeze-diff.txt"
+
+      - name: Run companion aggregate extractor and retain all evidence
+        shell: bash
+        run: |
+          set -uo pipefail
+          source "$VENV_DIR/bin/activate"
+          sha256sum "$SOURCE_DIR/data_analysis/analysis_H3_new.py" > "$RESULTS_DIR/upstream-h3-script-sha256.txt"
+          sha256sum eth_hai_h3_extract/extract_correlations.py > "$RESULTS_DIR/extractor-sha256.txt"
+          set +e
+          (
+            cd "$SOURCE_DIR/data_analysis"
+            PYTHONPATH="$SOURCE_DIR/data_analysis" H3_EXTRACT_OUTPUT_DIR="$GITHUB_WORKSPACE/$RESULTS_DIR/run" python "$GITHUB_WORKSPACE/eth_hai_h3_extract/extract_correlations.py"
+          ) > "$RESULTS_DIR/run/stdout.txt" 2> "$RESULTS_DIR/run/stderr.txt"
+          rc=$?
+          printf '%s\n' "$rc" > "$RESULTS_DIR/run/exit-code.txt"
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all > "$RESULTS_DIR/source/source-post-run-status.txt"
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 | sort -z | xargs -0 sha256sum > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+          exit 0
+
+      - name: Upload extraction evidence regardless of extractor outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-h3-correlation-evidence-${{ github.run_id }}
+          path: work/h3_correlation_evidence
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
