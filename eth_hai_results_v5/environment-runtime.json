@@ -1,0 +1,37 @@
+{
+  "base_prefix": "/opt/hostedtoolcache/Python/3.8.16/x64",
+  "compiler": "GCC 11.4.0",
+  "environment": {
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "TZ": "UTC"
+  },
+  "exact_python_3_8_16": true,
+  "executable": "/home/runner/work/ORCHESTRA-OS/ORCHESTRA-OS/work/python-3.8.16-venv/bin/python",
+  "implementation": "CPython",
+  "in_virtual_environment": true,
+  "libc": [
+    "glibc",
+    "2.35"
+  ],
+  "machine": "x86_64",
+  "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.34",
+  "preferred_encoding": "UTF-8",
+  "prefix": "/home/runner/work/ORCHESTRA-OS/ORCHESTRA-OS/work/python-3.8.16-venv",
+  "python_version": "3.8.16 (default, Oct  8 2024, 03:46:54) \n[GCC 11.4.0]",
+  "statistical_scripts_executed": false,
+  "sysconfig_platform": "linux-x86_64",
+  "version_info": [
+    3,
+    8,
+    16,
+    "final",
+    0
+  ]
+}

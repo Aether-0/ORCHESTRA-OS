@@ -1,0 +1,23 @@
+{
+  "artifact_name": "eth-hai-environment-freeze-33005830882",
+  "bounded_import_checks_passed": true,
+  "captured_at_utc": "2026-08-26T19:35:02.421035+00:00",
+  "complete_dependency_set_pinned": true,
+  "dependency_resolution_disabled_for_install": true,
+  "github_orchestration_commit": "eaffe7eaa9bd3ae43a801efb9c675726977507ee",
+  "github_ref_name": "eth-hai-repro-bootstrap-20260826",
+  "github_repository": "Aether-0/ORCHESTRA-OS",
+  "github_run_attempt": 1,
+  "github_run_id": 33005830882,
+  "participant_data_in_artifact": false,
+  "private_checkout_created": true,
+  "private_checkout_detached_head": true,
+  "python_runtime": "3.8.16",
+  "resolved_environment_frozen": true,
+  "schema_version": "1.0",
+  "source_objects_verified": 27,
+  "statistical_scripts_executed": false,
+  "upstream_commit": "008f9833ab8c4c23ed94908e0108053a2240a100",
+  "upstream_repository": "RichardHGL/CHI2023_DKE",
+  "upstream_root_tree": "2ba7a4f41807de9a32670f77d55598fabcb253d9"
+}
