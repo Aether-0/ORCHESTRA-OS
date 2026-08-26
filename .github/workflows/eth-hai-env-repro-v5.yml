@@ -1,0 +1,338 @@
+name: ETH HAI environment reconstruction v5 minimal freeze
+
+'on':
+  push:
+    branches:
+      - eth-hai-repro-bootstrap-20260826
+    paths:
+      - .github/workflows/eth-hai-env-repro-v5.yml
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: eth-hai-environment-reconstruction-v5
+  cancel-in-progress: false
+
+jobs:
+  reconstruct-and-freeze:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      RESULTS_DIR: work/results
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-venv
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+
+    steps:
+      - name: Check out private orchestration branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then
+            echo 'ERROR: source checkout is not detached' >&2
+            exit 1
+          fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Verify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+          cp eth_hai_repro/requirements-historical-direct.txt "$RESULTS_DIR/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Create isolated environment and pin resolver tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python --version | tee "$RESULTS_DIR/setup-python-version.txt"
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip --version | tee "$RESULTS_DIR/pip-toolchain.txt"
+
+      - name: Write complete historically pinned package set
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RESULTS_DIR/requirements-historical-complete.txt" <<'EOF'
+          numpy==1.24.1
+          pandas==1.5.3
+          scipy==1.10.0
+          pingouin==0.5.3
+          statsmodels==0.13.5
+          matplotlib==3.6.3
+          seaborn==0.12.2
+          scikit-learn==1.2.1
+          pandas-flavor==0.3.0
+          joblib==1.2.0
+          threadpoolctl==3.1.0
+          xarray==2023.1.0
+          lazy-loader==0.1rc2
+          outdated==0.2.2
+          littleutils==0.2.2
+          requests==2.28.2
+          tabulate==0.9.0
+          packaging==23.0
+          patsy==0.5.3
+          python-dateutil==2.8.2
+          pytz==2022.7.1
+          six==1.16.0
+          contourpy==1.0.7
+          cycler==0.11.0
+          fonttools==4.38.0
+          kiwisolver==1.4.4
+          Pillow==9.4.0
+          pyparsing==3.0.9
+          certifi==2022.12.7
+          charset-normalizer==3.0.1
+          idna==3.4
+          urllib3==1.26.14
+          EOF
+
+      - name: Install complete pinned set without dependency resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            --no-deps --prefer-binary --no-build-isolation \
+            --report "$RESULTS_DIR/pip-install-report.json" \
+            -r "$RESULTS_DIR/requirements-historical-complete.txt"
+          python -m pip check | tee "$RESULTS_DIR/pip-check.txt"
+
+      - name: Freeze resolved environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-generated.txt"
+          python -m pip list --format=json > "$RESULTS_DIR/pip-list.json"
+          python - <<'PY'
+          import json, locale, os, platform, sys, sysconfig
+          from pathlib import Path
+          report = {
+              'python_version': sys.version,
+              'version_info': list(sys.version_info[:5]),
+              'exact_python_3_8_16': sys.version_info[:3] == (3, 8, 16),
+              'executable': sys.executable,
+              'prefix': sys.prefix,
+              'base_prefix': getattr(sys, 'base_prefix', None),
+              'in_virtual_environment': sys.prefix != getattr(sys, 'base_prefix', sys.prefix),
+              'implementation': platform.python_implementation(),
+              'compiler': platform.python_compiler(),
+              'platform': platform.platform(),
+              'machine': platform.machine(),
+              'libc': list(platform.libc_ver()),
+              'sysconfig_platform': sysconfig.get_platform(),
+              'preferred_encoding': locale.getpreferredencoding(False),
+              'environment': {k: os.environ.get(k) for k in [
+                  'LANG','LC_ALL','TZ','PYTHONHASHSEED','PYTHONDONTWRITEBYTECODE',
+                  'OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS'
+              ]},
+              'statistical_scripts_executed': False,
+          }
+          Path('work/results/environment-runtime.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          if not report['exact_python_3_8_16'] or not report['in_virtual_environment']:
+              raise SystemExit('Python runtime gate failed')
+          PY
+
+      - name: Run bounded import and syntax-only smoke checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          printf 'package\tmodule\tstatus\tversion_or_error\n' > "$RESULTS_DIR/import-checks.tsv"
+          fail=0
+          while IFS=':' read -r package module; do
+            if output=$(timeout 30s python -c "import ${module} as m; print(getattr(m, '__version__', 'unknown'))" 2>&1); then
+              printf '%s\t%s\tPASS\t%s\n' "$package" "$module" "$output" >> "$RESULTS_DIR/import-checks.tsv"
+            else
+              code=$?
+              printf '%s\t%s\tFAIL(%s)\t%s\n' "$package" "$module" "$code" "${output//$'\n'/ }" >> "$RESULTS_DIR/import-checks.tsv"
+              fail=1
+            fi
+          done <<'EOF'
+          numpy:numpy
+          pandas:pandas
+          scipy:scipy
+          pingouin:pingouin
+          statsmodels:statsmodels
+          matplotlib:matplotlib
+          seaborn:seaborn
+          scikit-learn:sklearn
+          pandas-flavor:pandas_flavor
+          joblib:joblib
+          threadpoolctl:threadpoolctl
+          EOF
+          timeout 30s env PYTHONPATH="$SOURCE_DIR/data_analysis" python -c "import util; print('upstream util import PASS')" \
+            > "$RESULTS_DIR/upstream-util-import.txt"
+          python - <<'PY'
+          import ast, json
+          from pathlib import Path
+          root = Path('work/vendor/CHI2023_DKE/data_analysis')
+          results = {}
+          for path in sorted(root.glob('*.py')):
+              try:
+                  ast.parse(path.read_text(encoding='utf-8-sig'), filename=str(path))
+                  results[path.name] = 'PASS'
+              except Exception as exc:
+                  results[path.name] = f'FAIL: {exc!r}'
+          Path('work/results/source-ast-syntax-check.json').write_text(
+              json.dumps(results, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          if not results or any(value != 'PASS' for value in results.values()):
+              raise SystemExit('AST syntax-only check failed')
+          PY
+          test "$fail" -eq 0
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-environment-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-environment-status.txt"
+
+      - name: Capture package hashes and lock identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('work/results/pip-install-report.json')
+          report = json.loads(p.read_text())
+          rows = ['name\tversion\tarchive_hashes\turl']
+          for item in report.get('install', []):
+              metadata = item.get('metadata', {})
+              info = item.get('download_info', {})
+              hashes = info.get('archive_info', {}).get('hashes', {})
+              rows.append(
+                  f"{metadata.get('name','')}\t{metadata.get('version','')}\t"
+                  f"{json.dumps(hashes, sort_keys=True)}\t{info.get('url','')}"
+              )
+          Path('work/results/resolved-distribution-hashes.tsv').write_text(
+              '\n'.join(rows) + '\n', encoding='utf-8'
+          )
+          PY
+          sha256sum eth_hai_repro/requirements-historical-direct.txt \
+            "$RESULTS_DIR/requirements-historical-complete.txt" \
+            "$RESULTS_DIR/requirements-freeze-generated.txt" \
+            "$RESULTS_DIR/pip-install-report.json" \
+            > "$RESULTS_DIR/environment-lock-sha256.txt"
+
+      - name: Record execution gate and run identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          results = Path(os.environ['RESULTS_DIR'])
+          artifact_name = f"eth-hai-environment-freeze-{os.environ['GITHUB_RUN_ID']}"
+          metadata = {
+              'schema_version': '1.0',
+              'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+              'github_repository': os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name': os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit': os.environ['GITHUB_SHA'],
+              'github_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'github_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'artifact_name': artifact_name,
+              'upstream_repository': os.environ['PINNED_REPOSITORY'],
+              'upstream_commit': os.environ['PINNED_COMMIT'],
+              'upstream_root_tree': os.environ['PINNED_ROOT_TREE'],
+              'private_checkout_created': True,
+              'private_checkout_detached_head': True,
+              'source_objects_verified': 27,
+              'python_runtime': '3.8.16',
+              'complete_dependency_set_pinned': True,
+              'dependency_resolution_disabled_for_install': True,
+              'resolved_environment_frozen': True,
+              'bounded_import_checks_passed': True,
+              'statistical_scripts_executed': False,
+              'participant_data_in_artifact': False,
+          }
+          (results / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (results / 'artifact-name.txt').write_text(artifact_name + '\n', encoding='utf-8')
+          (results / 'GATE_STATUS.md').write_text(
+              '# ETH HAI Pre-Analysis Gate Status\n\n'
+              '- Private exact source checkout: **PASS**\n'
+              '- Detached HEAD at pinned commit: **PASS**\n'
+              '- Root tree identity: **PASS**\n'
+              '- Complete 27-object manifest verification: **PASS**\n'
+              '- Independent per-file SHA-256 manifest: **PASS**\n'
+              '- Python 3.8.16 isolated virtual environment: **PASS**\n'
+              '- Complete direct and transitive dependency set pinned: **PASS**\n'
+              '- No-dependency-resolution installation and `pip check`: **PASS**\n'
+              '- Package download hashes captured from pip install report: **PASS**\n'
+              '- Resolved environment frozen with `pip freeze --all`: **PASS**\n'
+              '- Bounded package imports and AST-only source checks: **PASS**\n'
+              '- Statistical analysis scripts executed: **NO**\n'
+              '- Participant-level source data included in artifact: **NO**\n',
+              encoding='utf-8',
+          )
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum \
+            > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload metadata-only reconstruction artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-environment-freeze-${{ github.run_id }}
+          path: work/results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
+
+      - name: Publish metadata-only results to private branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf eth_hai_results_v5
+          mkdir -p eth_hai_results_v5
+          cp -a "$RESULTS_DIR"/. eth_hai_results_v5/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add eth_hai_results_v5
+          git commit -m "Record ETH HAI minimal frozen environment run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
