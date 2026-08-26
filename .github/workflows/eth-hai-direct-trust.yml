@@ -1,0 +1,239 @@
+name: ETH HAI direct trust reproduction
+
+'on':
+  push:
+    branches:
+      - eth-hai-direct-trust-20260826
+    paths:
+      - .github/workflows/eth-hai-direct-trust.yml
+      - eth_hai_schema_gate/**
+      - eth_hai_repro/**
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: eth-hai-direct-trust-reproduction
+  cancel-in-progress: true
+
+jobs:
+  direct-trust:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-direct-trust
+      RESULTS_DIR: work/direct_trust_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out private trust branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR/source" "$RESULTS_DIR/runs"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then
+            echo 'ERROR: source checkout is not detached' >&2
+            exit 1
+          fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Reverify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Recreate and verify frozen analysis environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python --version | tee "$RESULTS_DIR/setup-python-version.txt"
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps \
+            -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          python -m pip check | tee "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-observed.txt"
+          diff -u \
+            eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt \
+            "$RESULTS_DIR/requirements-freeze-observed.txt" \
+            > "$RESULTS_DIR/environment-freeze-diff.txt"
+          cp eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt "$RESULTS_DIR/"
+          cp eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt "$RESULTS_DIR/"
+          python -m pip list --format=json > "$RESULTS_DIR/pip-list.json"
+
+      - name: Execute original trust script twice without source edits
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          outdir="$RESULTS_DIR/runs/analysis_trust_new"
+          mkdir -p "$outdir"
+          sha256sum "$SOURCE_DIR/data_analysis/analysis_trust_new.py" > "$outdir/source-script-sha256.txt"
+          printf '%s\n' 'python analysis_trust_new.py' > "$outdir/command.txt"
+          printf '%s\n' "$SOURCE_DIR/data_analysis" > "$outdir/working-directory.txt"
+
+          run_once() {
+            local label="$1"
+            local started ended rc
+            started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            set +e
+            (
+              cd "$SOURCE_DIR/data_analysis"
+              python analysis_trust_new.py
+            ) > "$outdir/stdout-${label}.txt" 2> "$outdir/stderr-${label}.txt"
+            rc=$?
+            set -e
+            ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '%s\n' "$rc" > "$outdir/exit-code-${label}.txt"
+            python3 - "$outdir" "$label" "$started" "$ended" "$rc" <<'PY'
+          import json, sys
+          from pathlib import Path
+          outdir, label, started, ended, rc = sys.argv[1:]
+          Path(outdir, f'run-metadata-{label}.json').write_text(
+              json.dumps({
+                  'schema_version': '1.0',
+                  'script': 'analysis_trust_new.py',
+                  'run_label': label,
+                  'started_at_utc': started,
+                  'ended_at_utc': ended,
+                  'exit_code': int(rc),
+                  'upstream_script_edited': False,
+                  'statistical_specification_modified': False,
+              }, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          }
+
+          run_once primary
+          run_once repeat
+
+      - name: Enforce trust run integrity and deterministic output
+        shell: bash
+        run: |
+          set -euo pipefail
+          outdir="$RESULTS_DIR/runs/analysis_trust_new"
+          test "$(cat "$outdir/exit-code-primary.txt")" = '0'
+          test "$(cat "$outdir/exit-code-repeat.txt")" = '0'
+          diff -u "$outdir/stdout-primary.txt" "$outdir/stdout-repeat.txt" > "$outdir/stdout-repeat-diff.txt"
+          diff -u "$outdir/stderr-primary.txt" "$outdir/stderr-repeat.txt" > "$outdir/stderr-repeat-diff.txt"
+          cp "$outdir/stdout-primary.txt" "$outdir/stdout.txt"
+          cp "$outdir/stderr-primary.txt" "$outdir/stderr.txt"
+          grep -q 'participants considered' "$outdir/stdout.txt"
+          grep -q 'Considering all participants with tutorial' "$outdir/stdout.txt"
+          grep -q 'For all participants, compare with Underestimation, accurate, Overestimation' "$outdir/stdout.txt"
+          grep -q 'For all participants, compare with experimental conditions' "$outdir/stdout.txt"
+          grep -q 'Variable TiA-Propensity and variable TiA-Trust' "$outdir/stdout.txt"
+          grep -q 'Variable TiA-Propensity and variable RSR' "$outdir/stdout.txt"
+          if grep -q 'Participant_' "$outdir/stdout.txt" "$outdir/stderr.txt"; then
+            echo 'ERROR: participant identifier unexpectedly present in aggregate output' >&2
+            exit 1
+          fi
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-trust-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-trust-status.txt"
+
+      - name: Record trust execution boundary and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/eth-hai-direct-trust.yml "$RESULTS_DIR/workflow.yml"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          results = Path(os.environ['RESULTS_DIR'])
+          outdir = results / 'runs' / 'analysis_trust_new'
+          def digest(path):
+              h = hashlib.sha256()
+              h.update(path.read_bytes())
+              return h.hexdigest()
+          metadata = {
+              'schema_version': '1.0',
+              'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+              'github_repository': os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name': os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit': os.environ['GITHUB_SHA'],
+              'github_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'github_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'upstream_repository': os.environ['PINNED_REPOSITORY'],
+              'upstream_commit': os.environ['PINNED_COMMIT'],
+              'upstream_root_tree': os.environ['PINNED_ROOT_TREE'],
+              'source_checkout_detached_head': True,
+              'source_objects_verified': 27,
+              'python_runtime': '3.8.16',
+              'frozen_environment_reused_exactly': True,
+              'original_trust_script_executed': 'analysis_trust_new.py',
+              'repeat_run_identical': True,
+              'stdout_sha256': digest(outdir / 'stdout.txt'),
+              'stderr_sha256': digest(outdir / 'stderr.txt'),
+              'later_scripts_executed': False,
+              'participant_level_data_in_artifact': False,
+              'upstream_source_files_modified': False,
+          }
+          (results / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (results / 'GATE_STATUS.md').write_text(
+              '# ETH HAI Direct Trust Reproduction\n\n'
+              '- Pinned detached-HEAD source verification: **PASS**\n'
+              '- Exact frozen Python 3.8.16 environment: **PASS**\n'
+              '- `analysis_trust_new.py`: **EXECUTED, exit 0**\n'
+              '- Independent repeat run: **BYTE-IDENTICAL STDOUT/STDERR**\n'
+              '- Upstream script edited: **NO**\n'
+              '- Participant-level data included in artifact: **NO**\n',
+              encoding='utf-8'
+          )
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum \
+            > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload aggregate trust reproduction artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-direct-trust-${{ github.run_id }}
+          path: work/direct_trust_results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
