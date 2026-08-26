@@ -1,0 +1,82 @@
+name: ETH HAI trust extraction evidence
+
+'on':
+  push:
+    branches:
+      - eth-hai-direct-trust-20260826
+    paths:
+      - .github/workflows/eth-hai-trust-extract-debug.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  debug-trust-extract:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-trust-debug
+      RESULTS_DIR: work/trust_extract_debug
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - name: Checkout source
+        shell: bash
+        run: |
+          mkdir -p "$RESULTS_DIR/output"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+      - name: Build environment
+        shell: bash
+        run: |
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+      - name: Run extractor and retain evidence
+        shell: bash
+        continue-on-error: true
+        run: |
+          source "$VENV_DIR/bin/activate"
+          set +e
+          (
+            cd "$SOURCE_DIR/data_analysis"
+            PYTHONPATH="$SOURCE_DIR/data_analysis" \
+            TRUST_EXTRACT_OUTPUT_DIR="$GITHUB_WORKSPACE/$RESULTS_DIR/output" \
+            python "$GITHUB_WORKSPACE/eth_hai_trust_extract/extract_trust_aggregates.py"
+          ) > "$RESULTS_DIR/stdout.txt" 2> "$RESULTS_DIR/stderr.txt"
+          rc=$?
+          echo "$rc" > "$RESULTS_DIR/exit-code.txt"
+          cat "$RESULTS_DIR/stderr.txt"
+          exit 0
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-trust-extract-debug-${{ github.run_id }}
+          path: work/trust_extract_debug
+          if-no-files-found: error
+          retention-days: 30
