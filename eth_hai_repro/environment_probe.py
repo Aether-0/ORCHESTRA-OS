@@ -11,7 +11,6 @@ import json
 import locale
 import os
 import platform
-import py_compile
 import subprocess
 import sys
 import sysconfig
@@ -53,6 +52,9 @@ def main() -> int:
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Prevent import probes from leaving bytecode in the verified source checkout.
+    sys.dont_write_bytecode = True
+
     imports: Dict[str, Dict[str, Any]] = {}
     imports_ok = True
     imported_modules: Dict[str, Any] = {}
@@ -73,15 +75,17 @@ def main() -> int:
     python_exact = sys.version_info[:3] == expected_python
     in_venv = sys.prefix != getattr(sys, "base_prefix", sys.prefix)
 
+    # Syntax-check in memory only. No study script is executed and no .pyc is written.
     analysis_scripts = sorted((repo / "data_analysis").glob("*.py"))
     compile_results: Dict[str, str] = {}
     for script in analysis_scripts:
         try:
-            py_compile.compile(str(script), doraise=True)
+            compile(script.read_bytes(), str(script), "exec", dont_inherit=True)
             compile_results[str(script.relative_to(repo))] = "ok"
         except Exception as exc:
             compile_results[str(script.relative_to(repo))] = repr(exc)
 
+    # Import util.py only to verify definitions/import compatibility; its __main__ block is not run.
     util_import = {"status": "not_attempted"}
     util_path = repo / "data_analysis" / "util.py"
     try:
@@ -150,7 +154,7 @@ def main() -> int:
         "packages": imports,
         "imports_ok": imports_ok,
         "analysis_script_compile_results": compile_results,
-        "analysis_scripts_compiled_only": True,
+        "analysis_scripts_compiled_in_memory_only": True,
         "statistical_scripts_executed": False,
         "upstream_util_import": util_import,
         "threadpools": threadpools,
@@ -171,6 +175,7 @@ def main() -> int:
                 "MKL_NUM_THREADS",
                 "NUMEXPR_NUM_THREADS",
                 "PYTHONHASHSEED",
+                "PYTHONDONTWRITEBYTECODE",
             ]
         },
     }
