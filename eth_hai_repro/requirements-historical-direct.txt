@@ -1,0 +1,13 @@
+# Historical reconstruction candidate, not the authors' recovered lockfile.
+# Direct analysis dependencies selected from the early-2023 release window.
+numpy==1.24.1
+pandas==1.5.3
+scipy==1.10.0
+pingouin==0.5.3
+statsmodels==0.13.5
+matplotlib==3.6.3
+seaborn==0.12.2
+scikit-learn==1.2.1
+pandas-flavor==0.3.0
+joblib==1.2.0
+threadpoolctl==3.1.0
