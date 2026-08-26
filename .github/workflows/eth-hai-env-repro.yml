@@ -1,0 +1,183 @@
+name: ETH HAI environment reconstruction
+
+'on':
+  push:
+    branches:
+      - eth-hai-repro-bootstrap-20260826
+    paths:
+      - .github/workflows/eth-hai-env-repro.yml
+      - eth_hai_repro/**
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: eth-hai-environment-reconstruction
+  cancel-in-progress: false
+
+jobs:
+  reconstruct-and-freeze:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      RESULTS_DIR: work/results
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-venv
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+
+    steps:
+      - name: Check out private orchestration branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then
+            echo 'ERROR: source checkout is not detached' >&2
+            exit 1
+          fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Verify the complete 27-object snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+          cp eth_hai_repro/requirements-historical-direct.txt "$RESULTS_DIR/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Instantiate isolated reconstruction and freeze resolver output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python --version | tee "$RESULTS_DIR/setup-python-version.txt"
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input \
+            --report "$RESULTS_DIR/pip-install-report.json" \
+            -r eth_hai_repro/requirements-historical-direct.txt
+          python -m pip check | tee "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-generated.txt"
+          python -m pip list --format=json > "$RESULTS_DIR/pip-list.json"
+          python -m pip inspect --local > "$RESULTS_DIR/pip-inspect.json"
+          python -m pip debug --verbose > "$RESULTS_DIR/pip-debug.txt"
+          python eth_hai_repro/environment_probe.py \
+            --repo "$SOURCE_DIR" \
+            --output-dir "$RESULTS_DIR/environment"
+          sha256sum eth_hai_repro/requirements-historical-direct.txt \
+            "$RESULTS_DIR/requirements-freeze-generated.txt" \
+            "$RESULTS_DIR/pip-install-report.json" \
+            > "$RESULTS_DIR/environment-lock-sha256.txt"
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-environment-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-environment-status.txt"
+
+      - name: Record execution gate and run identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          results = Path(os.environ['RESULTS_DIR'])
+          artifact_name = f"eth-hai-environment-freeze-{os.environ['GITHUB_RUN_ID']}"
+          metadata = {
+              'schema_version': '1.0',
+              'captured_at_utc': datetime.now(timezone.utc).isoformat(),
+              'github_repository': os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name': os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit': os.environ['GITHUB_SHA'],
+              'github_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'github_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'artifact_name': artifact_name,
+              'upstream_repository': os.environ['PINNED_REPOSITORY'],
+              'upstream_commit': os.environ['PINNED_COMMIT'],
+              'upstream_root_tree': os.environ['PINNED_ROOT_TREE'],
+              'private_checkout_created': True,
+              'private_checkout_detached_head': True,
+              'source_objects_verified': 27,
+              'python_runtime': '3.8.16',
+              'resolved_environment_frozen': True,
+              'statistical_scripts_executed': False,
+              'participant_data_in_artifact': False,
+          }
+          (results / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (results / 'artifact-name.txt').write_text(artifact_name + '\n', encoding='utf-8')
+          (results / 'GATE_STATUS.md').write_text(
+              '# ETH HAI Pre-Analysis Gate Status\n\n'
+              '- Private exact source checkout: **PASS**\n'
+              '- Detached HEAD at pinned commit: **PASS**\n'
+              '- Root tree identity: **PASS**\n'
+              '- Complete 27-object manifest verification: **PASS**\n'
+              '- Independent per-file SHA-256 manifest: **PASS**\n'
+              '- Python 3.8.16 isolated virtual environment: **PASS**\n'
+              '- Direct dependency installation and `pip check`: **PASS**\n'
+              '- Resolved environment frozen with `pip freeze --all`: **PASS**\n'
+              '- Import and syntax-only smoke test: **PASS**\n'
+              '- Statistical analysis scripts executed: **NO**\n'
+              '- Participant-level source data included in artifact: **NO**\n',
+              encoding='utf-8',
+          )
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum \
+            > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload metadata-only reconstruction artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-environment-freeze-${{ github.run_id }}
+          path: work/results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
+
+      - name: Publish metadata-only results to the private branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf eth_hai_results
+          mkdir -p eth_hai_results
+          cp -a "$RESULTS_DIR"/. eth_hai_results/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add eth_hai_results
+          git commit -m "Record ETH HAI environment reconstruction run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
