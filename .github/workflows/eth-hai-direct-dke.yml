@@ -1,0 +1,293 @@
+name: ETH HAI direct DKE reproduction
+
+'on':
+  push:
+    branches:
+      - eth-hai-direct-dke-20260826
+    paths:
+      - .github/workflows/eth-hai-direct-dke.yml
+      - eth_hai_dke_repro/**
+      - eth_hai_schema_gate/**
+      - eth_hai_repro/**
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: eth-hai-direct-dke-reproduction
+  cancel-in-progress: true
+
+jobs:
+  direct-dke:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-direct-dke
+      RESULTS_DIR: work/direct_dke_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out private DKE branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR/source" "$RESULTS_DIR/original" "$RESULTS_DIR/non_time"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then exit 1; fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Reverify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Recreate and verify frozen analysis environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python --version | tee "$RESULTS_DIR/setup-python-version.txt"
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps \
+            -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          python -m pip check | tee "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-observed.txt"
+          diff -u \
+            eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt \
+            "$RESULTS_DIR/requirements-freeze-observed.txt" \
+            > "$RESULTS_DIR/environment-freeze-diff.txt"
+          cp eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt "$RESULTS_DIR/"
+          cp eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt "$RESULTS_DIR/"
+          python -m pip list --format=json > "$RESULTS_DIR/pip-list.json"
+
+      - name: Execute original DKE script twice unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          outdir="$RESULTS_DIR/original"
+          sha256sum "$SOURCE_DIR/data_analysis/analysis_DKE_new.py" > "$outdir/source-script-sha256.txt"
+          printf '%s\n' 'python analysis_DKE_new.py' > "$outdir/command.txt"
+          printf '%s\n' "$SOURCE_DIR/data_analysis" > "$outdir/working-directory.txt"
+          run_once() {
+            local label="$1"
+            local rc
+            set +e
+            (
+              cd "$SOURCE_DIR/data_analysis"
+              python analysis_DKE_new.py
+            ) > "$outdir/stdout-${label}.txt" 2> "$outdir/stderr-${label}.txt"
+            rc=$?
+            set -e
+            printf '%s\n' "$rc" > "$outdir/exit-code-${label}.txt"
+          }
+          run_once primary
+          run_once repeat
+
+      - name: Confirm deterministic missing-source block
+        shell: bash
+        run: |
+          set -euo pipefail
+          outdir="$RESULTS_DIR/original"
+          test "$(cat "$outdir/exit-code-primary.txt")" != '0'
+          test "$(cat "$outdir/exit-code-repeat.txt")" != '0'
+          diff -u "$outdir/stdout-primary.txt" "$outdir/stdout-repeat.txt" > "$outdir/stdout-repeat-diff.txt"
+          diff -u "$outdir/stderr-primary.txt" "$outdir/stderr-repeat.txt" > "$outdir/stderr-repeat-diff.txt"
+          cp "$outdir/stdout-primary.txt" "$outdir/stdout.txt"
+          cp "$outdir/stderr-primary.txt" "$outdir/stderr.txt"
+          grep -q 'FileNotFoundError' "$outdir/stderr.txt"
+          grep -q 'demographic.csv' "$outdir/stderr.txt"
+
+      - name: Reproduce non-time DKE aggregates twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          sha256sum eth_hai_dke_repro/extract_dke_non_time.py > "$RESULTS_DIR/non_time/extractor-sha256.txt"
+          run_once() {
+            local label="$1"
+            local out="$RESULTS_DIR/non_time/$label"
+            mkdir -p "$out"
+            python eth_hai_dke_repro/extract_dke_non_time.py \
+              --repo "$SOURCE_DIR" \
+              --out "$out" \
+              > "$out/stdout.txt" 2> "$out/stderr.txt"
+            printf '%s\n' "$?" > "$out/exit-code.txt"
+          }
+          run_once primary
+          run_once repeat
+
+      - name: Verify DKE aggregate results and determinism
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, math, os
+          from pathlib import Path
+          root=Path(os.environ['RESULTS_DIR'])
+          p=root/'non_time'/'primary'
+          r=root/'non_time'/'repeat'
+          assert (p/'exit-code.txt').read_text().strip()=='0'
+          assert (r/'exit-code.txt').read_text().strip()=='0'
+          for name in [
+              'dke_non_time_summary.json',
+              'dke_table8_and_diagnostic_results.tsv',
+              'dke_quartile_composition.tsv',
+              'dke_accuracy_distribution.tsv',
+              'STATUS.md',
+              'stdout.txt',
+              'stderr.txt',
+          ]:
+              assert (p/name).read_bytes()==(r/name).read_bytes(), name
+          s=json.loads((p/'dke_non_time_summary.json').read_text(encoding='utf-8'))
+          assert s['participant_count']==249
+          assert s['quartile_n']==63
+          assert s['calibration_counts']=={
+              'Underestimation':72,'Accurate':76,'Overestimation':101
+          }
+          assert s['top_quartile_composition']=={
+              'Underestimation':35,'Accurate':21,'Overestimation':7
+          }
+          assert s['bottom_quartile_composition']=={
+              'Underestimation':6,'Accurate':11,'Overestimation':46
+          }
+          expected={
+              'agreement_fraction':(54.68,.75,.15,.46,.18),
+              'switching_fraction':(13.09,.46,.32,.27,.21),
+              'appropriate_reliance':(81.00,.74,.24,.21,.15),
+              'relative_positive_ai_reliance':(25.71,.64,.45,.21,.21),
+              'relative_positive_self_reliance':(46.41,.76,.39,.18,.37),
+          }
+          for key,(h,tm,ts,bm,bs) in expected.items():
+              x=s['results'][key]
+              assert round(x['kruskal_h'],2)==h, (key,x['kruskal_h'])
+              assert x['kruskal_p'] < .001, (key,x['kruskal_p'])
+              assert round(x['top_mean'],2)==tm, (key,x['top_mean'])
+              assert round(x['top_sd_ddof0'],2)==ts, (key,x['top_sd_ddof0'])
+              assert round(x['bottom_mean'],2)==bm, (key,x['bottom_mean'])
+              assert round(x['bottom_sd_ddof0'],2)==bs, (key,x['bottom_sd_ddof0'])
+          assert s['completion_time_component']['status']=='not_testable'
+          assert s['participant_level_data_emitted'] is False
+          assert s['participant_identifiers_emitted'] is False
+          texts='\n'.join(x.read_text(encoding='utf-8',errors='ignore') for x in p.glob('*') if x.is_file())
+          assert 'Participant_' not in texts
+          (root/'verification-summary.json').write_text(json.dumps({
+              'passed':True,
+              'direct_script_status':'blocked_by_missing_demographic_csv',
+              'non_time_result_count':5,
+              'quartile_n':63,
+              'repeat_identical':True,
+              'participant_identifiers_emitted':False,
+              'tie_audit':s['tie_audit'],
+          },indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          PY
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all > "$RESULTS_DIR/source/source-post-dke-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-dke-status.txt"
+
+      - name: Record DKE provenance and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/eth-hai-direct-dke.yml "$RESULTS_DIR/workflow.yml"
+          cp eth_hai_dke_repro/extract_dke_non_time.py "$RESULTS_DIR/extract_dke_non_time.py"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root=Path(os.environ['RESULTS_DIR'])
+          def sha(path):
+              h=hashlib.sha256(); h.update(path.read_bytes()); return h.hexdigest()
+          s=json.loads((root/'non_time'/'primary'/'dke_non_time_summary.json').read_text())
+          metadata={
+              'schema_version':'1.0',
+              'captured_at_utc':datetime.now(timezone.utc).isoformat(),
+              'github_repository':os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name':os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit':os.environ['GITHUB_SHA'],
+              'github_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'github_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'upstream_repository':os.environ['PINNED_REPOSITORY'],
+              'upstream_commit':os.environ['PINNED_COMMIT'],
+              'upstream_root_tree':os.environ['PINNED_ROOT_TREE'],
+              'source_checkout_detached_head':True,
+              'source_objects_verified':27,
+              'python_runtime':'3.8.16',
+              'frozen_environment_reused_exactly':True,
+              'original_dke_script_executed_unchanged':True,
+              'original_dke_script_status':'not testable beyond startup because demographic.csv is absent',
+              'non_time_companion_extractor_executed':True,
+              'non_time_repeat_identical':True,
+              'quartile_n':s['quartile_n'],
+              'tie_audit':s['tie_audit'],
+              'participant_level_data_in_artifact':False,
+              'upstream_source_files_modified':False,
+              'trust_or_later_scripts_executed':False,
+              'original_stderr_sha256':sha(root/'original'/'stderr.txt'),
+              'aggregate_summary_sha256':sha(root/'non_time'/'primary'/'dke_non_time_summary.json'),
+          }
+          (root/'run-metadata.json').write_text(json.dumps(metadata,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          (root/'GATE_STATUS.md').write_text(
+              '# ETH HAI DKE Reproduction\n\n'
+              '- Pinned detached-HEAD source verification: **PASS**\n'
+              '- Exact frozen Python 3.8.16 environment: **PASS**\n'
+              '- Original `analysis_DKE_new.py`: **EXECUTED UNCHANGED; BLOCKED BY MISSING `demographic.csv`**\n'
+              '- Non-time quartile and Table 8 reproduction: **PASS**\n'
+              '- Independent repeat extraction: **BYTE-IDENTICAL**\n'
+              '- Completion-time result: **NOT TESTABLE**\n'
+              '- Upstream source edited: **NO**\n'
+              '- Trust or later scripts executed: **NO**\n'
+              '- Participant-level data included in artifact: **NO**\n',
+              encoding='utf-8'
+          )
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum \
+            > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload aggregate DKE reproduction artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-direct-dke-${{ github.run_id }}
+          path: work/direct_dke_results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
