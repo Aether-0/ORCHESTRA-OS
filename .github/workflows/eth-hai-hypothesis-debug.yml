@@ -1,0 +1,74 @@
+name: ETH HAI hypothesis robustness debug evidence
+
+'on':
+  push:
+    branches:
+      - eth-hai-clean-reimplementation-20260827
+    paths:
+      - .github/workflows/eth-hai-hypothesis-debug.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  debug-hypothesis:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-hypothesis-debug
+      RESULTS_DIR: work/hypothesis_debug_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - name: Checkout source
+        shell: bash
+        run: |
+          mkdir -p "$RESULTS_DIR/h1_h3" "$RESULTS_DIR/h4_dke_trust"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+      - name: Build environment
+        shell: bash
+        run: |
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+      - name: Run both scripts and retain failures
+        shell: bash
+        continue-on-error: true
+        run: |
+          source "$VENV_DIR/bin/activate"
+          set +e
+          PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_clean/run_h1_h3_robustness.py --repo "$SOURCE_DIR" --out "$RESULTS_DIR/h1_h3" > "$RESULTS_DIR/h1_h3/stdout.txt" 2> "$RESULTS_DIR/h1_h3/stderr.txt"
+          echo $? > "$RESULTS_DIR/h1_h3/exit_code.txt"
+          PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_clean/run_h4_dke_trust_robustness.py --repo "$SOURCE_DIR" --out "$RESULTS_DIR/h4_dke_trust" > "$RESULTS_DIR/h4_dke_trust/stdout.txt" 2> "$RESULTS_DIR/h4_dke_trust/stderr.txt"
+          echo $? > "$RESULTS_DIR/h4_dke_trust/exit_code.txt"
+          set -e
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-hypothesis-debug-${{ github.run_id }}
+          path: work/hypothesis_debug_results
+          if-no-files-found: error
+          retention-days: 30
