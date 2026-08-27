@@ -9,6 +9,7 @@ name: ETH HAI hypothesis-specific robustness RB-06 through RB-17
       - eth_hai_clean/core.py
       - eth_hai_clean/hypothesis_common.py
       - eth_hai_clean/run_h1_h3_robustness.py
+      - eth_hai_clean/run_h1_h3_robustness_v2.py
       - eth_hai_clean/run_h4_dke_trust_robustness.py
       - eth_hai_clean/combine_hypothesis_robustness.py
       - eth_hai_clean/ROBUSTNESS_AUDIT_PLAN.md
@@ -102,6 +103,7 @@ jobs:
           python -m py_compile \
             eth_hai_clean/hypothesis_common.py \
             eth_hai_clean/run_h1_h3_robustness.py \
+            eth_hai_clean/run_h1_h3_robustness_v2.py \
             eth_hai_clean/run_h4_dke_trust_robustness.py \
             eth_hai_clean/combine_hypothesis_robustness.py
 
@@ -114,13 +116,14 @@ jobs:
             eth_hai_clean/core.py \
             eth_hai_clean/hypothesis_common.py \
             eth_hai_clean/run_h1_h3_robustness.py \
+            eth_hai_clean/run_h1_h3_robustness_v2.py \
             eth_hai_clean/run_h4_dke_trust_robustness.py \
             eth_hai_clean/combine_hypothesis_robustness.py \
             > "$RESULTS_DIR/hypothesis-source-sha256.txt"
 
           run_stage() {
             local root="$1"
-            PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_clean/run_h1_h3_robustness.py \
+            PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_clean/run_h1_h3_robustness_v2.py \
               --repo "$SOURCE_DIR" --out "$root/h1_h3" \
               > "$root/h1_h3/stdout.txt" 2> "$root/h1_h3/stderr.txt"
             PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_clean/run_h4_dke_trust_robustness.py \
@@ -167,6 +170,7 @@ jobs:
           cp eth_hai_clean/core.py "$RESULTS_DIR/core.py"
           cp eth_hai_clean/hypothesis_common.py "$RESULTS_DIR/hypothesis_common.py"
           cp eth_hai_clean/run_h1_h3_robustness.py "$RESULTS_DIR/run_h1_h3_robustness.py"
+          cp eth_hai_clean/run_h1_h3_robustness_v2.py "$RESULTS_DIR/run_h1_h3_robustness_v2.py"
           cp eth_hai_clean/run_h4_dke_trust_robustness.py "$RESULTS_DIR/run_h4_dke_trust_robustness.py"
           cp eth_hai_clean/combine_hypothesis_robustness.py "$RESULTS_DIR/combine_hypothesis_robustness.py"
           cp eth_hai_clean/ROBUSTNESS_AUDIT_PLAN.md "$RESULTS_DIR/ROBUSTNESS_AUDIT_PLAN.md"
@@ -193,6 +197,7 @@ jobs:
               'repeat_aggregate_outputs_identical':True,
               'participant_level_data_in_artifact':False,
               'direct_reproduction_register_modified':False,
+              'rb11_wrapper_correction_applied':True,
           }
           (root/'run-metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True)+'\n', encoding='utf-8')
           PY
