@@ -1,0 +1,217 @@
+name: Human-AI post-G10 RTM and precision addendum
+
+'on':
+  push:
+    branches:
+      - human-ai-post-g10-rtm-precision-20260827
+    paths:
+      - .github/workflows/human-ai-post-g10-rtm-precision.yml
+      - human_ai_post_g10/**
+      - eth_hai_clean/core.py
+      - eth_hai_extension/**
+      - eth_hai_repro/**
+      - eth_hai_schema_gate/**
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: human-ai-post-g10-rtm-precision
+  cancel-in-progress: true
+
+jobs:
+  post-g10-addendum:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-post-g10
+      RESULTS_DIR: work/post_g10_rtm_precision_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out private post-G10 branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR/source" "$RESULTS_DIR/primary" "$RESULTS_DIR/repeat"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then exit 1; fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Reverify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Recreate and verify frozen environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps \
+            -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          python -m pip check > "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-observed.txt"
+          diff -u eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt \
+            "$RESULTS_DIR/requirements-freeze-observed.txt" > "$RESULTS_DIR/environment-freeze-diff.txt"
+          python -m py_compile human_ai_post_g10/run_rtm_precision_addendum.py human_ai_post_g10/run_rtm_precision_addendum_fast.py
+
+      - name: Execute registered post-G10 addendum twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          sha256sum \
+            eth_hai_clean/core.py \
+            eth_hai_extension/core.py \
+            eth_hai_extension/estimators.py \
+            human_ai_post_g10/run_rtm_precision_addendum.py \
+            human_ai_post_g10/run_rtm_precision_addendum_fast.py \
+            > "$RESULTS_DIR/post-g10-source-sha256.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" python human_ai_post_g10/run_rtm_precision_addendum_fast.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/primary" --draws 5000 \
+            > "$RESULTS_DIR/primary/stdout.txt" 2> "$RESULTS_DIR/primary/stderr.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" python human_ai_post_g10/run_rtm_precision_addendum_fast.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/repeat" --draws 5000 --no-figures \
+            > "$RESULTS_DIR/repeat/stdout.txt" 2> "$RESULTS_DIR/repeat/stderr.txt"
+
+      - name: Enforce determinism and aggregate-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            POST_G10_STATUS.md
+            post_g10_natural_changes.tsv
+            post_g10_rtm_simulation.tsv
+            post_g10_mde_precision.tsv
+            post_g10_ratio_count_opportunities.tsv
+            post_g10_policy_linear_identities.tsv
+            post_g10_split_half_feasibility.md
+            post_g10_summary.json
+            stdout.txt
+            stderr.txt
+          )
+          : > "$RESULTS_DIR/repeat-file-diff.txt"
+          for file in "${files[@]}"; do
+            diff -u "$RESULTS_DIR/primary/$file" "$RESULTS_DIR/repeat/$file" >> "$RESULTS_DIR/repeat-file-diff.txt"
+          done
+          test ! -s "$RESULTS_DIR/repeat-file-diff.txt"
+
+          python3 - <<'PY'
+          import csv, json, os
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          primary = root/'primary'
+          summary = json.loads((primary/'post_g10_summary.json').read_text(encoding='utf-8'))
+          assert summary['sample_n'] == 249
+          assert summary['bootstrap_draws'] == 5000
+          assert summary['frozen_registers_modified'] is False
+          assert summary['participant_level_data_emitted'] is False
+          assert summary['causal_identification_claimed'] is False
+          assert summary['split_half_calibration_performed'] is False
+          assert summary['mde_rows_n'] == 9
+          assert summary['ratio_count_rows_n'] == 16
+          assert summary['linear_identity_max_absolute_residual'] < 1e-12
+          with (primary/'post_g10_rtm_simulation.tsv').open(encoding='utf-8', newline='') as handle:
+              rows = list(csv.DictReader(handle, delimiter='\t'))
+          assert len(rows) == 30
+          with (primary/'post_g10_mde_precision.tsv').open(encoding='utf-8', newline='') as handle:
+              mde = list(csv.DictReader(handle, delimiter='\t'))
+          assert len(mde) == 9
+          all_text = '\n'.join(
+              path.read_text(encoding='utf-8', errors='ignore')
+              for path in root.rglob('*') if path.is_file() and path.suffix.lower() != '.png'
+          )
+          assert 'Participant_' not in all_text
+          PY
+
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-addendum-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-addendum-status.txt"
+
+      - name: Record provenance and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/human-ai-post-g10-rtm-precision.yml "$RESULTS_DIR/workflow.yml"
+          cp human_ai_post_g10/run_rtm_precision_addendum.py "$RESULTS_DIR/run_rtm_precision_addendum.py"
+          cp human_ai_post_g10/run_rtm_precision_addendum_fast.py "$RESULTS_DIR/run_rtm_precision_addendum_fast.py"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          metadata = {
+              'schema_version':'1.0',
+              'captured_at_utc':datetime.now(timezone.utc).isoformat(),
+              'github_repository':os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name':os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit':os.environ['GITHUB_SHA'],
+              'github_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'upstream_repository':os.environ['PINNED_REPOSITORY'],
+              'upstream_commit':os.environ['PINNED_COMMIT'],
+              'upstream_root_tree':os.environ['PINNED_ROOT_TREE'],
+              'python_runtime':'3.8.16',
+              'frozen_environment_reused_exactly':True,
+              'bootstrap_draws':5000,
+              'rtm_bootstrap':'fixed-model residual and tutorial-participant bootstrap',
+              'frozen_registers_modified':False,
+              'causal_identification_claimed':False,
+              'repeat_aggregate_outputs_identical':True,
+              'participant_level_data_in_artifact':False,
+          }
+          (root/'run-metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True)+'\n', encoding='utf-8')
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload aggregate post-G10 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: human-ai-post-g10-rtm-precision-${{ github.run_id }}
+          path: work/post_g10_rtm_precision_results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
