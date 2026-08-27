@@ -1,0 +1,228 @@
+name: ETH HAI extension G05-G08 fixed-policy evaluation
+
+'on':
+  push:
+    branches:
+      - eth-hai-extension-g05-g08-20260827
+    paths:
+      - .github/workflows/eth-hai-extension-g05-g08.yml
+      - eth_hai_extension/**
+      - eth_hai_clean/core.py
+      - eth_hai_repro/**
+      - eth_hai_schema_gate/**
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: eth-hai-extension-g05-g08
+  cancel-in-progress: true
+
+jobs:
+  g05-g08:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      VENV_DIR: work/python-3.8.16-extension-fixed
+      RESULTS_DIR: work/extension_g05_g08_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out private extension branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR/source" "$RESULTS_DIR/primary" "$RESULTS_DIR/repeat"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then exit 1; fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Reverify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+
+      - name: Set up exact Python 3.8.16 runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Recreate and verify frozen analysis environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$VENV_DIR"
+          source "$VENV_DIR/bin/activate"
+          python -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          python -m pip install --disable-pip-version-check --no-input --no-deps \
+            -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          python -m pip check > "$RESULTS_DIR/pip-check.txt"
+          python -m pip freeze --all | sort > "$RESULTS_DIR/requirements-freeze-observed.txt"
+          diff -u eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt \
+            "$RESULTS_DIR/requirements-freeze-observed.txt" > "$RESULTS_DIR/environment-freeze-diff.txt"
+          python -m py_compile \
+            eth_hai_extension/core.py \
+            eth_hai_extension/estimators.py \
+            eth_hai_extension/run_g05_g08_fixed_policy.py
+
+      - name: Execute registered fixed-policy analysis twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$VENV_DIR/bin/activate"
+          sha256sum \
+            eth_hai_clean/core.py \
+            eth_hai_extension/core.py \
+            eth_hai_extension/estimators.py \
+            eth_hai_extension/run_g05_g08_fixed_policy.py \
+            > "$RESULTS_DIR/extension-source-sha256.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_extension/run_g05_g08_fixed_policy.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/primary" --bootstrap-draws 5000 \
+            > "$RESULTS_DIR/primary/stdout.txt" 2> "$RESULTS_DIR/primary/stderr.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" python eth_hai_extension/run_g05_g08_fixed_policy.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/repeat" --bootstrap-draws 5000 --no-figures \
+            > "$RESULTS_DIR/repeat/stdout.txt" 2> "$RESULTS_DIR/repeat/stderr.txt"
+
+      - name: Enforce determinism and aggregate-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            G05_G08_STATUS.md
+            g05_fixed_policy_values.tsv
+            g05_fixed_policy_contrasts.tsv
+            g05_primary_comparisons.tsv
+            g06_estimator_concordance.tsv
+            g07_task_order_primary.tsv
+            g07_task_order_summary.tsv
+            g08_safety_review.tsv
+            g08_multiplicity.tsv
+            g08_ratio_sensitivity.tsv
+            g05_g08_evaluation_rows.tsv
+            g09_decision_inputs.json
+            g05_g08_summary.json
+            stdout.txt
+            stderr.txt
+          )
+          : > "$RESULTS_DIR/repeat-file-diff.txt"
+          for file in "${files[@]}"; do
+            diff -u "$RESULTS_DIR/primary/$file" "$RESULTS_DIR/repeat/$file" >> "$RESULTS_DIR/repeat-file-diff.txt"
+          done
+          test ! -s "$RESULTS_DIR/repeat-file-diff.txt"
+
+          python3 - <<'PY'
+          import csv, json, os
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          primary = root/'primary'
+          summary = json.loads((primary/'g05_g08_summary.json').read_text(encoding='utf-8'))
+          assert summary['g05_status'] == 'PASS'
+          assert summary['g06_status'] == 'PASS'
+          assert summary['g07_status'] == 'PASS'
+          assert summary['g08_status'] == 'PASS'
+          assert summary['policy_values_n'] == 80
+          assert summary['fixed_contrasts_n'] == 130
+          assert summary['primary_comparisons_n'] == 3
+          assert summary['bootstrap_draws'] == 5000
+          assert summary['causal_identification_claimed'] is False
+          assert summary['participant_level_data_emitted'] is False
+          assert summary['upstream_util_imported'] is False
+          with (primary/'g05_g08_evaluation_rows.tsv').open(encoding='utf-8', newline='') as handle:
+              rows = list(csv.DictReader(handle, delimiter='\t'))
+          assert len(rows) == 130
+          assert all(row['status'] == 'Complete' for row in rows)
+          assert all(row['classification'] != 'Pending' for row in rows)
+          all_text = '\n'.join(
+              path.read_text(encoding='utf-8', errors='ignore')
+              for path in root.rglob('*')
+              if path.is_file() and path.suffix.lower() not in {'.png'}
+          )
+          assert 'Participant_' not in all_text
+          PY
+
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-gate-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-gate-status.txt"
+
+      - name: Record gate provenance and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/eth-hai-extension-g05-g08.yml "$RESULTS_DIR/workflow.yml"
+          cp eth_hai_extension/core.py "$RESULTS_DIR/extension_core.py"
+          cp eth_hai_extension/estimators.py "$RESULTS_DIR/extension_estimators.py"
+          cp eth_hai_extension/run_g05_g08_fixed_policy.py "$RESULTS_DIR/run_g05_g08_fixed_policy.py"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          metadata = {
+              'schema_version':'1.0',
+              'captured_at_utc':datetime.now(timezone.utc).isoformat(),
+              'github_repository':os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name':os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit':os.environ['GITHUB_SHA'],
+              'github_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'upstream_repository':os.environ['PINNED_REPOSITORY'],
+              'upstream_commit':os.environ['PINNED_COMMIT'],
+              'upstream_root_tree':os.environ['PINNED_ROOT_TREE'],
+              'python_runtime':'3.8.16',
+              'frozen_environment_reused_exactly':True,
+              'g05_gate':'PASS',
+              'g06_gate':'PASS',
+              'g07_gate':'PASS',
+              'g08_gate':'PASS',
+              'bootstrap_draws':5000,
+              'causal_identification_claimed':False,
+              'repeat_aggregate_outputs_identical':True,
+              'participant_level_data_in_artifact':False,
+          }
+          (root/'run-metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True)+'\n', encoding='utf-8')
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload aggregate G05-G08 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-extension-g05-g08-${{ github.run_id }}
+          path: work/extension_g05_g08_results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
