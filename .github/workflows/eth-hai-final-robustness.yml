@@ -1,0 +1,290 @@
+name: ETH HAI final robustness RB-18 through RB-20
+
+'on':
+  push:
+    branches:
+      - eth-hai-clean-reimplementation-20260827
+    paths:
+      - .github/workflows/eth-hai-final-robustness.yml
+      - eth_hai_clean/core.py
+      - eth_hai_clean/hypothesis_common.py
+      - eth_hai_clean/run_rb18_task_order.py
+      - eth_hai_clean/run_rb19_version_anchor.py
+      - eth_hai_clean/compare_rb19_versions.py
+      - eth_hai_clean/run_rb20_uncertainty.py
+      - eth_hai_clean/combine_final_robustness.py
+      - eth_hai_clean/ROBUSTNESS_AUDIT_PLAN.md
+      - eth_hai_schema_gate/**
+      - eth_hai_repro/**
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: eth-hai-final-robustness
+  cancel-in-progress: true
+
+jobs:
+  final-robustness:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PINNED_REPOSITORY: RichardHGL/CHI2023_DKE
+      PINNED_COMMIT: 008f9833ab8c4c23ed94908e0108053a2240a100
+      PINNED_ROOT_TREE: 2ba7a4f41807de9a32670f77d55598fabcb253d9
+      SOURCE_DIR: work/vendor/CHI2023_DKE
+      HIST_VENV: work/python-3.8.16-final
+      MODERN_VENV: work/python-modern-final
+      RESULTS_DIR: work/final_robustness_results
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      TZ: UTC
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      OUTDATED_IGNORE: '1'
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out private clean branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Create private detached-HEAD source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$SOURCE_DIR")" "$RESULTS_DIR/source"
+          mkdir -p "$RESULTS_DIR/primary/rb18" "$RESULTS_DIR/repeat/rb18"
+          mkdir -p "$RESULTS_DIR/primary/rb20" "$RESULTS_DIR/repeat/rb20"
+          mkdir -p "$RESULTS_DIR/rb19/historical" "$RESULTS_DIR/rb19/modern" "$RESULTS_DIR/rb19/comparison"
+          mkdir -p "$RESULTS_DIR/combined"
+          git clone --no-checkout "https://github.com/${PINNED_REPOSITORY}.git" "$SOURCE_DIR"
+          git -C "$SOURCE_DIR" fetch origin "$PINNED_COMMIT"
+          git -C "$SOURCE_DIR" checkout --detach "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$PINNED_COMMIT"
+          test "$(git -C "$SOURCE_DIR" rev-parse 'HEAD^{tree}')" = "$PINNED_ROOT_TREE"
+          if git -C "$SOURCE_DIR" symbolic-ref -q HEAD; then exit 1; fi
+          test -z "$(git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all)"
+
+      - name: Reverify complete 27-object source snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 eth_hai_repro/verify_source_snapshot.py \
+            --repo "$SOURCE_DIR" \
+            --manifest eth_hai_repro/git_object_snapshot_verified.json \
+            --output-dir "$RESULTS_DIR/source"
+          cp eth_hai_repro/git_object_snapshot_verified.json "$RESULTS_DIR/source/"
+
+      - name: Set up historical Python 3.8.16
+        id: setup38
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8.16
+          architecture: x64
+
+      - name: Capture historical Python path
+        shell: bash
+        run: echo "PY38=$(command -v python)" >> "$GITHUB_ENV"
+
+      - name: Set up current Python 3.13
+        id: setup313
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: x64
+
+      - name: Capture modern Python path
+        shell: bash
+        run: echo "PY313=$(command -v python)" >> "$GITHUB_ENV"
+
+      - name: Build frozen historical and current stable environments
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$PY38" -m venv "$HIST_VENV"
+          "$HIST_VENV/bin/python" -m pip install --disable-pip-version-check --no-input \
+            pip==23.0.1 setuptools==67.1.0 wheel==0.38.4
+          "$HIST_VENV/bin/python" -m pip install --disable-pip-version-check --no-input --no-deps \
+            -r eth_hai_schema_gate/requirements-analysis-stack-33005830882.txt
+          "$HIST_VENV/bin/python" -m pip check > "$RESULTS_DIR/rb19/historical/pip-check.txt"
+          "$HIST_VENV/bin/python" -m pip freeze --all | sort > "$RESULTS_DIR/rb19/historical/requirements-freeze.txt"
+          diff -u eth_hai_schema_gate/requirements-freeze-expected-33005830882.txt \
+            "$RESULTS_DIR/rb19/historical/requirements-freeze.txt" \
+            > "$RESULTS_DIR/rb19/historical/environment-freeze-diff.txt"
+
+          "$PY313" -m venv "$MODERN_VENV"
+          "$MODERN_VENV/bin/python" -m pip install --disable-pip-version-check --no-input --upgrade pip setuptools wheel
+          "$MODERN_VENV/bin/python" -m pip install --disable-pip-version-check --no-input --upgrade \
+            numpy pandas scipy statsmodels patsy
+          "$MODERN_VENV/bin/python" -m pip check > "$RESULTS_DIR/rb19/modern/pip-check.txt"
+          "$MODERN_VENV/bin/python" -m pip freeze --all | sort > "$RESULTS_DIR/rb19/modern/requirements-freeze.txt"
+          "$MODERN_VENV/bin/python" - <<'PY'
+          import json, platform
+          import numpy, pandas, scipy, statsmodels, patsy
+          from pathlib import Path
+          payload = {
+              'python': platform.python_version(),
+              'numpy': numpy.__version__,
+              'pandas': pandas.__version__,
+              'scipy': scipy.__version__,
+              'statsmodels': statsmodels.__version__,
+              'patsy': patsy.__version__,
+          }
+          Path('work/final_robustness_results/rb19/modern/resolved-stack.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True)+'\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Compile final robustness scripts in both environments
+        shell: bash
+        run: |
+          set -euo pipefail
+          for py in "$HIST_VENV/bin/python" "$MODERN_VENV/bin/python"; do
+            "$py" -m py_compile \
+              eth_hai_clean/core.py \
+              eth_hai_clean/hypothesis_common.py \
+              eth_hai_clean/run_rb18_task_order.py \
+              eth_hai_clean/run_rb19_version_anchor.py \
+              eth_hai_clean/compare_rb19_versions.py \
+              eth_hai_clean/run_rb20_uncertainty.py \
+              eth_hai_clean/combine_final_robustness.py
+          done
+
+      - name: Execute RB-18, RB-19, and RB-20
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum \
+            eth_hai_clean/core.py \
+            eth_hai_clean/hypothesis_common.py \
+            eth_hai_clean/run_rb18_task_order.py \
+            eth_hai_clean/run_rb19_version_anchor.py \
+            eth_hai_clean/compare_rb19_versions.py \
+            eth_hai_clean/run_rb20_uncertainty.py \
+            eth_hai_clean/combine_final_robustness.py \
+            > "$RESULTS_DIR/final-source-sha256.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/run_rb18_task_order.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/primary/rb18" \
+            > "$RESULTS_DIR/primary/rb18/stdout.txt" 2> "$RESULTS_DIR/primary/rb18/stderr.txt"
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/run_rb18_task_order.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/repeat/rb18" \
+            > "$RESULTS_DIR/repeat/rb18/stdout.txt" 2> "$RESULTS_DIR/repeat/rb18/stderr.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/run_rb20_uncertainty.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/primary/rb20" \
+            > "$RESULTS_DIR/primary/rb20/stdout.txt" 2> "$RESULTS_DIR/primary/rb20/stderr.txt"
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/run_rb20_uncertainty.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/repeat/rb20" \
+            > "$RESULTS_DIR/repeat/rb20/stdout.txt" 2> "$RESULTS_DIR/repeat/rb20/stderr.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/run_rb19_version_anchor.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/rb19/historical" --stack-label historical-frozen \
+            > "$RESULTS_DIR/rb19/historical/stdout.txt" 2> "$RESULTS_DIR/rb19/historical/stderr.txt"
+          PYTHONPATH="$GITHUB_WORKSPACE" "$MODERN_VENV/bin/python" eth_hai_clean/run_rb19_version_anchor.py \
+            --repo "$SOURCE_DIR" --out "$RESULTS_DIR/rb19/modern" --stack-label current-stable \
+            > "$RESULTS_DIR/rb19/modern/stdout.txt" 2> "$RESULTS_DIR/rb19/modern/stderr.txt"
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/compare_rb19_versions.py \
+            --historical "$RESULTS_DIR/rb19/historical/version_anchor_results.json" \
+            --modern "$RESULTS_DIR/rb19/modern/version_anchor_results.json" \
+            --out "$RESULTS_DIR/rb19/comparison" \
+            > "$RESULTS_DIR/rb19/comparison/stdout.txt" 2> "$RESULTS_DIR/rb19/comparison/stderr.txt"
+
+          PYTHONPATH="$GITHUB_WORKSPACE" "$HIST_VENV/bin/python" eth_hai_clean/combine_final_robustness.py \
+            --rb18 "$RESULTS_DIR/primary/rb18" \
+            --rb19 "$RESULTS_DIR/rb19/comparison" \
+            --rb20 "$RESULTS_DIR/primary/rb20" \
+            --out "$RESULTS_DIR/combined" \
+            > "$RESULTS_DIR/combined/stdout.txt" 2> "$RESULTS_DIR/combined/stderr.txt"
+
+      - name: Enforce determinism and aggregate-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          diff -qr "$RESULTS_DIR/primary/rb18" "$RESULTS_DIR/repeat/rb18" > "$RESULTS_DIR/rb18-repeat-directory-diff.txt"
+          diff -qr "$RESULTS_DIR/primary/rb20" "$RESULTS_DIR/repeat/rb20" > "$RESULTS_DIR/rb20-repeat-directory-diff.txt"
+          "$HIST_VENV/bin/python" - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          final = json.loads((root/'combined'/'final_robustness_summary.json').read_text(encoding='utf-8'))
+          assert final['passed'] is True
+          assert final['checks_total'] == 3
+          assert set(final['classifications']) == {'RB-18','RB-19','RB-20'}
+          assert final['upstream_util_imported'] is False
+          assert final['participant_level_data_emitted'] is False
+          assert final['direct_reproduction_register_modified'] is False
+          rb18 = json.loads((root/'primary'/'rb18'/'rb18_summary.json').read_text(encoding='utf-8'))
+          rb19 = json.loads((root/'rb19'/'comparison'/'rb19_summary.json').read_text(encoding='utf-8'))
+          rb20 = json.loads((root/'primary'/'rb20'/'rb20_summary.json').read_text(encoding='utf-8'))
+          assert rb18['passed'] and rb19['passed'] and rb20['passed']
+          all_text = '\n'.join(
+              path.read_text(encoding='utf-8', errors='ignore')
+              for path in root.rglob('*') if path.is_file()
+          )
+          assert 'Participant_' not in all_text
+          PY
+          git -C "$SOURCE_DIR" status --porcelain=v1 --untracked-files=all \
+            > "$RESULTS_DIR/source/source-post-final-status.txt"
+          test ! -s "$RESULTS_DIR/source/source-post-final-status.txt"
+
+      - name: Record final robustness provenance and integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/eth-hai-final-robustness.yml "$RESULTS_DIR/workflow.yml"
+          cp eth_hai_clean/core.py "$RESULTS_DIR/core.py"
+          cp eth_hai_clean/hypothesis_common.py "$RESULTS_DIR/hypothesis_common.py"
+          cp eth_hai_clean/run_rb18_task_order.py "$RESULTS_DIR/run_rb18_task_order.py"
+          cp eth_hai_clean/run_rb19_version_anchor.py "$RESULTS_DIR/run_rb19_version_anchor.py"
+          cp eth_hai_clean/compare_rb19_versions.py "$RESULTS_DIR/compare_rb19_versions.py"
+          cp eth_hai_clean/run_rb20_uncertainty.py "$RESULTS_DIR/run_rb20_uncertainty.py"
+          cp eth_hai_clean/combine_final_robustness.py "$RESULTS_DIR/combine_final_robustness.py"
+          cp eth_hai_clean/ROBUSTNESS_AUDIT_PLAN.md "$RESULTS_DIR/ROBUSTNESS_AUDIT_PLAN.md"
+          "$HIST_VENV/bin/python" - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ['RESULTS_DIR'])
+          metadata = {
+              'schema_version':'1.0',
+              'captured_at_utc':datetime.now(timezone.utc).isoformat(),
+              'github_repository':os.environ['GITHUB_REPOSITORY'],
+              'github_ref_name':os.environ['GITHUB_REF_NAME'],
+              'github_orchestration_commit':os.environ['GITHUB_SHA'],
+              'github_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'upstream_repository':os.environ['PINNED_REPOSITORY'],
+              'upstream_commit':os.environ['PINNED_COMMIT'],
+              'upstream_root_tree':os.environ['PINNED_ROOT_TREE'],
+              'historical_python':'3.8.16',
+              'modern_python_path':os.environ['PY313'],
+              'historical_environment_reused_exactly':True,
+              'checks_executed':['RB-18','RB-19','RB-20'],
+              'upstream_util_imported':False,
+              'repeat_rb18_outputs_identical':True,
+              'repeat_rb20_outputs_identical':True,
+              'participant_level_data_in_artifact':False,
+              'direct_reproduction_register_modified':False,
+          }
+          (root/'run-metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True)+'\n', encoding='utf-8')
+          PY
+          find "$RESULTS_DIR" -type f ! -name RESULTS_MANIFEST.sha256 -print0 \
+            | sort -z | xargs -0 sha256sum > "$RESULTS_DIR/RESULTS_MANIFEST.sha256"
+
+      - name: Upload aggregate final robustness artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-hai-final-robustness-${{ github.run_id }}
+          path: work/final_robustness_results
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 9
