@@ -71,10 +71,10 @@ git clone https://github.com/Aether-0/ORCHESTRA-OS.git
 cd ORCHESTRA-OS
 ```
 
-For a fixed version, check out `v1.0.3`. The [latest release](https://github.com/Aether-0/ORCHESTRA-OS/releases/latest)
+For a fixed version, check out `v1.0.4`. The [latest release](https://github.com/Aether-0/ORCHESTRA-OS/releases/latest)
 provides source ZIP/TAR.GZ, `SHA256SUMS`, provenance, and validation reports.
 Verify downloads with `sha256sum -c SHA256SUMS` before extraction.
-Version 1.0.3 improves the paper documentation and evidence layout; the
+Version 1.0.4 improves the paper documentation and evidence layout; the
 implementation and tests match 1.0.2. Historical paper measurements belong
 to their recorded artifacts, not automatically to this release.
 
@@ -134,7 +134,7 @@ ORCHESTRA-OS/
 ```
 
 Start with the [documentation index](docs/README.md). Historical campaigns
-are indexed in [artifacts/README.md](artifacts/README.md); their outcomes and
+are indexed in [artifacts/README.md](https://github.com/Aether-0/ORCHESTRA-OS/blob/v1.0.4/artifacts/README.md); their outcomes and
 protocols apply to their recorded revisions. The copied Linux header tree
 and generated host binaries are excluded from the current publication.
 Their inventory and prior Git revision remain recorded for provenance.

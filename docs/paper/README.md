@@ -43,7 +43,7 @@ here do not constitute a ready-to-run complete benchmark bundle.
 The current software release differs from the artifacts evaluated in the
 paper. Do not attribute historical measurements to the latest code or rebuild
 an old experiment with the current source and call it an exact reproduction.
-Historical reports and failures remain under [artifacts](../../artifacts/README.md)
+Historical reports and failures remain under [artifacts](https://github.com/Aether-0/ORCHESTRA-OS/blob/v1.0.4/artifacts/README.md)
 and [docs/history](../history/README.md).
 
 Publication checks are recorded in the [1.0.3 audit](../validation/PUBLICATION_1_0_3.md).
