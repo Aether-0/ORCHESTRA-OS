@@ -3,7 +3,7 @@
 ORCHESTRA-OS is a research-grade, capability-tiered Linux scheduling
 prototype that coordinates observed runtime state, bounded prediction,
 policy, controller gates, and sched_ext actions. The current product line is
-`1.0.1`, an offline-validated research source release based on the research-stable
+`1.0.2`, an offline-validated research source release based on the research-stable
 `1.0.0` observer/control plane and native package lifecycle. Privileged sched_ext verifier, attachment, ownership, and
 hardware-runtime behavior remain target-specific experimental gates.
 
@@ -74,10 +74,10 @@ is retained as the compatibility implementation body and output name.
 ## Quick start: observer and source validation
 
 The [latest public release](https://github.com/Aether-0/ORCHESTRA-OS/releases/latest)
-provides source archives, checksums, and a validation report. Version 1.0.1
+provides source archives, checksums, and a validation report. Version 1.0.2
 includes the reviewed 1.0.1-rc1 hardening changes. Native packages and hosted
 build attestations are not included in this source release. See the
-[1.0.1 release guide](docs/releases/v1.0.1-source.md) for scope and verification.
+[1.0.2 release guide](docs/releases/v1.0.2-source.md) for scope and verification.
 The [earlier package pipeline guide](docs/releases/v1.0.0-research-stable.md)
 describes the separate native-package workflow.
 

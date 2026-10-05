@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Product | ORCHESTRA-OS |
-| Version | `1.0.1` |
+| Version | `1.0.2` |
 | Product ABI | 1.0.0 |
 | Bridge ABI | v2 |
 | Kernel state/policy ABI | v8 |
