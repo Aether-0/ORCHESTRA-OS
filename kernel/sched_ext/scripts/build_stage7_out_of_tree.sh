@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build the canonical Stage 7 scheduler without modifying repository sources.
+# Build the canonical ORCHESTRA scheduler without modifying repository
+# sources. The historical script name is retained for compatibility.
 #
 # Usage:
 #   ORCHESTRA_KERNEL_SRC=/path/to/exact/kernel/source \
@@ -17,6 +18,8 @@ set -euo pipefail
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)
+# shellcheck source=/dev/null
+. "$REPO_ROOT/scripts/path_safety.sh"
 RUNNING_KERNEL=$(uname -r)
 RUNNING_VERSION=${RUNNING_KERNEL%%+*}
 KSRC=${1:-${ORCHESTRA_KERNEL_SRC:-/lib/modules/$RUNNING_KERNEL/build}}
@@ -97,18 +100,31 @@ case "$BUILD_DIR" in
 esac
 BUILD_PARENT=$(dirname -- "$BUILD_DIR")
 BUILD_NAME=$(basename -- "$BUILD_DIR")
-mkdir -p "$BUILD_PARENT"
+orchestra_prepare_parent_dir "$BUILD_PARENT" ||
+    blocked "UNSAFE_BUILD_PARENT:$BUILD_PARENT"
 BUILD_DIR=$(CDPATH= cd -- "$BUILD_PARENT" && pwd)/$BUILD_NAME
 case "$BUILD_DIR" in
     "$REPO_ROOT"|"$REPO_ROOT"/*)
         blocked "BUILD_DIR_INSIDE_REPOSITORY:$BUILD_DIR" ;;
 esac
-mkdir -p "$BUILD_DIR" "$BUILD_DIR/libbpf"
+orchestra_ensure_private_dir "$BUILD_DIR" ||
+    blocked "UNSAFE_BUILD_DIR:$BUILD_DIR"
+orchestra_ensure_private_dir "$BUILD_DIR/libbpf" ||
+    blocked "UNSAFE_BUILD_SUBDIR:$BUILD_DIR/libbpf"
+
+BPF_SOURCE=${ORCHESTRA_BPF_SOURCE:-$REPO_ROOT/kernel/sched_ext/bpf/orchestra_sched.bpf.c}
+require_file "$BPF_SOURCE"
+
+case "$(uname -m)" in
+    x86_64) KERNEL_ARCH_INCLUDE="$KSRC/arch/x86" ;;
+    aarch64) KERNEL_ARCH_INCLUDE="$KSRC/arch/arm64" ;;
+    *) KERNEL_ARCH_INCLUDE="" ;;
+esac
 
 LOG="$BUILD_DIR/build.log"
 exec > >(tee "$LOG") 2>&1
 
-echo "ORCHESTRA Stage 7 out-of-tree build"
+echo "ORCHESTRA-OS target-matched sched_ext build"
 echo "repository=$REPO_ROOT"
 echo "running_kernel=$RUNNING_KERNEL"
 echo "kernel_source=$KSRC"
@@ -117,6 +133,8 @@ echo "build_dir=$BUILD_DIR"
 echo "bpf_uapi=$BPF_UAPI"
 echo "bpf_doc=$BPF_DOC"
 echo "bpf_helper_defs=$HELPER_DEFS"
+echo "bpf_source=$BPF_SOURCE"
+echo "architecture=$(uname -m)"
 
 VMLINUX_H="$BUILD_DIR/vmlinux.h"
 echo "Generating $VMLINUX_H from /sys/kernel/btf/vmlinux"
@@ -148,33 +166,40 @@ BPF_INCLUDES=(
     -I"$KSRC/tools/include/uapi"
     -I"$KSRC/include"
     -I"$KSRC/include/uapi"
-    -I"$KSRC/arch/x86/include"
-    -I"$KSRC/arch/x86/include/generated"
     -I"$KSRC/tools/sched_ext/include"
     -I/usr/include/bpf
 )
+if [ -n "$KERNEL_ARCH_INCLUDE" ]; then
+    BPF_INCLUDES+=("-I$KERNEL_ARCH_INCLUDE/include")
+    BPF_INCLUDES+=("-I$KERNEL_ARCH_INCLUDE/include/generated")
+fi
 
 echo "Building $BPF_OBJECT"
 clang -O2 -target bpf -g -nostdinc -D__BPF__ \
     "${BPF_INCLUDES[@]}" \
     -Wno-missing-declarations -Wno-visibility \
     -Wno-address-of-packed-member \
-    -c "$REPO_ROOT/kernel/sched_ext/orchestra_scx_stage7.bpf.c" \
+    -c "$BPF_SOURCE" \
     -o "$BPF_OBJECT"
 
 echo "Building $BRIDGE"
 cc -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
-    -Wformat=2 -Werror -I"$REPO_ROOT/kernel/sched_ext/include" \
+    -Wformat=2 -Werror -D_FORTIFY_SOURCE=2 -fstack-protector-strong -fPIE \
+    -I"$REPO_ROOT/kernel/sched_ext/include" \
     "$REPO_ROOT/kernel/sched_ext/bridge/orchestra_bridge.c" \
-    -o "$BRIDGE"
+    -o "$BRIDGE" -Wl,-z,relro,-z,now -Wl,-z,noexecstack -pie
 
 echo "Building $LOADER"
 LIBBPF_INCLUDES=(
     -isystem "$KSRC/tools/lib"
-    -I"$KSRC/include/uapi"
-    -I"$KSRC/arch/x86/include/uapi"
+    -isystem "$KSRC/include/uapi"
 )
-if ! printf '#include <bpf/libbpf.h>\n' | cc -E "${LIBBPF_INCLUDES[@]}" - \
+if [ -n "$KERNEL_ARCH_INCLUDE" ]; then
+    LIBBPF_INCLUDES+=("-isystem" "$KERNEL_ARCH_INCLUDE/include/uapi")
+fi
+LIBBPF_DEFINES=(-D__EXPORTED_HEADERS__)
+if ! printf '#include <bpf/libbpf.h>\n' | cc "${LIBBPF_DEFINES[@]}" -E \
+    "${LIBBPF_INCLUDES[@]}" - \
     >/dev/null 2>"$BUILD_DIR/libbpf-header-check.log"; then
     echo "libbpf header-check output:" >&2
     sed -n '1,160p' "$BUILD_DIR/libbpf-header-check.log" >&2 || true
@@ -193,11 +218,20 @@ done
 echo "libbpf_link=$LIBBPF_SONAME"
 cc -O2 -std=c11 -Wall -Wextra -Wpedantic \
     -Wconversion -Wshadow -Wformat=2 -Werror \
+    -D_FORTIFY_SOURCE=2 -fstack-protector-strong -fPIE \
+    "${LIBBPF_DEFINES[@]}" \
     "${LIBBPF_INCLUDES[@]}" \
     -I"$REPO_ROOT/kernel/sched_ext/include" \
     "$REPO_ROOT/kernel/sched_ext/bridge/orchestra_loader.c" \
     -o "$LOADER" -Wl,-rpath,/usr/lib/x86_64-linux-gnu \
+    -Wl,-z,relro,-z,now -Wl,-z,noexecstack -pie \
     -l:"$LIBBPF_SONAME"
+
+# Keep root-facing artifacts non-writable by group/other even when the build
+# host uses a permissive umask. The installer performs the same checks before
+# copying them into a privileged prefix.
+chmod 0644 "$VMLINUX_H" "$BPF_OBJECT"
+chmod 0755 "$BRIDGE" "$LOADER"
 
 {
     echo "running_kernel=$RUNNING_KERNEL"

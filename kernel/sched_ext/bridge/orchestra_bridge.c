@@ -81,6 +81,12 @@ enum map_role {
     MAP_TASK_V8,
     MAP_DIAG_V8,
     MAP_TEL_V8,
+    MAP_COORD_V10,
+    MAP_COORD_CPU_V10,
+    MAP_CONTROLLER_V10,
+    MAP_CONTROLLER_TEL_V10,
+    MAP_RUNTIME_V10,
+    MAP_TASK_COORD_V10,
     MAP_ROLE_COUNT
 };
 
@@ -137,6 +143,31 @@ static const struct map_spec map_specs[MAP_ROLE_COUNT] = {
     , [MAP_TEL_V8] = { BRIDGE_TEL_V8_MAP_NAME, BRIDGE_TEL_V8_PATH,
         BPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
         sizeof(struct orchestra_telemetry_v8), 1 }
+    , [MAP_COORD_V10] = { BRIDGE_COORD_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_COORD_V10_MAP_NAME,
+        BPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        sizeof(struct orchestra_coordination_state_v10),
+        ORCHESTRA_COORD_MAP_ENTRY_COUNT }
+    , [MAP_COORD_CPU_V10] = { BRIDGE_COORD_CPU_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_COORD_CPU_V10_MAP_NAME,
+        BPF_MAP_TYPE_PERCPU_ARRAY, sizeof(uint32_t),
+        sizeof(struct orchestra_coord_cpu_v10), 1 }
+    , [MAP_CONTROLLER_V10] = { BRIDGE_CONTROLLER_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_CONTROLLER_V10_MAP_NAME,
+        BPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        sizeof(struct orchestra_controller_state_v10), 1 }
+    , [MAP_CONTROLLER_TEL_V10] = { BRIDGE_CONTROLLER_TEL_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_CONTROLLER_TEL_V10_MAP_NAME,
+        BPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        sizeof(struct orchestra_controller_telemetry_v10), 1 }
+    , [MAP_RUNTIME_V10] = { BRIDGE_RUNTIME_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_RUNTIME_V10_MAP_NAME,
+        BPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        sizeof(struct orchestra_runtime_state_v10), 1 }
+    , [MAP_TASK_COORD_V10] = { BRIDGE_TASK_COORD_V10_MAP_NAME,
+        BRIDGE_PIN_DIR "/" BRIDGE_TASK_COORD_V10_MAP_NAME,
+        BPF_MAP_TYPE_HASH, sizeof(struct orchestra_task_identity),
+        sizeof(struct orchestra_task_coord_v10), BRIDGE_MAX_TASKS }
 };
 
 struct map_set {
@@ -157,6 +188,7 @@ struct options {
     bool stream;
     bool policy_entry;
     bool policy_commit;
+    bool policy_abort;
     bool signal_publish;
     bool require_signal;
     bool dry_run;
@@ -165,6 +197,7 @@ struct options {
     bool policy_state_set;
     bool controller_set;
     bool policy_mode_set;
+    bool policy_generation_set;
     enum orchestra_action_id action;
     bool action_set;
     uint32_t target_tid;
@@ -307,7 +340,7 @@ static int bpf_next_key_raw(int fd, const void *key, void *next_key)
 
 static bool checked_add_u64(uint64_t a, uint64_t b, uint64_t *out)
 {
-    if (UINT64_MAX - a < b)
+    if (!out || UINT64_MAX - a < b)
         return false;
     *out = a + b;
     return true;
@@ -331,7 +364,8 @@ static bool parse_u64(const char *text, uint64_t min, uint64_t max,
     char *end = NULL;
     unsigned long long value;
 
-    if (!text || !*text || isspace((unsigned char)text[0]) || text[0] == '-')
+    if (!text || !out || !*text || isspace((unsigned char)text[0]) ||
+        text[0] == '-')
         return false;
     errno = 0;
     value = strtoull(text, &end, 10);
@@ -354,6 +388,8 @@ static bool parse_u32(const char *text, uint32_t min, uint32_t max,
 
 static bool canonical_to_wire(enum orchestra_action_id action, uint32_t *wire)
 {
+    if (!wire)
+        return false;
     switch (action) {
     case ORCHESTRA_ACTION_RUN:      *wire = ORCHESTRA_ACTION_RUN; return true;
     case ORCHESTRA_ACTION_SLEEP:    *wire = ORCHESTRA_ACTION_SLEEP; return true;
@@ -368,6 +404,8 @@ static bool parse_action(const char *text, enum orchestra_action_id *action)
 {
     uint32_t i;
 
+    if (!text || !action)
+        return false;
     for (i = 0; i < ORCHESTRA_ACTION_COUNT; i++) {
         if (action_names[i] && strcasecmp(text, action_names[i]) == 0) {
             *action = (enum orchestra_action_id)i;
@@ -381,6 +419,8 @@ static bool parse_controller(const char *text, uint32_t *state)
 {
     uint32_t i;
 
+    if (!text || !state)
+        return false;
     for (i = 0; i < ORCHESTRA_CTRL_COUNT; i++) {
         if (strcasecmp(text, controller_names[i]) == 0) {
             *state = i;
@@ -461,10 +501,30 @@ static bool open_v8_maps(struct map_set *maps)
 {
     enum map_role role;
 
-    for (role = MAP_RUNTIME_V8; role < MAP_ROLE_COUNT; role++) {
+    for (role = MAP_RUNTIME_V8; role <= MAP_TEL_V8; role++) {
         maps->fd[role] = open_checked(role);
         if (maps->fd[role] < 0) {
             for (enum map_role cleanup = MAP_RUNTIME_V8; cleanup < role;
+                 cleanup++) {
+                if (maps->fd[cleanup] >= 0) {
+                    close(maps->fd[cleanup]);
+                    maps->fd[cleanup] = -1;
+                }
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool open_v10_maps(struct map_set *maps)
+{
+    enum map_role role;
+
+    for (role = MAP_COORD_V10; role < MAP_ROLE_COUNT; role++) {
+        maps->fd[role] = open_checked(role);
+        if (maps->fd[role] < 0) {
+            for (enum map_role cleanup = MAP_COORD_V10; cleanup < role;
                  cleanup++) {
                 if (maps->fd[cleanup] >= 0) {
                     close(maps->fd[cleanup]);
@@ -508,6 +568,8 @@ static void record_v8_policy_transition(int fd, bool rollback)
 
 static bool valid_control(const struct bridge_control *control)
 {
+    if (!control)
+        return false;
     return control->magic == ORCHESTRA_ABI_MAGIC &&
            control->abi_version == ORCHESTRA_ABI_VERSION &&
            control->value_size == sizeof(*control) &&
@@ -515,6 +577,7 @@ static bool valid_control(const struct bridge_control *control)
            control->scheduler_epoch != 0 &&
            control->controller_state < ORCHESTRA_CTRL_COUNT &&
            control->policy_mode < ORCHESTRA_POLICY_COUNT &&
+           control->publication_status <= BRIDGE_PUB_MAP_FULL &&
            (control->capability_flags & BRIDGE_REQUIRED_CAPS) ==
                BRIDGE_REQUIRED_CAPS;
 }
@@ -522,6 +585,8 @@ static bool valid_control(const struct bridge_control *control)
 static bool valid_policy_meta_v8(const struct orchestra_policy_meta_v8 *meta,
                                  uint64_t epoch)
 {
+    if (!meta)
+        return false;
     return meta->magic == ORCHESTRA_ABI_MAGIC &&
            meta->abi_version == ORCHESTRA_KERNEL_ABI_VERSION &&
            meta->value_size == sizeof(*meta) &&
@@ -531,6 +596,81 @@ static bool valid_policy_meta_v8(const struct orchestra_policy_meta_v8 *meta,
            meta->scheduler_epoch == epoch &&
            (meta->capability_flags & ORCHESTRA_KERNEL_REQUIRED_CAPS) ==
                ORCHESTRA_KERNEL_REQUIRED_CAPS;
+}
+
+/* Relabel a retained policy bank before publishing it under a new generation.
+ * Policy entries live in a fixed-size ARRAY map, so this bounded pass keeps
+ * rollback atomic from the scheduler's point of view: the bank is inactive
+ * until the metadata flip, and no previously issued generation is reused. */
+static bool refresh_policy_bank_generation(int fd, uint32_t bank,
+                                           uint64_t generation)
+{
+    uint32_t state;
+
+    if (fd < 0 || bank >= ORCHESTRA_KERNEL_POLICY_BANK_COUNT ||
+        generation == 0)
+        return false;
+    for (state = 0; state < ORCHESTRA_KERNEL_MAX_POLICY_STATES; state++) {
+        struct orchestra_policy_entry_v8 entry;
+        struct orchestra_policy_entry_v8 verify;
+        uint32_t key = bank * ORCHESTRA_KERNEL_MAX_POLICY_STATES + state;
+
+        memset(&entry, 0, sizeof(entry));
+        if (bpf_lookup_raw(fd, &key, &entry, BPF_F_LOCK) != 0)
+            return false;
+        if (entry.value_size == 0 && entry.magic == 0)
+            continue;
+        if (entry.magic != ORCHESTRA_ABI_MAGIC ||
+            entry.abi_version != ORCHESTRA_KERNEL_ABI_VERSION ||
+            entry.value_size != sizeof(entry) ||
+            entry.policy_schema_version != ORCHESTRA_KERNEL_POLICY_SCHEMA_VERSION ||
+            entry.state_index != state ||
+            entry.action >= ORCHESTRA_ACTION_COUNT ||
+            entry.controller_state >= ORCHESTRA_CTRL_COUNT ||
+            (entry.flags & ORCHESTRA_POLICY_V8_F_VALID) == 0 ||
+            (entry.capability_mask & (1u << entry.action)) == 0 ||
+            entry.policy_generation == 0)
+            return false;
+        entry.policy_generation = generation;
+        if (bpf_update_raw(fd, &key, &entry, BPF_EXIST | BPF_F_LOCK) != 0)
+            return false;
+        memset(&verify, 0, sizeof(verify));
+        if (bpf_lookup_raw(fd, &key, &verify, BPF_F_LOCK) != 0 ||
+            verify.policy_generation != generation ||
+            verify.state_index != state)
+            return false;
+    }
+    return true;
+}
+
+static bool restore_inactive_policy_bank(int fd, uint32_t active_bank)
+{
+    uint32_t state;
+    uint32_t inactive_bank;
+
+    if (fd < 0 || active_bank >= ORCHESTRA_KERNEL_POLICY_BANK_COUNT)
+        return false;
+    inactive_bank = active_bank ^ 1u;
+    for (state = 0; state < ORCHESTRA_KERNEL_MAX_POLICY_STATES; state++) {
+        struct orchestra_policy_entry_v8 entry;
+        uint32_t active_key = active_bank * ORCHESTRA_KERNEL_MAX_POLICY_STATES + state;
+        uint32_t inactive_key = inactive_bank * ORCHESTRA_KERNEL_MAX_POLICY_STATES + state;
+
+        memset(&entry, 0, sizeof(entry));
+        if (bpf_lookup_raw(fd, &active_key, &entry, BPF_F_LOCK) != 0 ||
+            bpf_update_raw(fd, &inactive_key, &entry,
+                           BPF_EXIST | BPF_F_LOCK) != 0)
+            return false;
+    }
+    return true;
+}
+
+static bool next_policy_generation(uint64_t current, uint64_t *next)
+{
+    if (!next || current == UINT64_MAX)
+        return false;
+    *next = current + 1;
+    return *next != 0;
 }
 
 static bool read_text_file(const char *path, char *buf, size_t size)
@@ -567,15 +707,22 @@ static bool scheduler_loaded(void)
 /* Correctly parses field 22 after the final ')' which terminates comm. */
 static bool parse_proc_stat_start(const char *line, uint64_t *start_ticks)
 {
-    const char *right = strrchr(line, ')');
+    const char *right;
     char copy[4096];
     char *save = NULL;
     char *token;
+    size_t copy_len;
     unsigned int field = 3;
 
-    if (!right || right[1] != ' ' || strlen(right + 2) >= sizeof(copy))
+    if (!line || !start_ticks)
         return false;
-    strcpy(copy, right + 2);
+    right = strrchr(line, ')');
+    if (!right || right[1] != ' ')
+        return false;
+    copy_len = strlen(right + 2);
+    if (copy_len >= sizeof(copy))
+        return false;
+    memcpy(copy, right + 2, copy_len + 1u);
     for (token = strtok_r(copy, " ", &save); token;
          token = strtok_r(NULL, " ", &save), field++) {
         if (field == 22)
@@ -723,6 +870,8 @@ static bool scheduling_policy_is_rt(int policy)
 static bool directive_equal(const struct bridge_directive *a,
                             const struct bridge_directive *b)
 {
+    if (!a || !b)
+        return false;
     return a->abi_version == b->abi_version &&
            a->value_size == b->value_size && a->flags == b->flags &&
            a->scheduler_epoch == b->scheduler_epoch &&
@@ -743,6 +892,8 @@ static bool signal_equal(const struct bridge_signal_frame *a,
                          const struct bridge_signal_frame *b)
 {
     /* The leading map lock is synchronization metadata, not payload. */
+    if (!a || !b)
+        return false;
     return memcmp((const uint8_t *)a + sizeof(a->lock),
                   (const uint8_t *)b + sizeof(b->lock),
                   sizeof(*a) - sizeof(a->lock)) == 0;
@@ -755,6 +906,8 @@ static bool signal_permille_valid(uint32_t value)
 
 static bool stream_signal_fields_valid(const struct bridge_stream_request *request)
 {
+    if (!request)
+        return false;
     return (request->stream_flags &
             ~(BRIDGE_STREAM_F_PUBLISH_SIGNAL | BRIDGE_STREAM_F_REQUIRE_SIGNAL)) == 0 &&
            request->signal_sequence != 0 &&
@@ -820,6 +973,9 @@ static int publish_directive(const struct options *opts,
     struct orchestra_task_identity identity, identity_after;
     uint64_t now, expiry;
     uint32_t wire_action;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
     int lock_fd = -1;
     int update_error = 0;
     int result = EXIT_PUB_FAIL;
@@ -845,6 +1001,12 @@ static int publish_directive(const struct options *opts,
         result = EXIT_SCHEMA;
         goto out;
     }
+    controller_state = opts->controller_set ? opts->controller_state :
+        control.controller_state;
+    policy_mode = opts->policy_mode_set ? opts->policy_mode :
+        control.policy_mode;
+    policy_generation = opts->policy_generation_set ?
+        opts->policy_generation : control.policy_generation;
     if (!resolve_identity(&maps, opts->target_tid, control.scheduler_epoch,
                           &identity)) {
         fprintf(stderr, "TID %" PRIu32 " has no current kernel identity record\n",
@@ -917,9 +1079,9 @@ static int publish_directive(const struct options *opts,
     directive.throttle_period_ns = opts->throttle_period_ns;
     directive.throttle_budget_ns = opts->throttle_budget_ns;
     directive.expiry_ns = expiry;
-    directive.controller_state = opts->controller_state;
-    directive.policy_mode = opts->policy_mode;
-    directive.policy_generation = opts->policy_generation;
+    directive.controller_state = controller_state;
+    directive.policy_mode = policy_mode;
+    directive.policy_generation = policy_generation;
 
     if (opts->dry_run) {
         if (!opts->quiet)
@@ -937,10 +1099,13 @@ static int publish_directive(const struct options *opts,
     control.last_generation = directive.generation;
     control.publisher_heartbeat_ns = now;
     control.publisher_lease_ns = opts->lease_ns;
-    control.controller_state = opts->controller_state;
-    control.policy_mode = opts->policy_mode;
-    control.policy_generation = opts->policy_generation;
-    control.publication_status = BRIDGE_PUB_OK;
+    control.controller_state = controller_state;
+    control.policy_mode = policy_mode;
+    control.policy_generation = policy_generation;
+    /* Invalidate readers before exposing the new control generation.  The
+     * directive is not authoritative until its payload and identity
+     * readback have completed. */
+    control.publication_status = BRIDGE_PUB_MAP_ERROR;
     if (!write_control(maps.fd[MAP_CONTROL], &control)) {
         fprintf(stderr, "control update failed: %s\n", strerror(errno));
         goto out;
@@ -983,6 +1148,23 @@ static int publish_directive(const struct options *opts,
         (void)write_control(maps.fd[MAP_CONTROL], &control);
         errno = saved;
         fprintf(stderr, "full publication readback or identity revalidation failed\n");
+        goto out;
+    }
+    control.publication_status = BRIDGE_PUB_OK;
+    if (!write_control(maps.fd[MAP_CONTROL], &control) ||
+        !read_control(maps.fd[MAP_CONTROL], &verify_control) ||
+        !valid_control(&verify_control) ||
+        verify_control.publication_status != BRIDGE_PUB_OK ||
+        verify_control.scheduler_epoch != control.scheduler_epoch ||
+        verify_control.last_generation != directive.generation ||
+        verify_control.publisher_heartbeat_ns != now) {
+        int saved = errno;
+
+        (void)bpf_delete_raw(maps.fd[MAP_DIRECTIVE], &identity);
+        control.publication_status = BRIDGE_PUB_READBACK_FAIL;
+        (void)write_control(maps.fd[MAP_CONTROL], &control);
+        errno = saved;
+        fprintf(stderr, "final control publication readback failed\n");
         goto out;
     }
     if (!opts->quiet)
@@ -1105,7 +1287,10 @@ static int publish_signal(const struct options *opts)
      * directive that already exists.  Roll it back if frame publication fails. */
     control.publisher_heartbeat_ns = now;
     control.publisher_lease_ns = opts->lease_ns;
-    control.publication_status = BRIDGE_PUB_OK;
+    /* Signal readers must remain fail-closed while the new frame is being
+     * written.  In particular, an older valid frame must not be accepted
+     * under the refreshed lease during this transaction. */
+    control.publication_status = BRIDGE_PUB_MAP_ERROR;
     if (!write_control(maps.fd[MAP_CONTROL], &control)) {
         fprintf(stderr, "control update failed: %s\n", strerror(errno));
         goto out;
@@ -1134,6 +1319,23 @@ static int publish_signal(const struct options *opts)
         fprintf(stderr, "signal publication readback failed\n");
         goto out;
     }
+    control.publication_status = BRIDGE_PUB_OK;
+    if (!write_control(maps.fd[MAP_CONTROL], &control) ||
+        !read_control(maps.fd[MAP_CONTROL], &rollback_control) ||
+        !valid_control(&rollback_control) ||
+        rollback_control.publication_status != BRIDGE_PUB_OK ||
+        rollback_control.scheduler_epoch != control.scheduler_epoch ||
+        rollback_control.publisher_heartbeat_ns != now ||
+        rollback_control.publisher_lease_ns != opts->lease_ns) {
+        int saved = errno;
+
+        (void)bpf_delete_raw(maps.fd[MAP_SIGNAL], &zero);
+        control.publication_status = BRIDGE_PUB_READBACK_FAIL;
+        (void)write_control(maps.fd[MAP_CONTROL], &control);
+        errno = saved;
+        fprintf(stderr, "final signal control publication failed\n");
+        goto out;
+    }
     if (!opts->quiet)
         printf("published signal sequence=%" PRIu64 " epoch=%" PRIu64
                " expires_ns=%" PRIu64 " confidence_permille=%" PRIu32 "\n",
@@ -1150,7 +1352,7 @@ out:
 static int policy_command(const struct options *opts)
 {
     struct map_set maps;
-    struct bridge_control control, rollback_control;
+    struct bridge_control control, rollback_control, verify_control;
     struct orchestra_policy_meta_v8 meta, previous_meta, verify_meta;
     struct orchestra_policy_entry_v8 entry, verify_entry;
     uint32_t key;
@@ -1190,6 +1392,23 @@ static int policy_command(const struct options *opts)
     }
     previous_meta = meta;
     rollback_control = control;
+    if (opts->policy_abort && (opts->policy_entry || opts->policy_commit)) {
+        result = EXIT_ARGS;
+        goto out;
+    }
+    if (opts->policy_abort) {
+        if (!restore_inactive_policy_bank(maps.fd[MAP_POLICY_ENTRY_V8],
+                                          meta.active_bank)) {
+            result = EXIT_PUB_FAIL;
+            goto out;
+        }
+        if (!opts->quiet)
+            printf("discarded staged policy bank; active bank=%" PRIu32
+                   " generation=%" PRIu64 "\n",
+                   meta.active_bank, meta.policy_generation);
+        result = EXIT_OK;
+        goto out;
+    }
     lifecycle_transition = opts->policy_mode_set &&
         opts->policy_mode != ORCHESTRA_POLICY_EVALUATE;
     rollback_request = opts->controller_set &&
@@ -1213,9 +1432,7 @@ static int policy_command(const struct options *opts)
         goto out;
     }
     inactive_bank = meta.active_bank ^ 1u;
-    next_generation = meta.policy_generation == UINT64_MAX ? 0 :
-        meta.policy_generation + 1;
-    if (next_generation == 0) {
+    if (!next_policy_generation(meta.policy_generation, &next_generation)) {
         result = EXIT_GEN_OVERFLOW;
         goto out;
     }
@@ -1270,22 +1487,25 @@ static int policy_command(const struct options *opts)
     }
 
     if (opts->policy_commit) {
-        meta.active_bank = inactive_bank;
         if (rollback_request) {
             if (previous_meta.previous_generation == 0) {
                 fprintf(stderr, "no previous policy generation is available for rollback\n");
                 result = EXIT_ARGS;
                 goto out;
             }
-            /* The inactive bank is the last known-good bank retained by the
-             * previous commit.  Rollback intentionally rewinds the active
-             * generation; the next normal commit allocates a fresh one. */
-            meta.previous_generation = previous_meta.policy_generation;
-            meta.policy_generation = previous_meta.previous_generation;
-        } else {
-            meta.previous_generation = meta.policy_generation;
-            meta.policy_generation = next_generation;
+            /* Rollback selects the retained bank, but must not rewind the
+             * generation.  Reusing an earlier generation would let delayed
+             * directives or readers pass an ABA/replay check.  The retained
+             * entries are relabelled while the bank is inactive below. */
+            if (!refresh_policy_bank_generation(maps.fd[MAP_POLICY_ENTRY_V8],
+                                                inactive_bank, next_generation)) {
+                result = EXIT_PUB_FAIL;
+                goto out;
+            }
         }
+        meta.active_bank = inactive_bank;
+        meta.previous_generation = previous_meta.policy_generation;
+        meta.policy_generation = next_generation;
         meta.policy_mode = opts->policy_mode_set ? opts->policy_mode :
             meta.policy_mode;
         meta.controller_state = opts->controller_set ? opts->controller_state :
@@ -1301,6 +1521,14 @@ static int policy_command(const struct options *opts)
         meta.scheduler_epoch = control.scheduler_epoch;
         meta.published_ns = now;
         meta.capability_flags = ORCHESTRA_KERNEL_REQUIRED_CAPS;
+        /* Invalidate scheduler readers before flipping the policy bank.  The
+         * active metadata and control records become visible together only
+         * after the final control publication succeeds. */
+        control.publication_status = BRIDGE_PUB_MAP_ERROR;
+        if (!write_control(maps.fd[MAP_CONTROL], &control)) {
+            result = EXIT_PUB_FAIL;
+            goto out;
+        }
         if (bpf_update_raw(maps.fd[MAP_POLICY_META_V8], &zero, &meta,
                            BPF_EXIST | BPF_F_LOCK) != 0 ||
             bpf_lookup_raw(maps.fd[MAP_POLICY_META_V8], &zero, &verify_meta,
@@ -1314,11 +1542,19 @@ static int policy_command(const struct options *opts)
         control.policy_mode = meta.policy_mode;
         control.policy_generation = meta.policy_generation;
         control.publication_status = BRIDGE_PUB_OK;
-        if (!write_control(maps.fd[MAP_CONTROL], &control)) {
+        if (!write_control(maps.fd[MAP_CONTROL], &control) ||
+            !read_control(maps.fd[MAP_CONTROL], &verify_control) ||
+            !valid_control(&verify_control) ||
+            verify_control.publication_status != BRIDGE_PUB_OK ||
+            verify_control.scheduler_epoch != control.scheduler_epoch ||
+            verify_control.policy_generation != control.policy_generation ||
+            verify_control.controller_state != control.controller_state ||
+            verify_control.policy_mode != control.policy_mode) {
             /* The old bank remains the safe active policy if the auxiliary
              * control record cannot be updated after the meta flip. */
             (void)bpf_update_raw(maps.fd[MAP_POLICY_META_V8], &zero,
                                  &previous_meta, BPF_EXIST | BPF_F_LOCK);
+            rollback_control.publication_status = BRIDGE_PUB_READBACK_FAIL;
             (void)write_control(maps.fd[MAP_CONTROL], &rollback_control);
             result = EXIT_PUB_FAIL;
             goto out;
@@ -1395,6 +1631,7 @@ static int status_command(const struct options *opts)
     struct orchestra_task_identity key, next;
     bool have_key = false;
     bool have_v8 = false;
+    bool have_v10 = false;
     uint32_t zero = 0;
 
     printf("scheduler: %s\n", scheduler_loaded() ? BRIDGE_OPS_NAME : "not active");
@@ -1403,6 +1640,7 @@ static int status_command(const struct options *opts)
         return errno == EPROTO ? EXIT_SCHEMA : EXIT_MAP_MISSING;
     }
     have_v8 = open_v8_maps(&maps);
+    have_v10 = open_v10_maps(&maps);
     if (!read_control(maps.fd[MAP_CONTROL], &control) || !valid_control(&control)) {
         map_set_close(&maps);
         return EXIT_SCHEMA;
@@ -1496,6 +1734,114 @@ static int status_command(const struct options *opts)
                        controller_names[meta.controller_state] : "INVALID");
         }
     }
+    if (have_v10) {
+        struct orchestra_runtime_state_v10 runtime;
+        struct orchestra_controller_state_v10 controller;
+        struct orchestra_controller_telemetry_v10 controller_telemetry;
+
+        memset(&runtime, 0, sizeof(runtime));
+        if (bpf_lookup_raw(maps.fd[MAP_RUNTIME_V10], &zero, &runtime,
+                           BPF_F_LOCK) == 0) {
+            printf("runtime_v10 window=%" PRIu64 " scope=%" PRIu32
+                   " domain=%" PRIu32 " eligible=%" PRIu64
+                   " executed=%" PRIu64 " s1=%" PRIu32 " s2=%" PRIu32
+                   " s3=%" PRIu32 " s4=%" PRIu32 " q=%" PRIu32
+                   " deficit_class=%" PRIu32 " primary=%" PRIu32
+                   " secondary=%" PRIu32 " severity=%" PRIu32
+                   " persistence=%" PRIu32 " controller=%s"
+                   " controller_generation=%" PRIu64 " flags=%" PRIu32 "\n",
+                   runtime.window_generation, runtime.scope, runtime.domain_id,
+                   runtime.eligible_observations, runtime.executed_observations,
+                   runtime.s1_permille, runtime.s2_permille,
+                   runtime.s3_permille, runtime.s4_permille,
+                   runtime.q_permille, runtime.deficit_class,
+                   runtime.primary_deficit, runtime.secondary_deficit,
+                   runtime.deficit_severity, runtime.deficit_persistence,
+                   runtime.controller_state < ORCHESTRA_CTRL_COUNT ?
+                       controller_names[runtime.controller_state] : "INVALID",
+                   runtime.controller_generation, runtime.flags);
+        }
+        memset(&controller, 0, sizeof(controller));
+        if (bpf_lookup_raw(maps.fd[MAP_CONTROLLER_V10], &zero, &controller,
+                           BPF_F_LOCK) == 0) {
+            printf("controller_v10 state=%s generation=%" PRIu64
+                   " staging_generation=%" PRIu64
+                   " previous_good_generation=%" PRIu64
+                   " last_q=%" PRIu64 " next_update_ns=%" PRIu64
+                   " saturation=%" PRIu64 " rollback=%" PRIu64
+                   " recovery=%" PRIu64 " overrides=%" PRIu64
+                   " no_op=%" PRIu64 "\n",
+                   controller.active_state < ORCHESTRA_CTRL_COUNT ?
+                       controller_names[controller.active_state] : "INVALID",
+                   controller.active_generation,
+                   controller.staging_generation,
+                   controller.previous_good_generation,
+                   controller.last_q_permille, controller.next_update_ns,
+                   controller.saturation_count, controller.rollback_count,
+                   controller.recovery_count, controller.override_count,
+                   controller.no_op_count);
+            printf("controller_actuators jitter=%" PRIu64
+                   " switching_penalty=%" PRIu64
+                   " consensus_blend=%" PRIu64
+                   " migration_threshold=%" PRIu64
+                   " yield_threshold=%" PRIu64
+                   " throttle_duration_ns=%" PRIu64
+                   " sleep_defer_ns=%" PRIu64
+                   " prediction_confidence=%" PRIu64
+                   " prediction_horizon_ns=%" PRIu64
+                   " signal_cadence_ns=%" PRIu64
+                   " coordination_threshold=%" PRIu64 "\n",
+                   controller.active.actuators[ORCH_ACTUATOR_JITTER].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_SWITCHING_PENALTY].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_CONSENSUS_BLEND].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_MIGRATION_THRESHOLD].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_YIELD_THRESHOLD].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_THROTTLE_DURATION].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_SLEEP_DEFER].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_PREDICTION_CONFIDENCE].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_PREDICTION_HORIZON].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_SIGNAL_CADENCE].current_value,
+                   controller.active.actuators[
+                       ORCH_ACTUATOR_COORDINATION_THRESHOLD].current_value);
+        }
+        memset(&controller_telemetry, 0, sizeof(controller_telemetry));
+        if (bpf_lookup_raw(maps.fd[MAP_CONTROLLER_TEL_V10], &zero,
+                           &controller_telemetry, BPF_F_LOCK) == 0) {
+            printf("controller_telemetry updates=%" PRIu64
+                   " actuator_updates=%" PRIu64
+                   " last_actuator=%" PRIu32
+                   " last_direction=%" PRIu32
+                   " saturation=%" PRIu64 " rollback=%" PRIu64
+                   " recovery=%" PRIu64 " no_op=%" PRIu64 "\n",
+                   controller_telemetry.update_count,
+                   controller_telemetry.actuator_update_count[0] +
+                       controller_telemetry.actuator_update_count[1] +
+                       controller_telemetry.actuator_update_count[2] +
+                       controller_telemetry.actuator_update_count[3] +
+                       controller_telemetry.actuator_update_count[4] +
+                       controller_telemetry.actuator_update_count[5] +
+                       controller_telemetry.actuator_update_count[6] +
+                       controller_telemetry.actuator_update_count[7] +
+                       controller_telemetry.actuator_update_count[8] +
+                       controller_telemetry.actuator_update_count[9] +
+                       controller_telemetry.actuator_update_count[10],
+                   controller_telemetry.last_actuator,
+                   controller_telemetry.last_update_direction,
+                   controller_telemetry.saturation_count,
+                   controller_telemetry.rollback_count,
+                   controller_telemetry.recovery_count,
+                   controller_telemetry.no_op_count);
+        }
+    }
     while (bpf_next_key_raw(maps.fd[MAP_DIRECTIVE],
                             have_key ? &key : NULL, &next) == 0) {
         struct bridge_directive directive;
@@ -1519,6 +1865,38 @@ static int status_command(const struct options *opts)
                    directive.target_cpu, directive.flags, directive.slice_ns,
                    directive.not_before_ns, directive.throttle_period_ns,
                    directive.throttle_budget_ns, directive.expiry_ns);
+        }
+        key = next;
+        have_key = true;
+    }
+    have_key = false;
+    while (bpf_next_key_raw(maps.fd[MAP_TASK_STATE],
+                            have_key ? &key : NULL, &next) == 0) {
+        struct bridge_task_state state;
+
+        memset(&state, 0, sizeof(state));
+        if ((!opts->target_set ||
+             memcmp(&next, &target_identity, sizeof(next)) == 0) &&
+            bpf_lookup_raw(maps.fd[MAP_TASK_STATE], &next, &state,
+                           BPF_F_LOCK) == 0) {
+            printf("task_state identity=%" PRIu32 ":%" PRIu32 ":%" PRIu64
+                   " generation=%" PRIu64 " action=%s"
+                   " period_start_ns=%" PRIu64
+                   " runtime_used_ns=%" PRIu64
+                   " running_since_ns=%" PRIu64
+                   " eligible_ns=%" PRIu64
+                   " last_enqueue_ns=%" PRIu64
+                   " requested_cpu=%" PRIu32
+                   " dispatched_cpu=%" PRIu32
+                   " flags=%" PRIu32 "\n",
+                   next.tgid, next.tid, next.start_boottime_ns,
+                   state.generation,
+                   state.action < ORCHESTRA_ACTION_COUNT ?
+                       action_names[state.action] : "INVALID",
+                   state.period_start_ns, state.runtime_used_ns,
+                   state.running_since_ns, state.eligible_ns,
+                   state.last_enqueue_ns, state.requested_cpu,
+                   state.dispatched_cpu, state.flags);
         }
         key = next;
         have_key = true;
@@ -1855,6 +2233,9 @@ static int stream_command(void)
             opts.controller_state = request.controller_state;
             opts.policy_mode = request.policy_mode;
             opts.policy_generation = request.policy_generation;
+            opts.controller_set = true;
+            opts.policy_mode_set = true;
+            opts.policy_generation_set = true;
             opts.require_signal =
                 (request.stream_flags & BRIDGE_STREAM_F_REQUIRE_SIGNAL) != 0;
             if ((request.stream_flags & BRIDGE_STREAM_F_PUBLISH_SIGNAL) != 0) {
@@ -1905,6 +2286,7 @@ static void usage(const char *program)
         "  --policy-entry --policy-state-index N --action RUN|SLEEP|MIGRATE|THROTTLE|YIELD\n"
         "      [--policy-commit] [--policy-mode ID] [--controller-state STATE]\n"
         "  --policy-commit   (atomically activate the inactive v8 policy bank)\n"
+        "  --policy-abort    (restore the inactive bank from the active bank)\n"
         "  --publish --action RUN|SLEEP|MIGRATE|THROTTLE|YIELD --target-pid TID\n"
         "      [--target-cpu CPU] [--slice-ns NS] [--not-before-ns MONO_NS]\n"
         "      [--throttle-period-ns NS] [--throttle-budget-ns NS]\n"
@@ -1929,13 +2311,16 @@ static void usage(const char *program)
         "      --runtime-v8-map-id ID --policy-meta-v8-map-id ID\n"
         "      --policy-entry-v8-map-id ID --task-v8-map-id ID\n"
         "      --diag-v8-map-id ID --tel-v8-map-id ID\n"
+        "      --coord-v10-map-id ID --coord-cpu-v10-map-id ID\n"
+        "      --controller-v10-map-id ID --controller-tel-v10-map-id ID\n"
+        "      --runtime-v10-map-id ID --task-coord-v10-map-id ID\n"
         "      (timer map must already be pinned before attach; use orchestra_loader)\n",
         program);
 }
 
 static bool need_value(int argc, char **argv, int *index, const char **value)
 {
-    if (*index + 1 >= argc)
+    if (!argv || !index || !value || *index < 0 || *index + 1 >= argc)
         return false;
     *value = argv[++*index];
     return true;
@@ -1946,6 +2331,8 @@ static bool parse_options(int argc, char **argv, struct options *opts)
     int i;
     unsigned int commands = 0;
 
+    if (argc < 1 || !argv || !opts)
+        return false;
     memset(opts, 0, sizeof(*opts));
     opts->action = ORCHESTRA_ACTION_RUN;
     opts->target_cpu = ORCHESTRA_CPU_ANY;
@@ -1972,10 +2359,13 @@ static bool parse_options(int argc, char **argv, struct options *opts)
         const char *value = NULL;
         uint32_t parsed32;
 
+        if (!argv[i])
+            return false;
         if (strcmp(argv[i], "--status") == 0) opts->status = true;
         else if (strcmp(argv[i], "--publish") == 0) opts->publish = true;
         else if (strcmp(argv[i], "--policy-entry") == 0) opts->policy_entry = true;
         else if (strcmp(argv[i], "--policy-commit") == 0) opts->policy_commit = true;
+        else if (strcmp(argv[i], "--policy-abort") == 0) opts->policy_abort = true;
         else if (strcmp(argv[i], "--signal-publish") == 0) opts->signal_publish = true;
         else if (strcmp(argv[i], "--clear") == 0) opts->clear = true;
         else if (strcmp(argv[i], "--opt-in") == 0) opts->opt_in = true;
@@ -2045,6 +2435,7 @@ static bool parse_options(int argc, char **argv, struct options *opts)
             if (!need_value(argc, argv, &i, &value) ||
                 !parse_u64(value, 0, UINT64_MAX, &opts->policy_generation))
                 return false;
+            opts->policy_generation_set = true;
         } else if (strcmp(argv[i], "--signal-sequence") == 0) {
             if (!need_value(argc, argv, &i, &value) ||
                 !parse_u64(value, 1, UINT64_MAX, &opts->signal_sequence))
@@ -2149,7 +2540,13 @@ static bool parse_options(int argc, char **argv, struct options *opts)
                    strcmp(argv[i], "--policy-entry-v8-map-id") == 0 ||
                    strcmp(argv[i], "--task-v8-map-id") == 0 ||
                    strcmp(argv[i], "--diag-v8-map-id") == 0 ||
-                   strcmp(argv[i], "--tel-v8-map-id") == 0) {
+                   strcmp(argv[i], "--tel-v8-map-id") == 0 ||
+                   strcmp(argv[i], "--coord-v10-map-id") == 0 ||
+                   strcmp(argv[i], "--coord-cpu-v10-map-id") == 0 ||
+                   strcmp(argv[i], "--controller-v10-map-id") == 0 ||
+                   strcmp(argv[i], "--controller-tel-v10-map-id") == 0 ||
+                   strcmp(argv[i], "--runtime-v10-map-id") == 0 ||
+                   strcmp(argv[i], "--task-coord-v10-map-id") == 0) {
             enum map_role role = strcmp(argv[i], "--control-map-id") == 0 ? MAP_CONTROL :
                 strcmp(argv[i], "--directive-map-id") == 0 ? MAP_DIRECTIVE :
                 strcmp(argv[i], "--identity-map-id") == 0 ? MAP_IDENTITY :
@@ -2163,7 +2560,13 @@ static bool parse_options(int argc, char **argv, struct options *opts)
                 strcmp(argv[i], "--policy-entry-v8-map-id") == 0 ? MAP_POLICY_ENTRY_V8 :
                 strcmp(argv[i], "--task-v8-map-id") == 0 ? MAP_TASK_V8 :
                 strcmp(argv[i], "--diag-v8-map-id") == 0 ? MAP_DIAG_V8 :
-                MAP_TEL_V8;
+                strcmp(argv[i], "--tel-v8-map-id") == 0 ? MAP_TEL_V8 :
+                strcmp(argv[i], "--coord-v10-map-id") == 0 ? MAP_COORD_V10 :
+                strcmp(argv[i], "--coord-cpu-v10-map-id") == 0 ? MAP_COORD_CPU_V10 :
+                strcmp(argv[i], "--controller-v10-map-id") == 0 ? MAP_CONTROLLER_V10 :
+                strcmp(argv[i], "--controller-tel-v10-map-id") == 0 ? MAP_CONTROLLER_TEL_V10 :
+                strcmp(argv[i], "--runtime-v10-map-id") == 0 ? MAP_RUNTIME_V10 :
+                MAP_TASK_COORD_V10;
             if (!need_value(argc, argv, &i, &value) ||
                 !parse_u32(value, 1, UINT32_MAX, &parsed32))
                 return false;
@@ -2177,7 +2580,8 @@ static bool parse_options(int argc, char **argv, struct options *opts)
              + (unsigned int)opts->clear + (unsigned int)opts->opt_in
              + (unsigned int)opts->pin_maps + (unsigned int)opts->stream
              + (unsigned int)opts->signal_publish +
-             (unsigned int)(opts->policy_entry || opts->policy_commit);
+             (unsigned int)(opts->policy_entry || opts->policy_commit ||
+                            opts->policy_abort);
     if (commands != 1)
         return false;
     if ((opts->publish && (!opts->action_set || !opts->target_set)) ||
@@ -2211,13 +2615,20 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return EXIT_ARGS;
     }
+    /* The bridge is the privileged map writer.  The shell control plane also
+     * enforces this boundary, but direct invocation must not depend on that
+     * wrapper or on bpffs pin permissions being configured perfectly. */
+    if (geteuid() != 0) {
+        fprintf(stderr, "orchestra_bridge must run as root\n");
+        return EXIT_PERM;
+    }
     if (opts.status)
         return status_command(&opts);
     if (opts.stream)
         return stream_command();
     if (opts.publish)
         return publish_directive(&opts, NULL);
-    if (opts.policy_entry || opts.policy_commit)
+    if (opts.policy_entry || opts.policy_commit || opts.policy_abort)
         return policy_command(&opts);
     if (opts.signal_publish)
         return publish_signal(&opts);

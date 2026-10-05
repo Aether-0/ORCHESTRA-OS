@@ -15,6 +15,8 @@ static void test_checked_parsing(void)
     assert(!parse_u32("-1", 0, UINT32_MAX, &u32));
     assert(!parse_u32("7x", 0, UINT32_MAX, &u32));
     assert(!parse_u32(" 7", 0, UINT32_MAX, &u32));
+    assert(!parse_u64("1", 0, UINT64_MAX, NULL));
+    assert(!checked_add_u64(1, 1, NULL));
     assert(parse_u64("18446744073709551615", 0, UINT64_MAX, &u64));
     assert(u64 == UINT64_MAX);
     assert(!parse_u64("18446744073709551616", 0, UINT64_MAX, &u64));
@@ -30,6 +32,8 @@ static void test_proc_stat_parser(void)
     assert(parse_proc_stat_start(line, &ticks));
     assert(ticks == UINT64_C(987654));
     assert(!parse_proc_stat_start("123 malformed\n", &ticks));
+    assert(!parse_proc_stat_start(NULL, &ticks));
+    assert(!parse_proc_stat_start("123 malformed\n", NULL));
 
     long hz = sysconf(_SC_CLK_TCK);
     assert(hz > 0);
@@ -45,6 +49,7 @@ static void test_proc_stat_parser(void)
 static void test_action_translation(void)
 {
     uint32_t wire = UINT32_MAX;
+    uint64_t generation;
     enum orchestra_action_id parsed;
 
     for (uint32_t action = 0; action < ORCHESTRA_ACTION_COUNT; action++) {
@@ -52,8 +57,17 @@ static void test_action_translation(void)
         assert(wire == action);
     }
     assert(!canonical_to_wire(ORCHESTRA_ACTION_COUNT, &wire));
+    assert(!canonical_to_wire(ORCHESTRA_ACTION_RUN, NULL));
     assert(parse_action("sleep", &parsed));
     assert(parsed == ORCHESTRA_ACTION_SLEEP);
+    assert(!parse_action(NULL, &parsed));
+    assert(!parse_action("RUN", NULL));
+    assert(!parse_controller(NULL, &wire));
+    assert(!parse_controller("NORMAL", NULL));
+    assert(parse_controller("recovery", &wire) &&
+           wire == ORCHESTRA_CTRL_RECOVERY);
+    assert(next_policy_generation(41, &generation) && generation == 42);
+    assert(!next_policy_generation(UINT64_MAX, &generation));
 }
 
 static void test_abi_and_snapshot_comparison(void)
@@ -79,9 +93,15 @@ static void test_abi_and_snapshot_comparison(void)
     struct bridge_directive second = first;
 
     assert(valid_control(&control));
+    assert(!valid_control(NULL));
     control.value_size--;
     assert(!valid_control(&control));
+    control.value_size = sizeof(struct bridge_control);
+    control.publication_status = BRIDGE_PUB_MAP_FULL + 1u;
+    assert(!valid_control(&control));
+    control.publication_status = BRIDGE_PUB_OK;
     assert(directive_equal(&first, &second));
+    assert(!directive_equal(NULL, &second));
     second.identity.start_boottime_ns++;
     assert(!directive_equal(&first, &second));
 
@@ -93,7 +113,7 @@ static void test_abi_and_snapshot_comparison(void)
 
 static void test_exact_map_schema(void)
 {
-    assert(MAP_ROLE_COUNT == 14);
+    assert(MAP_ROLE_COUNT == 20);
     for (int role = MAP_CONTROL; role < MAP_ROLE_COUNT; role++) {
         assert(map_specs[role].name != NULL);
         assert(strlen(map_specs[role].name) < BPF_OBJ_NAME_LEN);
@@ -129,6 +149,22 @@ static void test_exact_map_schema(void)
            sizeof(struct orchestra_task_diag_v8));
     assert(map_specs[MAP_TEL_V8].value_size ==
            sizeof(struct orchestra_telemetry_v8));
+    assert(map_specs[MAP_COORD_V10].type == BPF_MAP_TYPE_ARRAY);
+    assert(map_specs[MAP_COORD_V10].value_size ==
+           sizeof(struct orchestra_coordination_state_v10));
+    assert(map_specs[MAP_COORD_V10].max_entries ==
+           ORCHESTRA_COORD_MAP_ENTRY_COUNT);
+    assert(map_specs[MAP_COORD_CPU_V10].type == BPF_MAP_TYPE_PERCPU_ARRAY);
+    assert(map_specs[MAP_COORD_CPU_V10].value_size ==
+           sizeof(struct orchestra_coord_cpu_v10));
+    assert(map_specs[MAP_CONTROLLER_V10].value_size ==
+           sizeof(struct orchestra_controller_state_v10));
+    assert(map_specs[MAP_CONTROLLER_TEL_V10].value_size ==
+           sizeof(struct orchestra_controller_telemetry_v10));
+    assert(map_specs[MAP_RUNTIME_V10].value_size ==
+           sizeof(struct orchestra_runtime_state_v10));
+    assert(map_specs[MAP_TASK_COORD_V10].value_size ==
+           sizeof(struct orchestra_task_coord_v10));
 }
 
 static void test_signal_contract_helpers(void)
@@ -159,12 +195,14 @@ static void test_signal_contract_helpers(void)
     };
 
     assert(signal_equal(&first, &second));
+    assert(!signal_equal(NULL, &second));
     second.sequence++;
     assert(!signal_equal(&first, &second));
     assert(signal_permille_valid(0));
     assert(signal_permille_valid(BRIDGE_SIGNAL_SCALE));
     assert(!signal_permille_valid(BRIDGE_SIGNAL_SCALE + 1));
     assert(stream_signal_fields_valid(&request));
+    assert(!stream_signal_fields_valid(NULL));
     request.stream_flags |= 1u << 7;
     assert(!stream_signal_fields_valid(&request));
     request.stream_flags = BRIDGE_STREAM_F_PUBLISH_SIGNAL;
@@ -244,6 +282,10 @@ static void test_cli_validation(void)
                           &options));
     assert(!parse_options((int)(sizeof(two_commands) / sizeof(two_commands[0])),
                           two_commands, &options));
+    char *policy_abort[] = { "bridge", "--policy-abort" };
+    assert(parse_options((int)(sizeof(policy_abort) / sizeof(policy_abort[0])),
+                         policy_abort, &options));
+    assert(options.policy_abort);
 }
 
 int main(void)

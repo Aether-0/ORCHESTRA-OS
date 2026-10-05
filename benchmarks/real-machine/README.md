@@ -36,11 +36,12 @@ Mixed workload → CPU + I/O combined
 Health check   → Kernel log scan for panics/stalls
 ```
 
-In `orchestra` mode, CPU, I/O, and mixed workers are held behind a release
-barrier and must each pass exact-TID opt-in, RUN publication, and positive
-accepted/dispatched/running telemetry before the phase is attributed to
-ORCHESTRA. The memory row is `BLOCKED_OWNERSHIP_NOT_PROVEN` because the
-existing `stress --vm` interface does not expose a safe per-child opt-in path.
+In `orchestra` mode, CPU, I/O, mixed, and memory workers must each pass
+exact-TID opt-in, RUN publication, and positive accepted/dispatched/running
+telemetry before the phase is attributed to ORCHESTRA. The memory phase
+discovers `stress --vm` child workers from the process tree and admits each
+child individually. If discovery or admission fails, that row remains
+`BLOCKED_OWNERSHIP_NOT_PROVEN` and is not attributed to ORCHESTRA.
 
 ## Benchmark Workloads
 
@@ -55,13 +56,24 @@ Compared across CFS, scx_simple, ORCHESTRA.
 
 All results in `/tmp/orchestra-bench-<timestamp>/results.csv` and `/tmp/orchestra-stress-<timestamp>/results.csv`.
 
-The benchmark runner resolves paths from the repository, uses the existing
-loader for ORCHESTRA attach/unload, and refuses to detach unrelated sched_ext
-links or delete unrelated bpffs pins. ORCHESTRA rows are not performance
-results unless every target TID has positive accepted, dispatched, and running
-telemetry before release. Override paths with `ORCHESTRA_BPF`,
-`ORCHESTRA_BRIDGE`, and `ORCHESTRA_LOADER` when using externally built
-artifacts. The fixed-iteration helper returns success after completing the
+The benchmark runner uses the repository artifact paths by default. When the
+artifacts were built out of tree (the required kernel-build mode), set
+`ORCHESTRA_BUILD_DIR` to that exact build directory; the runner then derives
+the BPF object, bridge, and loader paths from it. Explicit `ORCHESTRA_BPF`,
+`ORCHESTRA_BRIDGE`, and `ORCHESTRA_LOADER` values take precedence. For
+example:
+
+```bash
+ORCHESTRA_BUILD_DIR=/var/tmp/orchestra-os-build-$(id -u) \
+  bash benchmark_suite.sh
+```
+
+The runner uses the existing loader for ORCHESTRA attach/unload and refuses to
+detach unrelated sched_ext links or delete unrelated bpffs pins. ORCHESTRA
+rows are not performance results unless every target TID has positive
+accepted, dispatched, and running telemetry before release. Set
+`ORCHESTRA_SCX_SIMPLE` when the comparison scheduler is built outside
+`/usr/bin`; the fixed-iteration helper returns success after completing the
 requested work, and each benchmark run records worker exit status and stderr.
 Both runners use the process's allowed CPU set rather than assuming CPU IDs
 start at zero. Set `ORCHESTRA_OWNERSHIP_POLLS` to adjust the bounded ownership

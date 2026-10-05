@@ -27,6 +27,7 @@ struct orchestra_userspace_map_lock { uint32_t opaque; };
 #endif
 
 #include "orchestra_kernel_v8.h"
+#include "orchestra_control_abi.h"
 
 /* Exact BPF object names. Linux BPF names are limited to 15 characters. */
 #define BRIDGE_CTL_MAP_NAME       "orch_control"
@@ -140,7 +141,9 @@ enum bridge_fallback_reason {
     BRIDGE_FALLBACK_POLICY_GENERATION = 15,
     BRIDGE_FALLBACK_UNSUPPORTED_ACTION = 16,
     BRIDGE_FALLBACK_CONTROLLER_OVERRIDE = 17,
-    BRIDGE_FALLBACK_PROGRESS_GUARD = 18
+    BRIDGE_FALLBACK_PROGRESS_GUARD = 18,
+    /* A validly shaped frame older than the last accepted sequence. */
+    BRIDGE_FALLBACK_SIGNAL_REPLAY = 19
 };
 
 struct orchestra_task_identity {

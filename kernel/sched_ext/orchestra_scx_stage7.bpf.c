@@ -149,10 +149,61 @@ struct {
     __type(value, struct orchestra_telemetry_v8);
 } orch_tel_v8 SEC(".maps");
 
+/* Native v10 coordination/controller maps.  The two-window coordination
+ * array is bounded by CPU/NUMA/global domain slots; per-CPU scratch detects
+ * transition bursts without scanning the task population. */
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, ORCHESTRA_COORD_MAP_ENTRY_COUNT);
+    __type(key, uint32_t);
+    __type(value, struct orchestra_coordination_state_v10);
+} orch_coord_v10 SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, uint32_t);
+    __type(value, struct orchestra_coord_cpu_v10);
+} orch_coord_cpu SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, uint32_t);
+    __type(value, struct orchestra_controller_state_v10);
+} orch_ctrl_v10 SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, uint32_t);
+    __type(value, struct orchestra_controller_telemetry_v10);
+} orch_ctrl_tel SEC(".maps");
+
+#define orch_ctrl_tel_v10 orch_ctrl_tel
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, uint32_t);
+    __type(value, struct orchestra_runtime_state_v10);
+} orch_runtime10 SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, BRIDGE_MAX_TASKS);
+    __type(key, struct orchestra_task_identity);
+    __type(value, struct orchestra_task_coord_v10);
+} orch_task_coord SEC(".maps");
+
+#include "include/orchestra_coord.h"
+#include "include/orchestra_controller.h"
+
 struct directive_snapshot {
     uint32_t flags;
     uint64_t scheduler_epoch;
     uint64_t state_generation;
+    uint64_t controller_generation;
     uint64_t generation;
     uint64_t slice_ns;
     uint64_t not_before_ns;
@@ -166,6 +217,24 @@ struct directive_snapshot {
     uint64_t policy_generation;
     uint32_t migration_outcome;
     uint32_t controller_override_action;
+    uint32_t policy_selected_action;
+    uint32_t controller_adjusted_action;
+    uint32_t capability_adjusted_action;
+    uint32_t actual_executed_action;
+    uint32_t previous_policy_state;
+};
+
+struct bridge_run_directive {
+    uint64_t generation;
+    uint64_t slice_ns;
+    uint64_t not_before_ns;
+    uint64_t throttle_period_ns;
+    uint64_t throttle_budget_ns;
+    uint32_t action;
+    uint32_t target_cpu;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
 };
 
 struct signal_snapshot {
@@ -208,6 +277,7 @@ struct control_snapshot {
     uint32_t controller_state;
     uint32_t policy_mode;
     uint32_t capabilities;
+    uint32_t publication_status;
     uint32_t valid;
 };
 
@@ -224,6 +294,7 @@ struct runtime_snapshot_v8 {
     uint32_t prediction_fallback_reason;
     uint64_t scheduler_epoch;
     uint64_t state_generation;
+    uint64_t controller_generation;
     uint64_t signal_generation;
     uint64_t prediction_generation;
     uint64_t prediction_published_ns;
@@ -270,8 +341,22 @@ struct decision_snapshot_v8 {
     uint32_t source;
     uint32_t fallback_reason;
     uint32_t migration_outcome;
+    uint32_t policy_selected_action;
+    uint32_t controller_adjusted_action;
+    uint32_t capability_adjusted_action;
+    uint32_t previous_policy_state;
+    uint32_t cpu_now_permille;
+    uint32_t queue_pressure_permille;
+    uint64_t controller_generation;
     uint32_t valid;
 };
+
+struct {
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, uint32_t);
+    __type(value, struct runtime_snapshot_v8);
+} orch_runtime_scratch SEC(".maps");
 
 #define ORCHESTRA_DECISION_SOURCE_BRIDGE 1u
 #define ORCHESTRA_DECISION_SOURCE_POLICY 2u
@@ -346,6 +431,36 @@ static ORCHESTRA_NOINLINE struct orchestra_task_diag_v8 *get_task_diag_v8(
         diag = bpf_map_lookup_elem(&orch_diag_v8, id);
     }
     return diag;
+}
+
+static ORCHESTRA_NOINLINE struct orchestra_task_coord_v10 *
+get_task_coord_v10(const struct orchestra_task_identity *id, int create)
+{
+    struct orchestra_task_coord_v10 zero = {
+        .magic = ORCHESTRA_ABI_MAGIC,
+        .abi_version = ORCHESTRA_CONTROL_ABI_VERSION,
+        .value_size = sizeof(struct orchestra_task_coord_v10),
+        .schema_version = ORCHESTRA_COORD_SCHEMA_VERSION,
+        .tgid = id->tgid,
+        .tid = id->tid,
+        .start_boottime_ns = id->start_boottime_ns,
+        .policy_selected_action = ORCHESTRA_ACTION_RUN,
+        .controller_adjusted_action = ORCHESTRA_ACTION_RUN,
+        .capability_adjusted_action = ORCHESTRA_ACTION_RUN,
+        .actual_executed_action = ORCHESTRA_ACTION_RUN,
+        .previous_action = ORCHESTRA_ACTION_RUN,
+        .current_action = ORCHESTRA_ACTION_RUN,
+    };
+    struct orchestra_task_coord_v10 *state;
+
+    state = bpf_map_lookup_elem(&orch_task_coord, id);
+    if (!state && create) {
+        if (bpf_map_update_elem(&orch_task_coord, id, &zero,
+                                BPF_NOEXIST) != 0)
+            return NULL;
+        state = bpf_map_lookup_elem(&orch_task_coord, id);
+    }
+    return state;
 }
 
 static __always_inline int cpu_is_online(uint32_t cpu);
@@ -455,6 +570,25 @@ static __always_inline int signal_is_valid(
     return 1;
 }
 
+static __always_inline uint64_t runtime_signal_generation(uint64_t epoch)
+{
+    struct orchestra_runtime_state_v8 *runtime;
+    uint32_t key = 0;
+    uint64_t generation = 0;
+
+    runtime = bpf_map_lookup_elem(&orch_runtime_v8, &key);
+    if (!runtime)
+        return 0;
+    bpf_spin_lock(&runtime->lock);
+    if (runtime->magic == ORCHESTRA_ABI_MAGIC &&
+        runtime->abi_version == ORCHESTRA_KERNEL_ABI_VERSION &&
+        runtime->value_size == sizeof(*runtime) &&
+        runtime->scheduler_epoch == epoch)
+        generation = runtime->signal_generation;
+    bpf_spin_unlock(&runtime->lock);
+    return generation;
+}
+
 static __always_inline void tel_inc(uint64_t *counter)
 {
     if (counter)
@@ -498,6 +632,7 @@ static __always_inline int snapshot_control(struct control_snapshot *out)
         (ctl->capability_flags & BRIDGE_REQUIRED_CAPS) == BRIDGE_REQUIRED_CAPS &&
         ctl->controller_state < ORCHESTRA_CTRL_COUNT &&
         ctl->policy_mode < ORCHESTRA_POLICY_COUNT &&
+        ctl->publication_status == BRIDGE_PUB_OK &&
         ctl->scheduler_epoch != 0) {
         out->scheduler_epoch = ctl->scheduler_epoch;
         out->last_generation = ctl->last_generation;
@@ -507,6 +642,7 @@ static __always_inline int snapshot_control(struct control_snapshot *out)
         out->controller_state = ctl->controller_state;
         out->policy_mode = ctl->policy_mode;
         out->capabilities = ctl->capability_flags;
+        out->publication_status = ctl->publication_status;
         out->valid = 1;
     }
     bpf_spin_unlock(&ctl->lock);
@@ -524,7 +660,8 @@ static __always_inline int control_snapshot_equal(
            a->policy_generation == b->policy_generation &&
            a->controller_state == b->controller_state &&
            a->policy_mode == b->policy_mode &&
-           a->capabilities == b->capabilities;
+           a->capabilities == b->capabilities &&
+           a->publication_status == b->publication_status;
 }
 
 static __always_inline int action_allowed(uint32_t action, uint32_t state)
@@ -556,6 +693,8 @@ static __always_inline void publish_runtime_state_v8(
     struct orchestra_runtime_state_v8 *runtime;
     struct orchestra_telemetry_v8 *tel = global_v8_tel();
     uint32_t key = 0;
+    uint64_t previous_signal_generation;
+    uint32_t signal_flags;
 
     runtime = bpf_map_lookup_elem(&orch_runtime_v8, &key);
     if (!runtime) {
@@ -564,28 +703,43 @@ static __always_inline void publish_runtime_state_v8(
         return;
     }
     bpf_spin_lock(&runtime->lock);
+    previous_signal_generation = runtime->signal_generation;
+    signal_flags = ORCHESTRA_RUNTIME_V8_F_SIGNAL_VALID |
+                   ORCHESTRA_RUNTIME_V8_F_PREDICTION_VALID |
+                   ORCHESTRA_RUNTIME_V8_F_PREDICTION_FALLBACK;
     runtime->magic = ORCHESTRA_ABI_MAGIC;
     runtime->abi_version = ORCHESTRA_KERNEL_ABI_VERSION;
     runtime->value_size = sizeof(*runtime);
     runtime->state_schema_version = ORCHESTRA_KERNEL_STATE_SCHEMA_VERSION;
-    runtime->flags = state->flags;
-    runtime->cpu_now_permille = state->cpu_now_permille;
-    runtime->cpu_pred_permille = state->cpu_pred_permille;
-    runtime->queue_pressure_permille = state->queue_pressure_permille;
-    runtime->memory_pressure_permille = state->memory_pressure_permille;
-    runtime->thermal_permille = state->thermal_permille;
-    runtime->prediction_confidence_permille =
-        state->prediction_confidence_permille;
-    runtime->observed_cpu_permille = state->observed_cpu_permille;
-    runtime->predicted_cpu_permille = state->predicted_cpu_permille;
-    runtime->prediction_fallback_reason = state->prediction_fallback_reason;
+    /* A stale reader result must not overwrite a newer accepted signal that
+     * another scheduling callback already published.  Equal generations are
+     * allowed because the same frame may be consumed by multiple tasks. */
+    if (state->signal_generation < previous_signal_generation)
+        runtime->flags = (runtime->flags & signal_flags) |
+                         (state->flags & ~signal_flags);
+    else
+        runtime->flags = state->flags;
+    if (state->signal_generation >= previous_signal_generation) {
+        runtime->cpu_now_permille = state->cpu_now_permille;
+        runtime->cpu_pred_permille = state->cpu_pred_permille;
+        runtime->queue_pressure_permille = state->queue_pressure_permille;
+        runtime->memory_pressure_permille = state->memory_pressure_permille;
+        runtime->thermal_permille = state->thermal_permille;
+        runtime->prediction_confidence_permille =
+            state->prediction_confidence_permille;
+        runtime->observed_cpu_permille = state->observed_cpu_permille;
+        runtime->predicted_cpu_permille = state->predicted_cpu_permille;
+        runtime->prediction_fallback_reason = state->prediction_fallback_reason;
+    }
     runtime->scheduler_epoch = state->scheduler_epoch;
     runtime->state_generation = state->state_generation;
-    runtime->signal_generation = state->signal_generation;
-    runtime->prediction_generation = state->prediction_generation;
-    runtime->prediction_published_ns = state->prediction_published_ns;
-    runtime->prediction_expires_ns = state->prediction_expires_ns;
-    runtime->prediction_model_version = state->prediction_model_version;
+    if (state->signal_generation >= previous_signal_generation) {
+        runtime->signal_generation = state->signal_generation;
+        runtime->prediction_generation = state->prediction_generation;
+        runtime->prediction_published_ns = state->prediction_published_ns;
+        runtime->prediction_expires_ns = state->prediction_expires_ns;
+        runtime->prediction_model_version = state->prediction_model_version;
+    }
     runtime->state_index = state->state_index;
     runtime->s1_permille = state->s1_permille;
     runtime->s2_permille = state->s2_permille;
@@ -597,7 +751,7 @@ static __always_inline void publish_runtime_state_v8(
     runtime->controller_state = state->controller_state;
     runtime->controller_schema_version =
         ORCHESTRA_KERNEL_CONTROLLER_SCHEMA_VERSION;
-    runtime->controller_generation = state->state_generation;
+    runtime->controller_generation = state->controller_generation;
     runtime->policy_mode = state->policy_mode;
     runtime->policy_schema_version = ORCHESTRA_KERNEL_POLICY_SCHEMA_VERSION;
     runtime->policy_generation = state->policy_generation;
@@ -606,15 +760,68 @@ static __always_inline void publish_runtime_state_v8(
     bpf_spin_unlock(&runtime->lock);
 }
 
+static __always_inline void publish_runtime_state_v10(
+    const struct runtime_snapshot_v8 *state)
+{
+    struct orchestra_runtime_state_v10 *runtime;
+    struct orchestra_coordination_metrics_v10 metrics = {};
+    struct orchestra_controller_view_v10 controller = {};
+    uint32_t key = 0;
+    uint64_t now = bpf_ktime_get_ns();
+
+    runtime = bpf_map_lookup_elem(&orch_runtime10, &key);
+    if (!runtime)
+        return;
+    (void)orchestra_coord_read_global_summary(now, &metrics);
+    (void)orchestra_controller_read_view_v10(&controller);
+    bpf_spin_lock(&runtime->lock);
+    runtime->magic = ORCHESTRA_ABI_MAGIC;
+    runtime->abi_version = ORCHESTRA_CONTROL_ABI_VERSION;
+    runtime->value_size = sizeof(*runtime);
+    runtime->schema_version = ORCHESTRA_RUNTIME_SCHEMA_VERSION;
+    runtime->flags = state->flags;
+    runtime->scope = metrics.scope;
+    runtime->domain_id = metrics.domain_id;
+    runtime->scheduler_epoch = state->scheduler_epoch;
+    runtime->window_generation = metrics.window_generation;
+    runtime->window_start_ns = metrics.window_start_ns;
+    runtime->window_end_ns = metrics.window_end_ns;
+    runtime->eligible_observations = metrics.eligible_observations;
+    runtime->executed_observations = metrics.executed_observations;
+    runtime->s1_permille = metrics.s1_permille;
+    runtime->s2_permille = metrics.s2_permille;
+    runtime->s3_permille = metrics.s3_permille;
+    runtime->s4_permille = metrics.s4_permille;
+    runtime->q_permille = metrics.q_permille;
+    runtime->deficit_class = metrics.deficit_class;
+    runtime->primary_deficit = metrics.primary_deficit;
+    runtime->secondary_deficit = metrics.secondary_deficit;
+    runtime->deficit_severity = metrics.deficit_severity;
+    runtime->deficit_persistence = metrics.deficit_persistence;
+    runtime->controller_state = controller.state;
+    runtime->controller_flags = controller.flags;
+    runtime->controller_generation = controller.generation;
+    runtime->policy_generation = state->policy_generation;
+    runtime->signal_generation = state->signal_generation;
+    runtime->prediction_generation = state->prediction_generation;
+    runtime->published_ns = now;
+    bpf_spin_unlock(&runtime->lock);
+}
+
 static ORCHESTRA_NOINLINE int orchestra_read_runtime_state(
     struct task_struct *p, struct runtime_snapshot_v8 *out)
 {
     struct control_snapshot ctl = {};
+    struct orchestra_controller_view_v10 controller = {};
+    struct orchestra_coordination_metrics_v10 coordination = {};
     struct signal_snapshot signal = {};
     uint32_t signal_reason = BRIDGE_FALLBACK_SIGNAL_STALE;
     uint64_t now = bpf_ktime_get_ns();
     int32_t queued = scx_bpf_dsq_nr_queued(SCX_DSQ_GLOBAL);
     int signal_present;
+    int controller_present;
+    int native_summary;
+    int accepted_signal = 0;
 
     __builtin_memset(out, 0, sizeof(*out));
     if (!snapshot_control(&ctl))
@@ -623,15 +830,43 @@ static ORCHESTRA_NOINLINE int orchestra_read_runtime_state(
     out->scheduler_epoch = ctl.scheduler_epoch;
     out->state_generation = ctl.last_generation;
     out->controller_state = ctl.controller_state;
+    out->controller_generation = ctl.last_generation;
     out->policy_mode = ctl.policy_mode;
     out->capability_flags = ctl.capabilities;
     out->policy_generation = ctl.policy_generation;
     out->published_ns = now;
     out->expires_ns = 0;
 
+    controller_present = orchestra_controller_read_view_v10(&controller);
+    if (controller_present) {
+        out->controller_state = controller.state;
+        out->controller_generation = controller.generation;
+    }
+
     signal_present = snapshot_signal(&signal);
     if (signal_present && signal_is_valid(&signal, &ctl, now,
                                           &signal_reason)) {
+        if (signal.sequence < runtime_signal_generation(ctl.scheduler_epoch)) {
+            signal_reason = BRIDGE_FALLBACK_SIGNAL_REPLAY;
+        } else if (controller_present && signal.prediction_used &&
+            signal.confidence_permille <
+                controller.prediction_confidence_threshold) {
+            signal_reason = BRIDGE_FALLBACK_SIGNAL_INVALID;
+        } else if (controller_present && signal.prediction_used &&
+                   signal.expires_ns - signal.published_ns >
+                       controller.prediction_horizon_ns) {
+            signal_reason = BRIDGE_FALLBACK_SIGNAL_INVALID;
+        } else {
+            accepted_signal = 1;
+        }
+    }
+    orchestra_coord_record_signal(
+        accepted_signal, signal_present && !accepted_signal &&
+            signal_reason == BRIDGE_FALLBACK_SIGNAL_STALE,
+        signal.confidence_permille, signal.cpu_now_permille,
+        signal.cpu_pred_permille, signal.prediction_used,
+        signal.published_ns, signal.expires_ns, signal.sequence);
+    if (accepted_signal) {
         out->flags |= ORCHESTRA_RUNTIME_V8_F_SIGNAL_VALID;
         out->cpu_now_permille = signal.cpu_now_permille;
         out->cpu_pred_permille = signal.cpu_pred_permille;
@@ -647,14 +882,7 @@ static ORCHESTRA_NOINLINE int orchestra_read_runtime_state(
         out->prediction_published_ns = signal.published_ns;
         out->prediction_expires_ns = signal.expires_ns;
         out->prediction_model_version = signal.source_id;
-        out->s1_permille = signal.s1_permille;
-        out->s2_permille = signal.s2_permille;
-        out->s3_permille = signal.s3_permille;
-        out->s4_permille = signal.s4_permille;
-        out->q_permille = signal.q_permille;
-        out->coordination_generation = signal.sequence;
-        out->flags |= ORCHESTRA_RUNTIME_V8_F_COORDINATION_VALID |
-                      ORCHESTRA_RUNTIME_V8_F_CONTROLLER_VALID;
+        out->flags |= ORCHESTRA_RUNTIME_V8_F_CONTROLLER_VALID;
         if (signal.prediction_used) {
             out->flags |= ORCHESTRA_RUNTIME_V8_F_PREDICTION_VALID;
         } else {
@@ -675,6 +903,21 @@ static ORCHESTRA_NOINLINE int orchestra_read_runtime_state(
             tel8_inc(&global_v8_tel()->prediction_fallback_count);
             tel8_inc(&global_v8_tel()->signal_fallback_count);
         }
+    }
+    native_summary = orchestra_coord_read_global_summary(now, &coordination);
+    if (native_summary) {
+        out->s1_permille = coordination.s1_permille;
+        out->s2_permille = coordination.s2_permille;
+        out->s3_permille = coordination.s3_permille;
+        out->s4_permille = coordination.s4_permille;
+        out->q_permille = coordination.q_permille;
+        out->deficit_class = coordination.deficit_class;
+        out->coordination_generation = coordination.window_generation;
+        out->flags |= ORCHESTRA_RUNTIME_V8_F_COORDINATION_VALID;
+    } else if (accepted_signal) {
+        /* Before the first completed native window, retain the signal as a
+         * diagnostic fallback but do not present it as a computed Q. */
+        out->coordination_generation = 0;
     }
     if (queued > 0)
         out->queue_pressure_permille = queued >= 1000 ? 1000u :
@@ -710,10 +953,41 @@ static __always_inline void orchestra_build_state(
     out->state_index = cpu_bucket | (memory_bucket << 2) |
         (thermal_bucket << 4) | (confidence_bit << 6) |
         (controller_bucket << 7);
-    out->deficit_class = out->q_permille < 250u ? 0u :
-        (out->q_permille < 500u ? 1u :
-         (out->q_permille < 750u ? 2u : 3u));
+    /* v10 publishes the diagnosed class from the finalized coordination
+     * window.  A zero value before the first completed window means that no
+     * deficit has yet been diagnosed; it is not a Q bucket. */
     out->flags |= ORCHESTRA_RUNTIME_V8_F_CONTROLLER_VALID;
+}
+
+static ORCHESTRA_NOINLINE void orchestra_publish_observation(
+    struct task_struct *p)
+{
+    struct orchestra_task_identity id = task_identity(p);
+    struct runtime_snapshot_v8 *state;
+    uint32_t key = 0;
+
+    if (!bpf_map_lookup_elem(&orch_directives, &id))
+        return;
+    state = bpf_map_lookup_elem(&orch_runtime_scratch, &key);
+    if (!state || !orchestra_read_runtime_state(p, state))
+        return;
+    orchestra_build_state(state);
+    publish_runtime_state_v8(state);
+    publish_runtime_state_v10(state);
+}
+
+static ORCHESTRA_NOINLINE void orchestra_flush_observation(void)
+{
+    struct runtime_snapshot_v8 *state;
+    uint32_t key = 0;
+
+    state = bpf_map_lookup_elem(&orch_runtime_scratch, &key);
+    if (!state)
+        return;
+    orchestra_coord_finalize_global_live(bpf_ktime_get_ns());
+    orchestra_build_state(state);
+    publish_runtime_state_v8(state);
+    publish_runtime_state_v10(state);
 }
 
 static __always_inline int snapshot_policy_meta_v8(
@@ -772,6 +1046,7 @@ static __always_inline void policy_default_v8(
     __builtin_memset(out, 0, sizeof(*out));
     out->scheduler_epoch = state->scheduler_epoch;
     out->state_generation = state->state_generation;
+    out->controller_generation = state->controller_generation;
     out->generation = state->state_generation ? state->state_generation : 1;
     out->slice_ns = ORCHESTRA_V8_DEFAULT_SLICE_NS;
     out->action = ORCHESTRA_ACTION_RUN;
@@ -801,11 +1076,15 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
         return 0;
     orchestra_build_state(&state);
     publish_runtime_state_v8(&state);
+    publish_runtime_state_v10(&state);
     decision->state_index = state.state_index;
     decision->capability_flags = state.capability_flags;
     decision->action_capability_mask = state.capability_flags;
     decision->controller_state = state.controller_state;
     decision->policy_mode = state.policy_mode;
+    decision->cpu_now_permille = state.cpu_now_permille;
+    decision->queue_pressure_permille = state.queue_pressure_permille;
+    decision->controller_generation = state.controller_generation;
     if (tel)
         tel8_inc(&tel->policy_lookup_count);
 
@@ -820,7 +1099,7 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
             hot->scheduler_epoch == state.scheduler_epoch &&
             hot->signal_generation == state.signal_generation &&
             hot->policy_generation == state.policy_generation &&
-            hot->controller_generation == state.state_generation &&
+            hot->controller_generation == state.controller_generation &&
             hot->policy_index == state.state_index &&
             hot->current_action < ORCHESTRA_ACTION_COUNT &&
             hot->current_action != ORCHESTRA_ACTION_SLEEP &&
@@ -828,6 +1107,8 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
             decision->directive.flags = ORCHESTRA_POLICY_V8_F_VALID;
             decision->directive.scheduler_epoch = state.scheduler_epoch;
             decision->directive.state_generation = state.state_generation;
+            decision->directive.controller_generation =
+                state.controller_generation;
             decision->directive.generation = hot->policy_generation ?
                 hot->policy_generation : state.state_generation;
             decision->directive.action = hot->current_action;
@@ -836,6 +1117,9 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
             decision->directive.controller_state = state.controller_state;
             decision->directive.policy_mode = state.policy_mode;
             decision->directive.policy_generation = state.policy_generation;
+            decision->policy_selected_action = hot->current_action;
+            decision->controller_adjusted_action = hot->current_action;
+            decision->capability_adjusted_action = hot->current_action;
             decision->source = ORCHESTRA_DECISION_SOURCE_POLICY;
             decision->fallback_reason = BRIDGE_FALLBACK_NONE;
             decision->valid = 1;
@@ -856,6 +1140,19 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
             ORCHESTRA_KERNEL_REQUIRED_CAPS) {
         policy_default_v8(&state, &decision->directive);
         decision->fallback_reason = BRIDGE_FALLBACK_POLICY_MISSING;
+        decision->source = ORCHESTRA_DECISION_SOURCE_POLICY;
+        decision->valid = 1;
+        return 1;
+    }
+
+    /* The policy metadata and the bridge control record are a cross-map
+     * publication.  If the second half of a commit failed, never execute the
+     * newly selected bank under the old control generation/state. */
+    if (meta.policy_generation != state.policy_generation ||
+        meta.policy_mode != state.policy_mode ||
+        meta.controller_state != state.controller_state) {
+        policy_default_v8(&state, &decision->directive);
+        decision->fallback_reason = BRIDGE_FALLBACK_POLICY_GENERATION;
         decision->source = ORCHESTRA_DECISION_SOURCE_POLICY;
         decision->valid = 1;
         return 1;
@@ -884,6 +1181,8 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
             decision->directive.flags = entry->flags;
             decision->directive.scheduler_epoch = state.scheduler_epoch;
             decision->directive.state_generation = state.state_generation;
+            decision->directive.controller_generation =
+                state.controller_generation;
             decision->directive.generation = entry->policy_generation ?
                 entry->policy_generation : state.state_generation;
             decision->directive.action = entry->action;
@@ -962,24 +1261,68 @@ static ORCHESTRA_NOINLINE int orchestra_policy_lookup(
 static __always_inline void orchestra_controller_gate(
     struct decision_snapshot_v8 *decision)
 {
+    struct orchestra_controller_view_v10 view = {};
     struct orchestra_telemetry_v8 *tel = global_v8_tel();
     uint32_t original = decision->directive.action;
+    uint64_t now = bpf_ktime_get_ns();
+    int changed = 0;
 
-    if (action_allowed(original, decision->controller_state))
-        return;
-    decision->directive.action = ORCHESTRA_ACTION_RUN;
-    decision->directive.controller_override_action = original;
-    decision->directive.slice_ns = ORCHESTRA_V8_DEFAULT_SLICE_NS;
-    decision->directive.target_cpu = ORCHESTRA_CPU_ANY;
-    decision->directive.not_before_ns = 0;
-    decision->directive.throttle_period_ns = 0;
-    decision->directive.throttle_budget_ns = 0;
-    decision->fallback_reason = BRIDGE_FALLBACK_CONTROLLER_OVERRIDE;
+    decision->policy_selected_action = original;
+    decision->directive.policy_selected_action = original;
+    decision->directive.controller_generation = decision->controller_generation;
+    if (orchestra_controller_read_view_v10(&view)) {
+        decision->controller_state = view.state;
+        decision->directive.controller_state = view.state;
+        if (orchestra_controller_should_fallback_v10(
+                &view, original, decision->cpu_now_permille,
+                decision->queue_pressure_permille)) {
+            decision->directive.action = ORCHESTRA_ACTION_RUN;
+            decision->directive.controller_override_action = original;
+            decision->directive.slice_ns = ORCHESTRA_V8_DEFAULT_SLICE_NS;
+            decision->directive.target_cpu = ORCHESTRA_CPU_ANY;
+            decision->directive.not_before_ns = 0;
+            decision->directive.throttle_period_ns = 0;
+            decision->directive.throttle_budget_ns = 0;
+            decision->fallback_reason = BRIDGE_FALLBACK_CONTROLLER_OVERRIDE;
+            changed = 1;
+        } else if (original == ORCHESTRA_ACTION_THROTTLE) {
+            decision->directive.throttle_period_ns =
+                orchestra_controller_clamp_duration(
+                    view.throttle_duration_ns, BRIDGE_SLICE_MIN_NS,
+                    BRIDGE_THROTTLE_MAX_NS);
+            decision->directive.throttle_budget_ns =
+                decision->directive.throttle_period_ns / 5u;
+            if (decision->directive.throttle_budget_ns < BRIDGE_SLICE_MIN_NS)
+                decision->directive.throttle_budget_ns = BRIDGE_SLICE_MIN_NS;
+        } else if (original == ORCHESTRA_ACTION_SLEEP) {
+            decision->directive.not_before_ns = orchestra_controller_deadline_v10(now,
+                orchestra_controller_clamp_duration(
+                    view.sleep_defer_ns, BRIDGE_SLICE_MIN_NS,
+                    BRIDGE_SLEEP_MAX_NS));
+        }
+    } else if (original != ORCHESTRA_ACTION_RUN) {
+        decision->directive.action = ORCHESTRA_ACTION_RUN;
+        decision->directive.controller_override_action = original;
+        decision->directive.slice_ns = ORCHESTRA_V8_DEFAULT_SLICE_NS;
+        decision->directive.target_cpu = ORCHESTRA_CPU_ANY;
+        decision->directive.not_before_ns = 0;
+        decision->directive.throttle_period_ns = 0;
+        decision->directive.throttle_budget_ns = 0;
+        decision->fallback_reason = BRIDGE_FALLBACK_CONTROLLER_OVERRIDE;
+        changed = 1;
+    }
+    decision->controller_adjusted_action = decision->directive.action;
+    decision->directive.controller_adjusted_action = decision->directive.action;
+    if (!changed && decision->directive.controller_override_action != 0)
+        changed = 1;
+    if (changed)
+        orchestra_controller_note_override_v10();
     if (tel) {
-        tel8_inc(&tel->controller_override_count);
-        if (decision->controller_state == ORCHESTRA_CTRL_ROLLBACK)
+        if (changed)
+            tel8_inc(&tel->controller_override_count);
+        if (decision->controller_state == ORCHESTRA_CTRL_ROLLBACK && changed)
             tel8_inc(&tel->controller_rollback_count);
-        if (decision->controller_state == ORCHESTRA_CTRL_RECOVERY)
+        if (decision->controller_state == ORCHESTRA_CTRL_RECOVERY && changed)
             tel8_inc(&tel->controller_recovery_count);
     }
 }
@@ -1146,11 +1489,20 @@ static ORCHESTRA_NOINLINE int orchestra_decide(
             decision->directive = bridge;
             decision->source = ORCHESTRA_DECISION_SOURCE_BRIDGE;
             decision->fallback_reason = BRIDGE_FALLBACK_NONE;
-        } else if (decision->fallback_reason == BRIDGE_FALLBACK_NONE) {
+        } else if (reason != BRIDGE_FALLBACK_NO_DIRECTIVE) {
             decision->fallback_reason = reason;
+            return 0;
         }
+        decision->policy_selected_action = decision->directive.action;
+        decision->directive.policy_selected_action =
+            decision->policy_selected_action;
+        decision->directive.controller_generation =
+            decision->controller_generation;
         orchestra_controller_gate(decision);
         orchestra_validate_action(p, decision);
+        decision->capability_adjusted_action = decision->directive.action;
+        decision->directive.capability_adjusted_action =
+            decision->capability_adjusted_action;
         return 1;
     }
     if (load_directive(p, &bridge, &reason)) {
@@ -1162,8 +1514,13 @@ static ORCHESTRA_NOINLINE int orchestra_decide(
         decision->action_capability_mask = BRIDGE_REQUIRED_CAPS;
         decision->controller_state = bridge.controller_state;
         decision->policy_mode = bridge.policy_mode;
+        decision->policy_selected_action = bridge.action;
+        decision->directive.policy_selected_action = bridge.action;
         orchestra_controller_gate(decision);
         orchestra_validate_action(p, decision);
+        decision->capability_adjusted_action = decision->directive.action;
+        decision->directive.capability_adjusted_action =
+            decision->capability_adjusted_action;
         return 1;
     }
     decision->fallback_reason = reason;
@@ -1299,6 +1656,128 @@ static ORCHESTRA_NOINLINE int load_directive(
     return 1;
 }
 
+static ORCHESTRA_NOINLINE int load_bridge_run_directive(
+    struct task_struct *p, struct bridge_run_directive *out,
+    uint32_t *fallback_reason)
+{
+    struct control_snapshot control = {};
+    struct orchestra_task_identity id = task_identity(p);
+    struct bridge_directive *directive;
+    uint64_t scheduler_epoch;
+    uint64_t last_generation;
+    uint64_t heartbeat_ns;
+    uint64_t lease_ns;
+    uint64_t policy_generation;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint32_t flags = 0;
+    uint64_t expiry_ns = 0;
+    uint64_t now = bpf_ktime_get_ns();
+    struct bridge_telemetry *tel = global_tel();
+    int valid = 0;
+
+    if (!snapshot_control(&control)) {
+        *fallback_reason = BRIDGE_FALLBACK_BAD_ABI;
+        return 0;
+    }
+    scheduler_epoch = control.scheduler_epoch;
+    last_generation = control.last_generation;
+    heartbeat_ns = control.heartbeat_ns;
+    lease_ns = control.lease_ns;
+    policy_generation = control.policy_generation;
+    controller_state = control.controller_state;
+    policy_mode = control.policy_mode;
+    directive = bpf_map_lookup_elem(&orch_directives, &id);
+    if (!directive) {
+        *fallback_reason = BRIDGE_FALLBACK_NO_DIRECTIVE;
+        return 0;
+    }
+
+    bpf_spin_lock(&directive->lock);
+    flags = directive->flags;
+    expiry_ns = directive->expiry_ns;
+    out->generation = directive->generation;
+    out->slice_ns = directive->slice_ns;
+    out->not_before_ns = directive->not_before_ns;
+    out->throttle_period_ns = directive->throttle_period_ns;
+    out->throttle_budget_ns = directive->throttle_budget_ns;
+    out->action = directive->action;
+    out->target_cpu = directive->target_cpu;
+    out->controller_state = controller_state;
+    out->policy_mode = policy_mode;
+    out->policy_generation = policy_generation;
+    valid = directive->abi_version == ORCHESTRA_ABI_VERSION &&
+        directive->value_size == sizeof(*directive) &&
+        identity_equal(&id, &directive->identity) &&
+        directive->scheduler_epoch == scheduler_epoch &&
+        directive->generation != 0 &&
+        directive->generation <= last_generation &&
+        directive->controller_state == controller_state &&
+        directive->policy_mode == policy_mode &&
+        directive->policy_generation == policy_generation;
+    bpf_spin_unlock(&directive->lock);
+    if (!valid) {
+        *fallback_reason = BRIDGE_FALLBACK_BAD_IDENTITY;
+        return 0;
+    }
+    if (!snapshot_control(&control) ||
+        control.scheduler_epoch != scheduler_epoch ||
+        control.last_generation != last_generation ||
+        control.heartbeat_ns != heartbeat_ns ||
+        control.lease_ns != lease_ns ||
+        control.policy_generation != policy_generation ||
+        control.controller_state != controller_state ||
+        control.policy_mode != policy_mode) {
+        *fallback_reason = BRIDGE_FALLBACK_UNSTABLE_PUBLICATION;
+        return 0;
+    }
+    if (lease_ns == 0 || lease_ns > BRIDGE_LEASE_MAX_NS ||
+        heartbeat_ns == 0 || heartbeat_ns > now ||
+        now - heartbeat_ns > lease_ns) {
+        *fallback_reason = BRIDGE_FALLBACK_STALE_LEASE;
+        return 0;
+    }
+    if (expiry_ns == 0 || expiry_ns < now ||
+        expiry_ns - now > BRIDGE_EXPIRY_MAX_NS) {
+        *fallback_reason = BRIDGE_FALLBACK_EXPIRED;
+        return 0;
+    }
+    if (out->action >= ORCHESTRA_ACTION_COUNT) {
+        *fallback_reason = BRIDGE_FALLBACK_BAD_ACTION;
+        return 0;
+    }
+    if (!action_allowed(out->action, controller_state)) {
+        *fallback_reason = BRIDGE_FALLBACK_CONTROLLER;
+        return 0;
+    }
+    if (flags & BRIDGE_DIRECTIVE_F_REQUIRE_SIGNAL) {
+        struct signal_snapshot signal = {};
+        uint32_t signal_reason = BRIDGE_FALLBACK_SIGNAL_INVALID;
+
+        if (!snapshot_signal(&signal) ||
+            !signal_is_valid(&signal, &control, now, &signal_reason) ||
+            signal.sequence < runtime_signal_generation(
+                control.scheduler_epoch)) {
+            if (signal.sequence < runtime_signal_generation(
+                    control.scheduler_epoch))
+                signal_reason = BRIDGE_FALLBACK_SIGNAL_REPLAY;
+            *fallback_reason = signal_reason;
+            if (tel) {
+                if (signal_reason == BRIDGE_FALLBACK_SIGNAL_STALE)
+                    tel_inc(&tel->signal_stale_count);
+                else
+                    tel_inc(&tel->signal_invalid_count);
+            }
+            return 0;
+        }
+        if (tel)
+            tel_inc(&tel->signal_accepted_count);
+    }
+    if (tel)
+        tel_inc(&tel->accepted_directive_count);
+    return 1;
+}
+
 static __always_inline uint64_t clamp_slice(uint64_t requested)
 {
     if (requested == 0)
@@ -1351,6 +1830,33 @@ static __always_inline struct bridge_task_state *get_task_state(
     return state;
 }
 
+/* A new directive generation (or a changed action) starts a fresh accounting
+ * period. Re-enqueues for the same generation/action retain runtime_used_ns so
+ * THROTTLE can eventually exhaust its budget. Keep this transition ahead of
+ * every accepted dispatch/defer path so .running can correlate task state with
+ * the task telemetry generation written by record_accepted_legacy(). */
+static __always_inline void sync_task_state_for_action(
+    struct bridge_task_state *state, uint64_t generation, uint32_t action,
+    uint32_t requested_cpu, uint64_t now)
+{
+    if (!state)
+        return;
+    bpf_spin_lock(&state->lock);
+    if (state->generation != generation || state->action != action) {
+        state->generation = generation;
+        state->period_start_ns = now;
+        state->runtime_used_ns = 0;
+        state->running_since_ns = 0;
+        state->eligible_ns = 0;
+        state->action = action;
+        state->requested_cpu = requested_cpu;
+        state->dispatched_cpu = ORCHESTRA_CPU_ANY;
+        state->flags = 0;
+    }
+    state->last_enqueue_ns = now;
+    bpf_spin_unlock(&state->lock);
+}
+
 static __always_inline struct bridge_task_telemetry *get_task_tel(
     const struct orchestra_task_identity *id, int create)
 {
@@ -1377,12 +1883,15 @@ static ORCHESTRA_NOINLINE void orchestra_record_result(
 {
     struct orchestra_task_hot_v8 *hot = get_task_hot_v8(id, 1);
     struct orchestra_task_diag_v8 *diag = get_task_diag_v8(id, 1);
+    struct orchestra_task_coord_v10 *coord_task = get_task_coord_v10(id, 1);
     struct orchestra_runtime_state_v8 *runtime;
     struct orchestra_telemetry_v8 *tel = global_v8_tel();
     uint32_t zero = 0;
     uint64_t signal_generation = 0;
     uint64_t now = bpf_ktime_get_ns();
     uint32_t previous_action = ORCHESTRA_ACTION_RUN;
+    uint32_t coordination_previous_action = ORCHESTRA_ACTION_RUN;
+    uint32_t coordination_previous_policy_state = 0;
     uint64_t previous_policy_generation = 0;
     uint64_t previous_signal_generation = 0;
     uint64_t previous_controller_generation = 0;
@@ -1409,7 +1918,7 @@ static ORCHESTRA_NOINLINE void orchestra_record_result(
         previous_controller_generation = hot->controller_generation;
         hot->signal_generation = signal_generation;
         hot->policy_generation = dir->policy_generation;
-        hot->controller_generation = dir->state_generation;
+        hot->controller_generation = dir->controller_generation;
         hot->policy_index = state_index;
         previous_action = hot->current_action;
         action_changed = previous_action != dir->action;
@@ -1433,7 +1942,8 @@ static ORCHESTRA_NOINLINE void orchestra_record_result(
         else
             hot->sleep_deadline_ns = 0;
         if (dir->action == ORCHESTRA_ACTION_THROTTLE)
-            hot->throttle_deadline_ns = now + dir->throttle_period_ns;
+            hot->throttle_deadline_ns = orchestra_controller_deadline_v10(
+                now, dir->throttle_period_ns);
         else
             hot->throttle_deadline_ns = 0;
         if (source == ORCHESTRA_DECISION_SOURCE_POLICY &&
@@ -1483,9 +1993,40 @@ static ORCHESTRA_NOINLINE void orchestra_record_result(
             diag->repeated_yield_guard_count++;
         bpf_spin_unlock(&diag->lock);
     }
+    if (coord_task) {
+        bpf_spin_lock(&coord_task->lock);
+        coordination_previous_action = coord_task->current_action;
+        coordination_previous_policy_state = coord_task->policy_state;
+        coord_task->magic = ORCHESTRA_ABI_MAGIC;
+        coord_task->abi_version = ORCHESTRA_CONTROL_ABI_VERSION;
+        coord_task->value_size = sizeof(*coord_task);
+        coord_task->schema_version = ORCHESTRA_COORD_SCHEMA_VERSION;
+        coord_task->tgid = id->tgid;
+        coord_task->tid = id->tid;
+        coord_task->start_boottime_ns = id->start_boottime_ns;
+        coord_task->policy_state = state_index;
+        coord_task->previous_policy_state = coordination_previous_policy_state;
+        coord_task->policy_selected_action =
+            dir->policy_selected_action < ORCHESTRA_ACTION_COUNT ?
+                dir->policy_selected_action : dir->action;
+        coord_task->controller_adjusted_action =
+            dir->controller_adjusted_action < ORCHESTRA_ACTION_COUNT ?
+                dir->controller_adjusted_action : dir->action;
+        coord_task->capability_adjusted_action =
+            dir->capability_adjusted_action < ORCHESTRA_ACTION_COUNT ?
+                dir->capability_adjusted_action : dir->action;
+        /* Execution is recorded after dispatch.  Until then this field is an
+         * explicit sentinel and cannot be mistaken for an effective action. */
+        coord_task->actual_executed_action = ORCHESTRA_ACTION_COUNT;
+        coord_task->previous_action = coordination_previous_action;
+        coord_task->current_action = dir->action;
+        coord_task->last_fallback_reason = fallback_reason;
+        coord_task->last_decision_ns = now;
+        bpf_spin_unlock(&coord_task->lock);
+    }
     if (tel) {
         if (previous_controller_generation != 0 &&
-            previous_controller_generation != dir->generation)
+            previous_controller_generation != dir->controller_generation)
             tel8_inc(&tel->state_generation_change_count);
         if (previous_policy_generation != 0 &&
             previous_policy_generation != dir->policy_generation)
@@ -1514,8 +2055,16 @@ static ORCHESTRA_NOINLINE void orchestra_record_execution_v8(
 {
     struct orchestra_task_hot_v8 *hot = get_task_hot_v8(id, 0);
     struct orchestra_task_diag_v8 *diag = get_task_diag_v8(id, 0);
+    struct orchestra_task_coord_v10 *coord_task = get_task_coord_v10(id, 0);
     struct orchestra_telemetry_v8 *tel = global_v8_tel();
     uint64_t now = bpf_ktime_get_ns();
+    uint32_t policy_action = action;
+    uint32_t capability_action = action;
+    uint32_t controller_action = action;
+    uint32_t state_index = 0;
+    uint32_t previous_policy_state = 0;
+    uint32_t previous_action = ORCHESTRA_ACTION_RUN;
+    uint32_t fallback_reason = BRIDGE_FALLBACK_NONE;
 
     if (hot) {
         bpf_spin_lock(&hot->lock);
@@ -1533,6 +2082,48 @@ static ORCHESTRA_NOINLINE void orchestra_record_execution_v8(
             diag->migration_success_count++;
         bpf_spin_unlock(&diag->lock);
     }
+    if (coord_task) {
+        bpf_spin_lock(&coord_task->lock);
+        policy_action = coord_task->policy_selected_action;
+        controller_action = coord_task->controller_adjusted_action;
+        capability_action = coord_task->capability_adjusted_action;
+        state_index = coord_task->policy_state;
+        previous_policy_state = coord_task->previous_policy_state;
+        previous_action = coord_task->previous_action;
+        fallback_reason = coord_task->last_fallback_reason;
+        coord_task->actual_executed_action = action;
+        coord_task->last_execution_ns = now;
+        if (action == ORCHESTRA_ACTION_MIGRATE) {
+            coord_task->last_migration_ns = now;
+            coord_task->last_migration_target = cpu < 0 ?
+                ORCHESTRA_CPU_ANY : (uint32_t)cpu;
+        }
+        bpf_spin_unlock(&coord_task->lock);
+    }
+#ifdef __BPF__
+    {
+        struct orchestra_coord_action_context action_context = {
+            .state = NULL,
+            .policy_action = policy_action,
+            .controller_action = controller_action,
+            .capability_action = capability_action,
+            .actual_action = action,
+            .state_index = state_index,
+            .previous_action = previous_action,
+            .previous_policy_state = previous_policy_state,
+            .fallback_reason = fallback_reason,
+        };
+
+        orchestra_coord_record_action(&action_context, now);
+    }
+#else
+    orchestra_coord_record_action(policy_action, controller_action,
+                                  capability_action, action, state_index,
+                                  previous_action, previous_policy_state,
+                                  fallback_reason, now);
+#endif
+    orchestra_coord_record_execution(policy_action, capability_action, action,
+                                     now);
     if (tel)
         tel8_action_inc(tel->action_executed_count, action);
 }
@@ -1605,6 +2196,25 @@ static __always_inline void record_accepted(
     bpf_spin_unlock(&task_tel->lock);
 }
 
+static __always_inline void record_accepted_legacy(
+    const struct orchestra_task_identity *id, uint64_t generation,
+    uint32_t action, uint32_t target_cpu)
+{
+    struct bridge_task_telemetry *task_tel = get_task_tel(id, 1);
+    uint64_t now = bpf_ktime_get_ns();
+
+    if (!task_tel)
+        return;
+    bpf_spin_lock(&task_tel->lock);
+    task_tel->generation = generation;
+    task_tel->action = action;
+    task_tel->requested_cpu = target_cpu;
+    task_tel->accepted_ns = now;
+    task_tel->accepted_count++;
+    task_tel->fallback_reason = BRIDGE_FALLBACK_NONE;
+    bpf_spin_unlock(&task_tel->lock);
+}
+
 static __always_inline void record_dispatched(
     const struct orchestra_task_identity *id, uint64_t generation,
     uint32_t action, int32_t cpu, uint32_t migration_outcome)
@@ -1615,6 +2225,35 @@ static __always_inline void record_dispatched(
 
     if (tel)
         tel_inc(&tel->dispatched_action_count);
+    if (task_tel) {
+        bpf_spin_lock(&task_tel->lock);
+        task_tel->generation = generation;
+        task_tel->action = action;
+        task_tel->dispatched_cpu = cpu;
+        task_tel->dispatched_ns = now;
+        task_tel->dispatched_count++;
+        bpf_spin_unlock(&task_tel->lock);
+    }
+    orchestra_record_execution_v8(id, action, cpu, migration_outcome);
+}
+
+static __always_inline void record_dispatched_legacy(
+    const struct orchestra_task_identity *id, uint64_t generation,
+    uint32_t action, int32_t cpu)
+{
+    struct bridge_telemetry *tel = global_tel();
+    struct bridge_task_telemetry *task_tel = get_task_tel(id, 1);
+    uint64_t now = bpf_ktime_get_ns();
+
+    if (tel) {
+        tel_inc(&tel->dispatched_action_count);
+        if (action == ORCHESTRA_ACTION_RUN)
+            tel_inc(&tel->run_dispatched_count);
+        else if (action == ORCHESTRA_ACTION_YIELD)
+            tel_inc(&tel->yield_dispatched_count);
+        else if (action == ORCHESTRA_ACTION_MIGRATE)
+            tel_inc(&tel->migrate_dispatched_count);
+    }
     if (!task_tel)
         return;
     bpf_spin_lock(&task_tel->lock);
@@ -1624,7 +2263,160 @@ static __always_inline void record_dispatched(
     task_tel->dispatched_ns = now;
     task_tel->dispatched_count++;
     bpf_spin_unlock(&task_tel->lock);
-    orchestra_record_execution_v8(id, action, cpu, migration_outcome);
+}
+
+static ORCHESTRA_NOINLINE int orchestra_enqueue_deferred_action(
+    struct task_struct *p, uint64_t enq_flags,
+    const struct bridge_run_directive *directive);
+
+static ORCHESTRA_NOINLINE int orchestra_apply_active_policy(
+    struct bridge_run_directive *directive)
+{
+    struct orchestra_runtime_state_v8 *runtime;
+    struct orchestra_policy_meta_v8 *meta;
+    struct orchestra_policy_entry_v8 *entry;
+    struct orchestra_telemetry_v8 *tel = global_v8_tel();
+    uint32_t key = 0;
+    uint32_t entry_key;
+    uint32_t state_index;
+    uint32_t active_bank;
+    uint32_t entry_count;
+    uint32_t controller_state;
+    uint32_t policy_mode;
+    uint64_t policy_generation;
+    uint32_t action;
+    uint32_t target_cpu;
+    uint32_t flags;
+    uint64_t slice_ns;
+    uint64_t not_before_ns;
+    uint64_t throttle_period_ns;
+    uint64_t throttle_budget_ns;
+
+    runtime = bpf_map_lookup_elem(&orch_runtime_v8, &key);
+    if (!runtime)
+        return 0;
+    bpf_spin_lock(&runtime->lock);
+    state_index = runtime->state_index;
+    bpf_spin_unlock(&runtime->lock);
+    meta = bpf_map_lookup_elem(&orch_meta_v8, &key);
+    if (!meta)
+        return 0;
+    bpf_spin_lock(&meta->lock);
+    active_bank = meta->active_bank;
+    entry_count = meta->entry_count;
+    controller_state = meta->controller_state;
+    policy_mode = meta->policy_mode;
+    policy_generation = meta->policy_generation;
+    flags = meta->flags;
+    bpf_spin_unlock(&meta->lock);
+    if (!(flags & ORCHESTRA_POLICY_META_V8_F_ACTIVE_VALID) ||
+        active_bank >= ORCHESTRA_KERNEL_POLICY_BANK_COUNT ||
+        state_index >= entry_count ||
+        entry_count > ORCHESTRA_KERNEL_MAX_POLICY_STATES)
+        return 0;
+    entry_key = active_bank * ORCHESTRA_KERNEL_MAX_POLICY_STATES + state_index;
+    entry = bpf_map_lookup_elem(&orch_entry_v8, &entry_key);
+    if (!entry)
+        return 0;
+    bpf_spin_lock(&entry->lock);
+    action = entry->action;
+    target_cpu = entry->target_cpu;
+    slice_ns = entry->slice_ns;
+    not_before_ns = entry->not_before_ns;
+    throttle_period_ns = entry->throttle_period_ns;
+    throttle_budget_ns = entry->throttle_budget_ns;
+    flags = entry->flags;
+    bpf_spin_unlock(&entry->lock);
+    if (!(flags & ORCHESTRA_POLICY_V8_F_VALID) ||
+        action >= ORCHESTRA_ACTION_COUNT ||
+        !action_allowed(action, controller_state)) {
+        if (tel)
+            tel8_inc(&tel->policy_fallback_count);
+        return 0;
+    }
+    directive->action = action;
+    directive->target_cpu = target_cpu;
+    directive->slice_ns = slice_ns;
+    directive->not_before_ns = not_before_ns;
+    directive->throttle_period_ns = throttle_period_ns;
+    directive->throttle_budget_ns = throttle_budget_ns;
+    directive->controller_state = controller_state;
+    directive->policy_mode = policy_mode;
+    directive->policy_generation = policy_generation;
+    if (tel)
+        tel8_inc(&tel->policy_lookup_count);
+    return 1;
+}
+
+static __always_inline void orchestra_enqueue_bridge(
+    struct task_struct *p, uint64_t enq_flags)
+{
+    struct bridge_run_directive directive = {};
+    struct orchestra_task_identity id = task_identity(p);
+    struct bridge_task_state *state;
+    struct bridge_telemetry *tel = global_tel();
+    uint32_t fallback_reason = BRIDGE_FALLBACK_NO_DIRECTIVE;
+    uint32_t action;
+    uint64_t now;
+
+    if (!load_bridge_run_directive(p, &directive, &fallback_reason)) {
+        orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, BRIDGE_SLICE_RUN_NS,
+                             enq_flags);
+        return;
+    }
+    orchestra_apply_active_policy(&directive);
+
+    record_accepted_legacy(&id, directive.generation, directive.action,
+                           directive.target_cpu);
+    action = directive.action;
+    if (action == ORCHESTRA_ACTION_MIGRATE &&
+        !cpu_allowed_online(p, directive.target_cpu)) {
+        if (tel)
+            tel_inc(&tel->invalid_cpu_count);
+        record_fallback(&id, BRIDGE_FALLBACK_BAD_CPU, 1);
+        action = ORCHESTRA_ACTION_RUN;
+    }
+    if (action == ORCHESTRA_ACTION_SLEEP ||
+        action == ORCHESTRA_ACTION_THROTTLE) {
+        if (orchestra_enqueue_deferred_action(p, enq_flags, &directive))
+            return;
+    }
+    if (action != ORCHESTRA_ACTION_RUN &&
+        action != ORCHESTRA_ACTION_YIELD &&
+        action != ORCHESTRA_ACTION_MIGRATE) {
+        record_fallback(&id, BRIDGE_FALLBACK_UNSUPPORTED_ACTION, 1);
+        action = ORCHESTRA_ACTION_RUN;
+    }
+    now = bpf_ktime_get_ns();
+    state = get_task_state(&id, 1);
+    if (!state) {
+        record_fallback(&id, BRIDGE_FALLBACK_MAP_ERROR, 1);
+        orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, BRIDGE_SLICE_RUN_NS,
+                             enq_flags);
+        record_dispatched_legacy(&id, directive.generation,
+                                 ORCHESTRA_ACTION_RUN, -1);
+        return;
+    }
+    sync_task_state_for_action(state, directive.generation, action,
+                               directive.target_cpu, now);
+    if (action == ORCHESTRA_ACTION_YIELD) {
+        orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, BRIDGE_SLICE_MIN_NS,
+                             enq_flags & ~SCX_ENQ_HEAD);
+        record_dispatched_legacy(&id, directive.generation, action, -1);
+        return;
+    }
+    if (action == ORCHESTRA_ACTION_MIGRATE) {
+        if (tel)
+            tel_inc(&tel->migrate_accepted_count);
+        orchestra_dsq_insert(p, SCX_DSQ_LOCAL_ON | directive.target_cpu,
+                             clamp_slice(directive.slice_ns), enq_flags);
+        record_dispatched_legacy(&id, directive.generation, action,
+                                 (int32_t)directive.target_cpu);
+        return;
+    }
+    orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, clamp_slice(directive.slice_ns),
+                         enq_flags);
+    record_dispatched_legacy(&id, directive.generation, action, -1);
 }
 
 static __always_inline void retire_released_sleep_directive(
@@ -1650,6 +2442,38 @@ static __always_inline void retire_released_sleep_directive(
         dir->throttle_budget_ns = 0;
     }
     bpf_spin_unlock(&dir->lock);
+}
+
+/* A deferred entry outlives the enqueue callback that accepted it.  Re-read
+ * the complete directive at release time so a clear, replacement, expiry, or
+ * controller transition cannot cause the timer to execute an old action.  A
+ * false result is deliberately handled by the caller as a work-conserving
+ * RUN fallback. */
+static __always_inline int deferred_directive_is_current(
+    struct task_struct *p, uint64_t generation, uint32_t action,
+    uint64_t eligible_ns, uint64_t now, uint32_t *reason)
+{
+    struct directive_snapshot current = {};
+    uint32_t current_reason = BRIDGE_FALLBACK_UNSTABLE_PUBLICATION;
+
+    if (!reason)
+        return 0;
+    *reason = current_reason;
+    if (!load_directive(p, &current, &current_reason)) {
+        *reason = current_reason;
+        return 0;
+    }
+    if (current.generation != generation || current.action != action) {
+        *reason = BRIDGE_FALLBACK_UNSTABLE_PUBLICATION;
+        return 0;
+    }
+    if (action == ORCHESTRA_ACTION_SLEEP &&
+        (current.not_before_ns != eligible_ns || current.not_before_ns > now)) {
+        *reason = BRIDGE_FALLBACK_UNSTABLE_PUBLICATION;
+        return 0;
+    }
+    *reason = BRIDGE_FALLBACK_NONE;
+    return 1;
 }
 
 static __always_inline void dispatch_run(struct task_struct *p,
@@ -1688,6 +2512,145 @@ static __always_inline int defer_task(
     return 1;
 }
 
+static ORCHESTRA_NOINLINE int orchestra_enqueue_deferred_action(
+    struct task_struct *p, uint64_t enq_flags,
+    const struct bridge_run_directive *directive)
+{
+    struct orchestra_task_identity id = task_identity(p);
+    struct bridge_task_state *state = get_task_state(&id, 1);
+    struct bridge_telemetry *tel = global_tel();
+    uint64_t now = bpf_ktime_get_ns();
+    uint64_t period;
+    uint64_t budget;
+    uint64_t elapsed;
+    uint64_t used;
+    uint64_t eligible_ns;
+    uint64_t slice;
+
+    if (!state)
+        goto map_error;
+    if (directive->action == ORCHESTRA_ACTION_SLEEP) {
+        if (directive->not_before_ns <= now ||
+            directive->not_before_ns - now > BRIDGE_SLEEP_MAX_NS)
+            goto bad_parameters;
+        sync_task_state_for_action(state, directive->generation,
+                                   directive->action,
+                                   directive->target_cpu, now);
+        if (tel) {
+            tel_inc(&tel->sleep_accepted_count);
+            tel_inc(&tel->sleep_deferred_count);
+        }
+        if (!defer_task(p, &id, state, directive->not_before_ns,
+                        directive->generation, directive->action, enq_flags))
+            goto map_error;
+        orchestra_record_defer_v8(&id, directive->action,
+                                  directive->not_before_ns);
+        return 1;
+    }
+    if (directive->action != ORCHESTRA_ACTION_THROTTLE)
+        return 0;
+
+    period = directive->throttle_period_ns;
+    budget = directive->throttle_budget_ns;
+    if (period < BRIDGE_SLICE_MIN_NS || period > BRIDGE_THROTTLE_MAX_NS ||
+        budget < BRIDGE_SLICE_MIN_NS || budget >= period)
+        goto bad_parameters;
+    sync_task_state_for_action(state, directive->generation,
+                               directive->action, directive->target_cpu,
+                               now);
+    if (tel)
+        tel_inc(&tel->throttle_accepted_count);
+    bpf_spin_lock(&state->lock);
+    elapsed = now - state->period_start_ns;
+    if (elapsed >= period) {
+        state->period_start_ns = now;
+        state->runtime_used_ns = 0;
+    }
+    used = state->runtime_used_ns;
+    eligible_ns = state->period_start_ns + period;
+    bpf_spin_unlock(&state->lock);
+    if (used >= budget) {
+        bpf_spin_lock(&state->lock);
+        state->flags |= BRIDGE_TASK_F_THROTTLED;
+        bpf_spin_unlock(&state->lock);
+        if (tel)
+            tel_inc(&tel->throttle_deferred_count);
+        if (!defer_task(p, &id, state, eligible_ns,
+                        directive->generation, directive->action, enq_flags))
+            goto map_error;
+        orchestra_record_defer_v8(&id, directive->action, eligible_ns);
+        return 1;
+    }
+    slice = clamp_slice(directive->slice_ns);
+    if (slice > budget - used)
+        slice = budget - used;
+    orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, slice, enq_flags);
+    record_dispatched_legacy(&id, directive->generation,
+                             directive->action, -1);
+    return 1;
+
+bad_parameters:
+    sync_task_state_for_action(state, directive->generation,
+                               ORCHESTRA_ACTION_RUN,
+                               directive->target_cpu, now);
+    record_fallback(&id, BRIDGE_FALLBACK_BAD_PARAMETERS, 1);
+    orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, BRIDGE_SLICE_RUN_NS, enq_flags);
+    record_dispatched_legacy(&id, directive->generation,
+                             ORCHESTRA_ACTION_RUN, -1);
+    return 1;
+
+map_error:
+    sync_task_state_for_action(state, directive->generation,
+                               ORCHESTRA_ACTION_RUN,
+                               directive->target_cpu, now);
+    record_fallback(&id, BRIDGE_FALLBACK_MAP_ERROR, 1);
+    orchestra_dsq_insert(p, SCX_DSQ_GLOBAL, BRIDGE_SLICE_RUN_NS, enq_flags);
+    record_dispatched_legacy(&id, directive->generation,
+                             ORCHESTRA_ACTION_RUN, -1);
+    return 1;
+}
+
+static ORCHESTRA_NOINLINE void orchestra_finish_deferred_action(
+    struct task_struct *p, int32_t cpu)
+{
+    struct orchestra_task_identity id = task_identity(p);
+    struct bridge_task_state *state = get_task_state(&id, 0);
+    struct bridge_task_telemetry *task_tel = get_task_tel(&id, 0);
+    struct bridge_telemetry *tel = global_tel();
+    uint64_t generation = 0;
+    uint64_t now = bpf_ktime_get_ns();
+    uint32_t action = ORCHESTRA_ACTION_RUN;
+
+    if (state) {
+        bpf_spin_lock(&state->lock);
+        generation = state->generation;
+        action = state->action;
+        state->flags &= ~(BRIDGE_TASK_F_DEFERRED |
+                          BRIDGE_TASK_F_THROTTLED);
+        state->eligible_ns = 0;
+        state->dispatched_cpu = (uint32_t)cpu;
+        bpf_spin_unlock(&state->lock);
+    }
+    if (action == ORCHESTRA_ACTION_SLEEP)
+        retire_released_sleep_directive(&id, generation);
+    if (tel)
+        tel_inc(&tel->dispatched_action_count);
+    if (task_tel) {
+        bpf_spin_lock(&task_tel->lock);
+        task_tel->generation = generation;
+        task_tel->action = action;
+        task_tel->dispatched_cpu = cpu;
+        task_tel->dispatched_ns = now;
+        task_tel->dispatched_count++;
+        if (action == ORCHESTRA_ACTION_SLEEP ||
+            action == ORCHESTRA_ACTION_THROTTLE)
+            task_tel->effective_count++;
+        bpf_spin_unlock(&task_tel->lock);
+    }
+    orchestra_record_execution_v8(&id, action, cpu,
+                                  ORCHESTRA_MIGRATE_V8_NONE);
+}
+
 static __always_inline void orchestra_execute_action(
     struct task_struct *p, uint64_t enq_flags,
     const struct directive_snapshot *dir, int have_directive,
@@ -1718,6 +2681,9 @@ static __always_inline void orchestra_execute_action(
     if (!state) {
         record_fallback(&id, BRIDGE_FALLBACK_MAP_ERROR, 1);
         dispatch_run(p, enq_flags, direct_local, selected_cpu);
+        orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                       direct_local ? selected_cpu : -1,
+                                       dir->migration_outcome);
         return;
     }
     bpf_spin_lock(&state->lock);
@@ -1769,6 +2735,9 @@ static __always_inline void orchestra_execute_action(
             dir->not_before_ns - now > BRIDGE_SLEEP_MAX_NS) {
             record_fallback(&id, BRIDGE_FALLBACK_BAD_PARAMETERS, 1);
             dispatch_run(p, enq_flags, direct_local, selected_cpu);
+            orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                           direct_local ? selected_cpu : -1,
+                                           dir->migration_outcome);
             return;
         }
         if (tel) {
@@ -1779,6 +2748,9 @@ static __always_inline void orchestra_execute_action(
                         dir->generation, dir->action, enq_flags)) {
             record_fallback(&id, BRIDGE_FALLBACK_MAP_ERROR, 1);
             dispatch_run(p, enq_flags, direct_local, selected_cpu);
+            orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                           direct_local ? selected_cpu : -1,
+                                           dir->migration_outcome);
         } else {
             orchestra_record_defer_v8(&id, dir->action, dir->not_before_ns);
         }
@@ -1794,6 +2766,9 @@ static __always_inline void orchestra_execute_action(
             budget < BRIDGE_SLICE_MIN_NS || budget >= period) {
             record_fallback(&id, BRIDGE_FALLBACK_BAD_PARAMETERS, 1);
             dispatch_run(p, enq_flags, direct_local, selected_cpu);
+            orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                           direct_local ? selected_cpu : -1,
+                                           dir->migration_outcome);
             return;
         }
         if (tel)
@@ -1820,6 +2795,9 @@ static __always_inline void orchestra_execute_action(
                             dir->generation, dir->action, enq_flags)) {
                 record_fallback(&id, BRIDGE_FALLBACK_MAP_ERROR, 1);
                 dispatch_run(p, enq_flags, direct_local, selected_cpu);
+                orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                               direct_local ? selected_cpu : -1,
+                                               dir->migration_outcome);
             } else {
                 orchestra_record_defer_v8(&id, dir->action, elapsed);
             }
@@ -1847,6 +2825,8 @@ static __always_inline void orchestra_execute_action(
             /* A target which became illegal between selection and insertion
              * must not receive a LOCAL direct dispatch. */
             dispatch_run(p, enq_flags, 0, -1);
+            orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN, -1,
+                                           dir->migration_outcome);
             return;
         }
         if (tel)
@@ -1882,11 +2862,16 @@ static __always_inline void orchestra_execute_action(
             tel_inc(&tel->invalid_action_count);
         record_fallback(&id, BRIDGE_FALLBACK_BAD_ACTION, 1);
         dispatch_run(p, enq_flags, direct_local, selected_cpu);
+        orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN,
+                                       direct_local ? selected_cpu : -1,
+                                       dir->migration_outcome);
         return;
     }
 }
 
-static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
+#if 0
+static int deferred_timerfn_legacy(
+    void *map, int *key, struct bpf_timer *timer)
 {
     struct task_struct *p;
     struct bridge_telemetry *global = global_tel();
@@ -1902,6 +2887,7 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
         struct bridge_task_telemetry *task_tel;
         uint64_t generation;
         uint64_t old_runtime = 0;
+        uint64_t old_eligible = 0;
         uint32_t action;
         uint32_t old_action = ORCHESTRA_ACTION_RUN;
         uint32_t old_cpu = ORCHESTRA_CPU_ANY;
@@ -1926,6 +2912,61 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
         if (cpu < 0 || !cpu_allowed_online(p, (uint32_t)cpu)) {
             if (global)
                 tel_inc(&global->deferred_cpu_failure_count);
+            /* CPU hotplug and affinity changes can make the preferred
+             * LOCAL_ON destination disappear after the task entered the
+             * deferred DSQ.  Do not leave an expired task there forever:
+             * promote it to the reserved global RUN queue, which lets the
+             * sched_ext core select any currently legal CPU. */
+            task_tel = get_task_tel(&id, 0);
+            if (state) {
+                bpf_spin_lock(&state->lock);
+                generation = state->generation;
+                old_flags = state->flags;
+                old_cpu = state->dispatched_cpu;
+                old_action = state->action;
+                old_runtime = state->runtime_used_ns;
+                old_eligible = state->eligible_ns;
+                state->flags &= ~(BRIDGE_TASK_F_DEFERRED |
+                                  BRIDGE_TASK_F_THROTTLED);
+                state->action = ORCHESTRA_ACTION_RUN;
+                state->eligible_ns = 0;
+                state->runtime_used_ns = 0;
+                state->dispatched_cpu = ORCHESTRA_CPU_ANY;
+                bpf_spin_unlock(&state->lock);
+            }
+            if (orchestra_dsq_move_from_dsq(
+                    BPF_FOR_EACH_ITER, p, SCX_DSQ_GLOBAL, 0)) {
+                if (old_action == ORCHESTRA_ACTION_SLEEP)
+                    retire_released_sleep_directive(&id, generation);
+                record_fallback(&id, BRIDGE_FALLBACK_BAD_CPU, 1);
+                if (global) {
+                    tel_inc(&global->deferred_release_count);
+                    tel_inc(&global->run_dispatched_count);
+                }
+                if (task_tel) {
+                    bpf_spin_lock(&task_tel->lock);
+                    task_tel->generation = generation;
+                    task_tel->action = ORCHESTRA_ACTION_RUN;
+                    task_tel->dispatched_cpu = ORCHESTRA_CPU_ANY;
+                    task_tel->dispatched_ns = now;
+                    task_tel->dispatched_count++;
+                    bpf_spin_unlock(&task_tel->lock);
+                }
+                orchestra_record_execution_v8(&id, ORCHESTRA_ACTION_RUN, -1,
+                                              ORCHESTRA_MIGRATE_V8_NONE);
+            } else if (state) {
+                /* Preserve the previous state if the defensive promotion
+                 * itself fails; the next timer tick may have a legal CPU. */
+                bpf_spin_lock(&state->lock);
+                state->flags = old_flags;
+                state->dispatched_cpu = old_cpu;
+                state->action = old_action;
+                state->runtime_used_ns = old_runtime;
+                state->eligible_ns = old_eligible;
+                bpf_spin_unlock(&state->lock);
+                if (global)
+                    tel_inc(&global->deferred_release_failure_count);
+            }
             continue;
         }
         generation = 0;
@@ -1941,6 +2982,7 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
             old_cpu = state->dispatched_cpu;
             old_action = state->action;
             old_runtime = state->runtime_used_ns;
+            old_eligible = state->eligible_ns;
             state->flags &= ~(BRIDGE_TASK_F_DEFERRED |
                               BRIDGE_TASK_F_THROTTLED);
             state->dispatched_cpu = (uint32_t)cpu;
@@ -1950,6 +2992,60 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
                 action = ORCHESTRA_ACTION_RUN;
             }
             bpf_spin_unlock(&state->lock);
+        }
+        {
+            uint32_t deferred_reason = BRIDGE_FALLBACK_UNSTABLE_PUBLICATION;
+
+            if (!deferred_directive_is_current(
+                    p, generation, action, old_eligible, now,
+                    &deferred_reason)) {
+                /* The directive may have been cleared or replaced while the
+                 * task waited in the deferred DSQ.  Release it as RUN rather
+                 * than executing an untrusted/stale action. */
+                if (state) {
+                    bpf_spin_lock(&state->lock);
+                    state->flags &= ~(BRIDGE_TASK_F_DEFERRED |
+                                      BRIDGE_TASK_F_THROTTLED);
+                    state->action = ORCHESTRA_ACTION_RUN;
+                    state->eligible_ns = 0;
+                    state->runtime_used_ns = 0;
+                    state->dispatched_cpu = ORCHESTRA_CPU_ANY;
+                    bpf_spin_unlock(&state->lock);
+                }
+                if (orchestra_dsq_move_from_dsq(
+                        BPF_FOR_EACH_ITER, p, SCX_DSQ_GLOBAL, 0)) {
+                    if (old_action == ORCHESTRA_ACTION_SLEEP)
+                        retire_released_sleep_directive(&id, generation);
+                    record_fallback(&id, deferred_reason, 1);
+                    if (global) {
+                        tel_inc(&global->deferred_release_count);
+                        tel_inc(&global->run_dispatched_count);
+                    }
+                    if (task_tel) {
+                        bpf_spin_lock(&task_tel->lock);
+                        task_tel->generation = generation;
+                        task_tel->action = ORCHESTRA_ACTION_RUN;
+                        task_tel->dispatched_cpu = ORCHESTRA_CPU_ANY;
+                        task_tel->dispatched_ns = now;
+                        task_tel->dispatched_count++;
+                        bpf_spin_unlock(&task_tel->lock);
+                    }
+                    orchestra_record_execution_v8(
+                        &id, ORCHESTRA_ACTION_RUN, -1,
+                        ORCHESTRA_MIGRATE_V8_NONE);
+                } else if (state) {
+                    bpf_spin_lock(&state->lock);
+                    state->flags = old_flags;
+                    state->dispatched_cpu = old_cpu;
+                    state->action = old_action;
+                    state->runtime_used_ns = old_runtime;
+                    state->eligible_ns = old_eligible;
+                    bpf_spin_unlock(&state->lock);
+                    if (global)
+                        tel_inc(&global->deferred_release_failure_count);
+                }
+                continue;
+            }
         }
         if (orchestra_dsq_move_from_dsq(
                 BPF_FOR_EACH_ITER, p, SCX_DSQ_LOCAL_ON | cpu, 0)) {
@@ -1993,13 +3089,74 @@ static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
         scx_bpf_error("ORCHESTRA deferred timer re-arm failed");
     return 0;
 }
+#endif
+
+static int deferred_timerfn(void *map, int *key, struct bpf_timer *timer)
+{
+    struct task_struct *p;
+    struct bridge_telemetry *global = global_tel();
+    uint64_t now = bpf_ktime_get_ns();
+    uint32_t scanned = 0;
+
+    (void)map;
+    (void)key;
+    if (global)
+        tel_inc(&global->deferred_timer_tick_count);
+    bpf_rcu_read_lock();
+    bpf_for_each(scx_dsq, p, BRIDGE_DEFERRED_DSQ, 0) {
+        int32_t cpu;
+
+        if (scanned++ >= BRIDGE_DEFER_SCAN_MAX)
+            break;
+        if (global)
+            tel_inc(&global->deferred_timer_scanned_count);
+        if (p->scx.dsq_vtime > now) {
+            if (global)
+                tel_inc(&global->deferred_timer_future_count);
+            break;
+        }
+        cpu = scx_bpf_pick_any_cpu(p->cpus_ptr, 0);
+        if (cpu < 0 || !orchestra_dsq_move_from_dsq(
+                BPF_FOR_EACH_ITER, p, SCX_DSQ_LOCAL_ON | cpu, 0)) {
+            if (global)
+                tel_inc(&global->deferred_release_failure_count);
+            continue;
+        }
+        orchestra_finish_deferred_action(p, cpu);
+        if (global) {
+            tel_inc(&global->deferred_release_count);
+        }
+        scx_bpf_kick_cpu(cpu, SCX_KICK_IDLE);
+    }
+    bpf_rcu_read_unlock();
+    if (bpf_timer_start(timer, BRIDGE_DEFER_TICK_NS, 0) != 0)
+        scx_bpf_error("ORCHESTRA deferred timer re-arm failed");
+    return 0;
+}
+
+static ORCHESTRA_NOINLINE int orchestra_start_deferred_timer(uint32_t key)
+{
+    struct bridge_defer_timer *defer;
+    int ret;
+
+    defer = bpf_map_lookup_elem(&orch_defer_tmr, &key);
+    if (!defer)
+        return -ESRCH;
+    ret = bpf_timer_init(&defer->timer, &orch_defer_tmr, CLOCK_MONOTONIC);
+    if (ret)
+        return ret;
+    ret = bpf_timer_set_callback(&defer->timer, deferred_timerfn);
+    if (ret)
+        return ret;
+    return bpf_timer_start(&defer->timer, BRIDGE_DEFER_TICK_NS, 0);
+}
 
 s32 BPF_STRUCT_OPS_SLEEPABLE(orchestra_sched_init)
 {
     struct bridge_control *ctl;
     struct bridge_signal_frame *signal;
-    struct bridge_defer_timer *defer;
     struct orchestra_runtime_state_v8 *runtime;
+    struct orchestra_runtime_state_v10 *runtime10;
     struct orchestra_policy_meta_v8 *meta;
     struct orchestra_telemetry_v8 *kernel_tel;
     struct bridge_telemetry *tel = global_tel();
@@ -2019,7 +3176,8 @@ s32 BPF_STRUCT_OPS_SLEEPABLE(orchestra_sched_init)
     ctl->magic = ORCHESTRA_ABI_MAGIC;
     ctl->abi_version = ORCHESTRA_ABI_VERSION;
     ctl->value_size = sizeof(*ctl);
-    ctl->capability_flags = BRIDGE_KERNEL_REQUIRED_CAPS;
+    ctl->capability_flags = ORCHESTRA_KERNEL_V10_REQUIRED_CAPS |
+                            BRIDGE_LEGACY_REQUIRED_CAPS;
     ctl->scheduler_epoch = epoch;
     ctl->last_generation = 0;
     ctl->publisher_heartbeat_ns = 0;
@@ -2112,7 +3270,7 @@ s32 BPF_STRUCT_OPS_SLEEPABLE(orchestra_sched_init)
     meta->policy_generation = 0;
     meta->previous_generation = 0;
     meta->published_ns = epoch;
-    meta->capability_flags = ORCHESTRA_KERNEL_REQUIRED_CAPS;
+    meta->capability_flags = ORCHESTRA_KERNEL_V10_REQUIRED_CAPS;
     bpf_spin_unlock(&meta->lock);
 
     kernel_tel = global_v8_tel();
@@ -2126,19 +3284,30 @@ s32 BPF_STRUCT_OPS_SLEEPABLE(orchestra_sched_init)
         ORCHESTRA_KERNEL_TELEMETRY_SCHEMA_VERSION;
     bpf_spin_unlock(&kernel_tel->lock);
 
+    runtime10 = bpf_map_lookup_elem(&orch_runtime10, &key);
+    if (!runtime10)
+        return -ESRCH;
+    bpf_spin_lock(&runtime10->lock);
+    runtime10->magic = ORCHESTRA_ABI_MAGIC;
+    runtime10->abi_version = ORCHESTRA_CONTROL_ABI_VERSION;
+    runtime10->value_size = sizeof(*runtime10);
+    runtime10->schema_version = ORCHESTRA_RUNTIME_SCHEMA_VERSION;
+    runtime10->flags = ORCHESTRA_CONTROLLER_F_VALID;
+    runtime10->scope = ORCHESTRA_COORD_SCOPE_GLOBAL;
+    runtime10->domain_id = ORCHESTRA_COORD_GLOBAL_DOMAIN_SLOT;
+    runtime10->scheduler_epoch = epoch;
+    runtime10->controller_state = ORCHESTRA_CTRL_NORMAL;
+    runtime10->controller_flags = ORCHESTRA_CONTROLLER_F_VALID;
+    runtime10->controller_generation = 1;
+    runtime10->published_ns = epoch;
+    bpf_spin_unlock(&runtime10->lock);
+
+    orchestra_controller_init_v10(epoch);
+
     ret = scx_bpf_create_dsq(BRIDGE_DEFERRED_DSQ, -1);
     if (ret)
         return ret;
-    defer = bpf_map_lookup_elem(&orch_defer_tmr, &key);
-    if (!defer)
-        return -ESRCH;
-    ret = bpf_timer_init(&defer->timer, &orch_defer_tmr, CLOCK_MONOTONIC);
-    if (ret)
-        return ret;
-    ret = bpf_timer_set_callback(&defer->timer, deferred_timerfn);
-    if (ret)
-        return ret;
-    return bpf_timer_start(&defer->timer, BRIDGE_DEFER_TICK_NS, 0);
+    return orchestra_start_deferred_timer(key);
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_exit, struct scx_exit_info *ei)
@@ -2187,6 +3356,7 @@ void BPF_STRUCT_OPS(orchestra_sched_disable, struct task_struct *p)
     bpf_map_delete_elem(&orch_task_tel, &id);
     bpf_map_delete_elem(&orch_task_v8, &id);
     bpf_map_delete_elem(&orch_diag_v8, &id);
+    bpf_map_delete_elem(&orch_task_coord, &id);
     if (tel)
         tel_inc(&tel->task_disable_count);
 }
@@ -2194,57 +3364,44 @@ void BPF_STRUCT_OPS(orchestra_sched_disable, struct task_struct *p)
 s32 BPF_STRUCT_OPS(orchestra_sched_select_cpu, struct task_struct *p,
                    s32 prev_cpu, u64 wake_flags)
 {
-    struct decision_snapshot_v8 decision = {};
-    int have_decision = orchestra_decide(p, &decision);
     struct bridge_telemetry *tel = global_tel();
     bool is_idle = false;
-    s32 cpu;
+    s32 cpu = scx_bpf_select_cpu_dfl(p, prev_cpu, wake_flags, &is_idle);
 
     if (tel)
         tel_inc(&tel->select_cpu_count);
-    if (have_decision && decision.directive.action == ORCHESTRA_ACTION_MIGRATE &&
-        cpu_allowed_online(p, decision.directive.target_cpu)) {
-        cpu = (s32)decision.directive.target_cpu;
-        is_idle = scx_bpf_test_and_clear_cpu_idle(cpu);
-        /* LOCAL direct dispatch is paired with the CPU returned below. */
-        decision.directive.migration_outcome = decision.migration_outcome;
-        orchestra_execute_action(p, 0, &decision.directive, 1,
-                            decision.fallback_reason, 1, 1, cpu,
-                            decision.state_index, decision.source);
-        return cpu;
-    }
-
-    cpu = scx_bpf_select_cpu_dfl(p, prev_cpu, wake_flags, &is_idle);
-    decision.directive.migration_outcome = decision.migration_outcome;
-    orchestra_execute_action(p, 0, &decision.directive, have_decision,
-                        decision.fallback_reason,
-                        1, is_idle, cpu, decision.state_index,
-                        decision.source);
+    (void)is_idle;
     return cpu;
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_enqueue, struct task_struct *p,
                     u64 enq_flags)
 {
-    struct decision_snapshot_v8 decision = {};
-    int have_decision = orchestra_decide(p, &decision);
     struct bridge_telemetry *tel = global_tel();
 
     if (tel)
         tel_inc(&tel->enqueue_callback_count);
-    decision.directive.migration_outcome = decision.migration_outcome;
-    orchestra_execute_action(p, enq_flags, &decision.directive, have_decision,
-                        decision.fallback_reason,
-                        0, 0, -1, decision.state_index, decision.source);
+    orchestra_enqueue_bridge(p, enq_flags);
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_dispatch, s32 cpu,
                     struct task_struct *prev)
 {
+    struct orchestra_task_identity id;
+    struct runtime_snapshot_v8 *state;
     struct bridge_telemetry *tel = global_tel();
+    uint32_t key = 0;
 
     if (tel)
         tel_inc(&tel->dispatch_callback_count);
+    if (prev) {
+        id = task_identity(prev);
+        if (bpf_map_lookup_elem(&orch_directives, &id)) {
+            state = bpf_map_lookup_elem(&orch_runtime_scratch, &key);
+            if (state && orchestra_read_runtime_state(prev, state))
+                orchestra_flush_observation();
+        }
+    }
     /*
      * The core consumes SCX_DSQ_GLOBAL before invoking dispatch().
      * scx_bpf_consume() accepts only user-created non-local DSQs; passing
@@ -2342,6 +3499,8 @@ void BPF_STRUCT_OPS(orchestra_sched_running, struct task_struct *p)
         tel_inc(&tel->migrate_running_target_count);
     if (tel && migrate_other)
         tel_inc(&tel->migrate_running_other_count);
+    orchestra_record_execution_v8(&id, action, cpu,
+                                  ORCHESTRA_MIGRATE_V8_NONE);
 }
 
 void BPF_STRUCT_OPS(orchestra_sched_stopping, struct task_struct *p,

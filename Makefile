@@ -1,9 +1,56 @@
 CC ?= gcc
+ORCHESTRA_BUILD_DIR ?= /var/tmp/orchestra-os-build-$(shell id -u)
+ORCHESTRA_INCLUDE_DIR := kernel/sched_ext/include
+ORCHESTRA_BRIDGE_DIR := kernel/sched_ext/bridge
+LIBBPF_CFLAGS := $(shell pkg-config --cflags libbpf 2>/dev/null)
+LIBBPF_LIBS := $(shell pkg-config --libs libbpf 2>/dev/null || echo '-lbpf -lelf -lz')
+ORCHESTRA_HARDENING_CFLAGS ?= -D_FORTIFY_SOURCE=2 -fstack-protector-strong -fPIE
+ORCHESTRA_HARDENING_LDFLAGS ?= -Wl,-z,relro,-z,now -Wl,-z,noexecstack -pie
 
-.PHONY: all check test test-unit test-integration clean
+.PHONY: all userspace bridge product kernel-bpf check test test-unit \
+	test-integration security-test package clean clean-product
 
-all:
+all: userspace
+
+userspace:
 	$(MAKE) -C orchestra_paper_cpu_demo
+
+bridge:
+	@case "$(ORCHESTRA_BUILD_DIR)" in ""|/) echo "refusing to use the filesystem root as a build directory" >&2; exit 2 ;; /*) ;; *) echo "ORCHESTRA_BUILD_DIR must be absolute" >&2; exit 2 ;; esac
+	@case "$(ORCHESTRA_BUILD_DIR)" in $(CURDIR)|$(CURDIR)/*) echo "refusing build output inside repository" >&2; exit 2 ;; esac
+	@bash -c '. "$(CURDIR)/scripts/path_safety.sh" && orchestra_ensure_private_dir "$$1"' -- "$(ORCHESTRA_BUILD_DIR)"
+	@[ ! -L "$(ORCHESTRA_BUILD_DIR)/orchestra_bridge" ] && [ ! -L "$(ORCHESTRA_BUILD_DIR)/orchestra_loader" ]
+	$(CC) -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+		-Wformat=2 -Werror $(ORCHESTRA_HARDENING_CFLAGS) \
+		-I"$(ORCHESTRA_INCLUDE_DIR)" \
+		"$(ORCHESTRA_BRIDGE_DIR)/orchestra_bridge.c" \
+		-o "$(ORCHESTRA_BUILD_DIR)/orchestra_bridge" \
+		$(ORCHESTRA_HARDENING_LDFLAGS)
+	@if printf '#include <bpf/libbpf.h>\n' | $(CC) $(LIBBPF_CFLAGS) -E - >/dev/null 2>&1; then \
+		$(CC) -O2 -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+			-Wformat=2 -Werror $(ORCHESTRA_HARDENING_CFLAGS) \
+			$(LIBBPF_CFLAGS) -I"$(ORCHESTRA_INCLUDE_DIR)" \
+			"$(ORCHESTRA_BRIDGE_DIR)/orchestra_loader.c" \
+			-o "$(ORCHESTRA_BUILD_DIR)/orchestra_loader" \
+			$(ORCHESTRA_HARDENING_LDFLAGS) $(LIBBPF_LIBS); \
+	else \
+		echo "BLOCKED_MISSING_LIBBPF_HEADERS: bridge built; loader deferred"; \
+	fi
+	@chmod 0755 "$(ORCHESTRA_BUILD_DIR)/orchestra_bridge"
+	@if [ -e "$(ORCHESTRA_BUILD_DIR)/orchestra_loader" ]; then chmod 0755 "$(ORCHESTRA_BUILD_DIR)/orchestra_loader"; fi
+
+product: userspace bridge
+
+package:
+	@bash packaging/build-package.sh \
+		--format "$${FORMAT:-deb}" \
+		--distro "$${DISTRO:-local}" \
+		--output "$${OUTPUT:-/tmp/orchestra-os-packages}" \
+		--build-dir "$${ORCHESTRA_BUILD_DIR:-/var/tmp/orchestra-os-build-$$(id -u)}"
+
+kernel-bpf:
+	ORCHESTRA_BUILD_DIR="$(ORCHESTRA_BUILD_DIR)" \
+		bash kernel/sched_ext/scripts/build_stage7_out_of_tree.sh
 
 check:
 	$(MAKE) -C orchestra_paper_cpu_demo check
@@ -63,14 +110,27 @@ check:
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v3.json >/dev/null
 	@python3 -m json.tool experiments/manifests/paper_cpu_exploratory_v4.json >/dev/null
 	@bash -n tests/unit/run.sh tests/integration/run.sh \
+		tests/security/run.sh tests/security/test_install_paths.sh \
+		tests/security/test_artifact_bundle.sh \
+		tests/security/test_release_verifier.sh \
 		benchmarks/real-machine/benchmark_suite.sh \
 		benchmarks/real-machine/full_compare.sh \
+		benchmarks/real-machine/sanity_check.sh \
 		benchmarks/real-machine/stress_suite.sh \
 		benchmarks/stage9/benchmark_compare.sh \
 		kernel/sched_ext/scripts/build_stage7_out_of_tree.sh \
 		kernel/sched_ext/scripts/p0_ownership_retest.sh \
 		kernel/sched_ext/scripts/reproduce_stage7_runtime.sh \
 		kernel/sched_ext/scripts/stage8_validate.sh
+	@bash -n scripts/*.sh examples/*/*.sh
+	@bash -n packaging/*.sh packaging/openrc/orchestra
+	@PYTHONPYCACHEPREFIX=/tmp/orchestra-os-check-pyc \
+		python3 -m py_compile scripts/*.py
+	@for config_file in config/examples/*.json; do \
+		python3 -m json.tool "$$config_file" >/dev/null; \
+	done
+	@python3 scripts/check-doc-links.py
+	@scripts/security-scan.sh
 	@if command -v shellcheck >/dev/null 2>&1; then \
 		shellcheck tests/unit/run.sh tests/integration/run.sh; \
 	fi
@@ -81,7 +141,20 @@ test-unit:
 test-integration:
 	./tests/integration/run.sh
 
-test: check test-unit test-integration
+security-test:
+	./tests/security/run.sh
+
+test: check test-unit test-integration security-test
 
 clean:
 	$(MAKE) -C orchestra_paper_cpu_demo clean
+
+clean-product:
+	@case "$(ORCHESTRA_BUILD_DIR)" in \
+		/var/tmp/orchestra-os-build-*|/tmp/orchestra-os-build-*) ;; \
+		*) echo "refusing to remove non-product build path: $(ORCHESTRA_BUILD_DIR)" >&2; exit 2 ;; \
+	esac
+	@if [ -e "$(ORCHESTRA_BUILD_DIR)" ] || [ -L "$(ORCHESTRA_BUILD_DIR)" ]; then \
+		bash -c '. "$(CURDIR)/scripts/path_safety.sh" && orchestra_safe_existing_dir "$$1"' -- "$(ORCHESTRA_BUILD_DIR)"; \
+		rm -rf -- "$(ORCHESTRA_BUILD_DIR)"; \
+	fi

@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: ORCHESTRA-OS
+version: 1.0.1
+authors:
+  - family-names: Aether-0
+repository-code: https://github.com/Aether-0/ORCHESTRA-OS
+license: MIT
+type: software
+abstract: >-
+  Capability-tiered Linux scheduling research prototype with a safe observer
+  control plane and an explicitly opt-in target-matched sched_ext path.
